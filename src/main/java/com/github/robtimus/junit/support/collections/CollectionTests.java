@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -79,17 +80,21 @@ public interface CollectionTests<T> extends IterableTests<T> {
      * @author Rob Spoor
      * @param <T> The element type of the collection to test.
      */
-    @TestInstance(Lifecycle.PER_CLASS)
     @DisplayName("contains(Object)")
     interface ContainsTests<T> extends CollectionTests<T> {
 
-        @ParameterizedTest(name = "{0}: {1}")
-        @ArgumentsSource(ContainsArgumentsProvider.class)
+        @Test
         @DisplayName("contains(Object)")
-        default void testContains(Object o, boolean expected) {
+        default void testContains() {
             Collection<?> collection = createIterable();
 
-            assertEquals(expected, collection.contains(o));
+            for (Object o : expectedElements()) {
+                assertTrue(collection.contains(o));
+            }
+
+            for (Object o : nonContainedElements()) {
+                assertFalse(collection.contains(o));
+            }
         }
 
         @Test
@@ -139,13 +144,22 @@ public interface CollectionTests<T> extends IterableTests<T> {
     @DisplayName("containsAll(Collection)")
     interface ContainsAllTests<T> extends CollectionTests<T> {
 
-        @ParameterizedTest(name = "{0}: {1}")
-        @ArgumentsSource(ContainsAllArgumentsProvider.class)
+        @Test
         @DisplayName("containsAll(Collection)")
-        default void testContainsAll(Collection<?> c, boolean expected) {
+        default void testContainsAll() {
             Collection<?> collection = createIterable();
 
-            assertEquals(expected, collection.containsAll(c));
+            List<?> expected = new ArrayList<>(expectedElements());
+            Object nonContained = nonContainedElements().iterator().next();
+
+            for (int i = 0; i <= expected.size(); i++) {
+                assertTrue(collection.containsAll(expected.subList(0, i)));
+
+                List<Object> withNonContained = new ArrayList<>(expected.subList(0, i));
+                withNonContained.add(nonContained);
+
+                assertFalse(collection.containsAll(withNonContained));
+            }
         }
 
         @Test
@@ -570,54 +584,6 @@ public interface CollectionTests<T> extends IterableTests<T> {
             collection.clear();
 
             assertHasElements(collection, Collections.emptyList(), fixedOrder());
-        }
-    }
-
-    /**
-     * An arguments provider for {@link ContainsTests#testContains(Object, boolean)}.
-     *
-     * @author Rob Spoor
-     */
-    final class ContainsArgumentsProvider implements ArgumentsProvider {
-
-        @Override
-        public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
-            ContainsTests<?> instance = (ContainsTests<?>) context.getRequiredTestInstance();
-
-            Stream<Arguments> expected = instance.expectedElements().stream()
-                    .map(e -> arguments(e, true));
-            Stream<Arguments> notExpected = instance.nonContainedElements().stream()
-                    .map(e -> arguments(e, false));
-
-            return Stream.of(expected, notExpected)
-                    .flatMap(Function.identity());
-        }
-    }
-
-    /**
-     * An arguments provider for {@link ContainsAllTests#testContainsAll(Collection, boolean)}.
-     *
-     * @author Rob Spoor
-     */
-    final class ContainsAllArgumentsProvider implements ArgumentsProvider {
-
-        @Override
-        public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
-            ContainsAllTests<?> instance = (ContainsAllTests<?>) context.getRequiredTestInstance();
-
-            List<?> expected = new ArrayList<>(instance.expectedElements());
-            Object nonContained = instance.nonContainedElements().iterator().next();
-
-            List<Arguments> arguments = new ArrayList<>();
-            for (int i = 0; i <= expected.size(); i++) {
-                arguments.add(arguments(new ArrayList<>(expected.subList(0, i)), true));
-
-                List<Object> withNonContained = new ArrayList<>(expected.subList(0, i));
-                withNonContained.add(nonContained);
-                arguments.add(arguments(withNonContained, false));
-            }
-
-            return arguments.stream();
         }
     }
 
