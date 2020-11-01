@@ -17,16 +17,52 @@
 
 package com.github.robtimus.junit.support.io.examples;
 
-import java.io.BufferedInputStream;
 import java.io.InputStream;
+import org.apache.commons.io.input.ProxyInputStream;
 import org.junit.jupiter.api.Nested;
 import com.github.robtimus.junit.support.io.InputStreamDelegateTests;
+import com.github.robtimus.junit.support.io.InputStreamDelegateTests.AvailableTests;
 import com.github.robtimus.junit.support.io.InputStreamDelegateTests.CloseTests;
+import com.github.robtimus.junit.support.io.InputStreamDelegateTests.MarkResetTests;
+import com.github.robtimus.junit.support.io.InputStreamDelegateTests.ReadByteTests;
+import com.github.robtimus.junit.support.io.InputStreamDelegateTests.ReadIntoByteArrayPortionTests;
+import com.github.robtimus.junit.support.io.InputStreamDelegateTests.ReadIntoByteArrayTests;
+import com.github.robtimus.junit.support.io.InputStreamDelegateTests.SkipTests;
 
 class InputStreamDelegateTestsTest {
 
     @Nested
+    class ReadByte extends InputStreamDelegateTestsBase implements ReadByteTests {
+        // no new tests
+    }
+
+    @Nested
+    class ReadIntoByteArray extends InputStreamDelegateTestsBase implements ReadIntoByteArrayTests {
+        // no new tests
+    }
+
+    @Nested
+    class ReadIntoByteArrayPortion extends InputStreamDelegateTestsBase implements ReadIntoByteArrayPortionTests {
+        // no new tests
+    }
+
+    @Nested
+    class Skip extends InputStreamDelegateTestsBase implements SkipTests {
+        // no new tests
+    }
+
+    @Nested
+    class Available extends InputStreamDelegateTestsBase implements AvailableTests {
+        // no new tests
+    }
+
+    @Nested
     class Close extends InputStreamDelegateTestsBase implements CloseTests {
+        // no new tests
+    }
+
+    @Nested
+    class MarkReset extends InputStreamDelegateTestsBase implements MarkResetTests {
         // no new tests
     }
 
@@ -34,7 +70,9 @@ class InputStreamDelegateTestsTest {
 
         @Override
         public InputStream wrapInputStream(InputStream delegate) {
-            return new BufferedInputStream(delegate);
+            return new ProxyInputStream(delegate) {
+                // no new content
+            };
         }
     }
 }

@@ -47,7 +47,9 @@ import org.reflections.scanners.TypeElementsScanner;
 import com.github.robtimus.junit.support.collections.EnumerationTests;
 import com.github.robtimus.junit.support.collections.IteratorTests;
 import com.github.robtimus.junit.support.collections.ListIteratorTests;
+import com.github.robtimus.junit.support.io.InputStreamDelegateTests;
 import com.github.robtimus.junit.support.io.InputStreamTests;
+import com.github.robtimus.junit.support.io.ReaderDelegateTests;
 import com.github.robtimus.junit.support.io.ReaderTests;
 
 class TraitTest {
@@ -72,6 +74,13 @@ class TraitTest {
         allowedNames.add("testPreviousWithoutHasPrevious");
 
         result.put(ListIteratorTests.IterationTests.class, new HashSet<>(allowedNames));
+
+        allowedNames.clear();
+        allowedNames.add("testMarkSupportedDelegates");
+        allowedNames.add("testMarkAndResetDelegate");
+
+        result.put(InputStreamDelegateTests.MarkResetTests.class, new HashSet<>(allowedNames));
+        result.put(ReaderDelegateTests.MarkResetTests.class, new HashSet<>(allowedNames));
 
         allowedNames.clear();
         allowedNames.add("testMarkSupported");

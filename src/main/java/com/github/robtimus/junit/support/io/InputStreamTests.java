@@ -63,9 +63,6 @@ public interface InputStreamTests {
     @DisplayName("read()")
     interface ReadByteTests extends InputStreamTests {
 
-        /**
-         * Tests {@link InputStream#read()}.
-         */
         @Test
         @DisplayName("read()")
         default void testReadByte() {
@@ -93,9 +90,6 @@ public interface InputStreamTests {
     @DisplayName("read(byte[])")
     interface ReadIntoByteArrayTests extends InputStreamTests {
 
-        /**
-         * Tests {@link InputStream#read(byte[])}.
-         */
         @Test
         @DisplayName("read(byte[])")
         default void testReadIntoByteArray() {
@@ -153,9 +147,6 @@ public interface InputStreamTests {
     @DisplayName("read(byte[], int, int)")
     interface ReadIntoByteArrayPortionTests extends InputStreamTests {
 
-        /**
-         * Tests {@link InputStream#read(byte[], int, int)}.
-         */
         @Test
         @DisplayName("read(byte[], int, int)")
         default void testReadIntoByteArrayPortion() {

@@ -121,9 +121,6 @@ public interface ReaderTests {
     @DisplayName("read()")
     interface ReadCharTests extends ReaderTests {
 
-        /**
-         * Tests {@link Reader#read()}.
-         */
         @Test
         @DisplayName("read()")
         default void testReadChar() {
@@ -151,9 +148,6 @@ public interface ReaderTests {
     @DisplayName("read(char[])")
     interface ReadIntoCharArrayTests extends ReaderTests {
 
-        /**
-         * Tests {@link Reader#read(char[])}.
-         */
         @Test
         @DisplayName("read(char[])")
         default void testReadIntoCharArray() {
@@ -211,9 +205,6 @@ public interface ReaderTests {
     @DisplayName("read(char[], int, int)")
     interface ReadIntoCharArrayPortionTests extends ReaderTests {
 
-        /**
-         * Tests {@link Reader#read(char[], int, int)}.
-         */
         @Test
         @DisplayName("read(char[], int, int)")
         default void testReadIntoCharArrayPortion() {
