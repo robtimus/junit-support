@@ -22,7 +22,9 @@ import static org.junit.jupiter.api.DynamicContainer.dynamicContainer;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicContainer;
@@ -31,8 +33,6 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 
@@ -98,15 +98,81 @@ class MethodOverrideTest {
         }
     }
 
-    @TestInstance(Lifecycle.PER_CLASS)
+    @Nested
+    @DisplayName("UnmodifiableMapTests")
+    class UnmodifiableMapTestsTest {
+
+        @Nested
+        @DisplayName("KeySetTests")
+        class KeySetTestsTest extends AbstractMethodOverrideTest {
+
+            KeySetTestsTest() {
+                super(UnmodifiableSetTests.class, UnmodifiableMapTests.KeySetTests.class);
+            }
+
+            @Nested
+            @DisplayName("IteratorTests")
+            class IteratorTestsTest extends AbstractMethodOverrideTest {
+
+                IteratorTestsTest() {
+                    super(UnmodifiableIteratorTests.class, UnmodifiableMapTests.KeySetTests.IteratorTests.class,
+                            // Ignore IteratorTests.RemoveTests tests, as UnmodifiableTests.RemoveTests should be used
+                            IteratorTests.RemoveTests.class);
+                }
+            }
+        }
+
+        @Nested
+        @DisplayName("ValuesTests")
+        class ValuesTestsTest extends AbstractMethodOverrideTest {
+
+            ValuesTestsTest() {
+                super(UnmodifiableCollectionTests.class, UnmodifiableMapTests.ValuesTests.class);
+            }
+
+            @Nested
+            @DisplayName("IteratorTests")
+            class IteratorTestsTest extends AbstractMethodOverrideTest {
+
+                IteratorTestsTest() {
+                    super(UnmodifiableIteratorTests.class, UnmodifiableMapTests.ValuesTests.IteratorTests.class,
+                            // Ignore IteratorTests.RemoveTests tests, as UnmodifiableTests.RemoveTests should be used
+                            IteratorTests.RemoveTests.class);
+                }
+            }
+        }
+
+        @Nested
+        @DisplayName("EntrySetTests")
+        class EntrySetTestsTest extends AbstractMethodOverrideTest {
+
+            EntrySetTestsTest() {
+                super(UnmodifiableSetTests.class, UnmodifiableMapTests.EntrySetTests.class);
+            }
+
+            @Nested
+            @DisplayName("IteratorTests")
+            class IteratorTestsTest extends AbstractMethodOverrideTest {
+
+                IteratorTestsTest() {
+                    super(UnmodifiableIteratorTests.class, UnmodifiableMapTests.EntrySetTests.IteratorTests.class,
+                            // Ignore IteratorTests.RemoveTests tests, as UnmodifiableTests.RemoveTests should be used
+                            IteratorTests.RemoveTests.class);
+                }
+            }
+        }
+    }
+
     abstract static class AbstractMethodOverrideTest {
 
         private final Class<?> base;
         private final Class<?> sub;
+        private final Set<Class<?>> interfacesToIgnore;
 
-        private AbstractMethodOverrideTest(Class<?> baseInterface, Class<?> subInterface) {
+        private AbstractMethodOverrideTest(Class<?> baseInterface, Class<?> subInterface, Class<?>... interfacesToIgnore) {
             this.base = baseInterface;
             this.sub = subInterface;
+            this.interfacesToIgnore = new HashSet<>(Arrays.asList(interfacesToIgnore));
         }
 
         @TestFactory
@@ -126,6 +192,7 @@ class MethodOverrideTest {
             Stream<DynamicContainer> interfaceTests = getAllNestedClasses(baseInterface)
                     .distinct()
                     .filter(this::isTestsInterface)
+                    .filter(this::isNonIgnoredInterface)
                     .map(i -> testInterface(i, subInterface));
 
             return Stream.concat(methodTests, interfaceTests);
@@ -168,6 +235,10 @@ class MethodOverrideTest {
 
         private boolean isTestsInterface(Class<?> i) {
             return !ArgumentsProvider.class.isAssignableFrom(i);
+        }
+
+        private boolean isNonIgnoredInterface(Class<?> i) {
+            return !interfacesToIgnore.contains(i);
         }
     }
 }
