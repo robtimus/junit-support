@@ -216,7 +216,7 @@ public interface SetTests<T> extends CollectionTests<T> {
         @ArgumentsSource(EqualsArgumentsProvider.class)
         @DisplayName("equals(Object)")
         default void testEquals(Set<?> other, boolean expected) {
-            Set<?> set = createIterable();
+            Set<T> set = createIterable();
 
             if (expected) {
                 assertEquals(other, set);
@@ -228,7 +228,7 @@ public interface SetTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("equals(Object) with self")
         default void testEqualsSelf() {
-            Set<?> set = createIterable();
+            Set<T> set = createIterable();
 
             assertEquals(set, set);
         }
@@ -236,7 +236,7 @@ public interface SetTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("equals(Object) with null")
         default void testEqualsNull() {
-            Set<?> set = createIterable();
+            Set<T> set = createIterable();
 
             assertNotEquals(null, set);
         }
@@ -244,7 +244,7 @@ public interface SetTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("equals(Object) with list")
         default void testEqualsList() {
-            Set<?> set = createIterable();
+            Set<T> set = createIterable();
 
             assertNotEquals(new ArrayList<>(set), set);
         }
@@ -262,7 +262,7 @@ public interface SetTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("hashCode()")
         default void testHashCode() {
-            Set<?> set = createIterable();
+            Set<T> set = createIterable();
 
             int expected = expectedElements().stream()
                     .mapToInt(Object::hashCode)
@@ -284,9 +284,9 @@ public interface SetTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("spliterator() has DISTINCT characteristic")
         default void testSpliteratorHasDistinctCharacteristic() {
-            Set<?> set = createIterable();
+            Set<T> set = createIterable();
 
-            Spliterator<?> spliterator = set.spliterator();
+            Spliterator<T> spliterator = set.spliterator();
 
             assertTrue(spliterator.hasCharacteristics(Spliterator.DISTINCT));
         }

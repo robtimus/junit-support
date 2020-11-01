@@ -17,6 +17,8 @@
 
 package com.github.robtimus.junit.support.collections;
 
+import static com.github.robtimus.junit.support.collections.CollectionAssertions.assertHasElements;
+import static com.github.robtimus.junit.support.collections.CollectionUtils.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -24,16 +26,22 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -91,9 +99,9 @@ public interface MapTests<K, V> {
     /**
      * Contains tests for {@link Map#containsKey(Object)}.
      * <p>
-     * By default, the tests in this interface assume that calling {@link Map#containsKey(Object)} with {@code null} or an instance of an
-     * incompatible type will simply return {@code false}. If either is not the case, annotate your class with {@link ContainsNullKeyNotSupported}
-     * and/or {@link ContainsIncompatibleKeyNotSupported}.
+     * By default, the tests in this interface assume that calling {@link Map#containsKey(Object)} with {@code null} or an instance of an incompatible
+     * type will simply return {@code false}. If either is not the case, annotate your class with {@link ContainsNullKeyNotSupported} and/or
+     * {@link ContainsIncompatibleKeyNotSupported}.
      *
      * @author Rob Spoor
      * @param <K> The key type of the map to test.
@@ -105,13 +113,13 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("containsKey(Object)")
         default void testContainsKey() {
-            Map<?, ?> map = createMap();
+            Map<K, V> map = createMap();
 
-            for (Object o : expectedEntries().keySet()) {
+            for (K o : expectedEntries().keySet()) {
                 assertTrue(map.containsKey(o));
             }
 
-            for (Object o : nonContainedEntries().keySet()) {
+            for (K o : nonContainedEntries().keySet()) {
                 assertFalse(map.containsKey(o));
             }
         }
@@ -119,7 +127,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("containsKey(Object) with null")
         default void testContainsKeyWithNull(TestInfo testInfo) {
-            Map<?, ?> map = createMap();
+            Map<K, V> map = createMap();
 
             ContainsNullKeyNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -135,7 +143,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("containsKey(Object) with an incompatible object")
         default void testContainsKeyWithIncompatibleObject(TestInfo testInfo) {
-            Map<?, ?> map = createMap();
+            Map<K, V> map = createMap();
 
             ContainsIncompatibleKeyNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -166,13 +174,13 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("containsValue(Object)")
         default void testContainsValue() {
-            Map<?, ?> map = createMap();
+            Map<K, V> map = createMap();
 
-            for (Object o : expectedEntries().values()) {
+            for (V o : expectedEntries().values()) {
                 assertTrue(map.containsValue(o));
             }
 
-            for (Object o : nonContainedEntries().values()) {
+            for (V o : nonContainedEntries().values()) {
                 assertFalse(map.containsValue(o));
             }
         }
@@ -180,7 +188,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("containsValue(Object) with null")
         default void testContainsValueWithNull(TestInfo testInfo) {
-            Map<?, ?> map = createMap();
+            Map<K, V> map = createMap();
 
             ContainsNullNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -196,7 +204,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("containsValue(Object) with an incompatible object")
         default void testContainsValueWithIncompatibleObject(TestInfo testInfo) {
-            Map<?, ?> map = createMap();
+            Map<K, V> map = createMap();
 
             ContainsIncompatibleNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -227,21 +235,21 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("get(Object)")
         default void testGet() {
-            Map<?, ?> map = createMap();
+            Map<K, V> map = createMap();
 
-            for (Map.Entry<?, ?> entry : expectedEntries().entrySet()) {
+            for (Map.Entry<K, V> entry : expectedEntries().entrySet()) {
                 assertEquals(entry.getValue(), map.get(entry.getKey()));
             }
 
-            for (Object o : nonContainedEntries().keySet()) {
-                assertNull(map.get(o));
+            for (K key : nonContainedEntries().keySet()) {
+                assertNull(map.get(key));
             }
         }
 
         @Test
         @DisplayName("get(Object) with null")
         default void testGetWithNull(TestInfo testInfo) {
-            Map<?, ?> map = createMap();
+            Map<K, V> map = createMap();
 
             ContainsNullKeyNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -257,7 +265,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("get(Object) with an incompatible object")
         default void testGetWithIncompatibleObject(TestInfo testInfo) {
-            Map<?, ?> map = createMap();
+            Map<K, V> map = createMap();
 
             ContainsIncompatibleKeyNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -275,7 +283,7 @@ public interface MapTests<K, V> {
      * Contains tests for {@link Map#put(Object, Object)}.
      * <p>
      * By default, the tests in this interface assume that calling {@link Map#put(Object, Object)} with a {@code null} key or value will simply add
-     * the such an entry. If either is not the case, annotate your class with {@link ContainsNullKeyNotSupported} and/or
+     * such an entry. If either is not the case, annotate your class with {@link StoreNullKeyNotSupported} and/or
      * {@link StoreNullNotSupported}.
      *
      * @author Rob Spoor
@@ -379,9 +387,9 @@ public interface MapTests<K, V> {
     /**
      * Contains tests for {@link Map#remove(Object)}.
      * <p>
-     * By default, the tests in this interface assume that calling {@link Map#remove(Object)} with {@code null} or an instance of an
-     * incompatible type will simply return {@code false}. If either is not the case, annotate your class with {@link RemoveNullKeyNotSupported}
-     * and/or {@link RemoveIncompatibleKeyNotSupported}.
+     * By default, the tests in this interface assume that calling {@link Map#remove(Object)} with {@code null} or an instance of an incompatible type
+     * will simply return {@code false}. If either is not the case, annotate your class with {@link RemoveNullKeyNotSupported} and/or
+     * {@link RemoveIncompatibleKeyNotSupported}.
      *
      * @author Rob Spoor
      * @param <K> The key type of the map to test.
@@ -395,7 +403,7 @@ public interface MapTests<K, V> {
         @ArgumentsSource(RemoveArgumentsProvider.class)
         @DisplayName("remove(Object)")
         default void testRemove(Object key, Object expectedValue, boolean expected) {
-            Map<?, ?> map = createMap();
+            Map<K, V> map = createMap();
 
             assertEquals(expectedValue, map.remove(key));
 
@@ -411,7 +419,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("remove(Object) with null")
         default void testRemoveNull(TestInfo testInfo) {
-            Map<?, ?> map = createMap();
+            Map<K, V> map = createMap();
 
             RemoveNullKeyNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -429,7 +437,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("remove(Object) with incompatible object")
         default void testRemoveIncompatibleObject(TestInfo testInfo) {
-            Map<?, ?> map = createMap();
+            Map<K, V> map = createMap();
 
             RemoveIncompatibleKeyNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -591,7 +599,2032 @@ public interface MapTests<K, V> {
         }
     }
 
-    // TODO: add test interfaces for keySet(), values() and entrySet()
+    /**
+     * Contains tests for {@link Map#keySet()}.
+     *
+     * @author Rob Spoor
+     * @param <K> The key type of the map to test.
+     * @param <V> The value type of the map to test.
+     */
+    @DisplayName("keySet()")
+    interface KeySetTests<K, V> extends MapTests<K, V>, SetTests<K> {
+
+        @Override
+        default Set<K> createIterable() {
+            return createMap().keySet();
+        }
+
+        @Override
+        default Collection<K> expectedElements() {
+            return expectedEntries().keySet();
+        }
+
+        @Override
+        default Collection<K> nonContainedElements() {
+            return nonContainedEntries().keySet();
+        }
+
+        /**
+         * Contains tests for {@link Set#iterator()} for key sets.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("forEach(Consumer)")
+        interface IteratorTests<K, V> extends KeySetTests<K, V>, com.github.robtimus.junit.support.collections.IteratorTests<K> {
+
+            @Override
+            default Set<K> createIterable() {
+                return KeySetTests.super.createIterable();
+            }
+
+            @Override
+            default Collection<K> expectedElements() {
+                return KeySetTests.super.expectedElements();
+            }
+
+            /**
+             * Contains tests for {@link Iterator#hasNext()} and {@link Iterator#next()} for key set iterators.
+             *
+             * @author Rob Spoor
+             * @param <K> The key type of the map to test.
+             * @param <V> The value type of the map to test.
+             */
+            @DisplayName("iteration")
+            interface IterationTests<K, V>
+                    extends IteratorTests<K, V>, com.github.robtimus.junit.support.collections.IteratorTests.IterationTests<K> {
+                // no new tests needed
+            }
+
+            /**
+             * Contains tests for {@link Iterator#remove()} for key set iterators.
+             *
+             * @author Rob Spoor
+             * @param <K> The key type of the map to test.
+             * @param <V> The value type of the map to test.
+             */
+            @DisplayName("remove()")
+            interface RemoveTests<K, V> extends IteratorTests<K, V>, com.github.robtimus.junit.support.collections.IteratorTests.RemoveTests<K> {
+
+                @Override
+                @Test
+                @DisplayName("remove() for every element")
+                default void testRemoveEveryElement() {
+                    Map<K, V> map = createMap();
+                    Set<K> keySet = map.keySet();
+                    Iterator<K> iterator = keySet.iterator();
+
+                    while (iterator.hasNext()) {
+                        iterator.next();
+                        iterator.remove();
+                    }
+
+                    List<K> remaining = toList(keySet);
+                    assertHasElements(remaining, Collections.emptyList(), fixedOrder());
+                    assertEquals(Collections.emptyMap(), map);
+                }
+
+                @Override
+                @Test
+                @DisplayName("remove() for every even-indexed element")
+                default void testRemoveEveryEvenIndexedElement() {
+                    Map<K, V> map = createMap();
+                    Set<K> keySet = map.keySet();
+                    Iterator<K> iterator = keySet.iterator();
+
+                    Map<K, V> expectedEntries = new HashMap<>(expectedEntries());
+                    List<K> expectedElements = new ArrayList<>(expectedEntries.keySet());
+
+                    boolean remove = true;
+                    while (iterator.hasNext()) {
+                        K element = iterator.next();
+                        if (remove) {
+                            expectedElements.remove(element);
+                            expectedEntries.remove(element);
+                            iterator.remove();
+                        }
+                        remove = !remove;
+                    }
+
+                    List<K> remaining = toList(keySet);
+                    assertHasElements(remaining, expectedElements, fixedOrder());
+                    assertEquals(expectedEntries, map);
+                }
+
+                @Override
+                @Test
+                @DisplayName("remove() before next()")
+                default void testRemoveBeforeNext() {
+                    Map<K, V> map = createMap();
+                    Set<K> keySet = map.keySet();
+                    Iterator<K> iterator = keySet.iterator();
+
+                    assertThrows(IllegalStateException.class, iterator::remove);
+
+                    Map<K, V> expectedEntries = expectedEntries();
+                    Set<K> expectedElements = expectedEntries.keySet();
+
+                    List<K> remaining = toList(keySet);
+                    assertHasElements(remaining, expectedElements, fixedOrder());
+                    assertEquals(expectedEntries, map);
+                }
+
+                @Override
+                @Test
+                @DisplayName("remove() after remove()")
+                default void testRemoveAfterRemove() {
+                    Map<K, V> map = createMap();
+                    Set<K> keySet = map.keySet();
+                    Iterator<K> iterator = keySet.iterator();
+
+                    Map<K, V> expectedEntries = new HashMap<>(expectedEntries());
+                    List<K> expectedElements = new ArrayList<>(expectedEntries.keySet());
+
+                    boolean remove = true;
+                    while (iterator.hasNext()) {
+                        K element = iterator.next();
+                        if (remove) {
+                            expectedElements.remove(element);
+                            expectedEntries.remove(element);
+                            iterator.remove();
+                            assertThrows(IllegalStateException.class, iterator::remove);
+                        }
+                        remove = !remove;
+                    }
+
+                    List<K> remaining = toList(keySet);
+                    assertHasElements(remaining, expectedElements, fixedOrder());
+                }
+            }
+
+            /**
+             * Contains tests for {@link Iterator#forEachRemaining(Consumer)} for key set iterators.
+             *
+             * @author Rob Spoor
+             * @param <K> The key type of the map to test.
+             * @param <V> The value type of the map to test.
+             */
+            @DisplayName("forEachRemaining(Consumer)")
+            interface ForEachRemainingTests<K, V>
+                    extends IteratorTests<K, V>, com.github.robtimus.junit.support.collections.IteratorTests.ForEachRemainingTests<K> {
+                // no new tests needed
+            }
+        }
+
+        /**
+         * Contains tests for {@link Iterable#forEach(Consumer)} for key sets.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("forEach(Consumer)")
+        interface ForEachTests<K, V> extends KeySetTests<K, V>, IterableTests.ForEachTests<K> {
+            // no new tests needed
+        }
+
+        /**
+         * Contains tests for {@link Set#contains(Object)} for key sets.
+         * <p>
+         * By default, the tests in this interface assume that calling {@link Set#contains(Object)} with {@code null} or an instance of an
+         * incompatible type will simply return {@code false}. If either is not the case, annotate your class with {@link ContainsNullNotSupported}
+         * and/or {@link ContainsIncompatibleNotSupported}.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("contains(Object)")
+        interface ContainsTests<K, V> extends KeySetTests<K, V>, CollectionTests.ContainsTests<K> {
+            // no new tests needed
+        }
+
+        /**
+         * Contains tests for {@link Set#toArray()} for key sets.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("toArray()")
+        interface ToObjectArrayTests<K, V> extends KeySetTests<K, V>, CollectionTests.ToObjectArrayTests<K> {
+            // no new tests needed
+        }
+
+        /**
+         * Contains tests for {@link Set#toArray(Object[])} for key sets.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("toArray(Object[])")
+        interface ToArrayTests<K, V> extends KeySetTests<K, V>, CollectionTests.ToArrayTests<K> {
+            // no new tests needed
+        }
+
+        /**
+         * Contains tests for {@link Set#add(Object)} for key sets.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("add(Object)")
+        interface AddTests<K, V> extends KeySetTests<K, V>, UnmodifiableCollectionTests.AddTests<K> {
+            // no new tests needed
+        }
+
+        /**
+         * Contains tests for {@link Set#remove(Object)} for key sets.
+         * <p>
+         * By default, the tests in this interface assume that calling {@link Set#remove(Object)} with {@code null} or an instance of an incompatible
+         * type will simply return {@code false}. If either is not the case, annotate your class with {@link RemoveNullNotSupported} and/or
+         * {@link RemoveIncompatibleNotSupported}.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @TestInstance(Lifecycle.PER_CLASS)
+        @DisplayName("remove(Object)")
+        interface RemoveTests<K, V> extends KeySetTests<K, V>, CollectionTests.RemoveTests<K> {
+
+            @Override
+            @ParameterizedTest(name = "{0}: {1}")
+            @ArgumentsSource(CollectionTests.RemoveArgumentsProvider.class)
+            @DisplayName("remove(Object)")
+            default void testRemove(Object o, boolean expected) {
+                Map<K, V> map = createMap();
+                Set<K> keySet = map.keySet();
+
+                assertEquals(expected, keySet.remove(o));
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Set<K> expectedElements = expectedEntries.keySet();
+                if (expected) {
+                    expectedEntries = new HashMap<>(expectedEntries);
+                    expectedElements = expectedEntries.keySet();
+                    expectedElements.remove(o);
+                }
+
+                assertHasElements(keySet, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("remove(Object) with null")
+            default void testRemoveNull(TestInfo testInfo) {
+                Map<K, V> map = createMap();
+                Set<K> keySet = map.keySet();
+
+                RemoveNullNotSupported annotation = testInfo.getTestClass()
+                        .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
+                        .getAnnotation(RemoveNullNotSupported.class);
+
+                if (annotation == null) {
+                    assertFalse(keySet.remove(null));
+                } else {
+                    assertThrows(annotation.expected(), () -> keySet.remove(null));
+                }
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Set<K> expectedElements = expectedEntries.keySet();
+
+                assertHasElements(keySet, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("remove(Object) with incompatible object")
+            default void testRemoveIncompatibleObject(TestInfo testInfo) {
+                Map<K, V> map = createMap();
+                Set<K> keySet = map.keySet();
+
+                RemoveIncompatibleNotSupported annotation = testInfo.getTestClass()
+                        .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
+                        .getAnnotation(RemoveIncompatibleNotSupported.class);
+
+                if (annotation == null) {
+                    assertFalse(keySet.remove(new IncompatibleObject()));
+                } else {
+                    assertThrows(annotation.expected(), () -> keySet.remove(new IncompatibleObject()));
+                }
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Set<K> expectedElements = expectedEntries.keySet();
+
+                assertHasElements(keySet, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+        }
+
+        /**
+         * Contains tests for {@link Set#containsAll(Collection)} for key sets.
+         * <p>
+         * By default, the tests in this interface assume that calling {@link Set#containsAll(Collection)} with a collection containing {@code null}
+         * or an instance of an incompatible type will simply return {@code false}. If either is not the case, annotate your class with
+         * {@link ContainsNullNotSupported} and/or {@link ContainsIncompatibleNotSupported}.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @TestInstance(Lifecycle.PER_CLASS)
+        @DisplayName("containsAll(Collection)")
+        interface ContainsAllTests<K, V> extends KeySetTests<K, V>, CollectionTests.ContainsAllTests<K> {
+            // no new tests needed
+        }
+
+        /**
+         * Contains tests for {@link Set#addAll(Collection)} for key sets.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("addAll(Collection)")
+        interface AddAllTests<K, V> extends KeySetTests<K, V>, UnmodifiableCollectionTests.AddAllTests<K> {
+            // no new tests needed
+        }
+
+        /**
+         * Contains tests for {@link Set#removeAll(Collection)} for key sets.
+         * <p>
+         * By default, the tests in this interface assume that calling {@link Set#removeAll(Collection)} with a collection containing {@code null} or
+         * an instance of an incompatible type will simply ignore the {@code null} and incompatible element. If either is not the case, annotate your
+         * class with {@link RemoveNullNotSupported} and/or {@link RemoveIncompatibleNotSupported}.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @TestInstance(Lifecycle.PER_CLASS)
+        @DisplayName("removeAll(Collection)")
+        interface RemoveAllTests<K, V> extends KeySetTests<K, V>, CollectionTests.RemoveAllTests<K> {
+
+            @Override
+            @ParameterizedTest(name = "{0}: {1}")
+            @ArgumentsSource(RemoveAllArgumentsProvider.class)
+            @DisplayName("removeAll(Collection)")
+            default void testRemoveAll(Collection<?> c, boolean expected) {
+                Map<K, V> map = createMap();
+                Set<K> keySet = map.keySet();
+
+                assertEquals(expected, keySet.removeAll(c));
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Set<K> expectedElements = expectedEntries.keySet();
+                if (expected) {
+                    expectedEntries = new HashMap<>(expectedEntries);
+                    expectedElements = expectedEntries.keySet();
+                    expectedElements.removeAll(c);
+                }
+
+                assertHasElements(keySet, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("removeAll(Collection) with a null collection")
+            default void testRemoveAllWithNullCollection() {
+                Map<K, V> map = createMap();
+                Set<K> keySet = map.keySet();
+
+                assertThrows(NullPointerException.class, () -> keySet.removeAll(null));
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Set<K> expectedElements = expectedEntries.keySet();
+
+                assertHasElements(keySet, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("removeAll(Collection) with a collection with a null")
+            default void testRemoveAllWithCollectionWithNull(TestInfo testInfo) {
+                Map<K, V> map = createMap();
+                Set<K> keySet = map.keySet();
+
+                Collection<?> c = Collections.singleton(null);
+
+                RemoveNullNotSupported annotation = testInfo.getTestClass()
+                        .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
+                        .getAnnotation(RemoveNullNotSupported.class);
+
+                if (annotation == null) {
+                    assertFalse(keySet.removeAll(c));
+                } else {
+                    assertThrows(annotation.expected(), () -> keySet.removeAll(c));
+                }
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Set<K> expectedElements = expectedEntries.keySet();
+
+                assertHasElements(keySet, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("removeAll(Collection) with a collection with an incompatible object")
+            default void testRemoveAllWithCollectionWithIncompatibleObject(TestInfo testInfo) {
+                Map<K, V> map = createMap();
+                Set<K> keySet = map.keySet();
+
+                Collection<?> c = Collections.singleton(new IncompatibleObject());
+
+                RemoveIncompatibleNotSupported annotation = testInfo.getTestClass()
+                        .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
+                        .getAnnotation(RemoveIncompatibleNotSupported.class);
+
+                if (annotation == null) {
+                    assertFalse(keySet.removeAll(c));
+                } else {
+                    assertThrows(annotation.expected(), () -> keySet.removeAll(c));
+                }
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Set<K> expectedElements = expectedEntries.keySet();
+
+                assertHasElements(keySet, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+        }
+
+        /**
+         * Contains tests for {@link Set#removeIf(Predicate)} for key sets.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("removeIf(Predicate)")
+        interface RemoveIfTests<K, V> extends KeySetTests<K, V>, CollectionTests.RemoveIfTests<K> {
+
+            @Override
+            @Test
+            @DisplayName("removeIf(Predicate) with matching predicate")
+            default void testRemoveIfWithMatchingPredicate() {
+                Map<K, V> map = createMap();
+                Set<K> keySet = map.keySet();
+
+                boolean isEmpty = keySet.isEmpty();
+                assertEquals(!isEmpty, keySet.removeIf(e -> true));
+
+                assertHasElements(keySet, Collections.emptyList(), fixedOrder());
+                assertEquals(Collections.emptyMap(), map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("removeIf(Predicate) with non-matching predicate")
+            default void testRemoveIfWithNonMatchingPredicate() {
+                Map<K, V> map = createMap();
+                Set<K> keySet = map.keySet();
+
+                assertFalse(keySet.removeIf(e -> false));
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Set<K> expectedElements = expectedEntries.keySet();
+
+                assertHasElements(keySet, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("removeIf(Predicate) with null predicate")
+            default void testRemoveIfWithNullPredicate() {
+                Map<K, V> map = createMap();
+                Set<K> keySet = map.keySet();
+
+                assertThrows(NullPointerException.class, () -> keySet.removeIf(null));
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Set<K> expectedElements = expectedEntries.keySet();
+
+                assertHasElements(keySet, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+        }
+
+        /**
+         * Contains tests for {@link Set#retainAll(Collection)} for key sets.
+         * <p>
+         * By default, the tests in this interface assume that calling {@link Set#retainAll(Collection)} with a collection containing {@code null} or
+         * an instance of an incompatible type will simply ignore the {@code null} and incompatible element. If either is not the case, annotate your
+         * class with {@link ContainsNullNotSupported} and/or {@link ContainsIncompatibleNotSupported}
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @TestInstance(Lifecycle.PER_CLASS)
+        @DisplayName("retainAll(Collection)")
+        interface RetainAllTests<K, V> extends KeySetTests<K, V>, CollectionTests.RetainAllTests<K> {
+
+            @Override
+            @ParameterizedTest(name = "{0}: {1}")
+            @ArgumentsSource(RetainAllArgumentsProvider.class)
+            @DisplayName("retainAll(Collection)")
+            default void testRetainAll(Collection<?> c, boolean expected) {
+                Map<K, V> map = createMap();
+                Set<K> keySet = map.keySet();
+
+                assertEquals(expected, keySet.retainAll(c));
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Set<K> expectedElements = expectedEntries.keySet();
+                if (expected) {
+                    expectedEntries = new HashMap<>(expectedEntries);
+                    expectedElements = expectedEntries.keySet();
+                    expectedElements.retainAll(c);
+                }
+
+                assertHasElements(keySet, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("retainAll(Collection) with a null collection")
+            default void testRetainAllWithNullCollection() {
+                Map<K, V> map = createMap();
+                Set<K> keySet = map.keySet();
+
+                assertThrows(NullPointerException.class, () -> keySet.retainAll(null));
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Set<K> expectedElements = expectedEntries.keySet();
+
+                assertHasElements(keySet, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("retainAll(Collection) with a collection with a null")
+            default void testRetainAllWithCollectionWithNull(TestInfo testInfo) {
+                Map<K, V> map = createMap();
+                Set<K> keySet = map.keySet();
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Set<K> expectedElements = expectedEntries.keySet();
+
+                Collection<Object> c = new ArrayList<>(expectedElements);
+                c.add(null);
+
+                ContainsNullNotSupported annotation = testInfo.getTestClass()
+                        .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
+                        .getAnnotation(ContainsNullNotSupported.class);
+
+                if (annotation == null) {
+                    assertFalse(keySet.retainAll(c));
+                } else {
+                    assertThrows(annotation.expected(), () -> keySet.retainAll(c));
+                }
+
+                assertHasElements(keySet, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("retainAll(Collection) with a collection with an incompatible object")
+            default void testRetainAllWithCollectionWithIncompatibleObject(TestInfo testInfo) {
+                Map<K, V> map = createMap();
+                Set<K> keySet = map.keySet();
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Set<K> expectedElements = expectedEntries.keySet();
+
+                Collection<Object> c = new ArrayList<>(expectedElements);
+                c.add(new IncompatibleObject());
+
+                ContainsIncompatibleNotSupported annotation = testInfo.getTestClass()
+                        .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
+                        .getAnnotation(ContainsIncompatibleNotSupported.class);
+
+                if (annotation == null) {
+                    assertFalse(keySet.retainAll(c));
+                } else {
+                    assertThrows(annotation.expected(), () -> keySet.retainAll(c));
+                }
+
+                assertHasElements(keySet, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+        }
+
+        /**
+         * Contains tests for {@link Set#clear()} for key sets.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("clear()")
+        interface ClearTests<K, V> extends KeySetTests<K, V>, CollectionTests.ClearTests<K> {
+
+            @Override
+            @Test
+            @DisplayName("clear()")
+            default void testClear() {
+                Map<K, V> map = createMap();
+                Set<K> keySet = map.keySet();
+
+                keySet.clear();
+
+                assertHasElements(keySet, Collections.emptyList(), fixedOrder());
+                assertEquals(Collections.emptyMap(), map);
+            }
+        }
+
+        /**
+         * Contains tests for {@link Set#equals(Object)} for key sets.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @TestInstance(Lifecycle.PER_CLASS)
+        @DisplayName("equals(Object)")
+        interface EqualsTests<K, V> extends KeySetTests<K, V>, SetTests.EqualsTests<K> {
+            // no new tests needed
+        }
+
+        /**
+         * Contains tests for {@link Set#hashCode()} for key sets.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("hashCode()")
+        interface HashCodeTests<K, V> extends KeySetTests<K, V>, SetTests.HashCodeTests<K> {
+            // no new tests needed
+        }
+
+        /**
+         * Contains tests for {@link Set#spliterator()} for key sets.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("spliterator()")
+        interface SpliteratorTests<K, V> extends KeySetTests<K, V>, SetTests.SpliteratorTests<K> {
+            // no new tests needed
+        }
+    }
+
+    /**
+     * Contains tests for {@link Map#values()}.
+     *
+     * @author Rob Spoor
+     * @param <K> The key type of the map to test.
+     * @param <V> The value type of the map to test.
+     */
+    @DisplayName("values()")
+    interface ValuesTests<K, V> extends MapTests<K, V>, CollectionTests<V> {
+
+        @Override
+        default Collection<V> createIterable() {
+            return createMap().values();
+        }
+
+        @Override
+        default Collection<V> expectedElements() {
+            return expectedEntries().values();
+        }
+
+        @Override
+        default Collection<V> nonContainedElements() {
+            return nonContainedEntries().values();
+        }
+
+        /**
+         * Contains tests for {@link Collection#iterator()} for value collections.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("forEach(Consumer)")
+        interface IteratorTests<K, V> extends ValuesTests<K, V>, com.github.robtimus.junit.support.collections.IteratorTests<V> {
+
+            @Override
+            default Collection<V> createIterable() {
+                return ValuesTests.super.createIterable();
+            }
+
+            @Override
+            default Collection<V> expectedElements() {
+                return ValuesTests.super.expectedElements();
+            }
+
+            /**
+             * Contains tests for {@link Iterator#hasNext()} and {@link Iterator#next()} for value collection iterators.
+             *
+             * @author Rob Spoor
+             * @param <K> The key type of the map to test.
+             * @param <V> The value type of the map to test.
+             */
+            @DisplayName("iteration")
+            interface IterationTests<K, V>
+                    extends IteratorTests<K, V>, com.github.robtimus.junit.support.collections.IteratorTests.IterationTests<V> {
+                // no new tests needed
+            }
+
+            /**
+             * Contains tests for {@link Iterator#remove()} for value collection iterators.
+             *
+             * @author Rob Spoor
+             * @param <K> The key type of the map to test.
+             * @param <V> The value type of the map to test.
+             */
+            @DisplayName("remove()")
+            interface RemoveTests<K, V> extends IteratorTests<K, V>, com.github.robtimus.junit.support.collections.IteratorTests.RemoveTests<V> {
+
+                @Override
+                @Test
+                @DisplayName("remove() for every element")
+                default void testRemoveEveryElement() {
+                    Map<K, V> map = createMap();
+                    Collection<V> values = map.values();
+                    Iterator<V> iterator = values.iterator();
+
+                    while (iterator.hasNext()) {
+                        iterator.next();
+                        iterator.remove();
+                    }
+
+                    List<V> remaining = toList(values);
+                    assertHasElements(remaining, Collections.emptyList(), fixedOrder());
+                    assertEquals(Collections.emptyMap(), map);
+                }
+
+                @Override
+                @Test
+                @DisplayName("remove() for every even-indexed element")
+                default void testRemoveEveryEvenIndexedElement() {
+                    Map<K, V> map = createMap();
+                    Collection<V> values = map.values();
+                    Iterator<V> iterator = values.iterator();
+
+                    Map<K, V> expectedEntries = new HashMap<>(expectedEntries());
+                    Collection<V> expectedElements = expectedEntries.values();
+                    Iterator<V> expectedIterator = expectedElements.iterator();
+
+                    boolean remove = true;
+                    while (iterator.hasNext()) {
+                        iterator.next();
+                        expectedIterator.next();
+                        if (remove) {
+                            expectedIterator.remove();
+                            iterator.remove();
+                        }
+                        remove = !remove;
+                    }
+
+                    List<V> remaining = toList(values);
+                    assertHasElements(remaining, expectedElements, fixedOrder());
+                    assertEquals(expectedEntries, map);
+                }
+
+                @Override
+                @Test
+                @DisplayName("remove() before next()")
+                default void testRemoveBeforeNext() {
+                    Map<K, V> map = createMap();
+                    Collection<V> values = map.values();
+                    Iterator<V> iterator = values.iterator();
+
+                    assertThrows(IllegalStateException.class, iterator::remove);
+
+                    Map<K, V> expectedEntries = expectedEntries();
+                    Collection<V> expectedElements = expectedEntries.values();
+
+                    List<V> remaining = toList(values);
+                    assertHasElements(remaining, expectedElements, fixedOrder());
+                    assertEquals(expectedEntries, map);
+                }
+
+                @Override
+                @Test
+                @DisplayName("remove() after remove()")
+                default void testRemoveAfterRemove() {
+                    Map<K, V> map = createMap();
+                    Collection<V> values = map.values();
+                    Iterator<V> iterator = values.iterator();
+
+                    Map<K, V> expectedEntries = new HashMap<>(expectedEntries());
+                    Collection<V> expectedElements = expectedEntries.values();
+                    Iterator<V> expectedIterator = expectedElements.iterator();
+
+                    boolean remove = true;
+                    while (iterator.hasNext()) {
+                        iterator.next();
+                        expectedIterator.next();
+                        if (remove) {
+                            expectedIterator.remove();
+                            iterator.remove();
+                            assertThrows(IllegalStateException.class, iterator::remove);
+                        }
+                        remove = !remove;
+                    }
+
+                    List<V> remaining = toList(values);
+                    assertHasElements(remaining, expectedElements, fixedOrder());
+                }
+            }
+
+            /**
+             * Contains tests for {@link Iterator#forEachRemaining(Consumer)} for value collection iterators.
+             *
+             * @author Rob Spoor
+             * @param <K> The key type of the map to test.
+             * @param <V> The value type of the map to test.
+             */
+            @DisplayName("forEachRemaining(Consumer)")
+            interface ForEachRemainingTests<K, V>
+                    extends IteratorTests<K, V>, com.github.robtimus.junit.support.collections.IteratorTests.ForEachRemainingTests<V> {
+                // no new tests needed
+            }
+        }
+
+        /**
+         * Contains tests for {@link Iterable#forEach(Consumer)} for values collections.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("forEach(Consumer)")
+        interface ForEachTests<K, V> extends ValuesTests<K, V>, IterableTests.ForEachTests<V> {
+            // no new tests needed
+        }
+
+        /**
+         * Contains tests for {@link Collection#contains(Object)} for values collections.
+         * <p>
+         * By default, the tests in this interface assume that calling {@link Collection#contains(Object)} with {@code null} or an instance of an
+         * incompatible type will simply return {@code false}. If either is not the case, annotate your class with {@link ContainsNullNotSupported}
+         * and/or {@link ContainsIncompatibleNotSupported}.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("contains(Object)")
+        interface ContainsTests<K, V> extends ValuesTests<K, V>, CollectionTests.ContainsTests<V> {
+            // no new tests needed
+        }
+
+        /**
+         * Contains tests for {@link Collection#toArray()} for values collections.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("toArray()")
+        interface ToObjectArrayTests<K, V> extends ValuesTests<K, V>, CollectionTests.ToObjectArrayTests<V> {
+            // no new tests needed
+        }
+
+        /**
+         * Contains tests for {@link Collection#toArray(Object[])} for values collections.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("toArray(Object[])")
+        interface ToArrayTests<K, V> extends ValuesTests<K, V>, CollectionTests.ToArrayTests<V> {
+            // no new tests needed
+        }
+
+        /**
+         * Contains tests for {@link Collection#add(Object)} for values collections.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("add(Object)")
+        interface AddTests<K, V> extends ValuesTests<K, V>, UnmodifiableCollectionTests.AddTests<V> {
+            // no new tests needed
+        }
+
+        /**
+         * Contains tests for {@link Collection#remove(Object)} for values collections.
+         * <p>
+         * By default, the tests in this interface assume that calling {@link Collection#remove(Object)} with {@code null} or an instance of an
+         * incompatible type will simply return {@code false}. If either is not the case, annotate your class with {@link RemoveNullNotSupported}
+         * and/or {@link RemoveIncompatibleNotSupported}.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @TestInstance(Lifecycle.PER_CLASS)
+        @DisplayName("remove(Object)")
+        interface RemoveTests<K, V> extends ValuesTests<K, V>, CollectionTests.RemoveTests<V> {
+
+            @Override
+            @ParameterizedTest(name = "{0}: {1}")
+            @ArgumentsSource(CollectionTests.RemoveArgumentsProvider.class)
+            @DisplayName("remove(Object)")
+            default void testRemove(Object o, boolean expected) {
+                Map<K, V> map = createMap();
+                Collection<V> values = map.values();
+
+                assertEquals(expected, values.remove(o));
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Collection<V> expectedElements = expectedEntries.values();
+                if (expected) {
+                    expectedEntries = new HashMap<>(expectedEntries);
+                    expectedElements = expectedEntries.values();
+                    expectedElements.remove(o);
+                }
+
+                assertHasElements(values, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("remove(Object) with null")
+            default void testRemoveNull(TestInfo testInfo) {
+                Map<K, V> map = createMap();
+                Collection<V> values = map.values();
+
+                RemoveNullNotSupported annotation = testInfo.getTestClass()
+                        .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
+                        .getAnnotation(RemoveNullNotSupported.class);
+
+                if (annotation == null) {
+                    assertFalse(values.remove(null));
+                } else {
+                    assertThrows(annotation.expected(), () -> values.remove(null));
+                }
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Collection<V> expectedElements = expectedEntries.values();
+
+                assertHasElements(values, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("remove(Object) with incompatible object")
+            default void testRemoveIncompatibleObject(TestInfo testInfo) {
+                Map<K, V> map = createMap();
+                Collection<V> values = map.values();
+
+                RemoveIncompatibleNotSupported annotation = testInfo.getTestClass()
+                        .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
+                        .getAnnotation(RemoveIncompatibleNotSupported.class);
+
+                if (annotation == null) {
+                    assertFalse(values.remove(new IncompatibleObject()));
+                } else {
+                    assertThrows(annotation.expected(), () -> values.remove(new IncompatibleObject()));
+                }
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Collection<V> expectedElements = expectedEntries.values();
+
+                assertHasElements(values, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+        }
+
+        /**
+         * Contains tests for {@link Collection#containsAll(Collection)} for values collections.
+         * <p>
+         * By default, the tests in this interface assume that calling {@link Collection#containsAll(Collection)} with a collection containing
+         * {@code null} or an instance of an incompatible type will simply return {@code false}. If either is not the case, annotate your class with
+         * {@link ContainsNullNotSupported} and/or {@link ContainsIncompatibleNotSupported}.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @TestInstance(Lifecycle.PER_CLASS)
+        @DisplayName("containsAll(Collection)")
+        interface ContainsAllTests<K, V> extends ValuesTests<K, V>, CollectionTests.ContainsAllTests<V> {
+            // no new tests needed
+        }
+
+        /**
+         * Contains tests for {@link Collection#addAll(Collection)} for values collections.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("addAll(Collection)")
+        interface AddAllTests<K, V> extends ValuesTests<K, V>, UnmodifiableCollectionTests.AddAllTests<V> {
+            // no new tests needed
+        }
+
+        /**
+         * Contains tests for {@link Collection#removeAll(Collection)} for values collections.
+         * <p>
+         * By default, the tests in this interface assume that calling {@link Collection#removeAll(Collection)} with a collection containing
+         * {@code null} or an instance of an incompatible type will simply ignore the {@code null} and incompatible element. If either is not the
+         * case, annotate your class with {@link RemoveNullNotSupported} and/or {@link RemoveIncompatibleNotSupported}.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @TestInstance(Lifecycle.PER_CLASS)
+        @DisplayName("removeAll(Collection)")
+        interface RemoveAllTests<K, V> extends ValuesTests<K, V>, CollectionTests.RemoveAllTests<V> {
+
+            @Override
+            @ParameterizedTest(name = "{0}: {1}")
+            @ArgumentsSource(RemoveAllArgumentsProvider.class)
+            @DisplayName("removeAll(Collection)")
+            default void testRemoveAll(Collection<?> c, boolean expected) {
+                Map<K, V> map = createMap();
+                Collection<V> values = map.values();
+
+                assertEquals(expected, values.removeAll(c));
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Collection<V> expectedElements = expectedEntries.values();
+                if (expected) {
+                    expectedEntries = new HashMap<>(expectedEntries);
+                    expectedElements = expectedEntries.values();
+                    expectedElements.removeAll(c);
+                }
+
+                assertHasElements(values, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("removeAll(Collection) with a null collection")
+            default void testRemoveAllWithNullCollection() {
+                Map<K, V> map = createMap();
+                Collection<V> values = map.values();
+
+                assertThrows(NullPointerException.class, () -> values.removeAll(null));
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Collection<V> expectedElements = expectedEntries.values();
+
+                assertHasElements(values, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("removeAll(Collection) with a collection with a null")
+            default void testRemoveAllWithCollectionWithNull(TestInfo testInfo) {
+                Map<K, V> map = createMap();
+                Collection<V> values = map.values();
+
+                Collection<?> c = Collections.singleton(null);
+
+                RemoveNullNotSupported annotation = testInfo.getTestClass()
+                        .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
+                        .getAnnotation(RemoveNullNotSupported.class);
+
+                if (annotation == null) {
+                    assertFalse(values.removeAll(c));
+                } else {
+                    assertThrows(annotation.expected(), () -> values.removeAll(c));
+                }
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Collection<V> expectedElements = expectedEntries.values();
+
+                assertHasElements(values, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("removeAll(Collection) with a collection with an incompatible object")
+            default void testRemoveAllWithCollectionWithIncompatibleObject(TestInfo testInfo) {
+                Map<K, V> map = createMap();
+                Collection<V> values = map.values();
+
+                Collection<?> c = Collections.singleton(new IncompatibleObject());
+
+                RemoveIncompatibleNotSupported annotation = testInfo.getTestClass()
+                        .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
+                        .getAnnotation(RemoveIncompatibleNotSupported.class);
+
+                if (annotation == null) {
+                    assertFalse(values.removeAll(c));
+                } else {
+                    assertThrows(annotation.expected(), () -> values.removeAll(c));
+                }
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Collection<V> expectedElements = expectedEntries.values();
+
+                assertHasElements(values, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+        }
+
+        /**
+         * Contains tests for {@link Collection#removeIf(Predicate)} for values collections.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("removeIf(Predicate)")
+        interface RemoveIfTests<K, V> extends ValuesTests<K, V>, CollectionTests.RemoveIfTests<V> {
+
+            @Override
+            @Test
+            @DisplayName("removeIf(Predicate) with matching predicate")
+            default void testRemoveIfWithMatchingPredicate() {
+                Map<K, V> map = createMap();
+                Collection<V> values = map.values();
+
+                boolean isEmpty = values.isEmpty();
+                assertEquals(!isEmpty, values.removeIf(e -> true));
+
+                assertHasElements(values, Collections.emptyList(), fixedOrder());
+                assertEquals(Collections.emptyMap(), map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("removeIf(Predicate) with non-matching predicate")
+            default void testRemoveIfWithNonMatchingPredicate() {
+                Map<K, V> map = createMap();
+                Collection<V> values = map.values();
+
+                assertFalse(values.removeIf(e -> false));
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Collection<V> expectedElements = expectedEntries.values();
+
+                assertHasElements(values, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("removeIf(Predicate) with null predicate")
+            default void testRemoveIfWithNullPredicate() {
+                Map<K, V> map = createMap();
+                Collection<V> values = map.values();
+
+                assertThrows(NullPointerException.class, () -> values.removeIf(null));
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Collection<V> expectedElements = expectedEntries.values();
+
+                assertHasElements(values, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+        }
+
+        /**
+         * Contains tests for {@link Collection#retainAll(Collection)} for values collections.
+         * <p>
+         * By default, the tests in this interface assume that calling {@link Collection#retainAll(Collection)} with a collection containing
+         * {@code null} or an instance of an incompatible type will simply ignore the {@code null} and incompatible element. If either is not the
+         * case, annotate your class with {@link ContainsNullNotSupported} and/or {@link ContainsIncompatibleNotSupported}
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @TestInstance(Lifecycle.PER_CLASS)
+        @DisplayName("retainAll(Collection)")
+        interface RetainAllTests<K, V> extends ValuesTests<K, V>, CollectionTests.RetainAllTests<V> {
+
+            @Override
+            @ParameterizedTest(name = "{0}: {1}")
+            @ArgumentsSource(RetainAllArgumentsProvider.class)
+            @DisplayName("retainAll(Collection)")
+            default void testRetainAll(Collection<?> c, boolean expected) {
+                Map<K, V> map = createMap();
+                Collection<V> values = map.values();
+
+                assertEquals(expected, values.retainAll(c));
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Collection<V> expectedElements = expectedEntries.values();
+                if (expected) {
+                    expectedEntries = new HashMap<>(expectedEntries);
+                    expectedElements = expectedEntries.values();
+                    expectedElements.retainAll(c);
+                }
+
+                assertHasElements(values, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("retainAll(Collection) with a null collection")
+            default void testRetainAllWithNullCollection() {
+                Map<K, V> map = createMap();
+                Collection<V> values = map.values();
+
+                assertThrows(NullPointerException.class, () -> values.retainAll(null));
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Collection<V> expectedElements = expectedEntries.values();
+
+                assertHasElements(values, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("retainAll(Collection) with a collection with a null")
+            default void testRetainAllWithCollectionWithNull(TestInfo testInfo) {
+                Map<K, V> map = createMap();
+                Collection<V> values = map.values();
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Collection<V> expectedElements = expectedEntries.values();
+
+                Collection<Object> c = new ArrayList<>(expectedElements);
+                c.add(null);
+
+                ContainsNullNotSupported annotation = testInfo.getTestClass()
+                        .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
+                        .getAnnotation(ContainsNullNotSupported.class);
+
+                if (annotation == null) {
+                    assertFalse(values.retainAll(c));
+                } else {
+                    assertThrows(annotation.expected(), () -> values.retainAll(c));
+                }
+
+                assertHasElements(values, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("retainAll(Collection) with a collection with an incompatible object")
+            default void testRetainAllWithCollectionWithIncompatibleObject(TestInfo testInfo) {
+                Map<K, V> map = createMap();
+                Collection<V> values = map.values();
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Collection<V> expectedElements = expectedEntries.values();
+
+                Collection<Object> c = new ArrayList<>(expectedElements);
+                c.add(new IncompatibleObject());
+
+                ContainsIncompatibleNotSupported annotation = testInfo.getTestClass()
+                        .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
+                        .getAnnotation(ContainsIncompatibleNotSupported.class);
+
+                if (annotation == null) {
+                    assertFalse(values.retainAll(c));
+                } else {
+                    assertThrows(annotation.expected(), () -> values.retainAll(c));
+                }
+
+                assertHasElements(values, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+        }
+
+        /**
+         * Contains tests for {@link Collection#clear()} for values collections.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("clear()")
+        interface ClearTests<K, V> extends ValuesTests<K, V>, CollectionTests.ClearTests<V> {
+
+            @Override
+            @Test
+            @DisplayName("clear()")
+            default void testClear() {
+                Map<K, V> map = createMap();
+                Collection<V> values = map.values();
+
+                values.clear();
+
+                assertHasElements(values, Collections.emptyList(), fixedOrder());
+                assertEquals(Collections.emptyMap(), map);
+            }
+        }
+    }
+
+    /**
+     * Contains tests for {@link Map#entrySet()}.
+     *
+     * @author Rob Spoor
+     * @param <K> The key type of the map to test.
+     * @param <V> The value type of the map to test.
+     */
+    @DisplayName("entrySet()")
+    interface EntrySetTests<K, V> extends MapTests<K, V>, SetTests<Map.Entry<K, V>> {
+
+        @Override
+        default Set<Map.Entry<K, V>> createIterable() {
+            return createMap().entrySet();
+        }
+
+        @Override
+        default Collection<Map.Entry<K, V>> expectedElements() {
+            return expectedEntries().entrySet();
+        }
+
+        @Override
+        default Collection<Map.Entry<K, V>> nonContainedElements() {
+            return nonContainedEntries().entrySet();
+        }
+
+        /**
+         * Contains tests for {@link Set#iterator()} for entry sets.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("forEach(Consumer)")
+        interface IteratorTests<K, V> extends EntrySetTests<K, V>, com.github.robtimus.junit.support.collections.IteratorTests<Map.Entry<K, V>> {
+
+            @Override
+            default Set<Map.Entry<K, V>> createIterable() {
+                return EntrySetTests.super.createIterable();
+            }
+
+            @Override
+            default Collection<Map.Entry<K, V>> expectedElements() {
+                return EntrySetTests.super.expectedElements();
+            }
+
+            /**
+             * Contains tests for {@link Iterator#hasNext()} and {@link Iterator#next()} for entry set iterators.
+             *
+             * @author Rob Spoor
+             * @param <K> The key type of the map to test.
+             * @param <V> The value type of the map to test.
+             */
+            @DisplayName("iteration")
+            interface IterationTests<K, V>
+                    extends IteratorTests<K, V>, com.github.robtimus.junit.support.collections.IteratorTests.IterationTests<Map.Entry<K, V>> {
+                // no new tests needed
+            }
+
+            /**
+             * Contains tests for {@link Iterator#remove()} for entry set iterators.
+             *
+             * @author Rob Spoor
+             * @param <K> The key type of the map to test.
+             * @param <V> The value type of the map to test.
+             */
+            @DisplayName("remove()")
+            interface RemoveTests<K, V>
+                    extends IteratorTests<K, V>, com.github.robtimus.junit.support.collections.IteratorTests.RemoveTests<Map.Entry<K, V>> {
+
+                @Override
+                @Test
+                @DisplayName("remove() for every element")
+                default void testRemoveEveryElement() {
+                    Map<K, V> map = createMap();
+                    Set<Map.Entry<K, V>> entrySet = map.entrySet();
+                    Iterator<Map.Entry<K, V>> iterator = entrySet.iterator();
+
+                    while (iterator.hasNext()) {
+                        iterator.next();
+                        iterator.remove();
+                    }
+
+                    List<Map.Entry<K, V>> remaining = toList(entrySet);
+                    assertHasElements(remaining, Collections.emptyList(), fixedOrder());
+                    assertEquals(Collections.emptyMap(), map);
+                }
+
+                @Override
+                @Test
+                @DisplayName("remove() for every even-indexed element")
+                default void testRemoveEveryEvenIndexedElement() {
+                    Map<K, V> map = createMap();
+                    Set<Map.Entry<K, V>> entrySet = map.entrySet();
+                    Iterator<Map.Entry<K, V>> iterator = entrySet.iterator();
+
+                    Map<K, V> expectedEntries = new HashMap<>(expectedEntries());
+                    // create a copy of each entry, to prevent volatile entries from being updated just by iterating
+                    List<Map.Entry<K, V>> expectedElements = expectedEntries.entrySet().stream()
+                            .map(SimpleImmutableEntry::new)
+                            .collect(Collectors.toList());
+
+                    boolean remove = true;
+                    while (iterator.hasNext()) {
+                        Map.Entry<K, V> element = iterator.next();
+                        if (remove) {
+                            expectedElements.remove(element);
+                            expectedEntries.remove(element.getKey(), element.getValue());
+                            iterator.remove();
+                        }
+                        remove = !remove;
+                    }
+
+                    List<Map.Entry<K, V>> remaining = toList(entrySet);
+                    assertHasElements(remaining, expectedElements, fixedOrder());
+                    assertEquals(expectedEntries, map);
+                }
+
+                @Override
+                @Test
+                @DisplayName("remove() before next()")
+                default void testRemoveBeforeNext() {
+                    Map<K, V> map = createMap();
+                    Set<Map.Entry<K, V>> entrySet = map.entrySet();
+                    Iterator<Map.Entry<K, V>> iterator = entrySet.iterator();
+
+                    assertThrows(IllegalStateException.class, iterator::remove);
+
+                    Map<K, V> expectedEntries = expectedEntries();
+                    Set<Map.Entry<K, V>> expectedElements = expectedEntries.entrySet();
+
+                    List<Map.Entry<K, V>> remaining = toList(entrySet);
+                    assertHasElements(remaining, expectedElements, fixedOrder());
+                    assertEquals(expectedEntries, map);
+                }
+
+                @Override
+                @Test
+                @DisplayName("remove() after remove()")
+                default void testRemoveAfterRemove() {
+                    Map<K, V> map = createMap();
+                    Set<Map.Entry<K, V>> entrySet = map.entrySet();
+                    Iterator<Map.Entry<K, V>> iterator = entrySet.iterator();
+
+                    Map<K, V> expectedEntries = new HashMap<>(expectedEntries());
+                    // create a copy of each entry, to prevent volatile entries from being updated just by iterating
+                    List<Map.Entry<K, V>> expectedElements = expectedEntries.entrySet().stream()
+                            .map(SimpleImmutableEntry::new)
+                            .collect(Collectors.toList());
+
+                    boolean remove = true;
+                    while (iterator.hasNext()) {
+                        Map.Entry<K, V> element = iterator.next();
+                        if (remove) {
+                            expectedElements.remove(element);
+                            expectedEntries.remove(element.getKey(), element.getValue());
+                            iterator.remove();
+                            assertThrows(IllegalStateException.class, iterator::remove);
+                        }
+                        remove = !remove;
+                    }
+
+                    List<Map.Entry<K, V>> remaining = toList(entrySet);
+                    assertHasElements(remaining, expectedElements, fixedOrder());
+                }
+            }
+
+            /**
+             * Contains tests for {@link Iterator#forEachRemaining(Consumer)} for entry set iterators.
+             *
+             * @author Rob Spoor
+             * @param <K> The key type of the map to test.
+             * @param <V> The value type of the map to test.
+             */
+            @DisplayName("forEachRemaining(Consumer)")
+            interface ForEachRemainingTests<K, V>
+                    extends IteratorTests<K, V>, com.github.robtimus.junit.support.collections.IteratorTests.ForEachRemainingTests<Map.Entry<K, V>> {
+                // no new tests needed
+            }
+        }
+
+        /**
+         * Contains tests for {@link Iterable#forEach(Consumer)} for entry sets.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("forEach(Consumer)")
+        interface ForEachTests<K, V> extends EntrySetTests<K, V>, IterableTests.ForEachTests<Map.Entry<K, V>> {
+            // no new tests needed
+        }
+
+        /**
+         * Contains tests for {@link Set#contains(Object)} for entry sets.
+         * <p>
+         * By default, the tests in this interface assume that calling {@link Set#contains(Object)} with {@code null} or an instance of an
+         * incompatible type will simply return {@code false}. If either is not the case, annotate your class with {@link ContainsNullNotSupported}
+         * and/or {@link ContainsIncompatibleNotSupported}.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("contains(Object)")
+        interface ContainsTests<K, V> extends EntrySetTests<K, V>, CollectionTests.ContainsTests<Map.Entry<K, V>> {
+            // no new tests needed
+        }
+
+        /**
+         * Contains tests for {@link Set#toArray()} for entry sets.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("toArray()")
+        interface ToObjectArrayTests<K, V> extends EntrySetTests<K, V>, CollectionTests.ToObjectArrayTests<Map.Entry<K, V>> {
+            // no new tests needed
+        }
+
+        /**
+         * Contains tests for {@link Set#toArray(Object[])} for entry sets.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("toArray(Object[])")
+        interface ToArrayTests<K, V> extends EntrySetTests<K, V>, CollectionTests.ToArrayTests<Map.Entry<K, V>> {
+            // no new tests needed
+        }
+
+        /**
+         * Contains tests for {@link Set#add(Object)} for entry sets.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("add(Object)")
+        interface AddTests<K, V> extends EntrySetTests<K, V>, UnmodifiableCollectionTests.AddTests<Map.Entry<K, V>> {
+            // no new tests needed
+        }
+
+        /**
+         * Contains tests for {@link Set#remove(Object)} for entry sets.
+         * <p>
+         * By default, the tests in this interface assume that calling {@link Set#remove(Object)} with {@code null} or an instance of an incompatible
+         * type will simply return {@code false}. If either is not the case, annotate your class with {@link RemoveNullNotSupported} and/or
+         * {@link RemoveIncompatibleNotSupported}.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @TestInstance(Lifecycle.PER_CLASS)
+        @DisplayName("remove(Object)")
+        interface RemoveTests<K, V> extends EntrySetTests<K, V>, CollectionTests.RemoveTests<Map.Entry<K, V>> {
+
+            @Override
+            @ParameterizedTest(name = "{0}: {1}")
+            @ArgumentsSource(CollectionTests.RemoveArgumentsProvider.class)
+            @DisplayName("remove(Object)")
+            default void testRemove(Object o, boolean expected) {
+                Map<K, V> map = createMap();
+                Set<Map.Entry<K, V>> entrySet = map.entrySet();
+
+                assertEquals(expected, entrySet.remove(o));
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Set<Map.Entry<K, V>> expectedElements = expectedEntries.entrySet();
+                if (expected) {
+                    expectedEntries = new HashMap<>(expectedEntries);
+                    expectedElements = expectedEntries.entrySet();
+                    expectedElements.remove(o);
+                }
+
+                assertHasElements(entrySet, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("remove(Object) with null")
+            default void testRemoveNull(TestInfo testInfo) {
+                Map<K, V> map = createMap();
+                Set<Map.Entry<K, V>> entrySet = map.entrySet();
+
+                RemoveNullNotSupported annotation = testInfo.getTestClass()
+                        .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
+                        .getAnnotation(RemoveNullNotSupported.class);
+
+                if (annotation == null) {
+                    assertFalse(entrySet.remove(null));
+                } else {
+                    assertThrows(annotation.expected(), () -> entrySet.remove(null));
+                }
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Set<Map.Entry<K, V>> expectedElements = expectedEntries.entrySet();
+
+                assertHasElements(entrySet, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("remove(Object) with incompatible object")
+            default void testRemoveIncompatibleObject(TestInfo testInfo) {
+                Map<K, V> map = createMap();
+                Set<?> entrySet = map.entrySet();
+
+                RemoveIncompatibleNotSupported annotation = testInfo.getTestClass()
+                        .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
+                        .getAnnotation(RemoveIncompatibleNotSupported.class);
+
+                if (annotation == null) {
+                    assertFalse(entrySet.remove(new IncompatibleObject()));
+                } else {
+                    assertThrows(annotation.expected(), () -> entrySet.remove(new IncompatibleObject()));
+                }
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Set<Map.Entry<K, V>> expectedElements = expectedEntries.entrySet();
+
+                assertHasElements(entrySet, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+        }
+
+        /**
+         * Contains tests for {@link Set#containsAll(Collection)} for entry sets.
+         * <p>
+         * By default, the tests in this interface assume that calling {@link Set#containsAll(Collection)} with a collection containing {@code null}
+         * or an instance of an incompatible type will simply return {@code false}. If either is not the case, annotate your class with
+         * {@link ContainsNullNotSupported} and/or {@link ContainsIncompatibleNotSupported}.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @TestInstance(Lifecycle.PER_CLASS)
+        @DisplayName("containsAll(Collection)")
+        interface ContainsAllTests<K, V> extends EntrySetTests<K, V>, CollectionTests.ContainsAllTests<Map.Entry<K, V>> {
+            // no new tests needed
+        }
+
+        /**
+         * Contains tests for {@link Set#addAll(Collection)} for entry sets.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("addAll(Collection)")
+        interface AddAllTests<K, V> extends EntrySetTests<K, V>, UnmodifiableCollectionTests.AddAllTests<Map.Entry<K, V>> {
+            // no new tests needed
+        }
+
+        /**
+         * Contains tests for {@link Set#removeAll(Collection)} for entry sets.
+         * <p>
+         * By default, the tests in this interface assume that calling {@link Set#removeAll(Collection)} with a collection containing {@code null} or
+         * an instance of an incompatible type will simply ignore the {@code null} and incompatible element. If either is not the case, annotate your
+         * class with {@link RemoveNullNotSupported} and/or {@link RemoveIncompatibleNotSupported}.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @TestInstance(Lifecycle.PER_CLASS)
+        @DisplayName("removeAll(Collection)")
+        interface RemoveAllTests<K, V> extends EntrySetTests<K, V>, CollectionTests.RemoveAllTests<Map.Entry<K, V>> {
+
+            @Override
+            @ParameterizedTest(name = "{0}: {1}")
+            @ArgumentsSource(RemoveAllArgumentsProvider.class)
+            @DisplayName("removeAll(Collection)")
+            default void testRemoveAll(Collection<?> c, boolean expected) {
+                Map<K, V> map = createMap();
+                Set<Map.Entry<K, V>> entrySet = map.entrySet();
+
+                assertEquals(expected, entrySet.removeAll(c));
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Set<Map.Entry<K, V>> expectedElements = expectedEntries.entrySet();
+                if (expected) {
+                    expectedEntries = new HashMap<>(expectedEntries);
+                    expectedElements = expectedEntries.entrySet();
+                    expectedElements.removeAll(c);
+                }
+
+                assertHasElements(entrySet, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("removeAll(Collection) with a null collection")
+            default void testRemoveAllWithNullCollection() {
+                Map<K, V> map = createMap();
+                Set<Map.Entry<K, V>> entrySet = map.entrySet();
+
+                assertThrows(NullPointerException.class, () -> entrySet.removeAll(null));
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Set<Map.Entry<K, V>> expectedElements = expectedEntries.entrySet();
+
+                assertHasElements(entrySet, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("removeAll(Collection) with a collection with a null")
+            default void testRemoveAllWithCollectionWithNull(TestInfo testInfo) {
+                Map<K, V> map = createMap();
+                Set<Map.Entry<K, V>> entrySet = map.entrySet();
+
+                Collection<?> c = Collections.singleton(null);
+
+                RemoveNullNotSupported annotation = testInfo.getTestClass()
+                        .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
+                        .getAnnotation(RemoveNullNotSupported.class);
+
+                if (annotation == null) {
+                    assertFalse(entrySet.removeAll(c));
+                } else {
+                    assertThrows(annotation.expected(), () -> entrySet.removeAll(c));
+                }
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Set<Map.Entry<K, V>> expectedElements = expectedEntries.entrySet();
+
+                assertHasElements(entrySet, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("removeAll(Collection) with a collection with an incompatible object")
+            default void testRemoveAllWithCollectionWithIncompatibleObject(TestInfo testInfo) {
+                Map<K, V> map = createMap();
+                Set<Map.Entry<K, V>> entrySet = map.entrySet();
+
+                Collection<?> c = Collections.singleton(new IncompatibleObject());
+
+                RemoveIncompatibleNotSupported annotation = testInfo.getTestClass()
+                        .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
+                        .getAnnotation(RemoveIncompatibleNotSupported.class);
+
+                if (annotation == null) {
+                    assertFalse(entrySet.removeAll(c));
+                } else {
+                    assertThrows(annotation.expected(), () -> entrySet.removeAll(c));
+                }
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Set<Map.Entry<K, V>> expectedElements = expectedEntries.entrySet();
+
+                assertHasElements(entrySet, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+        }
+
+        /**
+         * Contains tests for {@link Set#removeIf(Predicate)} for entry sets.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("removeIf(Predicate)")
+        interface RemoveIfTests<K, V> extends EntrySetTests<K, V>, CollectionTests.RemoveIfTests<Map.Entry<K, V>> {
+
+            @Override
+            @Test
+            @DisplayName("removeIf(Predicate) with matching predicate")
+            default void testRemoveIfWithMatchingPredicate() {
+                Map<K, V> map = createMap();
+                Set<Map.Entry<K, V>> entrySet = map.entrySet();
+
+                boolean isEmpty = entrySet.isEmpty();
+                assertEquals(!isEmpty, entrySet.removeIf(e -> true));
+
+                assertHasElements(entrySet, Collections.emptyList(), fixedOrder());
+                assertEquals(Collections.emptyMap(), map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("removeIf(Predicate) with non-matching predicate")
+            default void testRemoveIfWithNonMatchingPredicate() {
+                Map<K, V> map = createMap();
+                Set<Map.Entry<K, V>> entrySet = map.entrySet();
+
+                assertFalse(entrySet.removeIf(e -> false));
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Set<Map.Entry<K, V>> expectedElements = expectedEntries.entrySet();
+
+                assertHasElements(entrySet, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("removeIf(Predicate) with null predicate")
+            default void testRemoveIfWithNullPredicate() {
+                Map<K, V> map = createMap();
+                Set<Map.Entry<K, V>> entrySet = map.entrySet();
+
+                assertThrows(NullPointerException.class, () -> entrySet.removeIf(null));
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Set<Map.Entry<K, V>> expectedElements = expectedEntries.entrySet();
+
+                assertHasElements(entrySet, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+        }
+
+        /**
+         * Contains tests for {@link Set#retainAll(Collection)} for entry sets.
+         * <p>
+         * By default, the tests in this interface assume that calling {@link Set#retainAll(Collection)} with a collection containing {@code null} or
+         * an instance of an incompatible type will simply ignore the {@code null} and incompatible element. If either is not the case, annotate your
+         * class with {@link ContainsNullNotSupported} and/or {@link ContainsIncompatibleNotSupported}
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @TestInstance(Lifecycle.PER_CLASS)
+        @DisplayName("retainAll(Collection)")
+        interface RetainAllTests<K, V> extends EntrySetTests<K, V>, CollectionTests.RetainAllTests<Map.Entry<K, V>> {
+
+            @Override
+            @ParameterizedTest(name = "{0}: {1}")
+            @ArgumentsSource(RetainAllArgumentsProvider.class)
+            @DisplayName("retainAll(Collection)")
+            default void testRetainAll(Collection<?> c, boolean expected) {
+                Map<K, V> map = createMap();
+                Set<Map.Entry<K, V>> entrySet = map.entrySet();
+
+                assertEquals(expected, entrySet.retainAll(c));
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Set<Map.Entry<K, V>> expectedElements = expectedEntries.entrySet();
+                if (expected) {
+                    expectedEntries = new HashMap<>(expectedEntries);
+                    expectedElements = expectedEntries.entrySet();
+                    expectedElements.retainAll(c);
+                }
+
+                assertHasElements(entrySet, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("retainAll(Collection) with a null collection")
+            default void testRetainAllWithNullCollection() {
+                Map<K, V> map = createMap();
+                Set<Map.Entry<K, V>> entrySet = map.entrySet();
+
+                assertThrows(NullPointerException.class, () -> entrySet.retainAll(null));
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Set<Map.Entry<K, V>> expectedElements = expectedEntries.entrySet();
+
+                assertHasElements(entrySet, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("retainAll(Collection) with a collection with a null")
+            default void testRetainAllWithCollectionWithNull(TestInfo testInfo) {
+                Map<K, V> map = createMap();
+                Set<Map.Entry<K, V>> entrySet = map.entrySet();
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Set<Map.Entry<K, V>> expectedElements = expectedEntries.entrySet();
+
+                Collection<Object> c = new ArrayList<>(expectedElements);
+                c.add(null);
+
+                ContainsNullNotSupported annotation = testInfo.getTestClass()
+                        .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
+                        .getAnnotation(ContainsNullNotSupported.class);
+
+                if (annotation == null) {
+                    assertFalse(entrySet.retainAll(c));
+                } else {
+                    assertThrows(annotation.expected(), () -> entrySet.retainAll(c));
+                }
+
+                assertHasElements(entrySet, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+
+            @Override
+            @Test
+            @DisplayName("retainAll(Collection) with a collection with an incompatible object")
+            default void testRetainAllWithCollectionWithIncompatibleObject(TestInfo testInfo) {
+                Map<K, V> map = createMap();
+                Set<Map.Entry<K, V>> entrySet = map.entrySet();
+
+                Map<K, V> expectedEntries = expectedEntries();
+                Set<Map.Entry<K, V>> expectedElements = expectedEntries.entrySet();
+
+                Collection<Object> c = new ArrayList<>(expectedElements);
+                c.add(new IncompatibleObject());
+
+                ContainsIncompatibleNotSupported annotation = testInfo.getTestClass()
+                        .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
+                        .getAnnotation(ContainsIncompatibleNotSupported.class);
+
+                if (annotation == null) {
+                    assertFalse(entrySet.retainAll(c));
+                } else {
+                    assertThrows(annotation.expected(), () -> entrySet.retainAll(c));
+                }
+
+                assertHasElements(entrySet, expectedElements, fixedOrder());
+                assertEquals(expectedEntries, map);
+            }
+        }
+
+        /**
+         * Contains tests for {@link Set#clear()} for entry sets.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("clear()")
+        interface ClearTests<K, V> extends EntrySetTests<K, V>, CollectionTests.ClearTests<Map.Entry<K, V>> {
+
+            @Override
+            @Test
+            @DisplayName("clear()")
+            default void testClear() {
+                Map<K, V> map = createMap();
+                Set<Map.Entry<K, V>> entrySet = map.entrySet();
+
+                entrySet.clear();
+
+                assertHasElements(entrySet, Collections.emptyList(), fixedOrder());
+                assertEquals(Collections.emptyMap(), map);
+            }
+        }
+
+        /**
+         * Contains tests for {@link Set#equals(Object)} for entry sets.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @TestInstance(Lifecycle.PER_CLASS)
+        @DisplayName("equals(Object)")
+        interface EqualsTests<K, V> extends EntrySetTests<K, V>, SetTests.EqualsTests<Map.Entry<K, V>> {
+            // no new tests needed
+        }
+
+        /**
+         * Contains tests for {@link Set#hashCode()} for entry sets.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("hashCode()")
+        interface HashCodeTests<K, V> extends EntrySetTests<K, V>, SetTests.HashCodeTests<Map.Entry<K, V>> {
+            // no new tests needed
+        }
+
+        /**
+         * Contains tests for {@link Set#spliterator()} for entry sets.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         */
+        @DisplayName("spliterator()")
+        interface SpliteratorTests<K, V> extends EntrySetTests<K, V>, SetTests.SpliteratorTests<Map.Entry<K, V>> {
+            // no new tests needed
+        }
+    }
 
     /**
      * Contains tests for {@link Map#equals(Object)}.
@@ -688,16 +2721,16 @@ public interface MapTests<K, V> {
             V firstValue = nonContained.get(0).getValue();
             V lastValue = nonContained.get(nonContained.size() - 1).getValue();
 
-            for (Map.Entry<?, ?> entry : expectedEntries().entrySet()) {
+            for (Map.Entry<K, V> entry : expectedEntries().entrySet()) {
                 assertEquals(entry.getValue(), map.getOrDefault(entry.getKey(), firstValue));
                 assertEquals(entry.getValue(), map.getOrDefault(entry.getKey(), lastValue));
                 assertEquals(entry.getValue(), map.getOrDefault(entry.getKey(), null));
             }
 
-            for (Object o : nonContainedEntries().keySet()) {
-                assertEquals(firstValue, map.getOrDefault(o, firstValue));
-                assertEquals(lastValue, map.getOrDefault(o, lastValue));
-                assertNull(map.getOrDefault(o, null));
+            for (K key : nonContainedEntries().keySet()) {
+                assertEquals(firstValue, map.getOrDefault(key, firstValue));
+                assertEquals(lastValue, map.getOrDefault(key, lastValue));
+                assertNull(map.getOrDefault(key, null));
             }
         }
 
@@ -904,7 +2937,7 @@ public interface MapTests<K, V> {
         @ArgumentsSource(RemoveExactValueArgumentsProvider.class)
         @DisplayName("remove(Object, Object)")
         default void testRemoveExactValue(Object key, Object value, boolean expected) {
-            Map<?, ?> map = createMap();
+            Map<K, V> map = createMap();
 
             assertEquals(expected, map.remove(key, value));
 
@@ -920,9 +2953,9 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("remove(Object, Object) with null key")
         default void testRemoveExactValueWithNullKey(TestInfo testInfo) {
-            Map<?, ?> map = createMap();
+            Map<K, V> map = createMap();
 
-            Object nonContained = nonContainedEntries().values().iterator().next();
+            V nonContained = nonContainedEntries().values().iterator().next();
 
             RemoveNullKeyNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -940,9 +2973,9 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("remove(Object, Object) with incompatible key")
         default void testRemoveExactValueWithIncompatibleKey(TestInfo testInfo) {
-            Map<?, ?> map = createMap();
+            Map<K, V> map = createMap();
 
-            Object nonContained = nonContainedEntries().values().iterator().next();
+            V nonContained = nonContainedEntries().values().iterator().next();
 
             RemoveIncompatibleKeyNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -960,9 +2993,9 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("remove(Object, Object) with null value")
         default void testRemoveExactValueWithNullValue(TestInfo testInfo) {
-            Map<?, ?> map = createMap();
+            Map<K, V> map = createMap();
 
-            Object nonContained = nonContainedEntries().keySet().iterator().next();
+            K nonContained = nonContainedEntries().keySet().iterator().next();
 
             RemoveNullNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -980,9 +3013,9 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("remove(Object, Object) with incompatible value")
         default void testRemoveExactValueWithIncompatibleValue(TestInfo testInfo) {
-            Map<?, ?> map = createMap();
+            Map<K, V> map = createMap();
 
-            Object nonContained = nonContainedEntries().keySet().iterator().next();
+            K nonContained = nonContainedEntries().keySet().iterator().next();
 
             RemoveIncompatibleNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -1183,8 +3216,7 @@ public interface MapTests<K, V> {
             Stream<Arguments> notExpected = instance.nonContainedEntries().keySet().stream()
                     .map(e -> arguments(e, null, false));
 
-            return Stream.of(expected, notExpected)
-                    .flatMap(Function.identity());
+            return Stream.of(expected, notExpected).flatMap(Function.identity());
         }
     }
 
@@ -1247,8 +3279,7 @@ public interface MapTests<K, V> {
             Stream<Arguments> notExpected = instance.nonContainedEntries().keySet().stream()
                     .map(e -> arguments(e, null, false));
 
-            return Stream.of(expected, containedKeysWithDifferentValue, notExpected)
-                    .flatMap(Function.identity());
+            return Stream.of(expected, containedKeysWithDifferentValue, notExpected).flatMap(Function.identity());
         }
     }
 }

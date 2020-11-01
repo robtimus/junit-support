@@ -145,8 +145,8 @@ public interface IteratorTests<T> {
             while (iterator.hasNext()) {
                 T element = iterator.next();
                 if (remove) {
-                    iterator.remove();
                     expectedElements.remove(element);
+                    iterator.remove();
                 }
                 remove = !remove;
             }
@@ -179,8 +179,8 @@ public interface IteratorTests<T> {
             while (iterator.hasNext()) {
                 T element = iterator.next();
                 if (remove) {
-                    iterator.remove();
                     expectedElements.remove(element);
+                    iterator.remove();
                     assertThrows(IllegalStateException.class, iterator::remove);
                 }
                 remove = !remove;

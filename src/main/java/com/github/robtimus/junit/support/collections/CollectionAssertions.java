@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A collection of utility methods that support asserting conditions for collections and related types.
@@ -52,6 +53,8 @@ public final class CollectionAssertions {
             assertThat(collection, empty());
         } else if (fixedOrder) {
             assertEquals(asList(expected), asList(collection));
+        } else if (collection instanceof Set<?> && expected instanceof Set<?>) {
+            assertEquals(expected, collection);
         } else {
             assertThat(collection, containsInAnyOrder(expected.toArray()));
         }

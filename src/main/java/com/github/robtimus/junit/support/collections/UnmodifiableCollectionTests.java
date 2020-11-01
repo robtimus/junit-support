@@ -97,7 +97,7 @@ public interface UnmodifiableCollectionTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("remove(Object) with contained elements")
         default void testRemoveContainedElements() {
-            Collection<?> collection = createIterable();
+            Collection<T> collection = createIterable();
 
             Collection<T> expectedElements = expectedElements();
 
@@ -111,7 +111,7 @@ public interface UnmodifiableCollectionTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("remove(Object) with non-contained elements")
         default void testRemoveNonContainedElements() {
-            Collection<?> collection = createIterable();
+            Collection<T> collection = createIterable();
 
             for (T element : nonContainedElements()) {
                 // with a non-contained object, either it does nothing or it throws an exception
@@ -128,7 +128,7 @@ public interface UnmodifiableCollectionTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("remove(Object) with null")
         default void testRemoveNull() {
-            Collection<?> collection = createIterable();
+            Collection<T> collection = createIterable();
 
             // with a non-contained object, either it does nothing or it throws an exception
             try {
@@ -143,7 +143,7 @@ public interface UnmodifiableCollectionTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("remove(Object) with an incompatible object")
         default void testRemoveIncompatibleObject() {
-            Collection<?> collection = createIterable();
+            Collection<T> collection = createIterable();
 
             // with a non-contained object, either it does nothing or it throws an exception
             try {
@@ -319,7 +319,7 @@ public interface UnmodifiableCollectionTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("removeAll(Object) with an incompatible object")
         default void testRemoveAllWithIncompatibleObject() {
-            Collection<?> collection = createIterable();
+            Collection<T> collection = createIterable();
 
             // with a non-contained object, either it does nothing or it throws an exception
             try {
@@ -457,7 +457,7 @@ public interface UnmodifiableCollectionTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("retainAll(Object) with an incompatible object")
         default void testRetainAllWithIncompatibleObject() {
-            Collection<?> collection = createIterable();
+            Collection<T> collection = createIterable();
 
             assertThrows(UnsupportedOperationException.class, () -> collection.retainAll(Collections.singleton(new IncompatibleObject())));
 

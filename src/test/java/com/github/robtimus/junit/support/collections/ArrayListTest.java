@@ -54,10 +54,10 @@ class ArrayListTest {
 
     @Nested
     @DisplayName("iterator()")
-    class IteratorTest extends IteratorTestBase {
+    class IteratorTest {
 
         @Nested
-        class IterationTest extends IteratorTestBase implements IterationTests<String> {
+        class IterationTest extends IteratorTestBase implements IteratorTests.IterationTests<String> {
             // no additional tests
         }
 
@@ -67,7 +67,7 @@ class ArrayListTest {
         }
 
         @Nested
-        class ForEachRemainingTest extends IteratorTestBase implements ForEachRemainingTests<String> {
+        class ForEachRemainingTest extends IteratorTestBase implements IteratorTests.ForEachRemainingTests<String> {
             // no additional tests
         }
     }

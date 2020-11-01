@@ -192,8 +192,8 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
             while (iterator.hasNext()) {
                 T element = iterator.next();
                 if (remove) {
-                    iterator.remove();
                     expectedElements.remove(element);
+                    iterator.remove();
                 }
                 remove = !remove;
             }
@@ -224,8 +224,8 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
             while (iterator.hasNext()) {
                 T element = iterator.next();
                 if (remove) {
-                    iterator.remove();
                     expectedElements.remove(element);
+                    iterator.remove();
                     assertThrows(IllegalStateException.class, iterator::remove);
                 }
                 remove = !remove;
@@ -260,8 +260,8 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
             while (iterator.hasPrevious()) {
                 T element = iterator.previous();
                 if (remove) {
-                    iterator.remove();
                     expectedElements.remove(element);
+                    iterator.remove();
                 }
                 remove = !remove;
             }
@@ -292,8 +292,8 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
             while (iterator.hasPrevious()) {
                 T element = iterator.previous();
                 if (remove) {
-                    iterator.remove();
                     expectedElements.remove(element);
+                    iterator.remove();
                     assertThrows(IllegalStateException.class, iterator::remove);
                 }
                 remove = !remove;

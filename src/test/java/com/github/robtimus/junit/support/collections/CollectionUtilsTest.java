@@ -17,14 +17,19 @@
 
 package com.github.robtimus.junit.support.collections;
 
+import static com.github.robtimus.junit.support.collections.CollectionFactory.createMap;
 import static com.github.robtimus.junit.support.collections.CollectionUtils.commonType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -40,15 +45,26 @@ class CollectionUtilsTest {
         assertEquals(expected, commonType(collection));
     }
 
+    @Test
+    void testCommonTypeForMapEntrySet() {
+        Map<Integer, String> map = createMap(HashMap::new, 0, 10);
+        Class<?> commonType = commonType(map.entrySet());
+        assertTrue(Map.Entry.class.isAssignableFrom(commonType), String.format("commonType '%s' must be assignable to Map.Entry", commonType));
+    }
+
     private static final class CommonTypeArgumentProvider implements ArgumentsProvider {
 
         @Override
         public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+            Map<Integer, String> map = createMap(HashMap::new, 0, 10);
             return Stream.of(
                     arguments(Arrays.asList("1", "2", "3"), String.class),
                     arguments(Arrays.asList(1, 1L, 1D), Number.class),
                     arguments(Arrays.asList("1", 1, true, new byte[0]), Serializable.class),
-                    arguments(Arrays.asList("1", Collections.emptyIterator()), Object.class)
+                    arguments(Arrays.asList("1", Collections.emptyIterator()), Object.class),
+                    arguments(map.keySet(), Integer.class),
+                    arguments(map.values(), String.class),
+                    arguments(map.entrySet(), Map.Entry.class)
                     );
         }
     }

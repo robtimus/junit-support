@@ -306,7 +306,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
         @Test
         @DisplayName("remove(int)")
         default void testRemoveIndexed() {
-            List<?> list = createIterable();
+            List<T> list = createIterable();
 
             for (int i = list.size() - 1; i >= 0; i--) {
                 int index = i;

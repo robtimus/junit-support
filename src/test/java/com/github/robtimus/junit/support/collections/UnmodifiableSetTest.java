@@ -64,81 +64,81 @@ class UnmodifiableSetTest {
     }
 
     @Nested
-    class ForEachTest extends UnmodifiableSetTestBase implements ForEachTests<String> {
+    class ForEachTest extends SetTestBase implements ForEachTests<String> {
         // no additional tests
     }
 
     @Nested
-    class ContainsTest extends UnmodifiableSetTestBase implements ContainsTests<String> {
+    class ContainsTest extends SetTestBase implements ContainsTests<String> {
         // no additional tests
     }
 
     @Nested
-    class ToObjectArrayTest extends UnmodifiableSetTestBase implements ToObjectArrayTests<String> {
+    class ToObjectArrayTest extends SetTestBase implements ToObjectArrayTests<String> {
         // no additional tests
     }
 
     @Nested
-    class ToArrayTest extends UnmodifiableSetTestBase implements ToArrayTests<String> {
+    class ToArrayTest extends SetTestBase implements ToArrayTests<String> {
         // no additional tests
     }
 
     @Nested
-    class AddTest extends UnmodifiableSetTestBase implements AddTests<String> {
+    class AddTest extends SetTestBase implements AddTests<String> {
         // no additional tests
     }
 
     @Nested
-    class RemoveTest extends UnmodifiableSetTestBase implements RemoveTests<String> {
+    class RemoveTest extends SetTestBase implements RemoveTests<String> {
         // no additional tests
     }
 
     @Nested
-    class ContainsAllTest extends UnmodifiableSetTestBase implements ContainsAllTests<String> {
+    class ContainsAllTest extends SetTestBase implements ContainsAllTests<String> {
         // no additional tests
     }
 
     @Nested
-    class AddAllTest extends UnmodifiableSetTestBase implements AddAllTests<String> {
+    class AddAllTest extends SetTestBase implements AddAllTests<String> {
         // no additional tests
     }
 
     @Nested
-    class RemoveAllTest extends UnmodifiableSetTestBase implements RemoveAllTests<String> {
+    class RemoveAllTest extends SetTestBase implements RemoveAllTests<String> {
         // no additional tests
     }
 
     @Nested
-    class RemoveIfTest extends UnmodifiableSetTestBase implements RemoveIfTests<String> {
+    class RemoveIfTest extends SetTestBase implements RemoveIfTests<String> {
         // no additional tests
     }
 
     @Nested
-    class RetainAllTest extends UnmodifiableSetTestBase implements RetainAllTests<String> {
+    class RetainAllTest extends SetTestBase implements RetainAllTests<String> {
         // no additional tests
     }
 
     @Nested
-    class ClearTest extends UnmodifiableSetTestBase implements ClearTests<String> {
+    class ClearTest extends SetTestBase implements ClearTests<String> {
         // no additional tests
     }
 
     @Nested
-    class EqualsTest extends UnmodifiableSetTestBase implements EqualsTests<String> {
+    class EqualsTest extends SetTestBase implements EqualsTests<String> {
         // no additional tests
     }
 
     @Nested
-    class HashCodeTest extends UnmodifiableSetTestBase implements HashCodeTests<String> {
+    class HashCodeTest extends SetTestBase implements HashCodeTests<String> {
         // no additional tests
     }
 
     @Nested
-    class SpliteratorTest extends UnmodifiableSetTestBase implements SpliteratorTests<String> {
+    class SpliteratorTest extends SetTestBase implements SpliteratorTests<String> {
         // no additional tests
     }
 
-    abstract static class UnmodifiableSetTestBase implements UnmodifiableSetTests<String> {
+    abstract static class SetTestBase implements UnmodifiableSetTests<String> {
 
         @Override
         public Set<String> createIterable() {
@@ -162,7 +162,7 @@ class UnmodifiableSetTest {
         }
     }
 
-    abstract static class IteratorTestBase extends UnmodifiableSetTestBase implements UnmodifiableIteratorTests<String> {
+    abstract static class IteratorTestBase extends SetTestBase implements UnmodifiableIteratorTests<String> {
         // no additional methods needed at this time
     }
 }

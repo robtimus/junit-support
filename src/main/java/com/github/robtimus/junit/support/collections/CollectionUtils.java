@@ -17,6 +17,7 @@
 
 package com.github.robtimus.junit.support.collections;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -54,7 +55,7 @@ final class CollectionUtils {
         while (common != Object.class && iterator.hasNext()) {
             common = commonType(common, iterator.next().getClass());
         }
-        if (common != Object.class) {
+        if (common != Object.class && Modifier.isPublic(common.getModifiers())) {
             return common;
         }
 
@@ -83,6 +84,7 @@ final class CollectionUtils {
             Collections.addAll(allInterfaces, c.getInterfaces());
             c = c.getSuperclass();
         }
+        allInterfaces.removeIf(i -> !Modifier.isPublic(i.getModifiers()));
         return allInterfaces;
     }
 }
