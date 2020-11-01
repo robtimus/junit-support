@@ -1,5 +1,5 @@
 /*
- * HashSetTest.java
+ * TreeSetTest.java
  * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,13 +15,14 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.collections;
+package com.github.robtimus.junit.support.collections.examples;
 
-import static com.github.robtimus.junit.support.collections.CollectionFactory.createCollection;
+import static com.github.robtimus.junit.support.collections.examples.CollectionFactory.createCollection;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import com.github.robtimus.junit.support.collections.CollectionTests.ClearTests;
@@ -34,13 +35,20 @@ import com.github.robtimus.junit.support.collections.CollectionTests.RetainAllTe
 import com.github.robtimus.junit.support.collections.CollectionTests.ToArrayTests;
 import com.github.robtimus.junit.support.collections.CollectionTests.ToObjectArrayTests;
 import com.github.robtimus.junit.support.collections.IterableTests.ForEachTests;
+import com.github.robtimus.junit.support.collections.IteratorTests;
+import com.github.robtimus.junit.support.collections.SetTests;
 import com.github.robtimus.junit.support.collections.SetTests.AddAllTests;
 import com.github.robtimus.junit.support.collections.SetTests.AddTests;
 import com.github.robtimus.junit.support.collections.SetTests.EqualsTests;
 import com.github.robtimus.junit.support.collections.SetTests.HashCodeTests;
 import com.github.robtimus.junit.support.collections.SetTests.SpliteratorTests;
+import com.github.robtimus.junit.support.collections.annotation.ContainsIncompatibleNotSupported;
+import com.github.robtimus.junit.support.collections.annotation.ContainsNullNotSupported;
+import com.github.robtimus.junit.support.collections.annotation.RemoveIncompatibleNotSupported;
+import com.github.robtimus.junit.support.collections.annotation.RemoveNullNotSupported;
+import com.github.robtimus.junit.support.collections.annotation.StoreNullNotSupported;
 
-class HashSetTest {
+class TreeSetTest {
 
     @Nested
     @DisplayName("iterator()")
@@ -68,6 +76,8 @@ class HashSetTest {
     }
 
     @Nested
+    @ContainsNullNotSupported
+    @ContainsIncompatibleNotSupported(expected = ClassCastException.class)
     class ContainsTest extends SetTestBase implements ContainsTests<String> {
         // no additional tests
     }
@@ -83,26 +93,44 @@ class HashSetTest {
     }
 
     @Nested
+    @StoreNullNotSupported
     class AddTest extends SetTestBase implements AddTests<String> {
-        // no additional tests
+
+        @Override
+        public void addElementToExpected(List<String> expected, String element) {
+            AddTests.super.addElementToExpected(expected, element);
+            expected.sort(null);
+        }
     }
 
     @Nested
+    @RemoveNullNotSupported
+    @RemoveIncompatibleNotSupported(expected = ClassCastException.class)
     class RemoveTest extends SetTestBase implements RemoveTests<String> {
         // no additional tests
     }
 
     @Nested
+    @ContainsNullNotSupported
+    @ContainsIncompatibleNotSupported(expected = ClassCastException.class)
     class ContainsAllTest extends SetTestBase implements ContainsAllTests<String> {
         // no additional tests
     }
 
     @Nested
+    @StoreNullNotSupported
     class AddAllTest extends SetTestBase implements AddAllTests<String> {
-        // no additional tests
+
+        @Override
+        public void addElementsToExpected(List<String> expected, Collection<? extends String> elements) {
+            AddAllTests.super.addElementsToExpected(expected, elements);
+            expected.sort(null);
+        }
     }
 
     @Nested
+    @RemoveNullNotSupported
+    @RemoveIncompatibleNotSupported(expected = ClassCastException.class)
     class RemoveAllTest extends SetTestBase implements RemoveAllTests<String> {
         // no additional tests
     }
@@ -113,6 +141,7 @@ class HashSetTest {
     }
 
     @Nested
+    // TreeSet.retainAll uses c.contains, so it does support nulls and incompatible objects
     class RetainAllTest extends SetTestBase implements RetainAllTests<String> {
         // no additional tests
     }
@@ -141,7 +170,7 @@ class HashSetTest {
 
         @Override
         public Set<String> createIterable() {
-            return createCollection(HashSet::new, 0, 10);
+            return createCollection(TreeSet::new, 0, 10);
         }
 
         @Override
@@ -156,7 +185,7 @@ class HashSetTest {
 
         @Override
         public boolean fixedOrder() {
-            return false;
+            return true;
         }
     }
 

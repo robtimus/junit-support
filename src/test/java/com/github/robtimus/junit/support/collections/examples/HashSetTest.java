@@ -1,5 +1,5 @@
 /*
- * UnmodifiableSetTest.java
+ * HashSetTest.java
  * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,33 +15,34 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.collections;
+package com.github.robtimus.junit.support.collections.examples;
 
-import static com.github.robtimus.junit.support.collections.CollectionFactory.createCollection;
+import static com.github.robtimus.junit.support.collections.examples.CollectionFactory.createCollection;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import com.github.robtimus.junit.support.collections.CollectionTests.ClearTests;
 import com.github.robtimus.junit.support.collections.CollectionTests.ContainsAllTests;
 import com.github.robtimus.junit.support.collections.CollectionTests.ContainsTests;
+import com.github.robtimus.junit.support.collections.CollectionTests.RemoveAllTests;
+import com.github.robtimus.junit.support.collections.CollectionTests.RemoveIfTests;
+import com.github.robtimus.junit.support.collections.CollectionTests.RemoveTests;
+import com.github.robtimus.junit.support.collections.CollectionTests.RetainAllTests;
 import com.github.robtimus.junit.support.collections.CollectionTests.ToArrayTests;
 import com.github.robtimus.junit.support.collections.CollectionTests.ToObjectArrayTests;
 import com.github.robtimus.junit.support.collections.IterableTests.ForEachTests;
+import com.github.robtimus.junit.support.collections.IteratorTests;
+import com.github.robtimus.junit.support.collections.SetTests;
+import com.github.robtimus.junit.support.collections.SetTests.AddAllTests;
+import com.github.robtimus.junit.support.collections.SetTests.AddTests;
 import com.github.robtimus.junit.support.collections.SetTests.EqualsTests;
 import com.github.robtimus.junit.support.collections.SetTests.HashCodeTests;
 import com.github.robtimus.junit.support.collections.SetTests.SpliteratorTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.AddAllTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.AddTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.ClearTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.RemoveAllTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.RemoveIfTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.RemoveTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.RetainAllTests;
 
-class UnmodifiableSetTest {
+class HashSetTest {
 
     @Nested
     @DisplayName("iterator()")
@@ -53,7 +54,7 @@ class UnmodifiableSetTest {
         }
 
         @Nested
-        class RemoveTest extends IteratorTestBase implements UnmodifiableIteratorTests.RemoveTests<String> {
+        class RemoveTest extends IteratorTestBase implements IteratorTests.RemoveTests<String> {
             // no additional tests
         }
 
@@ -138,12 +139,11 @@ class UnmodifiableSetTest {
         // no additional tests
     }
 
-    abstract static class SetTestBase implements UnmodifiableSetTests<String> {
+    abstract static class SetTestBase implements SetTests<String> {
 
         @Override
         public Set<String> createIterable() {
-            Set<String> set = createCollection(HashSet::new, 0, 10);
-            return Collections.unmodifiableSet(set);
+            return createCollection(HashSet::new, 0, 10);
         }
 
         @Override
@@ -162,7 +162,7 @@ class UnmodifiableSetTest {
         }
     }
 
-    abstract static class IteratorTestBase extends SetTestBase implements UnmodifiableIteratorTests<String> {
+    abstract static class IteratorTestBase extends SetTestBase implements IteratorTests<String> {
         // no additional methods needed at this time
     }
 }

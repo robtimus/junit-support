@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.collections;
+package com.github.robtimus.junit.support.collections.examples;
 
-import static com.github.robtimus.junit.support.collections.CollectionFactory.createCollection;
+import static com.github.robtimus.junit.support.collections.examples.CollectionFactory.createCollection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,6 +38,7 @@ import com.github.robtimus.junit.support.collections.ListTests.LastIndexOfTests;
 import com.github.robtimus.junit.support.collections.ListTests.ListIteratorIndexedTests;
 import com.github.robtimus.junit.support.collections.ListTests.SpliteratorTests;
 import com.github.robtimus.junit.support.collections.ListTests.SubListTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.AddAllTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.AddTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.ClearTests;
@@ -45,6 +46,9 @@ import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests
 import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.RemoveIfTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.RemoveTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.RetainAllTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableIteratorTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableListIteratorTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableListTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableListTests.AddAllIndexedTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableListTests.AddIndexedTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableListTests.RemoveIndexedTests;

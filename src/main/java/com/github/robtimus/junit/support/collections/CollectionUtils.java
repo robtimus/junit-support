@@ -64,7 +64,14 @@ final class CollectionUtils {
         while (!commonInterfaces.isEmpty() && iterator.hasNext()) {
             commonInterfaces.retainAll(collectAllInterfaces(iterator.next().getClass()));
         }
-        return commonInterfaces.isEmpty() ? Object.class : commonInterfaces.iterator().next();
+
+        Set<Class<?>> publicCommonInterfaces = new HashSet<>(commonInterfaces);
+        publicCommonInterfaces.removeIf(i -> !Modifier.isPublic(i.getModifiers()));
+        if (!publicCommonInterfaces.isEmpty()) {
+            return publicCommonInterfaces.iterator().next();
+        }
+
+        return commonInterfaces.isEmpty() ? common : commonInterfaces.iterator().next();
     }
 
     private static Class<?> commonType(Class<?> c1, Class<?> c2) {
@@ -84,7 +91,6 @@ final class CollectionUtils {
             Collections.addAll(allInterfaces, c.getInterfaces());
             c = c.getSuperclass();
         }
-        allInterfaces.removeIf(i -> !Modifier.isPublic(i.getModifiers()));
         return allInterfaces;
     }
 }

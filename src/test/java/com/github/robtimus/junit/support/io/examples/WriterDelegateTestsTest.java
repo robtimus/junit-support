@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.io;
+package com.github.robtimus.junit.support.io.examples;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
 import org.junit.jupiter.api.Nested;
+import com.github.robtimus.junit.support.io.WriterDelegateTests;
 import com.github.robtimus.junit.support.io.WriterDelegateTests.AppendCharSequencePortionTests;
 import com.github.robtimus.junit.support.io.WriterDelegateTests.AppendCharSequenceTests;
 import com.github.robtimus.junit.support.io.WriterDelegateTests.AppendCharTests;

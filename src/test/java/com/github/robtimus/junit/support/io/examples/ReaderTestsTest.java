@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.io;
+package com.github.robtimus.junit.support.io.examples;
 
 import java.io.Reader;
 import org.apache.commons.io.input.CharSequenceReader;
 import org.junit.jupiter.api.Nested;
+import com.github.robtimus.junit.support.io.ReaderTests;
 import com.github.robtimus.junit.support.io.ReaderTests.MarkResetTests;
 import com.github.robtimus.junit.support.io.ReaderTests.ReadCharTests;
 import com.github.robtimus.junit.support.io.ReaderTests.ReadIntoCharArrayPortionTests;

@@ -1,5 +1,5 @@
 /*
- * EmptySetTest.java
+ * UnmodifiableSetTest.java
  * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,31 +15,35 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.collections;
+package com.github.robtimus.junit.support.collections.examples;
 
-import static com.github.robtimus.junit.support.collections.CollectionFactory.createCollection;
+import static com.github.robtimus.junit.support.collections.examples.CollectionFactory.createCollection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
-import com.github.robtimus.junit.support.collections.CollectionTests.ClearTests;
 import com.github.robtimus.junit.support.collections.CollectionTests.ContainsAllTests;
 import com.github.robtimus.junit.support.collections.CollectionTests.ContainsTests;
-import com.github.robtimus.junit.support.collections.CollectionTests.RemoveAllTests;
-import com.github.robtimus.junit.support.collections.CollectionTests.RemoveIfTests;
-import com.github.robtimus.junit.support.collections.CollectionTests.RemoveTests;
-import com.github.robtimus.junit.support.collections.CollectionTests.RetainAllTests;
 import com.github.robtimus.junit.support.collections.CollectionTests.ToArrayTests;
 import com.github.robtimus.junit.support.collections.CollectionTests.ToObjectArrayTests;
 import com.github.robtimus.junit.support.collections.IterableTests.ForEachTests;
 import com.github.robtimus.junit.support.collections.SetTests.EqualsTests;
 import com.github.robtimus.junit.support.collections.SetTests.HashCodeTests;
+import com.github.robtimus.junit.support.collections.SetTests.SpliteratorTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.AddAllTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.AddTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.ClearTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.RemoveAllTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.RemoveIfTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.RemoveTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.RetainAllTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableIteratorTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableSetTests;
 
-class EmptySetTest {
+class UnmodifiableSetTest {
 
     @Nested
     @DisplayName("iterator()")
@@ -51,7 +55,7 @@ class EmptySetTest {
         }
 
         @Nested
-        class RemoveTest extends IteratorTestBase implements IteratorTests.RemoveTests<String> {
+        class RemoveTest extends IteratorTestBase implements UnmodifiableIteratorTests.RemoveTests<String> {
             // no additional tests
         }
 
@@ -78,16 +82,6 @@ class EmptySetTest {
 
     @Nested
     class ToArrayTest extends SetTestBase implements ToArrayTests<String> {
-
-        // smaller length is not possible; override to disable the test
-        @Override
-        public void testToArrayWithSmallerLength() {
-            throw new UnsupportedOperationException();
-        }
-    }
-
-    @Nested
-    class ContainsAllTest extends SetTestBase implements ContainsAllTests<String> {
         // no additional tests
     }
 
@@ -98,6 +92,11 @@ class EmptySetTest {
 
     @Nested
     class RemoveTest extends SetTestBase implements RemoveTests<String> {
+        // no additional tests
+    }
+
+    @Nested
+    class ContainsAllTest extends SetTestBase implements ContainsAllTests<String> {
         // no additional tests
     }
 
@@ -136,23 +135,27 @@ class EmptySetTest {
         // no additional tests
     }
 
-    // Collections.emptySet().spliterator() incorrectly does not report DISTINCT, so SpliteratorsTest cannot be added here
+    @Nested
+    class SpliteratorTest extends SetTestBase implements SpliteratorTests<String> {
+        // no additional tests
+    }
 
-    abstract static class SetTestBase implements SetTests<String> {
+    abstract static class SetTestBase implements UnmodifiableSetTests<String> {
 
         @Override
         public Set<String> createIterable() {
-            return Collections.emptySet();
+            Set<String> set = createCollection(HashSet::new, 0, 10);
+            return Collections.unmodifiableSet(set);
         }
 
         @Override
         public Collection<String> expectedElements() {
-            return new ArrayList<>();
+            return createCollection(ArrayList::new, 0, 10);
         }
 
         @Override
         public Collection<String> nonContainedElements() {
-            return createCollection(ArrayList::new, 0, 10);
+            return createCollection(ArrayList::new, 10, 20);
         }
 
         @Override
@@ -161,7 +164,7 @@ class EmptySetTest {
         }
     }
 
-    abstract static class IteratorTestBase extends SetTestBase implements IteratorTests<String> {
+    abstract static class IteratorTestBase extends SetTestBase implements UnmodifiableIteratorTests<String> {
         // no additional methods needed at this time
     }
 }

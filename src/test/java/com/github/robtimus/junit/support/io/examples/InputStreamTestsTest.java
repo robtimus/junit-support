@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.io;
+package com.github.robtimus.junit.support.io.examples;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import org.junit.jupiter.api.Nested;
+import com.github.robtimus.junit.support.io.InputStreamTests;
 import com.github.robtimus.junit.support.io.InputStreamTests.AvailableTests;
 import com.github.robtimus.junit.support.io.InputStreamTests.MarkResetTests;
 import com.github.robtimus.junit.support.io.InputStreamTests.ReadByteTests;

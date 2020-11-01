@@ -1,5 +1,5 @@
 /*
- * UnmodifiableMapTest.java
+ * EmptyMapTest.java
  * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.collections;
+package com.github.robtimus.junit.support.collections.examples;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,25 +24,29 @@ import java.util.function.BiFunction;
 import java.util.function.UnaryOperator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import com.github.robtimus.junit.support.collections.MapEntryTests;
+import com.github.robtimus.junit.support.collections.MapTests;
+import com.github.robtimus.junit.support.collections.MapTests.ClearTests;
 import com.github.robtimus.junit.support.collections.MapTests.ContainsKeyTests;
 import com.github.robtimus.junit.support.collections.MapTests.ContainsValueTests;
+import com.github.robtimus.junit.support.collections.MapTests.EntrySetTests;
 import com.github.robtimus.junit.support.collections.MapTests.EqualsTests;
 import com.github.robtimus.junit.support.collections.MapTests.ForEachTests;
 import com.github.robtimus.junit.support.collections.MapTests.GetOrDefaultTests;
 import com.github.robtimus.junit.support.collections.MapTests.GetTests;
 import com.github.robtimus.junit.support.collections.MapTests.HashCodeTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.ClearTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.KeySetTests;
+import com.github.robtimus.junit.support.collections.MapTests.KeySetTests;
+import com.github.robtimus.junit.support.collections.MapTests.RemoveTests;
+import com.github.robtimus.junit.support.collections.MapTests.ReplaceAllTests;
+import com.github.robtimus.junit.support.collections.MapTests.ValuesTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.PutAllTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.PutIfAbsentTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.PutTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.RemoveExactValueTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.RemoveTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.ReplaceAllTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.ReplaceExactValueTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.ReplaceTests;
 
-class UnmodifiableMapTest {
+class EmptyMapTest {
 
     @Nested
     class ContainsKeyTest extends MapTestBase implements ContainsKeyTests<Integer, String> {
@@ -128,7 +132,12 @@ class UnmodifiableMapTest {
 
         @Nested
         class ToArrayTest extends KeySetTestBase implements KeySetTests.ToArrayTests<Integer, String> {
-            // no additional tests
+
+            // smaller length is not possible; override to disable the test
+            @Override
+            public void testToArrayWithSmallerLength() {
+                throw new UnsupportedOperationException();
+            }
         }
 
         @Nested
@@ -181,10 +190,7 @@ class UnmodifiableMapTest {
             // no additional tests
         }
 
-        @Nested
-        class SpliteratorTest extends KeySetTestBase implements KeySetTests.SpliteratorTests<Integer, String> {
-            // no additional tests
-        }
+        // Collections.emptyMap().keySet().spliterator() incorrectly does not report DISTINCT, so SpliteratorsTest cannot be added here
     }
 
     @Nested
@@ -212,7 +218,7 @@ class UnmodifiableMapTest {
         }
 
         @Nested
-        class ForEachTest extends ValuesTestBase implements UnmodifiableMapTests.ValuesTests.ForEachTests<Integer, String> {
+        class ForEachTest extends ValuesTestBase implements ValuesTests.ForEachTests<Integer, String> {
             // no additional tests
         }
 
@@ -228,7 +234,12 @@ class UnmodifiableMapTest {
 
         @Nested
         class ToArrayTest extends ValuesTestBase implements ValuesTests.ToArrayTests<Integer, String> {
-            // no additional tests
+
+            // smaller length is not possible; override to disable the test
+            @Override
+            public void testToArrayWithSmallerLength() {
+                throw new UnsupportedOperationException();
+            }
         }
 
         @Nested
@@ -313,7 +324,12 @@ class UnmodifiableMapTest {
 
         @Nested
         class ToArrayTest extends EntrySetTestBase implements EntrySetTests.ToArrayTests<Integer, String> {
-            // no additional tests
+
+            // smaller length is not possible; override to disable the test
+            @Override
+            public void testToArrayWithSmallerLength() {
+                throw new UnsupportedOperationException();
+            }
         }
 
         @Nested
@@ -366,10 +382,7 @@ class UnmodifiableMapTest {
             // no additional tests
         }
 
-        @Nested
-        class SpliteratorTest extends EntrySetTestBase implements EntrySetTests.SpliteratorTests<Integer, String> {
-            // no additional tests
-        }
+        // Collections.emptyMap().entrySet().spliterator() incorrectly does not report DISTINCT, so SpliteratorsTest cannot be added here
     }
 
     @Nested
@@ -431,7 +444,7 @@ class UnmodifiableMapTest {
         }
 
         @Nested
-        class SetValueTest extends MapTestBase implements UnmodifiableMapEntryTests.SetValueTests<Integer, String> {
+        class SetValueTest extends MapTestBase implements MapEntryTests.SetValueTests<Integer, String> {
 
             @Override
             public UnaryOperator<String> replaceValueOperator() {
@@ -450,22 +463,21 @@ class UnmodifiableMapTest {
         }
     }
 
-    abstract static class MapTestBase implements UnmodifiableMapTests<Integer, String> {
+    abstract static class MapTestBase implements MapTests<Integer, String> {
 
         @Override
         public Map<Integer, String> createMap() {
-            Map<Integer, String> map = CollectionFactory.createMap(HashMap::new, 0, 10);
-            return Collections.unmodifiableMap(map);
+            return Collections.emptyMap();
         }
 
         @Override
         public Map<Integer, String> expectedEntries() {
-            return CollectionFactory.createMap(HashMap::new, 0, 10);
+            return new HashMap<>();
         }
 
         @Override
         public Map<Integer, String> nonContainedEntries() {
-            return CollectionFactory.createMap(HashMap::new, 10, 20);
+            return CollectionFactory.createMap(HashMap::new, 0, 10);
         }
     }
 
@@ -477,7 +489,7 @@ class UnmodifiableMapTest {
         }
     }
 
-    abstract static class ValuesTestBase extends MapTestBase implements UnmodifiableMapTests.ValuesTests<Integer, String> {
+    abstract static class ValuesTestBase extends MapTestBase implements ValuesTests<Integer, String> {
 
         @Override
         public boolean fixedOrder() {
@@ -485,7 +497,7 @@ class UnmodifiableMapTest {
         }
     }
 
-    abstract static class EntrySetTestBase extends MapTestBase implements UnmodifiableMapTests.EntrySetTests<Integer, String> {
+    abstract static class EntrySetTestBase extends MapTestBase implements EntrySetTests<Integer, String> {
 
         @Override
         public boolean fixedOrder() {

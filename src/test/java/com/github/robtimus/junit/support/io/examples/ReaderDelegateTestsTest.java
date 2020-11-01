@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.io;
+package com.github.robtimus.junit.support.io.examples;
 
 import java.io.BufferedReader;
 import java.io.Reader;
 import org.junit.jupiter.api.Nested;
+import com.github.robtimus.junit.support.io.ReaderDelegateTests;
 import com.github.robtimus.junit.support.io.ReaderDelegateTests.CloseTests;
 
 class ReaderDelegateTestsTest {

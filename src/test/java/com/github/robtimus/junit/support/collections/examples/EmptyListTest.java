@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.collections;
+package com.github.robtimus.junit.support.collections.examples;
 
-import static com.github.robtimus.junit.support.collections.CollectionFactory.createCollection;
+import static com.github.robtimus.junit.support.collections.examples.CollectionFactory.createCollection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,6 +35,9 @@ import com.github.robtimus.junit.support.collections.CollectionTests.RetainAllTe
 import com.github.robtimus.junit.support.collections.CollectionTests.ToArrayTests;
 import com.github.robtimus.junit.support.collections.CollectionTests.ToObjectArrayTests;
 import com.github.robtimus.junit.support.collections.IterableTests.ForEachTests;
+import com.github.robtimus.junit.support.collections.IteratorTests;
+import com.github.robtimus.junit.support.collections.ListIteratorTests;
+import com.github.robtimus.junit.support.collections.ListTests;
 import com.github.robtimus.junit.support.collections.ListTests.EqualsTests;
 import com.github.robtimus.junit.support.collections.ListTests.GetTests;
 import com.github.robtimus.junit.support.collections.ListTests.HashCodeTests;
@@ -45,6 +48,7 @@ import com.github.robtimus.junit.support.collections.ListTests.SpliteratorTests;
 import com.github.robtimus.junit.support.collections.ListTests.SubListTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.AddAllTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.AddTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableListIteratorTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableListTests.AddAllIndexedTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableListTests.AddIndexedTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableListTests.RemoveIndexedTests;

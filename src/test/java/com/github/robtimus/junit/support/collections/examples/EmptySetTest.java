@@ -1,5 +1,5 @@
 /*
- * TreeSetTest.java
+ * EmptySetTest.java
  * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,14 +15,13 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.collections;
+package com.github.robtimus.junit.support.collections.examples;
 
-import static com.github.robtimus.junit.support.collections.CollectionFactory.createCollection;
+import static com.github.robtimus.junit.support.collections.examples.CollectionFactory.createCollection;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.Collections;
 import java.util.Set;
-import java.util.TreeSet;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import com.github.robtimus.junit.support.collections.CollectionTests.ClearTests;
@@ -35,18 +34,14 @@ import com.github.robtimus.junit.support.collections.CollectionTests.RetainAllTe
 import com.github.robtimus.junit.support.collections.CollectionTests.ToArrayTests;
 import com.github.robtimus.junit.support.collections.CollectionTests.ToObjectArrayTests;
 import com.github.robtimus.junit.support.collections.IterableTests.ForEachTests;
-import com.github.robtimus.junit.support.collections.SetTests.AddAllTests;
-import com.github.robtimus.junit.support.collections.SetTests.AddTests;
+import com.github.robtimus.junit.support.collections.IteratorTests;
+import com.github.robtimus.junit.support.collections.SetTests;
 import com.github.robtimus.junit.support.collections.SetTests.EqualsTests;
 import com.github.robtimus.junit.support.collections.SetTests.HashCodeTests;
-import com.github.robtimus.junit.support.collections.SetTests.SpliteratorTests;
-import com.github.robtimus.junit.support.collections.annotation.ContainsIncompatibleNotSupported;
-import com.github.robtimus.junit.support.collections.annotation.ContainsNullNotSupported;
-import com.github.robtimus.junit.support.collections.annotation.RemoveIncompatibleNotSupported;
-import com.github.robtimus.junit.support.collections.annotation.RemoveNullNotSupported;
-import com.github.robtimus.junit.support.collections.annotation.StoreNullNotSupported;
+import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.AddAllTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.AddTests;
 
-class TreeSetTest {
+class EmptySetTest {
 
     @Nested
     @DisplayName("iterator()")
@@ -74,8 +69,6 @@ class TreeSetTest {
     }
 
     @Nested
-    @ContainsNullNotSupported
-    @ContainsIncompatibleNotSupported(expected = ClassCastException.class)
     class ContainsTest extends SetTestBase implements ContainsTests<String> {
         // no additional tests
     }
@@ -87,48 +80,35 @@ class TreeSetTest {
 
     @Nested
     class ToArrayTest extends SetTestBase implements ToArrayTests<String> {
-        // no additional tests
-    }
 
-    @Nested
-    @StoreNullNotSupported
-    class AddTest extends SetTestBase implements AddTests<String> {
-
+        // smaller length is not possible; override to disable the test
         @Override
-        public void addElementToExpected(List<String> expected, String element) {
-            AddTests.super.addElementToExpected(expected, element);
-            expected.sort(null);
+        public void testToArrayWithSmallerLength() {
+            throw new UnsupportedOperationException();
         }
     }
 
     @Nested
-    @RemoveNullNotSupported
-    @RemoveIncompatibleNotSupported(expected = ClassCastException.class)
-    class RemoveTest extends SetTestBase implements RemoveTests<String> {
-        // no additional tests
-    }
-
-    @Nested
-    @ContainsNullNotSupported
-    @ContainsIncompatibleNotSupported(expected = ClassCastException.class)
     class ContainsAllTest extends SetTestBase implements ContainsAllTests<String> {
         // no additional tests
     }
 
     @Nested
-    @StoreNullNotSupported
-    class AddAllTest extends SetTestBase implements AddAllTests<String> {
-
-        @Override
-        public void addElementsToExpected(List<String> expected, Collection<? extends String> elements) {
-            AddAllTests.super.addElementsToExpected(expected, elements);
-            expected.sort(null);
-        }
+    class AddTest extends SetTestBase implements AddTests<String> {
+        // no additional tests
     }
 
     @Nested
-    @RemoveNullNotSupported
-    @RemoveIncompatibleNotSupported(expected = ClassCastException.class)
+    class RemoveTest extends SetTestBase implements RemoveTests<String> {
+        // no additional tests
+    }
+
+    @Nested
+    class AddAllTest extends SetTestBase implements AddAllTests<String> {
+        // no additional tests
+    }
+
+    @Nested
     class RemoveAllTest extends SetTestBase implements RemoveAllTests<String> {
         // no additional tests
     }
@@ -139,7 +119,6 @@ class TreeSetTest {
     }
 
     @Nested
-    // TreeSet.retainAll uses c.contains, so it does support nulls and incompatible objects
     class RetainAllTest extends SetTestBase implements RetainAllTests<String> {
         // no additional tests
     }
@@ -159,31 +138,28 @@ class TreeSetTest {
         // no additional tests
     }
 
-    @Nested
-    class SpliteratorTest extends SetTestBase implements SpliteratorTests<String> {
-        // no additional tests
-    }
+    // Collections.emptySet().spliterator() incorrectly does not report DISTINCT, so SpliteratorsTest cannot be added here
 
     abstract static class SetTestBase implements SetTests<String> {
 
         @Override
         public Set<String> createIterable() {
-            return createCollection(TreeSet::new, 0, 10);
+            return Collections.emptySet();
         }
 
         @Override
         public Collection<String> expectedElements() {
-            return createCollection(ArrayList::new, 0, 10);
+            return new ArrayList<>();
         }
 
         @Override
         public Collection<String> nonContainedElements() {
-            return createCollection(ArrayList::new, 10, 20);
+            return createCollection(ArrayList::new, 0, 10);
         }
 
         @Override
         public boolean fixedOrder() {
-            return true;
+            return false;
         }
     }
 
