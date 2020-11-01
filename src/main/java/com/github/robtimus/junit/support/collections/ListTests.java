@@ -17,7 +17,6 @@
 
 package com.github.robtimus.junit.support.collections;
 
-import static com.github.robtimus.junit.support.collections.CollectionAssertions.assertHasElements;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.either;
 import static org.hamcrest.Matchers.instanceOf;
@@ -106,7 +105,7 @@ public interface ListTests<T> extends CollectionTests<T> {
             expected.addAll(expectedElements);
             expected.addAll(nonContainedElements);
 
-            assertHasElements(list, expected, fixedOrder());
+            assertEquals(expected, list);
         }
 
         @Test
@@ -129,7 +128,7 @@ public interface ListTests<T> extends CollectionTests<T> {
                 assertThrows(annotation.expected(), () -> list.add(null));
             }
 
-            assertHasElements(list, expectedElements, fixedOrder());
+            assertEquals(expectedElements, list);
         }
     }
 
@@ -161,7 +160,7 @@ public interface ListTests<T> extends CollectionTests<T> {
             expected.addAll(nonContainedElements);
             expected.addAll(expectedElements);
 
-            assertHasElements(list, expected, fixedOrder());
+            assertEquals(expected, list);
         }
 
         @Test
@@ -171,7 +170,7 @@ public interface ListTests<T> extends CollectionTests<T> {
 
             assertFalse(list.addAll(Collections.emptyList()));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -181,7 +180,7 @@ public interface ListTests<T> extends CollectionTests<T> {
 
             assertThrows(NullPointerException.class, () -> list.addAll(null));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -206,7 +205,7 @@ public interface ListTests<T> extends CollectionTests<T> {
                 assertThrows(annotation.expected(), () -> list.addAll(c));
             }
 
-            assertHasElements(list, expectedElements, fixedOrder());
+            assertEquals(expectedElements, list);
         }
     }
 
@@ -238,7 +237,7 @@ public interface ListTests<T> extends CollectionTests<T> {
             List<T> expectedElements = new ArrayList<>(expectedElements());
             expectedElements.replaceAll(operator);
 
-            assertHasElements(list, expectedElements, fixedOrder());
+            assertEquals(expectedElements, list);
         }
 
         @Test
@@ -247,6 +246,8 @@ public interface ListTests<T> extends CollectionTests<T> {
             List<T> list = createIterable();
 
             assertThrows(NullPointerException.class, () -> list.replaceAll(null));
+
+            assertEquals(expectedElements(), list);
         }
     }
 
@@ -397,7 +398,7 @@ public interface ListTests<T> extends CollectionTests<T> {
 
             expectedElements.replaceAll(operator);
 
-            assertHasElements(list, expectedElements, fixedOrder());
+            assertEquals(expectedElements, list);
         }
 
         @Test
@@ -426,9 +427,9 @@ public interface ListTests<T> extends CollectionTests<T> {
                 expectedElements = new ArrayList<>(expectedElements);
                 Collections.fill(expectedElements, null);
 
-                assertHasElements(list, expectedElements, fixedOrder());
+                assertEquals(expectedElements, list);
             } else {
-                assertHasElements(list, expectedElements(), fixedOrder());
+                assertEquals(expectedElements(), list);
             }
         }
 
@@ -441,7 +442,7 @@ public interface ListTests<T> extends CollectionTests<T> {
 
             assertThrows(IndexOutOfBoundsException.class, () -> list.set(-1, object));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -453,7 +454,7 @@ public interface ListTests<T> extends CollectionTests<T> {
 
             assertThrows(IndexOutOfBoundsException.class, () -> list.set(list.size(), object));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
     }
 
@@ -490,7 +491,7 @@ public interface ListTests<T> extends CollectionTests<T> {
             Collections.reverse(expected);
             expected.addAll(expectedElements);
 
-            assertHasElements(list, expected, fixedOrder());
+            assertEquals(expected, list);
         }
 
         @Test
@@ -513,7 +514,7 @@ public interface ListTests<T> extends CollectionTests<T> {
             expected.addAll(expectedElements);
             expected.addAll(nonContainedElements);
 
-            assertHasElements(list, expected, fixedOrder());
+            assertEquals(expected, list);
         }
 
         @Test
@@ -540,7 +541,7 @@ public interface ListTests<T> extends CollectionTests<T> {
             expected.addAll(0, expectedElements.subList(0, index));
             expected.addAll(expectedElements.subList(index, expectedElements.size()));
 
-            assertHasElements(list, expected, fixedOrder());
+            assertEquals(expected, list);
         }
 
         @Test
@@ -563,7 +564,7 @@ public interface ListTests<T> extends CollectionTests<T> {
                 assertThrows(annotation.expected(), () -> list.add(0, null));
             }
 
-            assertHasElements(list, expectedElements, fixedOrder());
+            assertEquals(expectedElements, list);
         }
 
         @Test
@@ -575,7 +576,7 @@ public interface ListTests<T> extends CollectionTests<T> {
 
             assertThrows(IndexOutOfBoundsException.class, () -> list.add(-1, object));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -587,7 +588,7 @@ public interface ListTests<T> extends CollectionTests<T> {
 
             assertThrows(IndexOutOfBoundsException.class, () -> list.set(list.size() + 1, object));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
     }
 
@@ -619,7 +620,7 @@ public interface ListTests<T> extends CollectionTests<T> {
             expected.addAll(nonContainedElements);
             expected.addAll(expectedElements);
 
-            assertHasElements(list, expected, fixedOrder());
+            assertEquals(expected, list);
         }
 
         @Test
@@ -638,7 +639,7 @@ public interface ListTests<T> extends CollectionTests<T> {
             expected.addAll(nonContainedElements);
             expected.addAll(expectedElements);
 
-            assertHasElements(list, expected, fixedOrder());
+            assertEquals(expected, list);
         }
 
         @Test
@@ -660,7 +661,7 @@ public interface ListTests<T> extends CollectionTests<T> {
             expected.addAll(0, expectedElements.subList(0, index));
             expected.addAll(expectedElements.subList(index, expectedElements.size()));
 
-            assertHasElements(list, expected, fixedOrder());
+            assertEquals(expected, list);
         }
 
         @Test
@@ -670,7 +671,7 @@ public interface ListTests<T> extends CollectionTests<T> {
 
             assertFalse(list.addAll(0, Collections.emptyList()));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -680,7 +681,7 @@ public interface ListTests<T> extends CollectionTests<T> {
 
             assertThrows(NullPointerException.class, () -> list.addAll(0, null));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -705,7 +706,7 @@ public interface ListTests<T> extends CollectionTests<T> {
                 assertThrows(annotation.expected(), () -> list.addAll(0, c));
             }
 
-            assertHasElements(list, expectedElements, fixedOrder());
+            assertEquals(expectedElements, list);
         }
 
         @Test
@@ -717,7 +718,7 @@ public interface ListTests<T> extends CollectionTests<T> {
 
             assertThrows(IndexOutOfBoundsException.class, () -> list.addAll(-1, c));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -729,7 +730,7 @@ public interface ListTests<T> extends CollectionTests<T> {
 
             assertThrows(IndexOutOfBoundsException.class, () -> list.addAll(list.size() + 1, c));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
     }
 
@@ -755,7 +756,7 @@ public interface ListTests<T> extends CollectionTests<T> {
                 assertEquals(expectedElements.get(i), removed);
             }
 
-            assertHasElements(list, Collections.emptyList(), fixedOrder());
+            assertEquals(Collections.emptyList(), list);
         }
 
         @Test
@@ -778,7 +779,7 @@ public interface ListTests<T> extends CollectionTests<T> {
                 expectedElements.remove(i);
             }
 
-            assertHasElements(list, expectedElements, fixedOrder());
+            assertEquals(expectedElements, list);
         }
 
         @Test
@@ -788,7 +789,7 @@ public interface ListTests<T> extends CollectionTests<T> {
 
             assertThrows(IndexOutOfBoundsException.class, () -> list.remove(-1));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -798,7 +799,7 @@ public interface ListTests<T> extends CollectionTests<T> {
 
             assertThrows(IndexOutOfBoundsException.class, () -> list.remove(list.size()));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
     }
 
@@ -952,7 +953,7 @@ public interface ListTests<T> extends CollectionTests<T> {
                 elements.add(element);
             }
 
-            assertHasElements(elements, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -973,7 +974,7 @@ public interface ListTests<T> extends CollectionTests<T> {
             List<T> expectedElements = new ArrayList<>(expectedElements());
             Collections.reverse(expectedElements);
 
-            assertHasElements(elements, expectedElements, fixedOrder());
+            assertEquals(expectedElements, elements);
         }
 
         @Test
@@ -991,7 +992,7 @@ public interface ListTests<T> extends CollectionTests<T> {
                 elements.add(element);
             }
 
-            assertHasElements(elements, expectedElements().subList(list.size() / 2, list.size()), fixedOrder());
+            assertEquals(expectedElements().subList(list.size() / 2, list.size()), elements);
         }
 
         @Test
@@ -1031,7 +1032,7 @@ public interface ListTests<T> extends CollectionTests<T> {
 
             List<?> subList = list.subList(0, list.size());
 
-            assertHasElements(subList, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), subList);
         }
 
         @Test
@@ -1041,7 +1042,7 @@ public interface ListTests<T> extends CollectionTests<T> {
 
             List<?> subList = list.subList(1, list.size() - 1);
 
-            assertHasElements(subList, expectedElements().subList(1, list.size() - 1), fixedOrder());
+            assertEquals(expectedElements().subList(1, list.size() - 1), subList);
         }
 
         @Test

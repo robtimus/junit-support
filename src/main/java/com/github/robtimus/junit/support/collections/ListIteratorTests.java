@@ -17,7 +17,6 @@
 
 package com.github.robtimus.junit.support.collections;
 
-import static com.github.robtimus.junit.support.collections.CollectionAssertions.assertHasElements;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -91,7 +90,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
             assertThrows(NoSuchElementException.class, iterator::next);
             assertEquals(index, iterator.nextIndex());
 
-            assertHasElements(elements, expectedElements, fixedOrder());
+            assertEquals(expectedElements, list);
         }
 
         @Test
@@ -118,7 +117,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
             assertThrows(NoSuchElementException.class, iterator::previous);
             assertEquals(index, iterator.previousIndex());
 
-            assertHasElements(elements, expectedElements, fixedOrder());
+            assertEquals(expectedElements, list);
         }
 
         @Test
@@ -136,7 +135,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
             }
             assertThrows(NoSuchElementException.class, iterator::next);
 
-            assertHasElements(elements, expectedElements, fixedOrder());
+            assertEquals(expectedElements, list);
         }
 
         @Test
@@ -154,7 +153,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
             }
             assertThrows(NoSuchElementException.class, iterator::previous);
 
-            assertHasElements(elements, expectedElements, fixedOrder());
+            assertEquals(expectedElements, list);
         }
     }
 
@@ -178,7 +177,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
                 iterator.remove();
             }
 
-            assertHasElements(list, Collections.emptyList(), fixedOrder());
+            assertEquals(Collections.emptyList(), list);
         }
 
         @Test
@@ -199,7 +198,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
                 remove = !remove;
             }
 
-            assertHasElements(list, expectedElements, fixedOrder());
+            assertEquals(expectedElements, list);
         }
 
         @Test
@@ -210,7 +209,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
 
             assertThrows(IllegalStateException.class, iterator::remove);
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -232,7 +231,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
                 remove = !remove;
             }
 
-            assertHasElements(list, expectedElements, fixedOrder());
+            assertEquals(expectedElements, list);
         }
 
         @Test
@@ -246,7 +245,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
                 iterator.remove();
             }
 
-            assertHasElements(list, Collections.emptyList(), fixedOrder());
+            assertEquals(Collections.emptyList(), list);
         }
 
         @Test
@@ -267,7 +266,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
                 remove = !remove;
             }
 
-            assertHasElements(list, expectedElements, fixedOrder());
+            assertEquals(expectedElements, list);
         }
 
         @Test
@@ -278,7 +277,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
 
             assertThrows(IllegalStateException.class, iterator::remove);
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -300,7 +299,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
                 remove = !remove;
             }
 
-            assertHasElements(list, expectedElements, fixedOrder());
+            assertEquals(expectedElements, list);
         }
     }
 
@@ -348,7 +347,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
             List<T> expectedElements = new ArrayList<>(expectedElements());
             expectedElements.replaceAll(operator);
 
-            assertHasElements(list, expectedElements, fixedOrder());
+            assertEquals(expectedElements, list);
         }
 
         @Test
@@ -375,9 +374,9 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
                 List<T> expectedElements = new ArrayList<>(expectedElements());
                 Collections.fill(expectedElements, null);
 
-                assertHasElements(list, expectedElements, fixedOrder());
+                assertEquals(expectedElements, list);
             } else {
-                assertHasElements(list, expectedElements(), fixedOrder());
+                assertEquals(expectedElements(), list);
             }
         }
 
@@ -391,7 +390,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
 
             assertThrows(IllegalStateException.class, () -> iterator.set(element));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -413,7 +412,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
             expectedElements.replaceAll(operator);
             expectedElements.replaceAll(operator);
 
-            assertHasElements(list, expectedElements, fixedOrder());
+            assertEquals(expectedElements, list);
         }
 
         @Test
@@ -433,7 +432,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
             List<T> expectedElements = new ArrayList<>(expectedElements());
             expectedElements.replaceAll(operator);
 
-            assertHasElements(list, expectedElements, fixedOrder());
+            assertEquals(expectedElements, list);
         }
 
         @Test
@@ -460,9 +459,9 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
                 List<T> expectedElements = new ArrayList<>(expectedElements());
                 Collections.fill(expectedElements, null);
 
-                assertHasElements(list, expectedElements, fixedOrder());
+                assertEquals(expectedElements, list);
             } else {
-                assertHasElements(list, expectedElements(), fixedOrder());
+                assertEquals(expectedElements(), list);
             }
         }
 
@@ -476,7 +475,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
 
             assertThrows(IllegalStateException.class, () -> iterator.set(element));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -498,7 +497,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
             expectedElements.replaceAll(operator);
             expectedElements.replaceAll(operator);
 
-            assertHasElements(list, expectedElements, fixedOrder());
+            assertEquals(expectedElements, list);
         }
     }
 
@@ -538,7 +537,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
                 expectedElements.add(i, newElement);
             }
 
-            assertHasElements(list, expectedElements, fixedOrder());
+            assertEquals(expectedElements, list);
         }
 
         @Test
@@ -573,9 +572,9 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
                     expectedElements.add(i, null);
                 }
 
-                assertHasElements(list, expectedElements, fixedOrder());
+                assertEquals(expectedElements, list);
             } else {
-                assertHasElements(list, expectedElements(), fixedOrder());
+                assertEquals(expectedElements(), list);
             }
         }
 
@@ -608,7 +607,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
                 expectedElements.add(i, newElement);
             }
 
-            assertHasElements(list, expectedElements, fixedOrder());
+            assertEquals(expectedElements, list);
         }
 
         @Test
@@ -651,9 +650,9 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
                     expectedElements.add(i, null);
                 }
 
-                assertHasElements(list, expectedElements, fixedOrder());
+                assertEquals(expectedElements, list);
             } else {
-                assertHasElements(list, expectedElements(), fixedOrder());
+                assertEquals(expectedElements(), list);
             }
         }
     }

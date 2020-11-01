@@ -17,10 +17,10 @@
 
 package com.github.robtimus.junit.support.collections;
 
-import static com.github.robtimus.junit.support.collections.CollectionAssertions.assertHasElements;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.either;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.ArrayList;
@@ -64,7 +64,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
             UnaryOperator<T> operator = replaceElementOperator();
 
             if (list.isEmpty()) {
-                // with an empty collection, either it does nothing or it throws an exception
+                // with an empty list, either it does nothing or it throws an exception
                 try {
                     list.replaceAll(operator);
                 } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
@@ -74,7 +74,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
                 assertThrows(UnsupportedOperationException.class, () -> list.replaceAll(operator));
             }
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -84,6 +84,8 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
 
             Exception exception = assertThrows(Exception.class, () -> list.replaceAll(null));
             assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(NullPointerException.class)));
+
+            assertEquals(expectedElements(), list);
         }
     }
 
@@ -119,7 +121,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
                 assertThrows(UnsupportedOperationException.class, () -> list.set(index, operator.apply(element)));
             }
 
-            assertHasElements(list, expectedElements, fixedOrder());
+            assertEquals(expectedElements, list);
         }
 
         @Test
@@ -136,7 +138,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
                 assertThrows(UnsupportedOperationException.class, () -> list.set(index, null));
             }
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
     }
 
@@ -164,7 +166,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
                 assertThrows(UnsupportedOperationException.class, () -> list.add(0, element));
             }
 
-            assertHasElements(list, expectedElements, fixedOrder());
+            assertEquals(expectedElements, list);
         }
 
         @Test
@@ -174,7 +176,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
 
             assertThrows(UnsupportedOperationException.class, () -> list.add(0, null));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -187,7 +189,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
             Exception exception = assertThrows(Exception.class, () -> list.add(-1, object));
             assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(IndexOutOfBoundsException.class)));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -200,7 +202,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
             Exception exception = assertThrows(Exception.class, () -> list.set(list.size() + 1, object));
             assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(IndexOutOfBoundsException.class)));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
     }
 
@@ -226,7 +228,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
                 assertThrows(UnsupportedOperationException.class, () -> list.addAll(0, elements.subList(0, to)));
             }
 
-            assertHasElements(list, expectedElements, fixedOrder());
+            assertEquals(expectedElements, list);
         }
 
         @Test
@@ -241,7 +243,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
                 // ignore
             }
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -252,7 +254,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
             Exception exception = assertThrows(Exception.class, () -> list.addAll(0, null));
             assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(NullPointerException.class)));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -262,7 +264,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
 
             assertThrows(UnsupportedOperationException.class, () -> list.addAll(0, Collections.singleton(null)));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -275,7 +277,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
             Exception exception = assertThrows(Exception.class, () -> list.addAll(-1, c));
             assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(IndexOutOfBoundsException.class)));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -288,7 +290,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
             Exception exception = assertThrows(Exception.class, () -> list.addAll(list.size() + 1, c));
             assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(IndexOutOfBoundsException.class)));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
     }
 
@@ -311,7 +313,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
                 assertThrows(UnsupportedOperationException.class, () -> list.remove(index));
             }
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -322,7 +324,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
             Exception exception = assertThrows(Exception.class, () -> list.remove(-1));
             assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(IndexOutOfBoundsException.class)));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -333,7 +335,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
             Exception exception = assertThrows(Exception.class, () -> list.remove(list.size()));
             assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(IndexOutOfBoundsException.class)));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
     }
 }

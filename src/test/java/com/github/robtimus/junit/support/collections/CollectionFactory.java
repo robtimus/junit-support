@@ -18,6 +18,7 @@
 package com.github.robtimus.junit.support.collections;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.function.Supplier;
 
 final class CollectionFactory {
@@ -26,15 +27,19 @@ final class CollectionFactory {
         throw new IllegalStateException("cannot create instances of " + getClass().getName()); //$NON-NLS-1$
     }
 
-    static <C extends Collection<String>> C createCollection(Supplier<C> constructor) {
-        return createCollection(constructor, 0, 10);
-    }
-
     static <C extends Collection<String>> C createCollection(Supplier<C> constructor, int from, int to) {
         C collection = constructor.get();
         for (int i = from; i < to; i++) {
             collection.add("string" + i); //$NON-NLS-1$
         }
         return collection;
+    }
+
+    static <M extends Map<Integer, String>> M createMap(Supplier<M> constructor, int from, int to) {
+        M map = constructor.get();
+        for (int i = from; i < to; i++) {
+            map.put(i, "string" + i); //$NON-NLS-1$
+        }
+        return map;
     }
 }

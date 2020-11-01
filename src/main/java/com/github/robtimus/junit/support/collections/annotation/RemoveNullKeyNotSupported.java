@@ -1,5 +1,5 @@
 /*
- * ContainsIncompatibleNotSupported.java
+ * RemoveNullKeyNotSupported.java
  * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,22 +22,20 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.Collection;
 import java.util.Map;
 
 /**
- * Indicates that {@link Collection#contains(Object)} or {@link Map#containsValue(Object)} throws an exception when called with an instance of a an
- * incompatible type.
+ * Indicates that {@link Map#remove(Object)} throws an exception when called with {@code null}.
  *
  * @author Rob Spoor
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface ContainsIncompatibleNotSupported {
+public @interface RemoveNullKeyNotSupported {
 
     /**
-     * The expected exception type thrown by {@link Collection#contains(Object)} or {@link Map#containsValue(Object)}.
+     * The expected exception type thrown by {@link Map#remove(Object)}.
      */
-    Class<? extends RuntimeException> expected();
+    Class<? extends RuntimeException> expected() default NullPointerException.class;
 }

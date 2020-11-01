@@ -35,12 +35,12 @@ class EnumerationTestsTest {
 
         @Override
         public Enumeration<String> createEnumeration() {
-            return Collections.enumeration(createCollection(ArrayList::new));
+            return Collections.enumeration(createCollection(ArrayList::new, 0, 10));
         }
 
         @Override
         public Collection<String> expectedElements() {
-            return createCollection(ArrayList::new);
+            return createCollection(ArrayList::new, 0, 10);
         }
 
         @Override
@@ -55,12 +55,12 @@ class EnumerationTestsTest {
 
         @Override
         public Enumeration<String> createEnumeration() {
-            return Collections.enumeration(createCollection(HashSet::new));
+            return Collections.enumeration(createCollection(HashSet::new, 0, 10));
         }
 
         @Override
         public Collection<String> expectedElements() {
-            return createCollection(ArrayList::new);
+            return createCollection(ArrayList::new, 0, 10);
         }
 
         @Override

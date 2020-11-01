@@ -195,7 +195,7 @@ public interface SetTests<T> extends CollectionTests<T> {
                 addElementsToExpected((List<T>) expectedElements, c);
                 expectedElements = new LinkedHashSet<>(expectedElements);
             } else {
-                assertThrows(annotation.expected(), () -> set.add(null));
+                assertThrows(annotation.expected(), () -> set.addAll(c));
             }
 
             assertHasElements(set, expectedElements, fixedOrder());

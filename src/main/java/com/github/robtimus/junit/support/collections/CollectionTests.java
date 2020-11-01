@@ -305,7 +305,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
      * @param <T> The element type of the collection to test.
      */
     @TestInstance(Lifecycle.PER_CLASS)
-    @DisplayName("toremove(Object)")
+    @DisplayName("remove(Object)")
     interface RemoveTests<T> extends CollectionTests<T> {
 
         @ParameterizedTest(name = "{0}: {1}")
@@ -568,7 +568,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
     }
 
     /**
-     * Contains tests for {@link Collection#retainAll(Collection)}.
+     * Contains tests for {@link Collection#clear()}.
      *
      * @author Rob Spoor
      * @param <T> The element type of the collection to test.

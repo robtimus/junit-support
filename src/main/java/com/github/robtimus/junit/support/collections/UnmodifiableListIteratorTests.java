@@ -17,10 +17,10 @@
 
 package com.github.robtimus.junit.support.collections;
 
-import static com.github.robtimus.junit.support.collections.CollectionAssertions.assertHasElements;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.either;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.List;
 import java.util.ListIterator;
@@ -59,7 +59,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
                 assertThrows(UnsupportedOperationException.class, iterator::remove);
             }
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -71,7 +71,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
             Exception exception = assertThrows(Exception.class, iterator::remove);
             assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(IllegalStateException.class)));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -86,7 +86,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
                 assertThrows(UnsupportedOperationException.class, iterator::remove);
             }
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -98,7 +98,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
             Exception exception = assertThrows(Exception.class, iterator::remove);
             assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(IllegalStateException.class)));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
     }
 
@@ -142,7 +142,8 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
 
                 assertThrows(UnsupportedOperationException.class, () -> iterator.set(operator.apply(element)));
             }
-            assertHasElements(list, expectedElements(), fixedOrder());
+
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -166,7 +167,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
                 }
             }
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -180,7 +181,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
             Exception exception = assertThrows(Exception.class, () -> iterator.set(element));
             assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(IllegalStateException.class)));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -197,7 +198,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
                 assertThrows(UnsupportedOperationException.class, () -> iterator.set(operator.apply(element)));
             }
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -221,7 +222,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
                 }
             }
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -235,7 +236,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
             Exception exception = assertThrows(Exception.class, () -> iterator.set(element));
             assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(IllegalStateException.class)));
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
     }
 
@@ -271,7 +272,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
                 assertThrows(UnsupportedOperationException.class, () -> iterator.add(newElement));
             }
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -302,7 +303,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
                 }
             }
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -321,7 +322,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
                 assertThrows(UnsupportedOperationException.class, () -> iterator.add(newElement));
             }
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
 
         @Test
@@ -352,7 +353,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
                 }
             }
 
-            assertHasElements(list, expectedElements(), fixedOrder());
+            assertEquals(expectedElements(), list);
         }
     }
 }

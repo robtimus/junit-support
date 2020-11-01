@@ -23,9 +23,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Collection;
+import java.util.Map;
 
 /**
- * Indicates that {@link Collection#contains(Object)} throws an exception when called with {@code null}.
+ * Indicates that {@link Collection#contains(Object)} or {@link Map#containsValue(Object)} throws an exception when called with {@code null}.
  *
  * @author Rob Spoor
  */
@@ -35,7 +36,7 @@ import java.util.Collection;
 public @interface ContainsNullNotSupported {
 
     /**
-     * The expected exception type thrown by {@link Collection#contains(Object)}.
+     * The expected exception type thrown by {@link Collection#contains(Object)} or {@link Map#containsValue(Object)}.
      */
     Class<? extends RuntimeException> expected() default NullPointerException.class;
 }

@@ -97,7 +97,7 @@ public interface UnmodifiableCollectionTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("remove(Object) with contained elements")
         default void testRemoveContainedElements() {
-            Collection<T> collection = createIterable();
+            Collection<?> collection = createIterable();
 
             Collection<T> expectedElements = expectedElements();
 
@@ -111,7 +111,7 @@ public interface UnmodifiableCollectionTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("remove(Object) with non-contained elements")
         default void testRemoveNonContainedElements() {
-            Collection<T> collection = createIterable();
+            Collection<?> collection = createIterable();
 
             for (T element : nonContainedElements()) {
                 // with a non-contained object, either it does nothing or it throws an exception
@@ -128,7 +128,7 @@ public interface UnmodifiableCollectionTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("remove(Object) with null")
         default void testRemoveNull() {
-            Collection<T> collection = createIterable();
+            Collection<?> collection = createIterable();
 
             // with a non-contained object, either it does nothing or it throws an exception
             try {
@@ -373,6 +373,8 @@ public interface UnmodifiableCollectionTests<T> extends CollectionTests<T> {
 
             Exception exception = assertThrows(Exception.class, () -> collection.removeIf(null));
             assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(NullPointerException.class)));
+
+            assertHasElements(collection, expectedElements(), fixedOrder());
         }
     }
 
