@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import com.github.robtimus.junit.support.collections.EnumerationTests.IterationTests;
@@ -40,7 +41,8 @@ class EnumerationTestsTest {
 
         @Override
         public Collection<String> expectedElements() {
-            return createCollection(ArrayList::new, 0, 10);
+            List<String> list = createCollection(ArrayList::new, 0, 10);
+            return Collections.unmodifiableList(list);
         }
 
         @Override
@@ -60,7 +62,8 @@ class EnumerationTestsTest {
 
         @Override
         public Collection<String> expectedElements() {
-            return createCollection(ArrayList::new, 0, 10);
+            List<String> list = createCollection(ArrayList::new, 0, 10);
+            return Collections.unmodifiableList(list);
         }
 
         @Override

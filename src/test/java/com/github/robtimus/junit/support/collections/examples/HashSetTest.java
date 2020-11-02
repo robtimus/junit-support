@@ -20,7 +20,9 @@ package com.github.robtimus.junit.support.collections.examples;
 import static com.github.robtimus.junit.support.collections.examples.CollectionFactory.createCollection;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -148,12 +150,14 @@ class HashSetTest {
 
         @Override
         public Collection<String> expectedElements() {
-            return createCollection(ArrayList::new, 0, 10);
+            List<String> list = createCollection(ArrayList::new, 0, 10);
+            return Collections.unmodifiableList(list);
         }
 
         @Override
         public Collection<String> nonContainedElements() {
-            return createCollection(ArrayList::new, 10, 20);
+            List<String> list = createCollection(ArrayList::new, 10, 20);
+            return Collections.unmodifiableList(list);
         }
 
         @Override

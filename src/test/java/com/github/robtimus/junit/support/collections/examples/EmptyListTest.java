@@ -278,12 +278,13 @@ class EmptyListTest {
 
         @Override
         public List<String> expectedElements() {
-            return new ArrayList<>();
+            return Collections.unmodifiableList(new ArrayList<>());
         }
 
         @Override
         public Collection<String> nonContainedElements() {
-            return createCollection(ArrayList::new, 0, 10);
+            List<String> list = createCollection(ArrayList::new, 0, 10);
+            return Collections.unmodifiableList(list);
         }
     }
 

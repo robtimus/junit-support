@@ -21,6 +21,7 @@ import static com.github.robtimus.junit.support.collections.examples.CollectionF
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -149,12 +150,13 @@ class EmptySetTest {
 
         @Override
         public Collection<String> expectedElements() {
-            return new ArrayList<>();
+            return Collections.unmodifiableList(new ArrayList<>());
         }
 
         @Override
         public Collection<String> nonContainedElements() {
-            return createCollection(ArrayList::new, 0, 10);
+            List<String> list = createCollection(ArrayList::new, 0, 10);
+            return Collections.unmodifiableList(list);
         }
 
         @Override

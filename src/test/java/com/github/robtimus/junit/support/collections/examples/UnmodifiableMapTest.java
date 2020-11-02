@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 import java.util.function.UnaryOperator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -35,7 +36,11 @@ import com.github.robtimus.junit.support.collections.MapTests.HashCodeTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableMapEntryTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableMapTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.ClearTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.ComputeIfAbsentTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.ComputeIfPresentTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.ComputeTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.KeySetTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.MergeTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.PutAllTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.PutIfAbsentTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.PutTests;
@@ -425,6 +430,34 @@ class UnmodifiableMapTest {
     }
 
     @Nested
+    class ComputeIfAbsentTest extends MapTestBase implements ComputeIfAbsentTests<Integer, String> {
+        // no additional tests
+    }
+
+    @Nested
+    class ComputeIfPresentTest extends MapTestBase implements ComputeIfPresentTests<Integer, String> {
+        // no additional tests
+    }
+
+    @Nested
+    class ComputeTest extends MapTestBase implements ComputeTests<Integer, String> {
+
+        @Override
+        public UnaryOperator<String> replaceValueOperator() {
+            return s -> s + s;
+        }
+    }
+
+    @Nested
+    class MergeTest extends MapTestBase implements MergeTests<Integer, String> {
+
+        @Override
+        public BinaryOperator<String> combineValuesOperator() {
+            return String::concat;
+        }
+    }
+
+    @Nested
     @DisplayName("Map.Entry")
     class EntryTest extends MapTestBase implements MapEntryTests<Integer, String> {
 
@@ -463,12 +496,14 @@ class UnmodifiableMapTest {
 
         @Override
         public Map<Integer, String> expectedEntries() {
-            return CollectionFactory.createMap(HashMap::new, 0, 10);
+            Map<Integer, String> map = CollectionFactory.createMap(HashMap::new, 0, 10);
+            return Collections.unmodifiableMap(map);
         }
 
         @Override
         public Map<Integer, String> nonContainedEntries() {
-            return CollectionFactory.createMap(HashMap::new, 10, 20);
+            Map<Integer, String> map = CollectionFactory.createMap(HashMap::new, 10, 20);
+            return Collections.unmodifiableMap(map);
         }
     }
 

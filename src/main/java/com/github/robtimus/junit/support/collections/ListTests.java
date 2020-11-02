@@ -385,7 +385,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         default void testSet() {
             List<T> list = createIterable();
 
-            List<T> expectedElements = expectedElements();
+            List<T> expectedElements = new ArrayList<>(expectedElements());
 
             UnaryOperator<T> operator = replaceElementOperator();
 

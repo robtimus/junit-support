@@ -78,67 +78,67 @@ class UnmodifiableListTest {
     }
 
     @Nested
-    class ForEachTest extends UnmodifiableListTestBase implements ForEachTests<String> {
+    class ForEachTest extends ListTestBase implements ForEachTests<String> {
         // no additional tests
     }
 
     @Nested
-    class ContainsTest extends UnmodifiableListTestBase implements ContainsTests<String> {
+    class ContainsTest extends ListTestBase implements ContainsTests<String> {
         // no additional tests
     }
 
     @Nested
-    class ToObjectArrayTest extends UnmodifiableListTestBase implements ToObjectArrayTests<String> {
+    class ToObjectArrayTest extends ListTestBase implements ToObjectArrayTests<String> {
         // no additional tests
     }
 
     @Nested
-    class ToArrayTest extends UnmodifiableListTestBase implements ToArrayTests<String> {
+    class ToArrayTest extends ListTestBase implements ToArrayTests<String> {
         // no additional tests
     }
 
     @Nested
-    class AddTest extends UnmodifiableListTestBase implements AddTests<String> {
+    class AddTest extends ListTestBase implements AddTests<String> {
         // no additional tests
     }
 
     @Nested
-    class RemoveTest extends UnmodifiableListTestBase implements RemoveTests<String> {
+    class RemoveTest extends ListTestBase implements RemoveTests<String> {
         // no additional tests
     }
 
     @Nested
-    class ContainsAllTest extends UnmodifiableListTestBase implements ContainsAllTests<String> {
+    class ContainsAllTest extends ListTestBase implements ContainsAllTests<String> {
         // no additional tests
     }
 
     @Nested
-    class AddAllTest extends UnmodifiableListTestBase implements AddAllTests<String> {
+    class AddAllTest extends ListTestBase implements AddAllTests<String> {
         // no additional tests
     }
 
     @Nested
-    class RemoveAllTest extends UnmodifiableListTestBase implements RemoveAllTests<String> {
+    class RemoveAllTest extends ListTestBase implements RemoveAllTests<String> {
         // no additional tests
     }
 
     @Nested
-    class RemoveIfTest extends UnmodifiableListTestBase implements RemoveIfTests<String> {
+    class RemoveIfTest extends ListTestBase implements RemoveIfTests<String> {
         // no additional tests
     }
 
     @Nested
-    class RetainAllTest extends UnmodifiableListTestBase implements RetainAllTests<String> {
+    class RetainAllTest extends ListTestBase implements RetainAllTests<String> {
         // no additional tests
     }
 
     @Nested
-    class ClearTest extends UnmodifiableListTestBase implements ClearTests<String> {
+    class ClearTest extends ListTestBase implements ClearTests<String> {
         // no additional tests
     }
 
     @Nested
-    class ReplaceAllTest extends UnmodifiableListTestBase implements ReplaceAllTests<String> {
+    class ReplaceAllTest extends ListTestBase implements ReplaceAllTests<String> {
 
         @Override
         public UnaryOperator<String> replaceElementOperator() {
@@ -147,22 +147,22 @@ class UnmodifiableListTest {
     }
 
     @Nested
-    class EqualsTest extends UnmodifiableListTestBase implements EqualsTests<String> {
+    class EqualsTest extends ListTestBase implements EqualsTests<String> {
         // no additional tests
     }
 
     @Nested
-    class HashCodeTest extends UnmodifiableListTestBase implements HashCodeTests<String> {
+    class HashCodeTest extends ListTestBase implements HashCodeTests<String> {
         // no additional tests
     }
 
     @Nested
-    class GetTest extends UnmodifiableListTestBase implements GetTests<String> {
+    class GetTest extends ListTestBase implements GetTests<String> {
         // no additional tests
     }
 
     @Nested
-    class SetTest extends UnmodifiableListTestBase implements SetTests<String> {
+    class SetTest extends ListTestBase implements SetTests<String> {
 
         @Override
         public UnaryOperator<String> replaceElementOperator() {
@@ -171,27 +171,27 @@ class UnmodifiableListTest {
     }
 
     @Nested
-    class AddIndexedTest extends UnmodifiableListTestBase implements AddIndexedTests<String> {
+    class AddIndexedTest extends ListTestBase implements AddIndexedTests<String> {
         // no additional tests
     }
 
     @Nested
-    class AddAllIndexedTest extends UnmodifiableListTestBase implements AddAllIndexedTests<String> {
+    class AddAllIndexedTest extends ListTestBase implements AddAllIndexedTests<String> {
         // no additional tests
     }
 
     @Nested
-    class RemoveIndexedTest extends UnmodifiableListTestBase implements RemoveIndexedTests<String> {
+    class RemoveIndexedTest extends ListTestBase implements RemoveIndexedTests<String> {
         // no additional tests
     }
 
     @Nested
-    class IndexOfTest extends UnmodifiableListTestBase implements IndexOfTests<String> {
+    class IndexOfTest extends ListTestBase implements IndexOfTests<String> {
         // no additional tests
     }
 
     @Nested
-    class LastIndexOfTest extends UnmodifiableListTestBase implements LastIndexOfTests<String> {
+    class LastIndexOfTest extends ListTestBase implements LastIndexOfTests<String> {
         // no additional tests
     }
 
@@ -234,7 +234,7 @@ class UnmodifiableListTest {
     }
 
     @Nested
-    class SubListTest extends UnmodifiableListTestBase implements SubListTests<String> {
+    class SubListTest extends ListTestBase implements SubListTests<String> {
 
         @Nested
         class RemoveTest implements UnmodifiableCollectionTests.RemoveTests<String> {
@@ -264,11 +264,11 @@ class UnmodifiableListTest {
     }
 
     @Nested
-    class SpliteratorTest extends UnmodifiableListTestBase implements SpliteratorTests<String> {
+    class SpliteratorTest extends ListTestBase implements SpliteratorTests<String> {
         // no additional tests
     }
 
-    abstract static class UnmodifiableListTestBase implements UnmodifiableListTests<String> {
+    abstract static class ListTestBase implements UnmodifiableListTests<String> {
 
         @Override
         public List<String> createIterable() {
@@ -278,16 +278,18 @@ class UnmodifiableListTest {
 
         @Override
         public List<String> expectedElements() {
-            return createCollection(ArrayList::new, 0, 10);
+            List<String> list = createCollection(ArrayList::new, 0, 10);
+            return Collections.unmodifiableList(list);
         }
 
         @Override
         public Collection<String> nonContainedElements() {
-            return createCollection(ArrayList::new, 10, 20);
+            List<String> list = createCollection(ArrayList::new, 10, 20);
+            return Collections.unmodifiableList(list);
         }
     }
 
-    abstract static class IteratorTestBase extends UnmodifiableListTestBase implements UnmodifiableIteratorTests<String> {
+    abstract static class IteratorTestBase extends ListTestBase implements UnmodifiableIteratorTests<String> {
 
         @Override
         public boolean fixedOrder() {
@@ -295,7 +297,7 @@ class UnmodifiableListTest {
         }
     }
 
-    abstract static class ListIteratorTestBase extends UnmodifiableListTestBase implements UnmodifiableListIteratorTests<String> {
+    abstract static class ListIteratorTestBase extends ListTestBase implements UnmodifiableListIteratorTests<String> {
 
         @Override
         public boolean fixedOrder() {

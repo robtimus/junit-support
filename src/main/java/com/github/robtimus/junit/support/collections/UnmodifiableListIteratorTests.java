@@ -17,9 +17,7 @@
 
 package com.github.robtimus.junit.support.collections;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.either;
-import static org.hamcrest.Matchers.instanceOf;
+import static com.github.robtimus.junit.support.collections.CollectionAssertions.assertThrowsUnsupportedOperationExceptionOr;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.List;
@@ -68,8 +66,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
             List<T> list = createIterable();
             ListIterator<T> iterator = list.listIterator();
 
-            Exception exception = assertThrows(Exception.class, iterator::remove);
-            assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(IllegalStateException.class)));
+            assertThrowsUnsupportedOperationExceptionOr(IllegalStateException.class, iterator::remove);
 
             assertEquals(expectedElements(), list);
         }
@@ -95,8 +92,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
             List<T> list = createIterable();
             ListIterator<T> iterator = list.listIterator(list.size());
 
-            Exception exception = assertThrows(Exception.class, iterator::remove);
-            assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(IllegalStateException.class)));
+            assertThrowsUnsupportedOperationExceptionOr(IllegalStateException.class, iterator::remove);
 
             assertEquals(expectedElements(), list);
         }
@@ -162,8 +158,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
                 if (annotation == null) {
                     assertThrows(UnsupportedOperationException.class, () -> iterator.set(null));
                 } else {
-                    Exception exception = assertThrows(Exception.class, () -> iterator.set(null));
-                    assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(annotation.expected())));
+                    assertThrowsUnsupportedOperationExceptionOr(annotation.expected(), () -> iterator.set(null));
                 }
             }
 
@@ -178,8 +173,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
 
             T element = singleElement();
 
-            Exception exception = assertThrows(Exception.class, () -> iterator.set(element));
-            assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(IllegalStateException.class)));
+            assertThrowsUnsupportedOperationExceptionOr(IllegalStateException.class, () -> iterator.set(element));
 
             assertEquals(expectedElements(), list);
         }
@@ -217,8 +211,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
                 if (annotation == null) {
                     assertThrows(UnsupportedOperationException.class, () -> iterator.set(null));
                 } else {
-                    Exception exception = assertThrows(Exception.class, () -> iterator.set(null));
-                    assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(annotation.expected())));
+                    assertThrowsUnsupportedOperationExceptionOr(annotation.expected(), () -> iterator.set(null));
                 }
             }
 
@@ -233,8 +226,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
 
             T element = singleElement();
 
-            Exception exception = assertThrows(Exception.class, () -> iterator.set(element));
-            assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(IllegalStateException.class)));
+            assertThrowsUnsupportedOperationExceptionOr(IllegalStateException.class, () -> iterator.set(element));
 
             assertEquals(expectedElements(), list);
         }
@@ -288,8 +280,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
             if (annotation == null) {
                 assertThrows(UnsupportedOperationException.class, () -> iterator.add(null));
             } else {
-                Exception exception = assertThrows(Exception.class, () -> iterator.add(null));
-                assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(annotation.expected())));
+                assertThrowsUnsupportedOperationExceptionOr(annotation.expected(), () -> iterator.add(null));
             }
 
             while (iterator.hasNext()) {
@@ -298,8 +289,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
                 if (annotation == null) {
                     assertThrows(UnsupportedOperationException.class, () -> iterator.add(null));
                 } else {
-                    Exception exception = assertThrows(Exception.class, () -> iterator.add(null));
-                    assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(annotation.expected())));
+                    assertThrowsUnsupportedOperationExceptionOr(annotation.expected(), () -> iterator.add(null));
                 }
             }
 
@@ -338,8 +328,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
             if (annotation == null) {
                 assertThrows(UnsupportedOperationException.class, () -> iterator.add(null));
             } else {
-                Exception exception = assertThrows(Exception.class, () -> iterator.add(null));
-                assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(annotation.expected())));
+                assertThrowsUnsupportedOperationExceptionOr(annotation.expected(), () -> iterator.add(null));
             }
 
             while (iterator.hasPrevious()) {
@@ -348,8 +337,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
                 if (annotation == null) {
                     assertThrows(UnsupportedOperationException.class, () -> iterator.add(null));
                 } else {
-                    Exception exception = assertThrows(Exception.class, () -> iterator.add(null));
-                    assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(annotation.expected())));
+                    assertThrowsUnsupportedOperationExceptionOr(annotation.expected(), () -> iterator.add(null));
                 }
             }
 

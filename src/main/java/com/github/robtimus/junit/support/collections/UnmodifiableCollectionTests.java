@@ -18,9 +18,8 @@
 package com.github.robtimus.junit.support.collections;
 
 import static com.github.robtimus.junit.support.collections.CollectionAssertions.assertHasElements;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.either;
-import static org.hamcrest.Matchers.instanceOf;
+import static com.github.robtimus.junit.support.collections.CollectionAssertions.assertOptionallyThrowsUnsupportedOperationException;
+import static com.github.robtimus.junit.support.collections.CollectionAssertions.assertThrowsUnsupportedOperationExceptionOr;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.ArrayList;
@@ -114,12 +113,7 @@ public interface UnmodifiableCollectionTests<T> extends CollectionTests<T> {
             Collection<T> collection = createIterable();
 
             for (T element : nonContainedElements()) {
-                // with a non-contained object, either it does nothing or it throws an exception
-                try {
-                    assertFalse(collection.remove(element));
-                } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                    // ignore
-                }
+                assertOptionallyThrowsUnsupportedOperationException(() -> assertFalse(collection.remove(element)));
             }
 
             assertHasElements(collection, expectedElements(), fixedOrder());
@@ -130,12 +124,7 @@ public interface UnmodifiableCollectionTests<T> extends CollectionTests<T> {
         default void testRemoveNull() {
             Collection<T> collection = createIterable();
 
-            // with a non-contained object, either it does nothing or it throws an exception
-            try {
-                assertFalse(collection.remove(null));
-            } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                // ignore
-            }
+            assertOptionallyThrowsUnsupportedOperationException(() -> assertFalse(collection.remove(null)));
 
             assertHasElements(collection, expectedElements(), fixedOrder());
         }
@@ -145,12 +134,7 @@ public interface UnmodifiableCollectionTests<T> extends CollectionTests<T> {
         default void testRemoveIncompatibleObject() {
             Collection<T> collection = createIterable();
 
-            // with a non-contained object, either it does nothing or it throws an exception
-            try {
-                assertFalse(collection.remove(new IncompatibleObject()));
-            } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                // ignore
-            }
+            assertOptionallyThrowsUnsupportedOperationException(() -> assertFalse(collection.remove(new IncompatibleObject())));
 
             assertHasElements(collection, expectedElements(), fixedOrder());
         }
@@ -200,12 +184,7 @@ public interface UnmodifiableCollectionTests<T> extends CollectionTests<T> {
         default void testAddAllWithEmptyCollection() {
             Collection<T> collection = createIterable();
 
-            // with an empty collection, either it does nothing or it throws an exception
-            try {
-                assertFalse(collection.addAll(Collections.emptyList()));
-            } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                // ignore
-            }
+            assertOptionallyThrowsUnsupportedOperationException(() -> assertFalse(collection.addAll(Collections.emptyList())));
 
             assertHasElements(collection, expectedElements(), fixedOrder());
         }
@@ -215,8 +194,7 @@ public interface UnmodifiableCollectionTests<T> extends CollectionTests<T> {
         default void testAddAllWithNull() {
             Collection<T> collection = createIterable();
 
-            Exception exception = assertThrows(Exception.class, () -> collection.addAll(null));
-            assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(NullPointerException.class)));
+            assertThrowsUnsupportedOperationExceptionOr(NullPointerException.class, () -> collection.addAll(null));
 
             assertHasElements(collection, expectedElements(), fixedOrder());
         }
@@ -264,12 +242,8 @@ public interface UnmodifiableCollectionTests<T> extends CollectionTests<T> {
             List<T> elements = new ArrayList<>(nonContainedElements());
             for (int i = 1; i <= elements.size(); i++) {
                 int to = i;
-                // with non-matching elements, either it does nothing or it throws an exception
-                try {
-                    assertFalse(collection.removeAll(elements.subList(0, to)));
-                } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                    // ignore
-                }
+
+                assertOptionallyThrowsUnsupportedOperationException(() -> assertFalse(collection.removeAll(elements.subList(0, to))));
             }
 
             assertHasElements(collection, expectedElements(), fixedOrder());
@@ -280,12 +254,7 @@ public interface UnmodifiableCollectionTests<T> extends CollectionTests<T> {
         default void testRemoveAllWithEmptyCollection() {
             Collection<T> collection = createIterable();
 
-            // with an empty collection, either it does nothing or it throws an exception
-            try {
-                assertFalse(collection.removeAll(Collections.emptyList()));
-            } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                // ignore
-            }
+            assertOptionallyThrowsUnsupportedOperationException(() -> assertFalse(collection.removeAll(Collections.emptyList())));
 
             assertHasElements(collection, expectedElements(), fixedOrder());
         }
@@ -295,8 +264,7 @@ public interface UnmodifiableCollectionTests<T> extends CollectionTests<T> {
         default void testRemoveAllWithNull() {
             Collection<T> collection = createIterable();
 
-            Exception exception = assertThrows(Exception.class, () -> collection.removeAll(null));
-            assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(NullPointerException.class)));
+            assertThrowsUnsupportedOperationExceptionOr(NullPointerException.class, () -> collection.removeAll(null));
 
             assertHasElements(collection, expectedElements(), fixedOrder());
         }
@@ -306,12 +274,7 @@ public interface UnmodifiableCollectionTests<T> extends CollectionTests<T> {
         default void testRemoveAllWithNullElement() {
             Collection<T> collection = createIterable();
 
-            // with a non-contained object, either it does nothing or it throws an exception
-            try {
-                assertFalse(collection.removeAll(Collections.singleton(null)));
-            } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                // ignore
-            }
+            assertOptionallyThrowsUnsupportedOperationException(() -> assertFalse(collection.removeAll(Collections.singleton(null))));
 
             assertHasElements(collection, expectedElements(), fixedOrder());
         }
@@ -321,12 +284,8 @@ public interface UnmodifiableCollectionTests<T> extends CollectionTests<T> {
         default void testRemoveAllWithIncompatibleObject() {
             Collection<T> collection = createIterable();
 
-            // with a non-contained object, either it does nothing or it throws an exception
-            try {
-                assertFalse(collection.removeAll(Collections.singleton(new IncompatibleObject())));
-            } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                // ignore
-            }
+            assertOptionallyThrowsUnsupportedOperationException(
+                    () -> assertFalse(collection.removeAll(Collections.singleton(new IncompatibleObject()))));
 
             assertHasElements(collection, expectedElements(), fixedOrder());
         }
@@ -356,12 +315,7 @@ public interface UnmodifiableCollectionTests<T> extends CollectionTests<T> {
         default void testRemoveIfWithNonMatchingPredicate() {
             Collection<T> collection = createIterable();
 
-            // with a non-matching predicate, either it does nothing or it throws an exception
-            try {
-                assertFalse(collection.removeIf(e -> false));
-            } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                // ignore
-            }
+            assertOptionallyThrowsUnsupportedOperationException(() -> assertFalse(collection.removeIf(e -> false)));
 
             assertHasElements(collection, expectedElements(), fixedOrder());
         }
@@ -371,8 +325,7 @@ public interface UnmodifiableCollectionTests<T> extends CollectionTests<T> {
         default void testRemoveIfWithNullPredicate() {
             Collection<T> collection = createIterable();
 
-            Exception exception = assertThrows(Exception.class, () -> collection.removeIf(null));
-            assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(NullPointerException.class)));
+            assertThrowsUnsupportedOperationExceptionOr(NullPointerException.class, () -> collection.removeIf(null));
 
             assertHasElements(collection, expectedElements(), fixedOrder());
         }
@@ -423,12 +376,7 @@ public interface UnmodifiableCollectionTests<T> extends CollectionTests<T> {
 
             Collection<T> expectedElements = expectedElements();
 
-            // with all element, either it does nothing or it throws an exception
-            try {
-                assertFalse(collection.retainAll(expectedElements));
-            } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                // ignore
-            }
+            assertOptionallyThrowsUnsupportedOperationException(() -> assertFalse(collection.retainAll(expectedElements)));
 
             assertHasElements(collection, expectedElements, fixedOrder());
         }
@@ -438,8 +386,7 @@ public interface UnmodifiableCollectionTests<T> extends CollectionTests<T> {
         default void testRetainAllWithNull() {
             Collection<T> collection = createIterable();
 
-            Exception exception = assertThrows(Exception.class, () -> collection.retainAll(null));
-            assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(NullPointerException.class)));
+            assertThrowsUnsupportedOperationExceptionOr(NullPointerException.class, () -> collection.retainAll(null));
 
             assertHasElements(collection, expectedElements(), fixedOrder());
         }

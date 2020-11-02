@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -37,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -3194,6 +3196,411 @@ public interface MapTests<K, V> {
                 for (K key : expectedEntries.keySet()) {
                     assertThrows(annotation.expected(), () -> map.replace(key, null));
                 }
+            }
+
+            assertEquals(expectedEntries, map);
+        }
+    }
+
+    /**
+     * Contains tests for {@link Map#computeIfAbsent(Object, Function)}.
+     *
+     * @author Rob Spoor
+     * @param <K> The key type of the map to test.
+     * @param <V> The value type of the map to test.
+     */
+    @DisplayName("computeIfAbsent(Object, Function)")
+    interface ComputeIfAbsentTests<K, V> extends MapTests<K, V> {
+
+        @Test
+        @DisplayName("computeIfAbsent(Object, Function)")
+        default void testComputeIfAbsent() {
+            Map<K, V> map = createMap();
+
+            Map<K, V> nonContainedEntries = nonContainedEntries();
+            V nonContained = nonContainedEntries.values().iterator().next();
+
+            Map<K, V> expectedEntries = new HashMap<>(expectedEntries());
+
+            for (Map.Entry<K, V> entry : expectedEntries.entrySet()) {
+                assertEquals(entry.getValue(), map.computeIfAbsent(entry.getKey(), k -> nonContained));
+            }
+
+            for (Map.Entry<K, V> entry : nonContainedEntries.entrySet()) {
+                V value = entry.getValue();
+
+                assertEquals(entry.getValue(), map.computeIfAbsent(entry.getKey(), k -> value));
+            }
+
+            expectedEntries.putAll(nonContainedEntries);
+
+            assertEquals(expectedEntries, map);
+        }
+
+        @Test
+        @DisplayName("computeIfAbsent(Object, Function) with function returning null")
+        default void testComputeIfAbsentWithFunctionReturningNull() {
+            Map<K, V> map = createMap();
+
+            Map<K, V> expectedEntries = expectedEntries();
+
+            for (Map.Entry<K, V> entry : expectedEntries.entrySet()) {
+                assertEquals(entry.getValue(), map.computeIfAbsent(entry.getKey(), k -> null));
+            }
+
+            for (Map.Entry<K, V> entry : nonContainedEntries().entrySet()) {
+                assertNull(map.computeIfAbsent(entry.getKey(), k -> null));
+            }
+
+            assertEquals(expectedEntries, map);
+        }
+
+        @Test
+        @DisplayName("computeIfAbsent(Object, Function) with throwing function")
+        default void testComputeIfAbsentWithThrowingFunction() {
+            Map<K, V> map = createMap();
+
+            RuntimeException exception = new RuntimeException();
+            Function<K, V> function = k -> {
+                throw exception;
+            };
+
+            Map<K, V> expectedEntries = expectedEntries();
+
+            for (Map.Entry<K, V> entry : expectedEntries.entrySet()) {
+                assertEquals(entry.getValue(), map.computeIfAbsent(entry.getKey(), function));
+            }
+
+            for (K key : nonContainedEntries().keySet()) {
+                RuntimeException thrown = assertThrows(RuntimeException.class, () -> map.computeIfAbsent(key, function));
+                assertSame(exception, thrown);
+            }
+
+            assertEquals(expectedEntries, map);
+        }
+
+        @Test
+        @DisplayName("computeIfAbsent(Object, Function) with null function")
+        default void testComputeIfAbsentWithNullFunction() {
+            Map<K, V> map = createMap();
+
+            Map<K, V> expectedEntries = expectedEntries();
+
+            for (K key : expectedEntries.keySet()) {
+                assertThrows(NullPointerException.class, () -> map.computeIfAbsent(key, null));
+            }
+
+            for (K key : nonContainedEntries().keySet()) {
+                assertThrows(NullPointerException.class, () -> map.computeIfAbsent(key, null));
+            }
+
+            assertEquals(expectedEntries, map);
+        }
+    }
+
+    /**
+     * Contains tests for {@link Map#computeIfPresent(Object, BiFunction)}.
+     *
+     * @author Rob Spoor
+     * @param <K> The key type of the map to test.
+     * @param <V> The value type of the map to test.
+     */
+    @DisplayName("computeIfPresent(Object, BiFunction)")
+    interface ComputeIfPresentTests<K, V> extends MapTests<K, V> {
+
+        @Test
+        @DisplayName("computeIfPresent(Object, BiFunction)")
+        default void testComputeIfPresent() {
+            Map<K, V> map = createMap();
+
+            Map<K, V> nonContainedEntries = nonContainedEntries();
+            V nonContained = nonContainedEntries.values().iterator().next();
+
+            Map<K, V> expectedEntries = new HashMap<>(expectedEntries());
+
+            for (K key : expectedEntries.keySet()) {
+                assertEquals(nonContained, map.computeIfPresent(key, (k, v) -> nonContained));
+            }
+
+            for (Map.Entry<K, V> entry : nonContainedEntries.entrySet()) {
+                V value = entry.getValue();
+
+                assertNull(map.computeIfPresent(entry.getKey(), (k, v) -> value));
+            }
+
+            expectedEntries.replaceAll((k, v) -> nonContained);
+
+            assertEquals(expectedEntries, map);
+        }
+
+        @Test
+        @DisplayName("computeIfPresent(Object, BiFunction) with function returning null")
+        default void testComputeIfPresentWithFunctionReturningNull() {
+            Map<K, V> map = createMap();
+
+            Map<K, V> expectedEntries = expectedEntries();
+
+            for (K key : expectedEntries.keySet()) {
+                assertNull(map.computeIfPresent(key, (k, v) -> null));
+            }
+
+            for (K key : nonContainedEntries().keySet()) {
+                assertNull(map.computeIfPresent(key, (k, v) -> null));
+            }
+
+            assertEquals(Collections.emptyMap(), map);
+        }
+
+        @Test
+        @DisplayName("computeIfPresent(Object, BiFunction) with throwing function")
+        default void testComputeIfPresentWithThrowingFunction() {
+            Map<K, V> map = createMap();
+
+            RuntimeException exception = new RuntimeException();
+            BiFunction<K, V, V> function = (k, v) -> {
+                throw exception;
+            };
+
+            Map<K, V> expectedEntries = expectedEntries();
+
+            for (K key : expectedEntries.keySet()) {
+                RuntimeException thrown = assertThrows(RuntimeException.class, () -> map.computeIfPresent(key, function));
+                assertSame(exception, thrown);
+            }
+
+            for (K key : nonContainedEntries().keySet()) {
+                assertNull(map.computeIfPresent(key, function));
+            }
+
+            assertEquals(expectedEntries, map);
+        }
+
+        @Test
+        @DisplayName("computeIfPresent(Object, BiFunction) with null function")
+        default void testComputeIfPresentWithNullFunction() {
+            Map<K, V> map = createMap();
+
+            Map<K, V> expectedEntries = expectedEntries();
+
+            for (K key : expectedEntries.keySet()) {
+                assertThrows(NullPointerException.class, () -> map.computeIfPresent(key, null));
+            }
+
+            for (K key : nonContainedEntries().keySet()) {
+                assertThrows(NullPointerException.class, () -> map.computeIfPresent(key, null));
+            }
+
+            assertEquals(expectedEntries, map);
+        }
+    }
+
+    /**
+     * Contains tests for {@link Map#compute(Object, BiFunction)}.
+     *
+     * @author Rob Spoor
+     * @param <K> The key type of the map to test.
+     * @param <V> The value type of the map to test.
+     */
+    @DisplayName("compute(Object, BiFunction)")
+    interface ComputeTests<K, V> extends MapTests<K, V> {
+
+        @Test
+        @DisplayName("compute(Object, BiFunction)")
+        default void testCompute() {
+            Map<K, V> map = createMap();
+
+            Map<K, V> expectedEntries = new HashMap<>(expectedEntries());
+            Map<K, V> nonContainedEntries = nonContainedEntries();
+
+            V nonContained = nonContainedEntries.values().iterator().next();
+
+            for (Map.Entry<K, V> entry : expectedEntries.entrySet()) {
+                assertEquals(nonContained, map.compute(entry.getKey(), (k, v) -> nonContained));
+            }
+
+            for (Map.Entry<K, V> entry : nonContainedEntries.entrySet()) {
+                V value = entry.getValue();
+
+                assertEquals(value, map.compute(entry.getKey(), (k, v) -> value));
+            }
+
+            expectedEntries.replaceAll((k, v) -> nonContained);
+            expectedEntries.putAll(nonContainedEntries);
+
+            assertEquals(expectedEntries, map);
+        }
+
+        @Test
+        @DisplayName("compute(Object, BiFunction) with function returning null")
+        default void testComputeWithFunctionReturningNull() {
+            Map<K, V> map = createMap();
+
+            Map<K, V> expectedEntries = expectedEntries();
+
+            for (K key : expectedEntries.keySet()) {
+                assertNull(map.compute(key, (k, v) -> null));
+            }
+
+            for (K key : nonContainedEntries().keySet()) {
+                assertNull(map.compute(key, (k, v) -> null));
+            }
+
+            assertEquals(Collections.emptyMap(), map);
+        }
+
+        @Test
+        @DisplayName("compute(Object, BiFunction) with throwing function")
+        default void testComputeWithThrowingFunction() {
+            Map<K, V> map = createMap();
+
+            RuntimeException exception = new RuntimeException();
+            BiFunction<K, V, V> function = (k, v) -> {
+                throw exception;
+            };
+
+            Map<K, V> expectedEntries = expectedEntries();
+
+            for (K key : expectedEntries.keySet()) {
+                RuntimeException thrown = assertThrows(RuntimeException.class, () -> map.compute(key, function));
+                assertSame(exception, thrown);
+            }
+
+            for (K key : nonContainedEntries().keySet()) {
+                RuntimeException thrown = assertThrows(RuntimeException.class, () -> map.compute(key, function));
+                assertSame(exception, thrown);
+            }
+
+            assertEquals(expectedEntries, map);
+        }
+
+        @Test
+        @DisplayName("compute(Object, BiFunction) with null function")
+        default void testComputeWithNullFunction() {
+            Map<K, V> map = createMap();
+
+            Map<K, V> expectedEntries = expectedEntries();
+
+            for (K key : expectedEntries.keySet()) {
+                assertThrows(NullPointerException.class, () -> map.compute(key, null));
+            }
+
+            for (K key : nonContainedEntries().keySet()) {
+                assertThrows(NullPointerException.class, () -> map.compute(key, null));
+            }
+
+            assertEquals(expectedEntries, map);
+        }
+    }
+
+    /**
+     * Contains tests for {@link Map#merge(Object, Object, BiFunction)}.
+     *
+     * @author Rob Spoor
+     * @param <K> The key type of the map to test.
+     * @param <V> The value type of the map to test.
+     */
+    @DisplayName("merge(Object, Object, BiFunction)")
+    interface MergeTests<K, V> extends MapTests<K, V> {
+
+        /**
+         * Returns a binary operator that can be used to combine values with {@link Map#merge(Object, Object, BiFunction)}.
+         *
+         * @return A binary operator that can be used to combine values with {@link Map#merge(Object, Object, BiFunction)}.
+         */
+        BinaryOperator<V> combineValuesOperator();
+
+        @Test
+        @DisplayName("merge(Object, Object, BiFunction)")
+        default void testMerge() {
+            Map<K, V> map = createMap();
+
+            BinaryOperator<V> operator = combineValuesOperator();
+
+            Map<K, V> expectedEntries = new HashMap<>(expectedEntries());
+            Map<K, V> nonContainedEntries = nonContainedEntries();
+
+            for (Map.Entry<K, V> entry : expectedEntries.entrySet()) {
+                V value = entry.getValue();
+                V newValue = operator.apply(value, value);
+
+                assertEquals(newValue, map.merge(entry.getKey(), value, operator));
+            }
+
+            for (Map.Entry<K, V> entry : nonContainedEntries.entrySet()) {
+                V value = entry.getValue();
+
+                assertEquals(value, map.merge(entry.getKey(), value, operator));
+            }
+
+            expectedEntries.replaceAll((k, v) -> operator.apply(v, v));
+            expectedEntries.putAll(nonContainedEntries);
+
+            assertEquals(expectedEntries, map);
+        }
+
+        @Test
+        @DisplayName("merge(Object, Object, BiFunction) with function returning null")
+        default void testMergeWithFunctionReturningNull() {
+            Map<K, V> map = createMap();
+
+            Map<K, V> expectedEntries = expectedEntries();
+            Map<K, V> nonContainedEntries = nonContainedEntries();
+
+            for (Map.Entry<K, V> entry : expectedEntries.entrySet()) {
+                assertNull(map.merge(entry.getKey(), entry.getValue(), (v1, v2) -> null));
+            }
+
+            for (Map.Entry<K, V> entry : nonContainedEntries.entrySet()) {
+                V value = entry.getValue();
+
+                assertEquals(value, map.merge(entry.getKey(), value, (v1, v2) -> null));
+            }
+
+            assertEquals(nonContainedEntries, map);
+        }
+
+        @Test
+        @DisplayName("merge(Object, Object, BiFunction) with throwing function")
+        default void testMergeWithThrowingFunction() {
+            Map<K, V> map = createMap();
+
+            RuntimeException exception = new RuntimeException();
+            BinaryOperator<V> operator = (v1, v2) -> {
+                throw exception;
+            };
+
+            Map<K, V> expectedEntries = new HashMap<>(expectedEntries());
+            Map<K, V> nonContainedEntries = nonContainedEntries();
+
+            for (Map.Entry<K, V> entry : expectedEntries.entrySet()) {
+                RuntimeException thrown = assertThrows(RuntimeException.class, () -> map.merge(entry.getKey(), entry.getValue(), operator));
+                assertSame(exception, thrown);
+            }
+
+            for (Map.Entry<K, V> entry : nonContainedEntries.entrySet()) {
+                V value = entry.getValue();
+
+                assertEquals(value, map.merge(entry.getKey(), value, operator));
+            }
+
+            expectedEntries.putAll(nonContainedEntries);
+
+            assertEquals(expectedEntries, map);
+        }
+
+        @Test
+        @DisplayName("merge(Object, Object, BiFunction) with null function")
+        default void testMergeWithNullFunction() {
+            Map<K, V> map = createMap();
+
+            Map<K, V> expectedEntries = expectedEntries();
+
+            for (Map.Entry<K, V> entry : expectedEntries.entrySet()) {
+                assertThrows(NullPointerException.class, () -> map.merge(entry.getKey(), entry.getValue(), null));
+            }
+
+            for (Map.Entry<K, V> entry : nonContainedEntries().entrySet()) {
+                assertThrows(NullPointerException.class, () -> map.merge(entry.getKey(), entry.getValue(), null));
             }
 
             assertEquals(expectedEntries, map);

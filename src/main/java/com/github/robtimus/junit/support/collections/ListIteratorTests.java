@@ -493,7 +493,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
                 iterator.set(operator.apply(operator.apply(element)));
             }
 
-            List<T> expectedElements = expectedElements();
+            List<T> expectedElements = new ArrayList<>(expectedElements());
             expectedElements.replaceAll(operator);
             expectedElements.replaceAll(operator);
 

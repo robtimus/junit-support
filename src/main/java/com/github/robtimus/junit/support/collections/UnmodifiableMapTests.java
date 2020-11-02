@@ -18,9 +18,9 @@
 package com.github.robtimus.junit.support.collections;
 
 import static com.github.robtimus.junit.support.collections.CollectionAssertions.assertHasElements;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.either;
-import static org.hamcrest.Matchers.instanceOf;
+import static com.github.robtimus.junit.support.collections.CollectionAssertions.assertOptionallyThrowsUnsupportedOperationException;
+import static com.github.robtimus.junit.support.collections.CollectionAssertions.assertThrowsUnsupportedOperationExceptionOr;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -33,7 +33,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import org.junit.jupiter.api.DisplayName;
@@ -81,12 +83,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
             for (Map.Entry<K, V> entry : expectedEntries.entrySet()) {
                 V value = entry.getValue();
 
-                // if the value stays the same, either it does nothing or it throws an exception
-                try {
-                    assertEquals(value, map.put(entry.getKey(), value));
-                } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                    // ignore
-                }
+                assertOptionallyThrowsUnsupportedOperationException(() -> assertEquals(value, map.put(entry.getKey(), value)));
             }
 
             assertEquals(expectedEntries, map);
@@ -167,12 +164,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
             Map<K, V> map = createMap();
 
             for (K key : nonContainedEntries().keySet()) {
-                // with a non-contained object, either it does nothing or it throws an exception
-                try {
-                    assertNull(map.remove(key));
-                } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                    // ignore
-                }
+                assertOptionallyThrowsUnsupportedOperationException(() -> assertNull(map.remove(key)));
             }
 
             assertEquals(expectedEntries(), map);
@@ -183,12 +175,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         default void testRemoveNull() {
             Map<K, V> map = createMap();
 
-            // with a non-contained object, either it does nothing or it throws an exception
-            try {
-                assertNull(map.remove(null));
-            } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                // ignore
-            }
+            assertOptionallyThrowsUnsupportedOperationException(() -> assertNull(map.remove(null)));
 
             assertEquals(expectedEntries(), map);
         }
@@ -198,12 +185,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         default void testRemoveIncompatibleObject() {
             Map<K, V> map = createMap();
 
-            // with a non-contained object, either it does nothing or it throws an exception
-            try {
-                assertNull(map.remove(new IncompatibleObject()));
-            } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                // ignore
-            }
+            assertOptionallyThrowsUnsupportedOperationException(() -> assertNull(map.remove(new IncompatibleObject())));
 
             assertEquals(expectedEntries(), map);
         }
@@ -236,12 +218,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
             for (Map.Entry<K, V> entry : expectedEntries.entrySet()) {
                 Map<K, V> m = Collections.singletonMap(entry.getKey(), entry.getValue());
 
-                // if the value stays the same, either it does nothing or it throws an exception
-                try {
-                    map.putAll(m);
-                } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                    // ignore
-                }
+                assertOptionallyThrowsUnsupportedOperationException(() -> map.putAll(m));
             }
 
             assertEquals(expectedEntries, map);
@@ -285,12 +262,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         default void testPutAllWithEmptyMap() {
             Map<K, V> map = createMap();
 
-            // with an empty map, either it does nothing or it throws an exception
-            try {
-                map.putAll(Collections.emptyMap());
-            } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                // ignore
-            }
+            assertOptionallyThrowsUnsupportedOperationException(() -> map.putAll(Collections.emptyMap()));
 
             assertEquals(expectedEntries(), map);
         }
@@ -300,8 +272,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         default void testPutAllWithNull() {
             Map<K, V> map = createMap();
 
-            Exception exception = assertThrows(Exception.class, () -> map.putAll(null));
-            assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(NullPointerException.class)));
+            assertThrowsUnsupportedOperationExceptionOr(NullPointerException.class, () -> map.putAll(null));
 
             assertEquals(expectedEntries(), map);
         }
@@ -1272,12 +1243,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
             BiFunction<K, V, V> function = replaceValueFunction();
 
             if (map.isEmpty()) {
-                // with an empty map, either it does nothing or it throws an exception
-                try {
-                    map.replaceAll(function);
-                } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                    // ignore
-                }
+                assertOptionallyThrowsUnsupportedOperationException(() -> map.replaceAll(function));
             } else {
                 assertThrows(UnsupportedOperationException.class, () -> map.replaceAll(function));
             }
@@ -1290,8 +1256,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         default void testReplaceAllWithNullOperator() {
             Map<K, V> map = createMap();
 
-            Exception exception = assertThrows(Exception.class, () -> map.replaceAll(null));
-            assertThat(exception, either(instanceOf(UnsupportedOperationException.class)).or(instanceOf(NullPointerException.class)));
+            assertThrowsUnsupportedOperationExceptionOr(NullPointerException.class, () -> map.replaceAll(null));
 
             assertEquals(expectedEntries(), map);
         }
@@ -1318,12 +1283,8 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
             Map<K, V> expectedEntries = expectedEntries();
 
             for (Map.Entry<K, V> entry : expectedEntries.entrySet()) {
-                // if the value stays the same, either it does nothing or it throws an exception
-                try {
-                    assertEquals(entry.getValue(), map.putIfAbsent(entry.getKey(), nonContained));
-                } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                    // ignore
-                }
+                assertOptionallyThrowsUnsupportedOperationException(
+                        () -> assertEquals(entry.getValue(), map.putIfAbsent(entry.getKey(), nonContained)));
             }
 
             assertEquals(expectedEntries, map);
@@ -1366,12 +1327,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
             Map<K, V> map = createMap();
 
             for (Map.Entry<K, V> entry : nonContainedEntries().entrySet()) {
-                // with a non-contained object, either it does nothing or it throws an exception
-                try {
-                    assertNull(map.remove(entry.getKey(), entry.getValue()));
-                } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                    // ignore
-                }
+                assertOptionallyThrowsUnsupportedOperationException(() -> assertNull(map.remove(entry.getKey(), entry.getValue())));
             }
 
             assertEquals(expectedEntries(), map);
@@ -1384,12 +1340,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
 
             V nonContained = nonContainedEntries().values().iterator().next();
 
-            // with a non-contained object, either it does nothing or it throws an exception
-            try {
-                assertNull(map.remove(null, nonContained));
-            } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                // ignore
-            }
+            assertOptionallyThrowsUnsupportedOperationException(() -> assertNull(map.remove(null, nonContained)));
 
             assertEquals(expectedEntries(), map);
         }
@@ -1401,12 +1352,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
 
             V nonContained = nonContainedEntries().values().iterator().next();
 
-            // with a non-contained object, either it does nothing or it throws an exception
-            try {
-                assertNull(map.remove(new IncompatibleObject(), nonContained));
-            } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                // ignore
-            }
+            assertOptionallyThrowsUnsupportedOperationException(() -> assertNull(map.remove(new IncompatibleObject(), nonContained)));
 
             assertEquals(expectedEntries(), map);
         }
@@ -1418,12 +1364,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
 
             K nonContained = nonContainedEntries().keySet().iterator().next();
 
-            // with a non-contained object, either it does nothing or it throws an exception
-            try {
-                assertNull(map.remove(nonContained, null));
-            } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                // ignore
-            }
+            assertOptionallyThrowsUnsupportedOperationException(() -> assertNull(map.remove(nonContained, null)));
 
             assertEquals(expectedEntries(), map);
         }
@@ -1435,12 +1376,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
 
             K nonContained = nonContainedEntries().keySet().iterator().next();
 
-            // with a non-contained object, either it does nothing or it throws an exception
-            try {
-                assertNull(map.remove(nonContained, new IncompatibleObject()));
-            } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                // ignore
-            }
+            assertOptionallyThrowsUnsupportedOperationException(() -> assertNull(map.remove(nonContained, new IncompatibleObject())));
 
             assertEquals(expectedEntries(), map);
         }
@@ -1469,12 +1405,8 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
             for (Map.Entry<K, V> entry : expectedEntries.entrySet()) {
                 assertThrows(UnsupportedOperationException.class, () -> map.replace(entry.getKey(), entry.getValue(), nonContained));
 
-                // with the same value, either it does nothing or it throws an exception
-                try {
-                    assertTrue(map.replace(entry.getKey(), entry.getValue(), entry.getValue()));
-                } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                    // ignore
-                }
+                assertOptionallyThrowsUnsupportedOperationException(
+                        () -> assertTrue(map.replace(entry.getKey(), entry.getValue(), entry.getValue())));
             }
 
             assertEquals(expectedEntries, map);
@@ -1489,12 +1421,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
             V nonContained = nonContainedEntries.values().iterator().next();
 
             for (Map.Entry<K, V> entry : nonContainedEntries().entrySet()) {
-                // with a non-contained object, either it does nothing or it throws an exception
-                try {
-                    assertFalse(map.replace(entry.getKey(), entry.getValue(), nonContained));
-                } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                    // ignore
-                }
+                assertOptionallyThrowsUnsupportedOperationException(() -> assertFalse(map.replace(entry.getKey(), entry.getValue(), nonContained)));
             }
 
             assertEquals(expectedEntries(), map);
@@ -1507,12 +1434,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
 
             V nonContained = nonContainedEntries().values().iterator().next();
 
-            // with a non-contained object, either it does nothing or it throws an exception
-            try {
-                assertFalse(map.replace(null, nonContained, nonContained));
-            } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                // ignore
-            }
+            assertOptionallyThrowsUnsupportedOperationException(() -> assertFalse(map.replace(null, nonContained, nonContained)));
 
             assertEquals(expectedEntries(), map);
         }
@@ -1524,12 +1446,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
 
             K nonContained = nonContainedEntries().keySet().iterator().next();
 
-            // with a non-contained object, either it does nothing or it throws an exception
-            try {
-                assertFalse(map.replace(nonContained, null, null));
-            } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                // ignore
-            }
+            assertOptionallyThrowsUnsupportedOperationException(() -> assertFalse(map.replace(nonContained, null, null)));
 
             assertEquals(expectedEntries(), map);
         }
@@ -1558,12 +1475,8 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
             for (Map.Entry<K, V> entry : expectedEntries.entrySet()) {
                 assertThrows(UnsupportedOperationException.class, () -> map.replace(entry.getKey(), nonContained));
 
-                // with the same value, either it does nothing or it throws an exception
-                try {
-                    assertEquals(entry.getValue(), map.replace(entry.getKey(), entry.getValue()));
-                } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                    // ignore
-                }
+                assertOptionallyThrowsUnsupportedOperationException(
+                        () -> assertEquals(entry.getValue(), map.replace(entry.getKey(), entry.getValue())));
             }
 
             assertEquals(expectedEntries, map);
@@ -1575,12 +1488,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
             Map<K, V> map = createMap();
 
             for (Map.Entry<K, V> entry : nonContainedEntries().entrySet()) {
-                // with a non-contained object, either it does nothing or it throws an exception
-                try {
-                    assertNull(map.replace(entry.getKey(), entry.getValue()));
-                } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                    // ignore
-                }
+                assertOptionallyThrowsUnsupportedOperationException(() -> assertNull(map.replace(entry.getKey(), entry.getValue())));
             }
 
             assertEquals(expectedEntries(), map);
@@ -1593,12 +1501,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
 
             V nonContained = nonContainedEntries().values().iterator().next();
 
-            // with a non-contained object, either it does nothing or it throws an exception
-            try {
-                assertNull(map.replace(null, nonContained));
-            } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                // ignore
-            }
+            assertOptionallyThrowsUnsupportedOperationException(() -> assertNull(map.replace(null, nonContained)));
 
             assertEquals(expectedEntries(), map);
         }
@@ -1610,14 +1513,394 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
 
             K nonContained = nonContainedEntries().keySet().iterator().next();
 
-            // with a non-contained object, either it does nothing or it throws an exception
-            try {
-                assertNull(map.replace(nonContained, null));
-            } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                // ignore
-            }
+            assertOptionallyThrowsUnsupportedOperationException(() -> assertNull(map.replace(nonContained, null)));
 
             assertEquals(expectedEntries(), map);
+        }
+    }
+
+    /**
+     * Contains tests for {@link Map#computeIfAbsent(Object, Function)} for unmodifiable maps.
+     *
+     * @author Rob Spoor
+     * @param <K> The key type of the map to test.
+     * @param <V> The value type of the map to test.
+     */
+    @DisplayName("computeIfAbsent(Object, Function)")
+    interface ComputeIfAbsentTests<K, V> extends MapTests<K, V> {
+
+        @Test
+        @DisplayName("computeIfAbsent(Object, Function)")
+        default void testComputeIfAbsent() {
+            Map<K, V> map = createMap();
+
+            Map<K, V> nonContainedEntries = nonContainedEntries();
+            V nonContained = nonContainedEntries.values().iterator().next();
+
+            Map<K, V> expectedEntries = expectedEntries();
+
+            for (Map.Entry<K, V> entry : expectedEntries.entrySet()) {
+                assertOptionallyThrowsUnsupportedOperationException(
+                        () -> assertEquals(entry.getValue(), map.computeIfAbsent(entry.getKey(), k -> nonContained)));
+            }
+
+            for (Map.Entry<K, V> entry : nonContainedEntries.entrySet()) {
+                V value = entry.getValue();
+
+                assertThrows(UnsupportedOperationException.class, () -> map.computeIfAbsent(entry.getKey(), k -> value));
+            }
+
+            assertEquals(expectedEntries, map);
+        }
+
+        @Test
+        @DisplayName("computeIfAbsent(Object, Function) with function returning null")
+        default void testComputeIfAbsentWithFunctionReturningNull() {
+            Map<K, V> map = createMap();
+
+            Map<K, V> expectedEntries = expectedEntries();
+
+            for (K key : expectedEntries.keySet()) {
+                assertThrows(UnsupportedOperationException.class, () -> map.computeIfAbsent(key, k -> null));
+            }
+
+            for (Map.Entry<K, V> entry : nonContainedEntries().entrySet()) {
+                assertOptionallyThrowsUnsupportedOperationException(() -> assertNull(map.computeIfAbsent(entry.getKey(), k -> null)));
+            }
+
+            assertEquals(expectedEntries, map);
+        }
+
+        @Test
+        @DisplayName("computeIfAbsent(Object, Function) with throwing function")
+        default void testComputeIfAbsentWithThrowingFunction() {
+            Map<K, V> map = createMap();
+
+            RuntimeException exception = new RuntimeException();
+            Function<K, V> function = k -> {
+                throw exception;
+            };
+
+            Map<K, V> expectedEntries = expectedEntries();
+
+            for (Map.Entry<K, V> entry : expectedEntries.entrySet()) {
+                assertOptionallyThrowsUnsupportedOperationException(
+                        () -> assertEquals(entry.getValue(), map.computeIfAbsent(entry.getKey(), function)));
+            }
+
+            for (K key : nonContainedEntries().keySet()) {
+                assertThrowsUnsupportedOperationExceptionOr(sameInstance(exception), () -> map.computeIfAbsent(key, function));
+            }
+
+            assertEquals(expectedEntries, map);
+        }
+
+        @Test
+        @DisplayName("computeIfAbsent(Object, Function) with null function")
+        default void testComputeIfAbsentWithNullFunction() {
+            Map<K, V> map = createMap();
+
+            Map<K, V> expectedEntries = expectedEntries();
+
+            for (K key : expectedEntries.keySet()) {
+                assertThrowsUnsupportedOperationExceptionOr(NullPointerException.class, () -> map.computeIfAbsent(key, null));
+            }
+
+            for (K key : nonContainedEntries().keySet()) {
+                assertThrowsUnsupportedOperationExceptionOr(NullPointerException.class, () -> map.computeIfAbsent(key, null));
+            }
+
+            assertEquals(expectedEntries, map);
+        }
+    }
+
+    /**
+     * Contains tests for {@link Map#computeIfPresent(Object, BiFunction)} for unmodifiable maps.
+     *
+     * @author Rob Spoor
+     * @param <K> The key type of the map to test.
+     * @param <V> The value type of the map to test.
+     */
+    @DisplayName("computeIfPresent(Object, BiFunction)")
+    interface ComputeIfPresentTests<K, V> extends MapTests<K, V> {
+
+        @Test
+        @DisplayName("computeIfPresent(Object, BiFunction)")
+        default void testComputeIfPresent() {
+            Map<K, V> map = createMap();
+
+            Map<K, V> nonContainedEntries = nonContainedEntries();
+            V nonContained = nonContainedEntries.values().iterator().next();
+
+            Map<K, V> expectedEntries = expectedEntries();
+
+            for (K key : expectedEntries.keySet()) {
+                assertThrows(UnsupportedOperationException.class, () -> map.computeIfPresent(key, (k, v) -> nonContained));
+            }
+
+            for (Map.Entry<K, V> entry : nonContainedEntries.entrySet()) {
+                V value = entry.getValue();
+
+                assertOptionallyThrowsUnsupportedOperationException(() -> assertNull(map.computeIfPresent(entry.getKey(), (k, v) -> value)));
+            }
+
+            assertEquals(expectedEntries, map);
+        }
+
+        @Test
+        @DisplayName("computeIfPresent(Object, BiFunction) with function returning null")
+        default void testComputeIfPresentWithFunctionReturningNull() {
+            Map<K, V> map = createMap();
+
+            Map<K, V> expectedEntries = expectedEntries();
+
+            for (K key : expectedEntries.keySet()) {
+                assertThrows(UnsupportedOperationException.class, () -> map.computeIfPresent(key, (k, v) -> null));
+            }
+
+            for (K key : nonContainedEntries().keySet()) {
+                assertOptionallyThrowsUnsupportedOperationException(() -> assertNull(map.computeIfPresent(key, (k, v) -> null)));
+            }
+
+            assertEquals(expectedEntries, map);
+        }
+
+        @Test
+        @DisplayName("computeIfPresent(Object, BiFunction) with throwing function")
+        default void testComputeIfPresentWithThrowingFunction() {
+            Map<K, V> map = createMap();
+
+            RuntimeException exception = new RuntimeException();
+            BiFunction<K, V, V> function = (k, v) -> {
+                throw exception;
+            };
+
+            Map<K, V> expectedEntries = expectedEntries();
+
+            for (K key : expectedEntries.keySet()) {
+                assertThrowsUnsupportedOperationExceptionOr(sameInstance(exception), () -> map.computeIfPresent(key, function));
+            }
+
+            for (K key : nonContainedEntries().keySet()) {
+                assertOptionallyThrowsUnsupportedOperationException(() -> assertNull(map.computeIfPresent(key, function)));
+            }
+
+            assertEquals(expectedEntries, map);
+        }
+
+        @Test
+        @DisplayName("computeIfPresent(Object, BiFunction) with null function")
+        default void testComputeIfPresentWithNullFunction() {
+            Map<K, V> map = createMap();
+
+            Map<K, V> expectedEntries = expectedEntries();
+
+            for (K key : expectedEntries.keySet()) {
+                assertThrowsUnsupportedOperationExceptionOr(NullPointerException.class, () -> map.computeIfPresent(key, null));
+            }
+
+            for (K key : nonContainedEntries().keySet()) {
+                assertThrowsUnsupportedOperationExceptionOr(NullPointerException.class, () -> map.computeIfPresent(key, null));
+            }
+
+            assertEquals(expectedEntries, map);
+        }
+    }
+
+    /**
+     * Contains tests for {@link Map#compute(Object, BiFunction)} for unmodifiable maps.
+     *
+     * @author Rob Spoor
+     * @param <K> The key type of the map to test.
+     * @param <V> The value type of the map to test.
+     */
+    @DisplayName("compute(Object, BiFunction)")
+    interface ComputeTests<K, V> extends MapTests<K, V> {
+
+        /**
+         * Returns a unary operator that can be used to create new values to set with {@link Map#compute(Object, BiFunction)}.
+         *
+         * @return A unary operator that can be used to create new values to set with {@link Map#compute(Object, BiFunction)}.
+         */
+        UnaryOperator<V> replaceValueOperator();
+
+        @Test
+        @DisplayName("compute(Object, BiFunction)")
+        default void testCompute() {
+            Map<K, V> map = createMap();
+
+            UnaryOperator<V> operator = replaceValueOperator();
+
+            Map<K, V> expectedEntries = expectedEntries();
+            Map<K, V> nonContainedEntries = nonContainedEntries();
+
+            for (Map.Entry<K, V> entry : expectedEntries.entrySet()) {
+                assertThrows(UnsupportedOperationException.class, () -> map.compute(entry.getKey(), (k, v) -> operator.apply(v)));
+            }
+
+            for (Map.Entry<K, V> entry : nonContainedEntries.entrySet()) {
+                V value = entry.getValue();
+
+                assertThrows(UnsupportedOperationException.class, () -> map.compute(entry.getKey(), (k, v) -> value));
+            }
+
+            assertEquals(expectedEntries, map);
+        }
+
+        @Test
+        @DisplayName("compute(Object, BiFunction) with function returning null")
+        default void testComputeWithFunctionReturningNull() {
+            Map<K, V> map = createMap();
+
+            Map<K, V> expectedEntries = expectedEntries();
+
+            for (K key : expectedEntries.keySet()) {
+                assertThrows(UnsupportedOperationException.class, () -> map.compute(key, (k, v) -> null));
+            }
+
+            for (K key : nonContainedEntries().keySet()) {
+                assertThrows(UnsupportedOperationException.class, () -> map.compute(key, (k, v) -> null));
+            }
+
+            assertEquals(expectedEntries, map);
+        }
+
+        @Test
+        @DisplayName("compute(Object, BiFunction) with throwing function")
+        default void testComputeWithThrowingFunction() {
+            Map<K, V> map = createMap();
+
+            RuntimeException exception = new RuntimeException();
+            BiFunction<K, V, V> function = (k, v) -> {
+                throw exception;
+            };
+
+            Map<K, V> expectedEntries = expectedEntries();
+
+            for (K key : expectedEntries.keySet()) {
+                assertThrowsUnsupportedOperationExceptionOr(sameInstance(exception), () -> map.compute(key, function));
+            }
+
+            for (K key : nonContainedEntries().keySet()) {
+                assertThrowsUnsupportedOperationExceptionOr(sameInstance(exception), () -> map.compute(key, function));
+            }
+
+            assertEquals(expectedEntries, map);
+        }
+
+        @Test
+        @DisplayName("compute(Object, BiFunction) with null function")
+        default void testComputeWithNullFunction() {
+            Map<K, V> map = createMap();
+
+            Map<K, V> expectedEntries = expectedEntries();
+
+            for (K key : expectedEntries.keySet()) {
+                assertThrowsUnsupportedOperationExceptionOr(NullPointerException.class, () -> map.compute(key, null));
+            }
+
+            for (K key : nonContainedEntries().keySet()) {
+                assertThrowsUnsupportedOperationExceptionOr(NullPointerException.class, () -> map.compute(key, null));
+            }
+
+            assertEquals(expectedEntries, map);
+        }
+    }
+
+    /**
+     * Contains tests for {@link Map#merge(Object, Object, BiFunction)} for unmodifiable maps.
+     *
+     * @author Rob Spoor
+     * @param <K> The key type of the map to test.
+     * @param <V> The value type of the map to test.
+     */
+    @DisplayName("merge(Object, Object, BiFunction)")
+    interface MergeTests<K, V> extends MapTests<K, V> {
+
+        /**
+         * Returns a binary operator that can be used to combine values with {@link Map#merge(Object, Object, BiFunction)}.
+         *
+         * @return A binary operator that can be used to combine values with {@link Map#merge(Object, Object, BiFunction)}.
+         */
+        BinaryOperator<V> combineValuesOperator();
+
+        @Test
+        @DisplayName("merge(Object, Object, BiFunction)")
+        default void testMerge() {
+            Map<K, V> map = createMap();
+
+            BinaryOperator<V> operator = combineValuesOperator();
+
+            Map<K, V> expectedEntries = expectedEntries();
+
+            for (Map.Entry<K, V> entry : expectedEntries.entrySet()) {
+                assertThrows(UnsupportedOperationException.class, () -> map.merge(entry.getKey(), entry.getValue(), operator));
+            }
+
+            for (Map.Entry<K, V> entry : nonContainedEntries().entrySet()) {
+                assertThrows(UnsupportedOperationException.class, () -> map.merge(entry.getKey(), entry.getValue(), operator));
+            }
+
+            assertEquals(expectedEntries, map);
+        }
+
+        @Test
+        @DisplayName("merge(Object, Object, BiFunction) with function returning null")
+        default void testMergeWithFunctionReturningNull() {
+            Map<K, V> map = createMap();
+
+            Map<K, V> expectedEntries = expectedEntries();
+
+            for (Map.Entry<K, V> entry : expectedEntries.entrySet()) {
+                assertThrows(UnsupportedOperationException.class, () -> map.merge(entry.getKey(), entry.getValue(), (v1, v2) -> null));
+            }
+
+            for (Map.Entry<K, V> entry : nonContainedEntries().entrySet()) {
+                assertOptionallyThrowsUnsupportedOperationException(() -> map.merge(entry.getKey(), entry.getValue(), (v1, v2) -> null));
+            }
+
+            assertEquals(expectedEntries, map);
+        }
+
+        @Test
+        @DisplayName("merge(Object, Object, BiFunction) with throwing function")
+        default void testMergeWithThrowingFunction() {
+            Map<K, V> map = createMap();
+
+            RuntimeException exception = new RuntimeException();
+            BinaryOperator<V> operator = (v1, v2) -> {
+                throw exception;
+            };
+
+            Map<K, V> expectedEntries = expectedEntries();
+
+            for (Map.Entry<K, V> entry : expectedEntries.entrySet()) {
+                assertThrowsUnsupportedOperationExceptionOr(sameInstance(exception), () -> map.merge(entry.getKey(), entry.getValue(), operator));
+            }
+
+            for (Map.Entry<K, V> entry : nonContainedEntries().entrySet()) {
+                assertThrowsUnsupportedOperationExceptionOr(sameInstance(exception), () -> map.merge(entry.getKey(), entry.getValue(), operator));
+            }
+
+            assertEquals(expectedEntries, map);
+        }
+
+        @Test
+        @DisplayName("merge(Object, Object, BiFunction) with null function")
+        default void testMergeWithNullFunction() {
+            Map<K, V> map = createMap();
+
+            Map<K, V> expectedEntries = expectedEntries();
+
+            for (Map.Entry<K, V> entry : expectedEntries.entrySet()) {
+                assertThrowsUnsupportedOperationExceptionOr(NullPointerException.class, () -> map.merge(entry.getKey(), entry.getValue(), null));
+            }
+
+            for (Map.Entry<K, V> entry : nonContainedEntries().entrySet()) {
+                assertThrowsUnsupportedOperationExceptionOr(NullPointerException.class, () -> map.merge(entry.getKey(), entry.getValue(), null));
+            }
+
+            assertEquals(expectedEntries, map);
         }
     }
 }

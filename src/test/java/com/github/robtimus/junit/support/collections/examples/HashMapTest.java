@@ -17,15 +17,20 @@
 
 package com.github.robtimus.junit.support.collections.examples;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 import java.util.function.UnaryOperator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import com.github.robtimus.junit.support.collections.MapEntryTests;
 import com.github.robtimus.junit.support.collections.MapTests;
 import com.github.robtimus.junit.support.collections.MapTests.ClearTests;
+import com.github.robtimus.junit.support.collections.MapTests.ComputeIfAbsentTests;
+import com.github.robtimus.junit.support.collections.MapTests.ComputeIfPresentTests;
+import com.github.robtimus.junit.support.collections.MapTests.ComputeTests;
 import com.github.robtimus.junit.support.collections.MapTests.ContainsKeyTests;
 import com.github.robtimus.junit.support.collections.MapTests.ContainsValueTests;
 import com.github.robtimus.junit.support.collections.MapTests.EntrySetTests;
@@ -35,6 +40,7 @@ import com.github.robtimus.junit.support.collections.MapTests.GetOrDefaultTests;
 import com.github.robtimus.junit.support.collections.MapTests.GetTests;
 import com.github.robtimus.junit.support.collections.MapTests.HashCodeTests;
 import com.github.robtimus.junit.support.collections.MapTests.KeySetTests;
+import com.github.robtimus.junit.support.collections.MapTests.MergeTests;
 import com.github.robtimus.junit.support.collections.MapTests.PutAllTests;
 import com.github.robtimus.junit.support.collections.MapTests.PutIfAbsentTests;
 import com.github.robtimus.junit.support.collections.MapTests.PutTests;
@@ -425,6 +431,30 @@ class HashMapTest {
     }
 
     @Nested
+    class ComputeIfAbsentTest extends MapTestBase implements ComputeIfAbsentTests<Integer, String> {
+        // no additional tests
+    }
+
+    @Nested
+    class ComputeIfPresentTest extends MapTestBase implements ComputeIfPresentTests<Integer, String> {
+        // no additional tests
+    }
+
+    @Nested
+    class ComputeTest extends MapTestBase implements ComputeTests<Integer, String> {
+        // no additional tests
+    }
+
+    @Nested
+    class MergeTest extends MapTestBase implements MergeTests<Integer, String> {
+
+        @Override
+        public BinaryOperator<String> combineValuesOperator() {
+            return String::concat;
+        }
+    }
+
+    @Nested
     @DisplayName("Map.Entry")
     class EntryTest extends MapTestBase implements MapEntryTests<Integer, String> {
 
@@ -462,12 +492,14 @@ class HashMapTest {
 
         @Override
         public Map<Integer, String> expectedEntries() {
-            return CollectionFactory.createMap(HashMap::new, 0, 10);
+            Map<Integer, String> map = CollectionFactory.createMap(HashMap::new, 0, 10);
+            return Collections.unmodifiableMap(map);
         }
 
         @Override
         public Map<Integer, String> nonContainedEntries() {
-            return CollectionFactory.createMap(HashMap::new, 10, 20);
+            Map<Integer, String> map = CollectionFactory.createMap(HashMap::new, 10, 20);
+            return Collections.unmodifiableMap(map);
         }
     }
 

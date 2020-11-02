@@ -17,6 +17,7 @@
 
 package com.github.robtimus.junit.support.collections;
 
+import static com.github.robtimus.junit.support.collections.CollectionAssertions.assertOptionallyThrowsUnsupportedOperationException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.Map;
@@ -59,12 +60,7 @@ public interface UnmodifiableMapEntryTests<K, V> extends MapEntryTests<K, V> {
             for (Map.Entry<K, V> entry : map.entrySet()) {
                 V value = entry.getValue();
 
-                // if the value stays the same, either it does nothing or it throws an exception
-                try {
-                    assertEquals(value, entry.setValue(value));
-                } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-                    // ignore
-                }
+                assertOptionallyThrowsUnsupportedOperationException(() -> assertEquals(value, entry.setValue(value)));
             }
 
             assertEquals(expectedEntries(), map);
