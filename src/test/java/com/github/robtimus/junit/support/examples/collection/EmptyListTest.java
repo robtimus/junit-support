@@ -44,7 +44,6 @@ import com.github.robtimus.junit.support.collections.ListTests.HashCodeTests;
 import com.github.robtimus.junit.support.collections.ListTests.IndexOfTests;
 import com.github.robtimus.junit.support.collections.ListTests.LastIndexOfTests;
 import com.github.robtimus.junit.support.collections.ListTests.ListIteratorIndexedTests;
-import com.github.robtimus.junit.support.collections.ListTests.SpliteratorTests;
 import com.github.robtimus.junit.support.collections.ListTests.SubListTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.AddAllTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.AddTests;
@@ -260,12 +259,24 @@ class EmptyListTest {
     }
 
     @Nested
-    class SpliteratorTest extends ListTestBase implements SpliteratorTests<String> {
+    class SpliteratorTest extends ListTestBase implements ListTests.SpliteratorTests<String> {
 
-        // Collections.emptyList().spliterator() incorrectly does not report ORDERED, so SpliteratorsTest cannot be added here
+        // Collections.emptyList().spliterator() incorrectly does not report ORDERED, so disable this test
         @Override
         public void testSpliteratorHasOrderedCharacteristic() {
             throw new UnsupportedOperationException();
+        }
+
+        @Nested
+        class TryAdvanceTest extends SpliteratorTestBase
+                implements com.github.robtimus.junit.support.collections.SpliteratorTests.TryAdvanceTests<String> {
+            // no additional tests
+        }
+
+        @Nested
+        class ForEachRemainingTest extends SpliteratorTestBase
+                implements com.github.robtimus.junit.support.collections.SpliteratorTests.ForEachRemainingTests<String> {
+            // no additional tests
         }
     }
 
@@ -297,6 +308,14 @@ class EmptyListTest {
     }
 
     abstract static class ListIteratorTestBase extends ListTestBase implements ListIteratorTests<String> {
+
+        @Override
+        public boolean fixedOrder() {
+            return true;
+        }
+    }
+
+    abstract static class SpliteratorTestBase extends ListTestBase implements com.github.robtimus.junit.support.collections.SpliteratorTests<String> {
 
         @Override
         public boolean fixedOrder() {

@@ -31,9 +31,9 @@ import com.github.robtimus.junit.support.collections.CollectionTests.ContainsTes
 import com.github.robtimus.junit.support.collections.CollectionTests.ToArrayTests;
 import com.github.robtimus.junit.support.collections.CollectionTests.ToObjectArrayTests;
 import com.github.robtimus.junit.support.collections.IterableTests.ForEachTests;
+import com.github.robtimus.junit.support.collections.SetTests;
 import com.github.robtimus.junit.support.collections.SetTests.EqualsTests;
 import com.github.robtimus.junit.support.collections.SetTests.HashCodeTests;
-import com.github.robtimus.junit.support.collections.SetTests.SpliteratorTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.AddAllTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.AddTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.ClearTests;
@@ -137,8 +137,19 @@ class UnmodifiableSetTest {
     }
 
     @Nested
-    class SpliteratorTest extends SetTestBase implements SpliteratorTests<String> {
-        // no additional tests
+    class SpliteratorTest extends SetTestBase implements SetTests.SpliteratorTests<String> {
+
+        @Nested
+        class TryAdvanceTest extends SpliteratorTestBase
+                implements com.github.robtimus.junit.support.collections.SpliteratorTests.TryAdvanceTests<String> {
+            // no additional tests
+        }
+
+        @Nested
+        class ForEachRemainingTest extends SpliteratorTestBase
+                implements com.github.robtimus.junit.support.collections.SpliteratorTests.ForEachRemainingTests<String> {
+            // no additional tests
+        }
     }
 
     abstract static class SetTestBase implements UnmodifiableSetTests<String> {
@@ -168,6 +179,10 @@ class UnmodifiableSetTest {
     }
 
     abstract static class IteratorTestBase extends SetTestBase implements UnmodifiableIteratorTests<String> {
+        // no additional methods needed at this time
+    }
+
+    abstract static class SpliteratorTestBase extends SetTestBase implements com.github.robtimus.junit.support.collections.SpliteratorTests<String> {
         // no additional methods needed at this time
     }
 }

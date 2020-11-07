@@ -30,13 +30,13 @@ import com.github.robtimus.junit.support.collections.CollectionTests.ContainsTes
 import com.github.robtimus.junit.support.collections.CollectionTests.ToArrayTests;
 import com.github.robtimus.junit.support.collections.CollectionTests.ToObjectArrayTests;
 import com.github.robtimus.junit.support.collections.IterableTests.ForEachTests;
+import com.github.robtimus.junit.support.collections.ListTests;
 import com.github.robtimus.junit.support.collections.ListTests.EqualsTests;
 import com.github.robtimus.junit.support.collections.ListTests.GetTests;
 import com.github.robtimus.junit.support.collections.ListTests.HashCodeTests;
 import com.github.robtimus.junit.support.collections.ListTests.IndexOfTests;
 import com.github.robtimus.junit.support.collections.ListTests.LastIndexOfTests;
 import com.github.robtimus.junit.support.collections.ListTests.ListIteratorIndexedTests;
-import com.github.robtimus.junit.support.collections.ListTests.SpliteratorTests;
 import com.github.robtimus.junit.support.collections.ListTests.SubListTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.AddAllTests;
@@ -264,8 +264,19 @@ class UnmodifiableListTest {
     }
 
     @Nested
-    class SpliteratorTest extends ListTestBase implements SpliteratorTests<String> {
-        // no additional tests
+    class SpliteratorTest extends ListTestBase implements ListTests.SpliteratorTests<String> {
+
+        @Nested
+        class TryAdvanceTest extends SpliteratorTestBase
+                implements com.github.robtimus.junit.support.collections.SpliteratorTests.TryAdvanceTests<String> {
+            // no additional tests
+        }
+
+        @Nested
+        class ForEachRemainingTest extends SpliteratorTestBase
+                implements com.github.robtimus.junit.support.collections.SpliteratorTests.ForEachRemainingTests<String> {
+            // no additional tests
+        }
     }
 
     abstract static class ListTestBase implements UnmodifiableListTests<String> {
@@ -298,6 +309,14 @@ class UnmodifiableListTest {
     }
 
     abstract static class ListIteratorTestBase extends ListTestBase implements UnmodifiableListIteratorTests<String> {
+
+        @Override
+        public boolean fixedOrder() {
+            return true;
+        }
+    }
+
+    abstract static class SpliteratorTestBase extends ListTestBase implements com.github.robtimus.junit.support.collections.SpliteratorTests<String> {
 
         @Override
         public boolean fixedOrder() {

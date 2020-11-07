@@ -42,7 +42,6 @@ import com.github.robtimus.junit.support.collections.SetTests.AddAllTests;
 import com.github.robtimus.junit.support.collections.SetTests.AddTests;
 import com.github.robtimus.junit.support.collections.SetTests.EqualsTests;
 import com.github.robtimus.junit.support.collections.SetTests.HashCodeTests;
-import com.github.robtimus.junit.support.collections.SetTests.SpliteratorTests;
 
 class HashSetTest {
 
@@ -137,8 +136,19 @@ class HashSetTest {
     }
 
     @Nested
-    class SpliteratorTest extends SetTestBase implements SpliteratorTests<String> {
-        // no additional tests
+    class SpliteratorTest extends SetTestBase implements SetTests.SpliteratorTests<String> {
+
+        @Nested
+        class TryAdvanceTest extends SpliteratorTestBase
+                implements com.github.robtimus.junit.support.collections.SpliteratorTests.TryAdvanceTests<String> {
+            // no additional tests
+        }
+
+        @Nested
+        class ForEachRemainingTest extends SpliteratorTestBase
+                implements com.github.robtimus.junit.support.collections.SpliteratorTests.ForEachRemainingTests<String> {
+            // no additional tests
+        }
     }
 
     abstract static class SetTestBase implements SetTests<String> {
@@ -167,6 +177,10 @@ class HashSetTest {
     }
 
     abstract static class IteratorTestBase extends SetTestBase implements IteratorTests<String> {
+        // no additional methods needed at this time
+    }
+
+    abstract static class SpliteratorTestBase extends SetTestBase implements com.github.robtimus.junit.support.collections.SpliteratorTests<String> {
         // no additional methods needed at this time
     }
 }

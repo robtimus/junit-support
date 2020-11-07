@@ -42,7 +42,7 @@ public interface IteratorTests<T> {
     /**
      * Creates an iterable that returns iterators to test.
      *
-     * @return The created iterator.
+     * @return The created iterable.
      */
     Iterable<T> createIterable();
 
@@ -231,6 +231,8 @@ public interface IteratorTests<T> {
 
             Collection<T> expectedElements = expectedElements();
             List<T> elements = new ArrayList<>(expectedElements.size());
+
+            assertThrows(NullPointerException.class, () -> iterator.forEachRemaining(null));
 
             while (iterator.hasNext()) {
                 T element = iterator.next();

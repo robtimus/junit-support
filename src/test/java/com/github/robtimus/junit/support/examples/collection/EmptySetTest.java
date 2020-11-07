@@ -139,7 +139,27 @@ class EmptySetTest {
         // no additional tests
     }
 
-    // Collections.emptySet().spliterator() incorrectly does not report DISTINCT, so SpliteratorsTest cannot be added here
+    @Nested
+    class SpliteratorTest extends SetTestBase implements SetTests.SpliteratorTests<String> {
+
+        // Collections.emptySet().spliterator() incorrectly does not report DISTINCT, so disable this test
+        @Override
+        public void testSpliteratorHasDistinctCharacteristic() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Nested
+        class TryAdvanceTest extends SpliteratorTestBase
+                implements com.github.robtimus.junit.support.collections.SpliteratorTests.TryAdvanceTests<String> {
+            // no additional tests
+        }
+
+        @Nested
+        class ForEachRemainingTest extends SpliteratorTestBase
+                implements com.github.robtimus.junit.support.collections.SpliteratorTests.ForEachRemainingTests<String> {
+            // no additional tests
+        }
+    }
 
     abstract static class SetTestBase implements SetTests<String> {
 
@@ -166,6 +186,10 @@ class EmptySetTest {
     }
 
     abstract static class IteratorTestBase extends SetTestBase implements IteratorTests<String> {
+        // no additional methods needed at this time
+    }
+
+    abstract static class SpliteratorTestBase extends SetTestBase implements com.github.robtimus.junit.support.collections.SpliteratorTests<String> {
         // no additional methods needed at this time
     }
 }
