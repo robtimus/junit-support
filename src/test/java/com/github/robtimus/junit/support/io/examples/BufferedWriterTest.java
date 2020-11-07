@@ -1,5 +1,5 @@
 /*
- * WriterDelegateTestsTest.java
+ * BufferedWriterTest.java
  * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,55 +33,55 @@ import com.github.robtimus.junit.support.io.WriterDelegateTests.WriteCharTests;
 import com.github.robtimus.junit.support.io.WriterDelegateTests.WriteStringPortionTests;
 import com.github.robtimus.junit.support.io.WriterDelegateTests.WriteStringTests;
 
-class WriterDelegateTestsTest {
+class BufferedWriterTest {
 
     @Nested
-    class WriteChar extends WriterDelegateTestsBase implements WriteCharTests {
+    class WriteCharTest extends WriterDelegateTestsBase implements WriteCharTests {
         // no new tests
     }
 
     @Nested
-    class WriteCharArray extends WriterDelegateTestsBase implements WriteCharArrayTests {
+    class WriteCharArrayTest extends WriterDelegateTestsBase implements WriteCharArrayTests {
         // no new tests
     }
 
     @Nested
-    class WriteCharArrayPortion extends WriterDelegateTestsBase implements WriteCharArrayPortionTests {
+    class WriteCharArrayPortionTest extends WriterDelegateTestsBase implements WriteCharArrayPortionTests {
         // no new tests
     }
 
     @Nested
-    class WriteString extends WriterDelegateTestsBase implements WriteStringTests {
+    class WriteStringTest extends WriterDelegateTestsBase implements WriteStringTests {
         // no new tests
     }
 
     @Nested
-    class WriteStringPortion extends WriterDelegateTestsBase implements WriteStringPortionTests {
+    class WriteStringPortionTest extends WriterDelegateTestsBase implements WriteStringPortionTests {
         // no new tests
     }
 
     @Nested
-    class AppendCharSequence extends WriterDelegateTestsBase implements AppendCharSequenceTests {
+    class AppendCharSequenceTest extends WriterDelegateTestsBase implements AppendCharSequenceTests {
         // no new tests
     }
 
     @Nested
-    class AppendCharSequencePortion extends WriterDelegateTestsBase implements AppendCharSequencePortionTests {
+    class AppendCharSequencePortionTest extends WriterDelegateTestsBase implements AppendCharSequencePortionTests {
         // no new tests
     }
 
     @Nested
-    class AppendChar extends WriterDelegateTestsBase implements AppendCharTests {
+    class AppendCharTest extends WriterDelegateTestsBase implements AppendCharTests {
         // no new tests
     }
 
     @Nested
-    class Flush extends WriterDelegateTestsBase implements FlushTests {
+    class FlushTest extends WriterDelegateTestsBase implements FlushTests {
         // no new tests
     }
 
     @Nested
-    class Close extends WriterDelegateTestsBase implements CloseTests {
+    class CloseTest extends WriterDelegateTestsBase implements CloseTests {
         // no new tests
     }
 

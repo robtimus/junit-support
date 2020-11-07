@@ -1,5 +1,5 @@
 /*
- * OutputStreamDelegateTestsTest.java
+ * BufferedOutputStreamTest.java
  * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,34 +27,34 @@ import com.github.robtimus.junit.support.io.OutputStreamDelegateTests.WriteByteA
 import com.github.robtimus.junit.support.io.OutputStreamDelegateTests.WriteByteArrayTests;
 import com.github.robtimus.junit.support.io.OutputStreamDelegateTests.WriteByteTests;
 
-class OutputStreamDelegateTestsTest {
+class BufferedOutputStreamTest {
 
     @Nested
-    class WriteByte extends OutputStreamDelegateTestsBase implements WriteByteTests {
+    class WriteByteTest extends OutputStreamTestBase implements WriteByteTests {
         // no new tests
     }
 
     @Nested
-    class WriteByteArray extends OutputStreamDelegateTestsBase implements WriteByteArrayTests {
+    class WriteByteArrayTest extends OutputStreamTestBase implements WriteByteArrayTests {
         // no new tests
     }
 
     @Nested
-    class WriteByteArrayPortion extends OutputStreamDelegateTestsBase implements WriteByteArrayPortionTests {
+    class WriteByteArrayPortionTest extends OutputStreamTestBase implements WriteByteArrayPortionTests {
         // no new tests
     }
 
     @Nested
-    class Flush extends OutputStreamDelegateTestsBase implements FlushTests {
+    class FlushTest extends OutputStreamTestBase implements FlushTests {
         // no new tests
     }
 
     @Nested
-    class Close extends OutputStreamDelegateTestsBase implements CloseTests {
+    class CloseTest extends OutputStreamTestBase implements CloseTests {
         // no new tests
     }
 
-    abstract class OutputStreamDelegateTestsBase implements OutputStreamDelegateTests {
+    abstract class OutputStreamTestBase implements OutputStreamDelegateTests {
 
         @Override
         public OutputStream wrapOutputStream(OutputStream delegate) {

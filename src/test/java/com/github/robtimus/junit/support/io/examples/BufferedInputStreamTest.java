@@ -1,5 +1,5 @@
 /*
- * InputStreamTestsTest.java
+ * BufferedInputStreamTest.java
  * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,9 +17,12 @@
 
 package com.github.robtimus.junit.support.io.examples;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import org.junit.jupiter.api.Nested;
+import com.github.robtimus.junit.support.io.InputStreamDelegateTests;
+import com.github.robtimus.junit.support.io.InputStreamDelegateTests.CloseTests;
 import com.github.robtimus.junit.support.io.InputStreamTests;
 import com.github.robtimus.junit.support.io.InputStreamTests.AvailableTests;
 import com.github.robtimus.junit.support.io.InputStreamTests.MarkResetTests;
@@ -29,27 +32,27 @@ import com.github.robtimus.junit.support.io.InputStreamTests.ReadIntoByteArrayTe
 import com.github.robtimus.junit.support.io.InputStreamTests.SkipTests;
 
 @SuppressWarnings("nls")
-class InputStreamTestsTest {
+class BufferedInputStreamTest {
 
     private static final String INPUT = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa.";
 
     @Nested
-    class ReadByte extends InputStreamTestsBase implements ReadByteTests {
+    class ReadByteTest extends InputStreamTestBase implements ReadByteTests {
         // no new tests
     }
 
     @Nested
-    class ReadIntoByteArray extends InputStreamTestsBase implements ReadIntoByteArrayTests {
+    class ReadIntoByteArrayTest extends InputStreamTestBase implements ReadIntoByteArrayTests {
         // no new tests
     }
 
     @Nested
-    class ReadIntoByteArrayPortion extends InputStreamTestsBase implements ReadIntoByteArrayPortionTests {
+    class ReadIntoByteArrayPortionTest extends InputStreamTestBase implements ReadIntoByteArrayPortionTests {
         // no new tests
     }
 
     @Nested
-    class Skip extends InputStreamTestsBase implements SkipTests {
+    class SkipTest extends InputStreamTestBase implements SkipTests {
 
         @Override
         public boolean allowNegativeSkip() {
@@ -58,20 +61,30 @@ class InputStreamTestsTest {
     }
 
     @Nested
-    class Available extends InputStreamTestsBase implements AvailableTests {
+    class AvailableTest extends InputStreamTestBase implements AvailableTests {
         // no new tests
     }
 
     @Nested
-    class MarkReset extends InputStreamTestsBase implements MarkResetTests {
+    class CloseTest extends InputStreamTestBase implements CloseTests {
         // no new tests
     }
 
-    abstract class InputStreamTestsBase implements InputStreamTests {
+    @Nested
+    class MarkResetTest extends InputStreamTestBase implements MarkResetTests {
+        // no new tests
+    }
+
+    abstract class InputStreamTestBase implements InputStreamTests, InputStreamDelegateTests {
 
         @Override
         public InputStream createInputStream() {
-            return new ByteArrayInputStream(INPUT.getBytes());
+            return new BufferedInputStream(new ByteArrayInputStream(INPUT.getBytes()));
+        }
+
+        @Override
+        public InputStream wrapInputStream(InputStream delegate) {
+            return new BufferedInputStream(delegate);
         }
 
         @Override

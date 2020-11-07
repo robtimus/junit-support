@@ -1,5 +1,5 @@
 /*
- * ReaderTestsTest.java
+ * CharSequenceReaderTest.java
  * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,32 +30,32 @@ import com.github.robtimus.junit.support.io.ReaderTests.ReadyTests;
 import com.github.robtimus.junit.support.io.ReaderTests.SkipTests;
 
 @SuppressWarnings("nls")
-class ReaderTestsTest {
+class CharSequenceReaderTest {
 
     private static final String INPUT = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa.";
 
     @Nested
-    class ReadIntoCharBuffer extends ReaderTestsBase implements ReadIntoCharBufferTests {
+    class ReadIntoCharBufferTest extends ReaderTestBase implements ReadIntoCharBufferTests {
         // no new tests
     }
 
     @Nested
-    class ReadChar extends ReaderTestsBase implements ReadCharTests {
+    class ReadCharTest extends ReaderTestBase implements ReadCharTests {
         // no new tests
     }
 
     @Nested
-    class ReadIntoCharArray extends ReaderTestsBase implements ReadIntoCharArrayTests {
+    class ReadIntoCharArrayTest extends ReaderTestBase implements ReadIntoCharArrayTests {
         // no new tests
     }
 
     @Nested
-    class ReadIntoCharArrayPortion extends ReaderTestsBase implements ReadIntoCharArrayPortionTests {
+    class ReadIntoCharArrayPortionTest extends ReaderTestBase implements ReadIntoCharArrayPortionTests {
         // no new tests
     }
 
     @Nested
-    class Skip extends ReaderTestsBase implements SkipTests {
+    class SkipTest extends ReaderTestBase implements SkipTests {
 
         @Override
         public boolean allowNegativeSkip() {
@@ -64,16 +64,16 @@ class ReaderTestsTest {
     }
 
     @Nested
-    class Ready extends ReaderTestsBase implements ReadyTests {
+    class ReadyTest extends ReaderTestBase implements ReadyTests {
         // no new tests
     }
 
     @Nested
-    class MarkReset extends ReaderTestsBase implements MarkResetTests {
+    class MarkResetTest extends ReaderTestBase implements MarkResetTests {
         // no new tests
     }
 
-    abstract static class ReaderTestsBase implements ReaderTests {
+    abstract static class ReaderTestBase implements ReaderTests {
 
         @Override
         public Reader createReader() {
