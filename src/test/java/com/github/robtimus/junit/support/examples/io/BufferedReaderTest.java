@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.io.examples;
+package com.github.robtimus.junit.support.examples.io;
 
 import java.io.BufferedReader;
 import java.io.Reader;

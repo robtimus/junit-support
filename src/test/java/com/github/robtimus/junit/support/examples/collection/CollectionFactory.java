@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.collections.examples;
+package com.github.robtimus.junit.support.examples.collection;
 
 import java.util.Collection;
 import java.util.Map;

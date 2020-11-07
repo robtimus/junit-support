@@ -1,5 +1,5 @@
 /*
- * HashMapTest.java
+ * EmptyMapTest.java
  * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.collections.examples;
+package com.github.robtimus.junit.support.examples.collection;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,9 +28,6 @@ import org.junit.jupiter.api.Nested;
 import com.github.robtimus.junit.support.collections.MapEntryTests;
 import com.github.robtimus.junit.support.collections.MapTests;
 import com.github.robtimus.junit.support.collections.MapTests.ClearTests;
-import com.github.robtimus.junit.support.collections.MapTests.ComputeIfAbsentTests;
-import com.github.robtimus.junit.support.collections.MapTests.ComputeIfPresentTests;
-import com.github.robtimus.junit.support.collections.MapTests.ComputeTests;
 import com.github.robtimus.junit.support.collections.MapTests.ContainsKeyTests;
 import com.github.robtimus.junit.support.collections.MapTests.ContainsValueTests;
 import com.github.robtimus.junit.support.collections.MapTests.EntrySetTests;
@@ -40,18 +37,21 @@ import com.github.robtimus.junit.support.collections.MapTests.GetOrDefaultTests;
 import com.github.robtimus.junit.support.collections.MapTests.GetTests;
 import com.github.robtimus.junit.support.collections.MapTests.HashCodeTests;
 import com.github.robtimus.junit.support.collections.MapTests.KeySetTests;
-import com.github.robtimus.junit.support.collections.MapTests.MergeTests;
-import com.github.robtimus.junit.support.collections.MapTests.PutAllTests;
-import com.github.robtimus.junit.support.collections.MapTests.PutIfAbsentTests;
-import com.github.robtimus.junit.support.collections.MapTests.PutTests;
-import com.github.robtimus.junit.support.collections.MapTests.RemoveExactValueTests;
 import com.github.robtimus.junit.support.collections.MapTests.RemoveTests;
 import com.github.robtimus.junit.support.collections.MapTests.ReplaceAllTests;
-import com.github.robtimus.junit.support.collections.MapTests.ReplaceExactValueTests;
-import com.github.robtimus.junit.support.collections.MapTests.ReplaceTests;
 import com.github.robtimus.junit.support.collections.MapTests.ValuesTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.ComputeIfAbsentTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.ComputeIfPresentTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.ComputeTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.MergeTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.PutAllTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.PutIfAbsentTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.PutTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.RemoveExactValueTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.ReplaceExactValueTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.ReplaceTests;
 
-class HashMapTest {
+class EmptyMapTest {
 
     @Nested
     class ContainsKeyTest extends MapTestBase implements ContainsKeyTests<Integer, String> {
@@ -137,7 +137,12 @@ class HashMapTest {
 
         @Nested
         class ToArrayTest extends KeySetTestBase implements KeySetTests.ToArrayTests<Integer, String> {
-            // no additional tests
+
+            // smaller length is not possible; override to disable the test
+            @Override
+            public void testToArrayWithSmallerLength() {
+                throw new UnsupportedOperationException();
+            }
         }
 
         @Nested
@@ -190,10 +195,7 @@ class HashMapTest {
             // no additional tests
         }
 
-        @Nested
-        class SpliteratorTest extends KeySetTestBase implements KeySetTests.SpliteratorTests<Integer, String> {
-            // no additional tests
-        }
+        // Collections.emptyMap().keySet().spliterator() incorrectly does not report DISTINCT, so SpliteratorsTest cannot be added here
     }
 
     @Nested
@@ -237,7 +239,12 @@ class HashMapTest {
 
         @Nested
         class ToArrayTest extends ValuesTestBase implements ValuesTests.ToArrayTests<Integer, String> {
-            // no additional tests
+
+            // smaller length is not possible; override to disable the test
+            @Override
+            public void testToArrayWithSmallerLength() {
+                throw new UnsupportedOperationException();
+            }
         }
 
         @Nested
@@ -322,7 +329,12 @@ class HashMapTest {
 
         @Nested
         class ToArrayTest extends EntrySetTestBase implements EntrySetTests.ToArrayTests<Integer, String> {
-            // no additional tests
+
+            // smaller length is not possible; override to disable the test
+            @Override
+            public void testToArrayWithSmallerLength() {
+                throw new UnsupportedOperationException();
+            }
         }
 
         @Nested
@@ -375,10 +387,7 @@ class HashMapTest {
             // no additional tests
         }
 
-        @Nested
-        class SpliteratorTest extends EntrySetTestBase implements EntrySetTests.SpliteratorTests<Integer, String> {
-            // no additional tests
-        }
+        // Collections.emptyMap().entrySet().spliterator() incorrectly does not report DISTINCT, so SpliteratorsTest cannot be added here
     }
 
     @Nested
@@ -442,7 +451,11 @@ class HashMapTest {
 
     @Nested
     class ComputeTest extends MapTestBase implements ComputeTests<Integer, String> {
-        // no additional tests
+
+        @Override
+        public UnaryOperator<String> replaceValueOperator() {
+            return s -> s + s;
+        }
     }
 
     @Nested
@@ -487,18 +500,17 @@ class HashMapTest {
 
         @Override
         public Map<Integer, String> createMap() {
-            return CollectionFactory.createMap(HashMap::new, 0, 10);
+            return Collections.emptyMap();
         }
 
         @Override
         public Map<Integer, String> expectedEntries() {
-            Map<Integer, String> map = CollectionFactory.createMap(HashMap::new, 0, 10);
-            return Collections.unmodifiableMap(map);
+            return Collections.unmodifiableMap(new HashMap<>());
         }
 
         @Override
         public Map<Integer, String> nonContainedEntries() {
-            Map<Integer, String> map = CollectionFactory.createMap(HashMap::new, 10, 20);
+            Map<Integer, String> map = CollectionFactory.createMap(HashMap::new, 0, 10);
             return Collections.unmodifiableMap(map);
         }
     }

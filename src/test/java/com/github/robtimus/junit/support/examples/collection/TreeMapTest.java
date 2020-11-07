@@ -1,5 +1,5 @@
 /*
- * UnmodifiableMapTest.java
+ * TreeMapTest.java
  * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,44 +15,57 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.collections.examples;
+package com.github.robtimus.junit.support.examples.collection;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.UnaryOperator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import com.github.robtimus.junit.support.collections.MapEntryTests;
+import com.github.robtimus.junit.support.collections.MapTests;
+import com.github.robtimus.junit.support.collections.MapTests.ClearTests;
+import com.github.robtimus.junit.support.collections.MapTests.ComputeIfAbsentTests;
+import com.github.robtimus.junit.support.collections.MapTests.ComputeIfPresentTests;
+import com.github.robtimus.junit.support.collections.MapTests.ComputeTests;
 import com.github.robtimus.junit.support.collections.MapTests.ContainsKeyTests;
 import com.github.robtimus.junit.support.collections.MapTests.ContainsValueTests;
+import com.github.robtimus.junit.support.collections.MapTests.EntrySetTests;
 import com.github.robtimus.junit.support.collections.MapTests.EqualsTests;
 import com.github.robtimus.junit.support.collections.MapTests.ForEachTests;
 import com.github.robtimus.junit.support.collections.MapTests.GetOrDefaultTests;
 import com.github.robtimus.junit.support.collections.MapTests.GetTests;
 import com.github.robtimus.junit.support.collections.MapTests.HashCodeTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableMapEntryTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableMapTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.ClearTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.ComputeIfAbsentTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.ComputeIfPresentTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.ComputeTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.KeySetTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.MergeTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.PutAllTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.PutIfAbsentTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.PutTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.RemoveExactValueTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.RemoveTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.ReplaceAllTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.ReplaceExactValueTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.ReplaceTests;
+import com.github.robtimus.junit.support.collections.MapTests.KeySetTests;
+import com.github.robtimus.junit.support.collections.MapTests.MergeTests;
+import com.github.robtimus.junit.support.collections.MapTests.PutAllTests;
+import com.github.robtimus.junit.support.collections.MapTests.PutIfAbsentTests;
+import com.github.robtimus.junit.support.collections.MapTests.PutTests;
+import com.github.robtimus.junit.support.collections.MapTests.RemoveExactValueTests;
+import com.github.robtimus.junit.support.collections.MapTests.RemoveTests;
+import com.github.robtimus.junit.support.collections.MapTests.ReplaceAllTests;
+import com.github.robtimus.junit.support.collections.MapTests.ReplaceExactValueTests;
+import com.github.robtimus.junit.support.collections.MapTests.ReplaceTests;
+import com.github.robtimus.junit.support.collections.MapTests.ValuesTests;
+import com.github.robtimus.junit.support.collections.annotation.ContainsIncompatibleKeyNotSupported;
+import com.github.robtimus.junit.support.collections.annotation.ContainsIncompatibleNotSupported;
+import com.github.robtimus.junit.support.collections.annotation.ContainsNullKeyNotSupported;
+import com.github.robtimus.junit.support.collections.annotation.ContainsNullNotSupported;
+import com.github.robtimus.junit.support.collections.annotation.RemoveIncompatibleKeyNotSupported;
+import com.github.robtimus.junit.support.collections.annotation.RemoveIncompatibleNotSupported;
+import com.github.robtimus.junit.support.collections.annotation.RemoveNullKeyNotSupported;
+import com.github.robtimus.junit.support.collections.annotation.RemoveNullNotSupported;
+import com.github.robtimus.junit.support.collections.annotation.StoreNullKeyNotSupported;
 
-class UnmodifiableMapTest {
+class TreeMapTest {
 
     @Nested
+    @ContainsNullKeyNotSupported
+    @ContainsIncompatibleKeyNotSupported(expected = ClassCastException.class)
     class ContainsKeyTest extends MapTestBase implements ContainsKeyTests<Integer, String> {
         // no additional tests
     }
@@ -63,11 +76,14 @@ class UnmodifiableMapTest {
     }
 
     @Nested
+    @ContainsNullKeyNotSupported
+    @ContainsIncompatibleKeyNotSupported(expected = ClassCastException.class)
     class GetTest extends MapTestBase implements GetTests<Integer, String> {
         // no additional tests
     }
 
     @Nested
+    @StoreNullKeyNotSupported
     class PutTest extends MapTestBase implements PutTests<Integer, String> {
 
         @Override
@@ -77,11 +93,14 @@ class UnmodifiableMapTest {
     }
 
     @Nested
+    @RemoveNullKeyNotSupported
+    @RemoveIncompatibleKeyNotSupported(expected = ClassCastException.class)
     class RemoveTest extends MapTestBase implements RemoveTests<Integer, String> {
         // no additional tests
     }
 
     @Nested
+    @StoreNullKeyNotSupported
     class PutAllTest extends MapTestBase implements PutAllTests<Integer, String> {
 
         @Override
@@ -125,6 +144,8 @@ class UnmodifiableMapTest {
         }
 
         @Nested
+        @ContainsNullNotSupported
+        @ContainsIncompatibleNotSupported(expected = ClassCastException.class)
         class ContainsTest extends KeySetTestBase implements KeySetTests.ContainsTests<Integer, String> {
             // no additional tests
         }
@@ -145,11 +166,15 @@ class UnmodifiableMapTest {
         }
 
         @Nested
+        @RemoveNullNotSupported
+        @RemoveIncompatibleNotSupported(expected = ClassCastException.class)
         class RemoveTest extends KeySetTestBase implements KeySetTests.RemoveTests<Integer, String> {
             // no additional tests
         }
 
         @Nested
+        @ContainsNullNotSupported
+        @ContainsIncompatibleNotSupported(expected = ClassCastException.class)
         class ContainsAllTest extends KeySetTestBase implements KeySetTests.ContainsAllTests<Integer, String> {
             // no additional tests
         }
@@ -160,6 +185,8 @@ class UnmodifiableMapTest {
         }
 
         @Nested
+        @RemoveNullNotSupported
+        @RemoveIncompatibleNotSupported(expected = ClassCastException.class)
         class RemoveAllTest extends KeySetTestBase implements KeySetTests.RemoveAllTests<Integer, String> {
             // no additional tests
         }
@@ -220,7 +247,7 @@ class UnmodifiableMapTest {
         }
 
         @Nested
-        class ForEachTest extends ValuesTestBase implements UnmodifiableMapTests.ValuesTests.ForEachTests<Integer, String> {
+        class ForEachTest extends ValuesTestBase implements ValuesTests.ForEachTests<Integer, String> {
             // no additional tests
         }
 
@@ -391,6 +418,8 @@ class UnmodifiableMapTest {
     }
 
     @Nested
+    @ContainsNullKeyNotSupported
+    @ContainsIncompatibleKeyNotSupported(expected = ClassCastException.class)
     class GetOrDefaultTest extends MapTestBase implements GetOrDefaultTests<Integer, String> {
         // no additional tests
     }
@@ -415,16 +444,20 @@ class UnmodifiableMapTest {
     }
 
     @Nested
+    @RemoveNullKeyNotSupported
+    @RemoveIncompatibleKeyNotSupported(expected = ClassCastException.class)
     class RemoveExactValueTest extends MapTestBase implements RemoveExactValueTests<Integer, String> {
         // no additional tests
     }
 
     @Nested
+    @StoreNullKeyNotSupported
     class ReplaceExactValueTest extends MapTestBase implements ReplaceExactValueTests<Integer, String> {
         // no additional tests
     }
 
     @Nested
+    @StoreNullKeyNotSupported
     class ReplaceTest extends MapTestBase implements ReplaceTests<Integer, String> {
         // no additional tests
     }
@@ -441,11 +474,7 @@ class UnmodifiableMapTest {
 
     @Nested
     class ComputeTest extends MapTestBase implements ComputeTests<Integer, String> {
-
-        @Override
-        public UnaryOperator<String> replaceValueOperator() {
-            return s -> s + s;
-        }
+        // no additional tests
     }
 
     @Nested
@@ -467,7 +496,7 @@ class UnmodifiableMapTest {
         }
 
         @Nested
-        class SetValueTest extends MapTestBase implements UnmodifiableMapEntryTests.SetValueTests<Integer, String> {
+        class SetValueTest extends MapTestBase implements MapEntryTests.SetValueTests<Integer, String> {
 
             @Override
             public UnaryOperator<String> replaceValueOperator() {
@@ -486,12 +515,11 @@ class UnmodifiableMapTest {
         }
     }
 
-    abstract static class MapTestBase implements UnmodifiableMapTests<Integer, String> {
+    abstract static class MapTestBase implements MapTests<Integer, String> {
 
         @Override
         public Map<Integer, String> createMap() {
-            Map<Integer, String> map = CollectionFactory.createMap(HashMap::new, 0, 10);
-            return Collections.unmodifiableMap(map);
+            return CollectionFactory.createMap(TreeMap::new, 0, 10);
         }
 
         @Override
@@ -511,23 +539,23 @@ class UnmodifiableMapTest {
 
         @Override
         public boolean fixedOrder() {
-            return false;
+            return true;
         }
     }
 
-    abstract static class ValuesTestBase extends MapTestBase implements UnmodifiableMapTests.ValuesTests<Integer, String> {
+    abstract static class ValuesTestBase extends MapTestBase implements ValuesTests<Integer, String> {
 
         @Override
         public boolean fixedOrder() {
-            return false;
+            return true;
         }
     }
 
-    abstract static class EntrySetTestBase extends MapTestBase implements UnmodifiableMapTests.EntrySetTests<Integer, String> {
+    abstract static class EntrySetTestBase extends MapTestBase implements EntrySetTests<Integer, String> {
 
         @Override
         public boolean fixedOrder() {
-            return false;
+            return true;
         }
     }
 }

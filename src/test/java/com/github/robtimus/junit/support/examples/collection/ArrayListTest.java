@@ -1,5 +1,5 @@
 /*
- * EmptyListTest.java
+ * ArrayListTest.java
  * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.collections.examples;
+package com.github.robtimus.junit.support.examples.collection;
 
-import static com.github.robtimus.junit.support.collections.examples.CollectionFactory.createCollection;
+import static com.github.robtimus.junit.support.examples.collection.CollectionFactory.createCollection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,24 +38,23 @@ import com.github.robtimus.junit.support.collections.IterableTests.ForEachTests;
 import com.github.robtimus.junit.support.collections.IteratorTests;
 import com.github.robtimus.junit.support.collections.ListIteratorTests;
 import com.github.robtimus.junit.support.collections.ListTests;
+import com.github.robtimus.junit.support.collections.ListTests.AddAllIndexedTests;
+import com.github.robtimus.junit.support.collections.ListTests.AddAllTests;
+import com.github.robtimus.junit.support.collections.ListTests.AddIndexedTests;
+import com.github.robtimus.junit.support.collections.ListTests.AddTests;
 import com.github.robtimus.junit.support.collections.ListTests.EqualsTests;
 import com.github.robtimus.junit.support.collections.ListTests.GetTests;
 import com.github.robtimus.junit.support.collections.ListTests.HashCodeTests;
 import com.github.robtimus.junit.support.collections.ListTests.IndexOfTests;
 import com.github.robtimus.junit.support.collections.ListTests.LastIndexOfTests;
 import com.github.robtimus.junit.support.collections.ListTests.ListIteratorIndexedTests;
+import com.github.robtimus.junit.support.collections.ListTests.RemoveIndexedTests;
+import com.github.robtimus.junit.support.collections.ListTests.ReplaceAllTests;
+import com.github.robtimus.junit.support.collections.ListTests.SetTests;
 import com.github.robtimus.junit.support.collections.ListTests.SpliteratorTests;
 import com.github.robtimus.junit.support.collections.ListTests.SubListTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.AddAllTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.AddTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableListIteratorTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableListTests.AddAllIndexedTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableListTests.AddIndexedTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableListTests.RemoveIndexedTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableListTests.ReplaceAllTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableListTests.SetTests;
 
-class EmptyListTest {
+class ArrayListTest {
 
     @Nested
     @DisplayName("iterator()")
@@ -94,12 +93,7 @@ class EmptyListTest {
 
     @Nested
     class ToArrayTest extends ListTestBase implements ToArrayTests<String> {
-
-        // smaller length is not possible; override to disable the test
-        @Override
-        public void testToArrayWithSmallerLength() {
-            throw new UnsupportedOperationException();
-        }
+        // no additional tests
     }
 
     @Nested
@@ -204,12 +198,6 @@ class EmptyListTest {
     @DisplayName("listIterator() and listIterator(int)")
     class ListIteratorTest extends ListIteratorTestBase implements ListIteratorIndexedTests<String> {
 
-        // size() / 2 is equal to size(), so this method will not work correctly
-        @Override
-        public void testListIteratorIndexedWithIndexEqualToSizeDivTwo() {
-            throw new UnsupportedOperationException();
-        }
-
         @Nested
         class IterationTest extends IteratorTestBase implements IterationTests<String> {
             // no additional tests
@@ -232,15 +220,10 @@ class EmptyListTest {
             public UnaryOperator<String> replaceElementOperator() {
                 return s -> s + s;
             }
-
-            @Override
-            public String singleElement() {
-                return "X"; //$NON-NLS-1$
-            }
         }
 
         @Nested
-        class AddTest extends ListIteratorTestBase implements UnmodifiableListIteratorTests.AddTests<String> {
+        class AddTest extends ListIteratorTestBase implements ListIteratorTests.AddTests<String> {
 
             @Override
             public String newElement() {
@@ -252,38 +235,53 @@ class EmptyListTest {
     @Nested
     class SubListTest extends ListTestBase implements SubListTests<String> {
 
-        // partial range is not possible; override to disable the test
-        @Override
-        public void testSubListWithPartialRange() {
-            throw new UnsupportedOperationException();
+        @Nested
+        class RemoveTest implements RemoveTests<String> {
+
+            @Override
+            public Collection<String> createIterable() {
+                List<String> list = createCollection(ArrayList::new, 0, 10);
+                return list.subList(3, 7);
+            }
+
+            @Override
+            public Collection<String> expectedElements() {
+                return createCollection(ArrayList::new, 3, 7);
+            }
+
+            @Override
+            public Collection<String> nonContainedElements() {
+                return createCollection(ArrayList::new, 7, 10);
+            }
+
+            @Override
+            public boolean fixedOrder() {
+                return true;
+            }
         }
     }
 
     @Nested
     class SpliteratorTest extends ListTestBase implements SpliteratorTests<String> {
-
-        // Collections.emptyList().spliterator() incorrectly does not report ORDERED, so SpliteratorsTest cannot be added here
-        @Override
-        public void testSpliteratorHasOrderedCharacteristic() {
-            throw new UnsupportedOperationException();
-        }
+        // no additional tests
     }
 
     abstract static class ListTestBase implements ListTests<String> {
 
         @Override
         public List<String> createIterable() {
-            return Collections.emptyList();
+            return createCollection(ArrayList::new, 0, 10);
         }
 
         @Override
         public List<String> expectedElements() {
-            return Collections.unmodifiableList(new ArrayList<>());
+            List<String> list = createCollection(ArrayList::new, 0, 10);
+            return Collections.unmodifiableList(list);
         }
 
         @Override
         public Collection<String> nonContainedElements() {
-            List<String> list = createCollection(ArrayList::new, 0, 10);
+            List<String> list = createCollection(ArrayList::new, 10, 20);
             return Collections.unmodifiableList(list);
         }
     }

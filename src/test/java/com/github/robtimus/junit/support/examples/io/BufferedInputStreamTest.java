@@ -1,5 +1,5 @@
 /*
- * ByteArrayInputStreamTest.java
+ * BufferedInputStreamTest.java
  * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,11 +15,14 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.io.examples;
+package com.github.robtimus.junit.support.examples.io;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import org.junit.jupiter.api.Nested;
+import com.github.robtimus.junit.support.io.InputStreamDelegateTests;
+import com.github.robtimus.junit.support.io.InputStreamDelegateTests.CloseTests;
 import com.github.robtimus.junit.support.io.InputStreamTests;
 import com.github.robtimus.junit.support.io.InputStreamTests.AvailableTests;
 import com.github.robtimus.junit.support.io.InputStreamTests.MarkResetTests;
@@ -29,7 +32,7 @@ import com.github.robtimus.junit.support.io.InputStreamTests.ReadIntoByteArrayTe
 import com.github.robtimus.junit.support.io.InputStreamTests.SkipTests;
 
 @SuppressWarnings("nls")
-class ByteArrayInputStreamTest {
+class BufferedInputStreamTest {
 
     private static final String INPUT = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa.";
 
@@ -63,15 +66,25 @@ class ByteArrayInputStreamTest {
     }
 
     @Nested
+    class CloseTest extends InputStreamTestBase implements CloseTests {
+        // no new tests
+    }
+
+    @Nested
     class MarkResetTest extends InputStreamTestBase implements MarkResetTests {
         // no new tests
     }
 
-    abstract class InputStreamTestBase implements InputStreamTests {
+    abstract class InputStreamTestBase implements InputStreamTests, InputStreamDelegateTests {
 
         @Override
         public InputStream createInputStream() {
-            return new ByteArrayInputStream(INPUT.getBytes());
+            return new BufferedInputStream(new ByteArrayInputStream(INPUT.getBytes()));
+        }
+
+        @Override
+        public InputStream wrapInputStream(InputStream delegate) {
+            return new BufferedInputStream(delegate);
         }
 
         @Override

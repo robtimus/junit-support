@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.collections.examples;
+package com.github.robtimus.junit.support.examples.collection;
 
-import static com.github.robtimus.junit.support.collections.examples.CollectionFactory.createCollection;
+import static com.github.robtimus.junit.support.examples.collection.CollectionFactory.createCollection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;

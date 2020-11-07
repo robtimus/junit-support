@@ -1,5 +1,5 @@
 /*
- * TreeMapTest.java
+ * HashMapTest.java
  * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,12 +15,11 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.collections.examples;
+package com.github.robtimus.junit.support.examples.collection;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.UnaryOperator;
@@ -51,21 +50,10 @@ import com.github.robtimus.junit.support.collections.MapTests.ReplaceAllTests;
 import com.github.robtimus.junit.support.collections.MapTests.ReplaceExactValueTests;
 import com.github.robtimus.junit.support.collections.MapTests.ReplaceTests;
 import com.github.robtimus.junit.support.collections.MapTests.ValuesTests;
-import com.github.robtimus.junit.support.collections.annotation.ContainsIncompatibleKeyNotSupported;
-import com.github.robtimus.junit.support.collections.annotation.ContainsIncompatibleNotSupported;
-import com.github.robtimus.junit.support.collections.annotation.ContainsNullKeyNotSupported;
-import com.github.robtimus.junit.support.collections.annotation.ContainsNullNotSupported;
-import com.github.robtimus.junit.support.collections.annotation.RemoveIncompatibleKeyNotSupported;
-import com.github.robtimus.junit.support.collections.annotation.RemoveIncompatibleNotSupported;
-import com.github.robtimus.junit.support.collections.annotation.RemoveNullKeyNotSupported;
-import com.github.robtimus.junit.support.collections.annotation.RemoveNullNotSupported;
-import com.github.robtimus.junit.support.collections.annotation.StoreNullKeyNotSupported;
 
-class TreeMapTest {
+class HashMapTest {
 
     @Nested
-    @ContainsNullKeyNotSupported
-    @ContainsIncompatibleKeyNotSupported(expected = ClassCastException.class)
     class ContainsKeyTest extends MapTestBase implements ContainsKeyTests<Integer, String> {
         // no additional tests
     }
@@ -76,14 +64,11 @@ class TreeMapTest {
     }
 
     @Nested
-    @ContainsNullKeyNotSupported
-    @ContainsIncompatibleKeyNotSupported(expected = ClassCastException.class)
     class GetTest extends MapTestBase implements GetTests<Integer, String> {
         // no additional tests
     }
 
     @Nested
-    @StoreNullKeyNotSupported
     class PutTest extends MapTestBase implements PutTests<Integer, String> {
 
         @Override
@@ -93,14 +78,11 @@ class TreeMapTest {
     }
 
     @Nested
-    @RemoveNullKeyNotSupported
-    @RemoveIncompatibleKeyNotSupported(expected = ClassCastException.class)
     class RemoveTest extends MapTestBase implements RemoveTests<Integer, String> {
         // no additional tests
     }
 
     @Nested
-    @StoreNullKeyNotSupported
     class PutAllTest extends MapTestBase implements PutAllTests<Integer, String> {
 
         @Override
@@ -144,8 +126,6 @@ class TreeMapTest {
         }
 
         @Nested
-        @ContainsNullNotSupported
-        @ContainsIncompatibleNotSupported(expected = ClassCastException.class)
         class ContainsTest extends KeySetTestBase implements KeySetTests.ContainsTests<Integer, String> {
             // no additional tests
         }
@@ -166,15 +146,11 @@ class TreeMapTest {
         }
 
         @Nested
-        @RemoveNullNotSupported
-        @RemoveIncompatibleNotSupported(expected = ClassCastException.class)
         class RemoveTest extends KeySetTestBase implements KeySetTests.RemoveTests<Integer, String> {
             // no additional tests
         }
 
         @Nested
-        @ContainsNullNotSupported
-        @ContainsIncompatibleNotSupported(expected = ClassCastException.class)
         class ContainsAllTest extends KeySetTestBase implements KeySetTests.ContainsAllTests<Integer, String> {
             // no additional tests
         }
@@ -185,8 +161,6 @@ class TreeMapTest {
         }
 
         @Nested
-        @RemoveNullNotSupported
-        @RemoveIncompatibleNotSupported(expected = ClassCastException.class)
         class RemoveAllTest extends KeySetTestBase implements KeySetTests.RemoveAllTests<Integer, String> {
             // no additional tests
         }
@@ -418,8 +392,6 @@ class TreeMapTest {
     }
 
     @Nested
-    @ContainsNullKeyNotSupported
-    @ContainsIncompatibleKeyNotSupported(expected = ClassCastException.class)
     class GetOrDefaultTest extends MapTestBase implements GetOrDefaultTests<Integer, String> {
         // no additional tests
     }
@@ -444,20 +416,16 @@ class TreeMapTest {
     }
 
     @Nested
-    @RemoveNullKeyNotSupported
-    @RemoveIncompatibleKeyNotSupported(expected = ClassCastException.class)
     class RemoveExactValueTest extends MapTestBase implements RemoveExactValueTests<Integer, String> {
         // no additional tests
     }
 
     @Nested
-    @StoreNullKeyNotSupported
     class ReplaceExactValueTest extends MapTestBase implements ReplaceExactValueTests<Integer, String> {
         // no additional tests
     }
 
     @Nested
-    @StoreNullKeyNotSupported
     class ReplaceTest extends MapTestBase implements ReplaceTests<Integer, String> {
         // no additional tests
     }
@@ -519,7 +487,7 @@ class TreeMapTest {
 
         @Override
         public Map<Integer, String> createMap() {
-            return CollectionFactory.createMap(TreeMap::new, 0, 10);
+            return CollectionFactory.createMap(HashMap::new, 0, 10);
         }
 
         @Override
@@ -539,7 +507,7 @@ class TreeMapTest {
 
         @Override
         public boolean fixedOrder() {
-            return true;
+            return false;
         }
     }
 
@@ -547,7 +515,7 @@ class TreeMapTest {
 
         @Override
         public boolean fixedOrder() {
-            return true;
+            return false;
         }
     }
 
@@ -555,7 +523,7 @@ class TreeMapTest {
 
         @Override
         public boolean fixedOrder() {
-            return true;
+            return false;
         }
     }
 }
