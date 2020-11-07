@@ -3628,7 +3628,7 @@ public interface MapTests<K, V> {
     }
 
     /**
-     * An arguments provider for {@link EqualsTests#testEquals(Map, boolean)}.
+     * An arguments provider for {@link MapTests.EqualsTests#testEquals(Map, boolean)}.
      *
      * @author Rob Spoor
      */

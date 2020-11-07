@@ -1,5 +1,5 @@
 /*
- * DelegateTestsTest.java
+ * MethodFinderTest.java
  * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,14 +15,12 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support;
+package com.github.robtimus.junit.support.reflection;
 
-import static com.github.robtimus.junit.support.DelegateTests.allMethods;
-import static com.github.robtimus.junit.support.DelegateTests.intParameter;
-import static com.github.robtimus.junit.support.DelegateTests.method;
-import static com.github.robtimus.junit.support.DelegateTests.methods;
-import static com.github.robtimus.junit.support.DelegateTests.methodsDeclaredByType;
-import static com.github.robtimus.junit.support.DelegateTests.parameter;
+import static com.github.robtimus.junit.support.reflection.MethodFinder.allMethods;
+import static com.github.robtimus.junit.support.reflection.MethodFinder.method;
+import static com.github.robtimus.junit.support.reflection.MethodFinder.methods;
+import static com.github.robtimus.junit.support.reflection.MethodFinder.methodsDeclaredByType;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
@@ -32,13 +30,10 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -49,11 +44,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
-import com.github.robtimus.junit.support.DelegateTests.InvokableMethod;
-import com.github.robtimus.junit.support.DelegateTests.MethodFinder;
 
 @SuppressWarnings("nls")
-class DelegateTestsTest {
+class MethodFinderTest {
 
     @Nested
     @DisplayName("method(String, Class...)")
@@ -203,44 +196,5 @@ class DelegateTestsTest {
         assertThat(arguments, hasItems(
                 emptyArray(),
                 readArgumentsMatcher));
-    }
-
-    @Nested
-    @DisplayName("InvokableMethod")
-    class InvokableMethodTest {
-
-        @Test
-        @DisplayName("with parameters")
-        void testWithParameters() {
-            InvokableMethod invokableMethod = InvokableMethod.of(List.class, "add", intParameter(2), parameter(Object.class, "foo"));
-
-            @SuppressWarnings("unchecked")
-            List<String> list = mock(List.class);
-
-            invokableMethod.invoke(list);
-
-            verify(list).add(2, "foo");
-        }
-
-        @Test
-        @DisplayName("with incompatible parameters during creation")
-        void testWithIncompatibleParametersDuringCreation() {
-            AssertionFailedError error = assertThrows(AssertionFailedError.class,
-                    () -> InvokableMethod.of(List.class, "add", intParameter(2), parameter("foo")));
-            assertThat(error.getCause(), instanceOf(NoSuchMethodException.class));
-        }
-
-        @Test
-        @DisplayName("with incompatible parameters during invoke")
-        void testWithIncompatibleParametersDuringInvoke() {
-            Method method = assertDoesNotThrow(() -> List.class.getMethod("add", int.class, Object.class));
-            InvokableMethod invokableMethod = InvokableMethod.of(method, "foo", "bar");
-
-            @SuppressWarnings("unchecked")
-            List<String> list = mock(List.class);
-
-            AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> invokableMethod.invoke(list));
-            assertThat(error.getCause(), instanceOf(IllegalArgumentException.class));
-        }
     }
 }

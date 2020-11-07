@@ -15,14 +15,15 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.examples;
+package com.github.robtimus.junit.support.examples.reflection;
 
-import static com.github.robtimus.junit.support.DelegateTests.intParameter;
-import static com.github.robtimus.junit.support.DelegateTests.method;
-import static com.github.robtimus.junit.support.DelegateTests.parameter;
+import static com.github.robtimus.junit.support.reflection.MethodFinder.method;
+import static com.github.robtimus.junit.support.reflection.MethodParameter.intParameter;
+import static com.github.robtimus.junit.support.reflection.MethodParameter.parameter;
 import java.io.InputStream;
 import org.apache.commons.io.input.ProxyInputStream;
 import com.github.robtimus.junit.support.DelegateTests;
+import com.github.robtimus.junit.support.reflection.MethodFinder;
 
 class ProxyInputStreamTest implements DelegateTests<InputStream> {
 
