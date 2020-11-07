@@ -52,7 +52,15 @@ import com.github.robtimus.junit.support.io.ReaderTests;
 
 class TraitTest {
 
+    private static final Set<Class<?>> IGNORED_CLASSES = getIgnoredClasses();
+
     private static final Map<Class<?>, Set<String>> ALLOWED_METHOD_NAMES = getAllowedMethodNames();
+
+    private static Set<Class<?>> getIgnoredClasses() {
+        Set<Class<?>> result = new HashSet<>();
+        result.add(DelegateTests.MethodFinder.class);
+        return Collections.unmodifiableSet(result);
+    }
 
     @SuppressWarnings("nls")
     private static Map<Class<?>, Set<String>> getAllowedMethodNames() {
@@ -92,6 +100,7 @@ class TraitTest {
                 .filter(Class::isInterface)
                 .filter(c -> !"package-info".equals(c.getSimpleName())) //$NON-NLS-1$
                 .filter(c -> !c.isAnnotation())
+                .filter(c -> !IGNORED_CLASSES.contains(c))
                 .sorted(Comparator.comparing(Class::getName))
                 .map(this::testTrait);
     }
