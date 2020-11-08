@@ -1,5 +1,5 @@
 /*
- * InvokableMethodTest.java
+ * MethodAndArgumentsTest.java
  * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,8 +17,10 @@
 
 package com.github.robtimus.junit.support.reflection;
 
-import static com.github.robtimus.junit.support.reflection.MethodParameter.intParameter;
-import static com.github.robtimus.junit.support.reflection.MethodParameter.parameter;
+import static com.github.robtimus.junit.support.reflection.MethodAndArguments.intParameter;
+import static com.github.robtimus.junit.support.reflection.MethodAndArguments.methodWithArguments;
+import static com.github.robtimus.junit.support.reflection.MethodAndArguments.methodWithParameters;
+import static com.github.robtimus.junit.support.reflection.MethodAndArguments.parameter;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -32,12 +34,12 @@ import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
 
 @SuppressWarnings("nls")
-class InvokableMethodTest {
+class MethodAndArgumentsTest {
 
     @Test
     @DisplayName("with parameters")
     void testWithParameters() {
-        InvokableMethod invokableMethod = InvokableMethod.of(List.class, "add", intParameter(2), parameter(Object.class, "foo"));
+        MethodAndArguments invokableMethod = methodWithParameters(List.class, "add", intParameter(2), parameter(Object.class, "foo"));
 
         @SuppressWarnings("unchecked")
         List<String> list = mock(List.class);
@@ -51,7 +53,7 @@ class InvokableMethodTest {
     @DisplayName("with incompatible parameters during creation")
     void testWithIncompatibleParametersDuringCreation() {
         AssertionFailedError error = assertThrows(AssertionFailedError.class,
-                () -> InvokableMethod.of(List.class, "add", intParameter(2), parameter("foo")));
+                () -> methodWithParameters(List.class, "add", intParameter(2), parameter("foo")));
         assertThat(error.getCause(), instanceOf(NoSuchMethodException.class));
     }
 
@@ -59,7 +61,7 @@ class InvokableMethodTest {
     @DisplayName("with incompatible parameters during invoke")
     void testWithIncompatibleParametersDuringInvoke() {
         Method method = assertDoesNotThrow(() -> List.class.getMethod("add", int.class, Object.class));
-        InvokableMethod invokableMethod = InvokableMethod.of(method, "foo", "bar");
+        MethodAndArguments invokableMethod = methodWithArguments(method, "foo", "bar");
 
         @SuppressWarnings("unchecked")
         List<String> list = mock(List.class);

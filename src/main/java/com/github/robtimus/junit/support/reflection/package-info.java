@@ -16,6 +16,6 @@
  */
 
 /**
- * Provides interfaces and classes for helping create unit tests using <a href="http://junit.org/">JUnit</a> and reflection.
+ * Provides interfaces and classes for helping create dynamic <a href="http://junit.org/">JUnit</a> tests using reflection.
  */
 package com.github.robtimus.junit.support.reflection;

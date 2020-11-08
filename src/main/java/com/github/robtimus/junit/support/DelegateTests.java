@@ -17,17 +17,13 @@
 
 package com.github.robtimus.junit.support;
 
-import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
-import com.github.robtimus.junit.support.reflection.MethodFinder;
+import com.github.robtimus.junit.support.reflection.MethodProvider;
 
 /**
  * Base interface for testing that methods delegate to another object of the same type.
@@ -53,11 +49,11 @@ public interface DelegateTests<T> {
     T wrap(T delegate);
 
     /**
-     * Returns an object that will return all methods to test.
+     * Returns a provider for the methods to test.
      *
-     * @return An object that will return all methods to test.
+     * @return A provider that will return all methods to test.
      */
-    MethodFinder methods();
+    MethodProvider methods();
 
     /**
      * For each method returned by the object returned by {@link #methods()}, test that the result of {@link #wrap(Object)} delegates to its argument.
@@ -66,22 +62,14 @@ public interface DelegateTests<T> {
      */
     @TestFactory
     @DisplayName("delegates")
-    @SuppressWarnings("nls")
     default Stream<DynamicTest> testDelegates() {
         Class<T> delegateType = delegateType();
-        return methods().findMethods(delegateType)
+        return methods().methods(delegateType)
                 .distinct()
-                .map(i -> {
-                    Method method = i.getMethod();
-                    String methodDisplayName = Arrays.stream(method.getParameterTypes())
-                            .map(Class::getTypeName)
-                            .collect(Collectors.joining(", ", method.getName() + "(", ")"));
-
-                    return dynamicTest(methodDisplayName, () -> {
-                        T delegate = mock(delegateType);
-                        i.invoke(wrap(delegate));
-                        i.invoke(verify(delegate));
-                    });
-                });
+                .map(o -> o.asTest(m -> {
+                    T delegate = mock(delegateType);
+                    m.invoke(wrap(delegate));
+                    m.invoke(verify(delegate));
+                }));
     }
 }

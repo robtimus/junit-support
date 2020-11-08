@@ -1,5 +1,5 @@
 /*
- * MethodFinderTest.java
+ * MethodProviderTest.java
  * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,10 +17,10 @@
 
 package com.github.robtimus.junit.support.reflection;
 
-import static com.github.robtimus.junit.support.reflection.MethodFinder.allMethods;
-import static com.github.robtimus.junit.support.reflection.MethodFinder.method;
-import static com.github.robtimus.junit.support.reflection.MethodFinder.methods;
-import static com.github.robtimus.junit.support.reflection.MethodFinder.methodsDeclaredByType;
+import static com.github.robtimus.junit.support.reflection.MethodProvider.allMethods;
+import static com.github.robtimus.junit.support.reflection.MethodProvider.method;
+import static com.github.robtimus.junit.support.reflection.MethodProvider.methods;
+import static com.github.robtimus.junit.support.reflection.MethodProvider.methodsDeclaredByType;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
@@ -46,7 +46,7 @@ import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
 
 @SuppressWarnings("nls")
-class MethodFinderTest {
+class MethodProviderTest {
 
     @Nested
     @DisplayName("method(String, Class...)")
@@ -57,15 +57,15 @@ class MethodFinderTest {
         void testMethodFound() {
             Method method = assertDoesNotThrow(() -> List.class.getMethod("add", int.class, Object.class));
 
-            MethodFinder finder = method("add", int.class, Object.class);
-            List<Method> methods = finder.findMethods(List.class)
-                    .map(InvokableMethod::getMethod)
+            MethodProvider provider = method("add", int.class, Object.class);
+            List<Method> methods = provider.methods(List.class)
+                    .map(MethodAndArguments::getMethod)
                     .collect(Collectors.toList());
 
             assertEquals(Collections.singletonList(method), methods);
 
-            List<Object[]> arguments = finder.findMethods(List.class)
-                    .map(InvokableMethod::getArguments)
+            List<Object[]> arguments = provider.methods(List.class)
+                    .map(MethodAndArguments::getArguments)
                     .collect(Collectors.toList());
 
             assertThat(arguments, contains(arrayContaining(0, null)));
@@ -74,8 +74,8 @@ class MethodFinderTest {
         @Test
         @DisplayName("method not found")
         void testMethodNotFound() {
-            MethodFinder finder = method("add", int.class, String.class);
-            assertThrows(AssertionFailedError.class, () -> finder.findMethods(List.class).collect(Collectors.toList()));
+            MethodProvider provider = method("add", int.class, String.class);
+            assertThrows(AssertionFailedError.class, () -> provider.methods(List.class).collect(Collectors.toList()));
         }
     }
 
@@ -89,15 +89,15 @@ class MethodFinderTest {
             Method method1 = assertDoesNotThrow(() -> List.class.getMethod("add", Object.class));
             Method method2 = assertDoesNotThrow(() -> List.class.getMethod("add", int.class, Object.class));
 
-            MethodFinder finder = methods("add");
-            List<Method> methods = finder.findMethods(List.class)
-                    .map(InvokableMethod::getMethod)
+            MethodProvider provider = methods("add");
+            List<Method> methods = provider.methods(List.class)
+                    .map(MethodAndArguments::getMethod)
                     .collect(Collectors.toList());
 
             assertThat(methods, containsInAnyOrder(method1, method2));
 
-            List<Object[]> arguments = finder.findMethods(List.class)
-                    .map(InvokableMethod::getArguments)
+            List<Object[]> arguments = provider.methods(List.class)
+                    .map(MethodAndArguments::getArguments)
                     .collect(Collectors.toList());
 
             Matcher<Object[]> addArgumentsMatcher = arrayContaining((Object) null);
@@ -108,9 +108,9 @@ class MethodFinderTest {
         @Test
         @DisplayName("methods not found")
         void testMethodNotFound() {
-            MethodFinder finder = methods("bogus");
-            List<Method> methods = finder.findMethods(List.class)
-                    .map(InvokableMethod::getMethod)
+            MethodProvider provider = methods("bogus");
+            List<Method> methods = provider.methods(List.class)
+                    .map(MethodAndArguments::getMethod)
                     .collect(Collectors.toList());
 
             assertEquals(Collections.emptyList(), methods);
@@ -129,15 +129,15 @@ class MethodFinderTest {
             Method method3 = assertDoesNotThrow(() -> InputStream.class.getMethod("equals", Object.class));
             Method method4 = assertDoesNotThrow(() -> InputStream.class.getMethod("hashCode"));
 
-            MethodFinder finder = allMethods();
-            List<Method> methods = finder.findMethods(InputStream.class)
-                    .map(InvokableMethod::getMethod)
+            MethodProvider provider = allMethods();
+            List<Method> methods = provider.methods(InputStream.class)
+                    .map(MethodAndArguments::getMethod)
                     .collect(Collectors.toList());
 
             assertThat(methods, hasItems(method1, method2, method3, method4));
 
-            List<Object[]> arguments = finder.findMethods(InputStream.class)
-                    .map(InvokableMethod::getArguments)
+            List<Object[]> arguments = provider.methods(InputStream.class)
+                    .map(MethodAndArguments::getArguments)
                     .collect(Collectors.toList());
 
             Matcher<Object[]> readArgumentsMatcher = arrayContaining(null, 0, 0);
@@ -156,16 +156,16 @@ class MethodFinderTest {
             Method method3 = assertDoesNotThrow(() -> InputStream.class.getMethod("equals", Object.class));
             Method method4 = assertDoesNotThrow(() -> InputStream.class.getMethod("hashCode"));
 
-            MethodFinder finder = allMethods().without(m -> m.getMethod().getParameterCount() > 0);
-            List<Method> methods = finder.findMethods(InputStream.class)
-                    .map(InvokableMethod::getMethod)
+            MethodProvider provider = allMethods().without(m -> m.getParameterCount() > 0);
+            List<Method> methods = provider.methods(InputStream.class)
+                    .map(MethodAndArguments::getMethod)
                     .collect(Collectors.toList());
 
             assertThat(methods, hasItems(method1, method4));
             assertThat(methods, not(hasItems(method2, method3)));
 
-            List<Object[]> arguments = finder.findMethods(InputStream.class)
-                    .map(InvokableMethod::getArguments)
+            List<Object[]> arguments = provider.methods(InputStream.class)
+                    .map(MethodAndArguments::getArguments)
                     .collect(Collectors.toList());
 
             assertThat(arguments, hasItems(emptyArray(), emptyArray()));
@@ -178,9 +178,9 @@ class MethodFinderTest {
         Method method1 = assertDoesNotThrow(() -> InputStream.class.getMethod("read"));
         Method method2 = assertDoesNotThrow(() -> InputStream.class.getMethod("read", byte[].class, int.class, int.class));
 
-        MethodFinder finder = methodsDeclaredByType();
-        List<Method> methods = finder.findMethods(InputStream.class)
-                .map(InvokableMethod::getMethod)
+        MethodProvider provider = methodsDeclaredByType();
+        List<Method> methods = provider.methods(InputStream.class)
+                .map(MethodAndArguments::getMethod)
                 .collect(Collectors.toList());
 
         assertThat(methods, hasItems(method1, method2));
@@ -188,8 +188,8 @@ class MethodFinderTest {
         assertThat(methods, everyItem(not(hasProperty("name", equalTo("equals")))));
         assertThat(methods, everyItem(not(hasProperty("name", equalTo("hashCode")))));
 
-        List<Object[]> arguments = finder.findMethods(InputStream.class)
-                .map(InvokableMethod::getArguments)
+        List<Object[]> arguments = provider.methods(InputStream.class)
+                .map(MethodAndArguments::getArguments)
                 .collect(Collectors.toList());
 
         Matcher<Object[]> readArgumentsMatcher = arrayContaining(null, 0, 0);

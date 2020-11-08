@@ -17,13 +17,13 @@
 
 package com.github.robtimus.junit.support.examples.reflection;
 
-import static com.github.robtimus.junit.support.reflection.MethodFinder.method;
-import static com.github.robtimus.junit.support.reflection.MethodParameter.intParameter;
-import static com.github.robtimus.junit.support.reflection.MethodParameter.parameter;
+import static com.github.robtimus.junit.support.reflection.MethodAndArguments.intParameter;
+import static com.github.robtimus.junit.support.reflection.MethodAndArguments.parameter;
+import static com.github.robtimus.junit.support.reflection.MethodProvider.method;
 import java.io.InputStream;
 import org.apache.commons.io.input.ProxyInputStream;
 import com.github.robtimus.junit.support.DelegateTests;
-import com.github.robtimus.junit.support.reflection.MethodFinder;
+import com.github.robtimus.junit.support.reflection.MethodProvider;
 
 class ProxyInputStreamTest implements DelegateTests<InputStream> {
 
@@ -41,7 +41,7 @@ class ProxyInputStreamTest implements DelegateTests<InputStream> {
 
     @Override
     @SuppressWarnings("nls")
-    public MethodFinder methods() {
+    public MethodProvider methods() {
         // methodsDeclaredByType will only work with Java 8; Java 9 and beyond add additional methods not yet found in ProxyInputStream
         // Besides, this shows how to use method parameters
         return method("read")
