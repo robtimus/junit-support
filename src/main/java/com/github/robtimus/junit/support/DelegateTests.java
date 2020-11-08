@@ -19,6 +19,7 @@ package com.github.robtimus.junit.support;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import java.lang.reflect.Modifier;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
@@ -64,7 +65,9 @@ public interface DelegateTests<T> {
     @DisplayName("delegates")
     default Stream<DynamicTest> testDelegates() {
         Class<T> delegateType = delegateType();
-        return methods().methods(delegateType)
+        return methods()
+                .without(m -> Modifier.isStatic(m.getModifiers()))
+                .methods(delegateType)
                 .distinct()
                 .map(o -> o.asTest(m -> {
                     T delegate = mock(delegateType);
