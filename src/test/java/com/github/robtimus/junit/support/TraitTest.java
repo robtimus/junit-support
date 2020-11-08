@@ -85,6 +85,7 @@ class TraitTest {
         allowedNames.clear();
         allowedNames.add("testMarkSupported");
         allowedNames.add("testMarkAndReset");
+        allowedNames.add("testResetWithoutMark");
 
         result.put(InputStreamTests.MarkResetTests.class, new HashSet<>(allowedNames));
         result.put(ReaderTests.MarkResetTests.class, new HashSet<>(allowedNames));

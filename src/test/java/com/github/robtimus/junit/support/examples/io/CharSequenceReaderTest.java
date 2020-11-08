@@ -70,7 +70,11 @@ class CharSequenceReaderTest {
 
     @Nested
     class MarkResetTest extends ReaderTestBase implements MarkResetTests {
-        // no new tests
+
+        @Override
+        public boolean hasDefaultMark() {
+            return true;
+        }
     }
 
     abstract static class ReaderTestBase implements ReaderTests {

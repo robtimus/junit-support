@@ -25,6 +25,7 @@ import static org.hamcrest.Matchers.either;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -406,6 +407,19 @@ public interface InputStreamTests {
     @DisplayName("mark(int) and reset()")
     interface MarkResetTests extends InputStreamTests {
 
+        /**
+         * Returns whether or not the input stream to test has an explicit mark at the start of the stream.
+         * If so, then {@link InputStream#reset()} is expected to work without calling {@link InputStream#mark(int)} first.
+         * Otherwise, {@link InputStream#reset()} is expected to fail without calling {@link InputStream#mark(int)} first.
+         * <p>
+         * This default implementation returns {@code false}.
+         *
+         * @return {@code true} if the input stream to test has an explicit mark at the start of the stream, or {@code false} otherwise.
+         */
+        default boolean hasDefaultMark() {
+            return false;
+        }
+
         @Test
         @DisplayName("markSupported()")
         default void testMarkSupported() {
@@ -448,6 +462,43 @@ public interface InputStreamTests {
                         }
                     }
                     assertArrayEquals(expectedContent.toByteArray(), baos.toByteArray());
+                }
+            });
+        }
+
+        @Test
+        @DisplayName("reset() without mark(int)")
+        default void testResetWithoutMark() {
+            assertDoesNotThrowIOException(() -> {
+                try (InputStream inputStream = createInputStream()) {
+                    byte[] expectedContent = expectedContent();
+
+                    if (hasDefaultMark()) {
+                        int duplicateCount = Math.min(expectedContent.length, 10);
+                        byte[] expectedContentWithDuplicateBytes = new byte[duplicateCount + expectedContent.length];
+                        System.arraycopy(expectedContent, 0, expectedContentWithDuplicateBytes, 0, duplicateCount);
+                        System.arraycopy(expectedContent, 0, expectedContentWithDuplicateBytes, duplicateCount, expectedContent.length);
+                        expectedContent = expectedContentWithDuplicateBytes;
+                    }
+
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream(expectedContent.length);
+
+                    byte[] buffer = new byte[10];
+                    int len = IOUtils.readAll(inputStream, buffer);
+                    if (len != -1) {
+                        baos.write(buffer, 0, len);
+                    }
+                    if (hasDefaultMark()) {
+                        assertDoesNotThrow(inputStream::reset);
+                    } else {
+                        assertThrows(IOException.class, inputStream::reset);
+                    }
+
+                    while ((len = IOUtils.readAll(inputStream, buffer)) != -1) {
+                        baos.write(buffer, 0, len);
+                    }
+
+                    assertArrayEquals(expectedContent, baos.toByteArray());
                 }
             });
         }

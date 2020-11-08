@@ -64,7 +64,11 @@ class ByteArrayInputStreamTest {
 
     @Nested
     class MarkResetTest extends InputStreamTestBase implements MarkResetTests {
-        // no new tests
+
+        @Override
+        public boolean hasDefaultMark() {
+            return true;
+        }
     }
 
     abstract class InputStreamTestBase implements InputStreamTests {

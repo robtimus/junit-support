@@ -23,11 +23,13 @@ import static com.github.robtimus.junit.support.io.IOAssertions.assertNegativeSk
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.either;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.nio.CharBuffer;
 import org.junit.jupiter.api.DisplayName;
@@ -460,6 +462,19 @@ public interface ReaderTests {
     @DisplayName("mark(int) and reset()")
     interface MarkResetTests extends ReaderTests {
 
+        /**
+         * Returns whether or not the input stream to test has an explicit mark at the start of the stream.
+         * If so, then {@link InputStream#reset()} is expected to work without calling {@link InputStream#mark(int)} first.
+         * Otherwise, {@link InputStream#reset()} is expected to fail without calling {@link InputStream#mark(int)} first.
+         * <p>
+         * This default implementation returns {@code false}.
+         *
+         * @return {@code true} if the input stream to test has an explicit mark at the start of the stream, or {@code false} otherwise.
+         */
+        default boolean hasDefaultMark() {
+            return false;
+        }
+
         @Test
         @DisplayName("markSupported()")
         default void testMarkSupported() {
@@ -502,6 +517,40 @@ public interface ReaderTests {
                         }
                     }
                     assertEquals(expectedContent.toString(), sb.toString());
+                }
+            });
+        }
+
+        @Test
+        @DisplayName("reset() without mark(int)")
+        default void testResetWithoutMark() {
+            assertDoesNotThrowIOException(() -> {
+                try (Reader reader = createReader()) {
+                    String expectedContent = expectedContent();
+
+                    if (hasDefaultMark()) {
+                        int duplicateCount = Math.min(expectedContent.length(), 10);
+                        expectedContent = expectedContent.substring(0, duplicateCount) + expectedContent;
+                    }
+
+                    StringBuilder sb = new StringBuilder(expectedContent.length());
+
+                    char[] buffer = new char[10];
+                    int len = IOUtils.readAll(reader, buffer);
+                    if (len != -1) {
+                        sb.append(buffer, 0, len);
+                    }
+                    if (hasDefaultMark()) {
+                        assertDoesNotThrow(reader::reset);
+                    } else {
+                        assertThrows(IOException.class, reader::reset);
+                    }
+
+                    while ((len = IOUtils.readAll(reader, buffer)) != -1) {
+                        sb.append(buffer, 0, len);
+                    }
+
+                    assertEquals(expectedContent, sb.toString());
                 }
             });
         }
