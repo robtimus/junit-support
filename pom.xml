@@ -26,13 +26,13 @@
     <relativePath />
   </parent>
 
-  <artifactId>junit-support</artifactId>
+  <artifactId>unit-test-support</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>junit-support</name>
-  <description>A collection of InputStream, OutputStream, Reader and Writer implementations</description>
-  <url>https://robtimus.github.io/junit-support/</url>
+  <name>unit-test-support</name>
+  <description>Contains interfaces and classes that make it easier to write unit tests with JUnit</description>
+  <url>https://robtimus.github.io/unit-test-support/</url>
   <inceptionYear>2020</inceptionYear>
 
   <licenses>
@@ -50,15 +50,15 @@
   </developers>
 
   <scm>
-    <connection>scm:git:git@github.com:robtimus/junit-support.git</connection>
-    <developerConnection>scm:git:git@github.com:robtimus/junit-support.git</developerConnection>
+    <connection>scm:git:git@github.com:robtimus/unit-test-support.git</connection>
+    <developerConnection>scm:git:git@github.com:robtimus/unit-test-support.git</developerConnection>
     <tag>HEAD</tag>
-    <url>https://github.com/robtimus/junit-support</url>
+    <url>https://github.com/robtimus/unit-test-support</url>
   </scm>
 
   <issueManagement>
     <system>GitHub</system>
-    <url>https://github.com/robtimus/junit-support/issues</url>
+    <url>https://github.com/robtimus/unit-test-support/issues</url>
   </issueManagement>
 
   <properties>

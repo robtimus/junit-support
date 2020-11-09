@@ -1,4 +1,4 @@
-# junit-support
+# unit-test-support
 
 Contains interfaces and classes that make it easier to write unit tests with [JUnit](https://junit.org/).
 

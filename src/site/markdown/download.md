@@ -8,4 +8,4 @@ See [Source Code Management](scm.html) for more information.
 
 ## Download binaries / sources
 
-Download the latest binary or source bundle from the [GitHub release page](https://github.com/robtimus/junit-support/releases).
+Download the latest binary or source bundle from the [GitHub release page](https://github.com/robtimus/unit-test-support/releases).
