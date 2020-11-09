@@ -15,15 +15,12 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.examples.reflection;
+package com.github.robtimus.junit.support.examples.delegation;
 
-import static com.github.robtimus.junit.support.reflection.MethodAndArguments.intParameter;
-import static com.github.robtimus.junit.support.reflection.MethodAndArguments.parameter;
-import static com.github.robtimus.junit.support.reflection.MethodProvider.method;
 import java.io.InputStream;
+import java.util.stream.Stream;
 import org.apache.commons.io.input.ProxyInputStream;
 import com.github.robtimus.junit.support.DelegateTests;
-import com.github.robtimus.junit.support.reflection.MethodProvider;
 
 class ProxyInputStreamTest implements DelegateTests<InputStream> {
 
@@ -41,17 +38,16 @@ class ProxyInputStreamTest implements DelegateTests<InputStream> {
 
     @Override
     @SuppressWarnings("nls")
-    public MethodProvider methods() {
-        // methodsDeclaredByType will only work with Java 8; Java 9 and beyond add additional methods not yet found in ProxyInputStream
-        // Besides, this shows how to use method parameters
-        return method("read")
-                .and(method("read", parameter(new byte[3])))
-                .and(method("read", parameter(new byte[3]), intParameter(0), intParameter(3)))
-                .and(method("skip", long.class))
-                .and(method("available"))
-                .and(method("close"))
-                .and(method("mark", int.class))
-                .and(method("reset"))
-                .and(method("markSupported"));
+    public Stream<DelegateMethod<InputStream>> methods() {
+        return Stream.of(
+                method("read"),
+                method("read", parameter(new byte[3])),
+                method("read", parameter(new byte[3]), intParameter(0), intParameter(3)),
+                method("skip", long.class),
+                method("available"),
+                method("close"),
+                method("mark", int.class),
+                method("reset"),
+                method("markSupported"));
     }
 }

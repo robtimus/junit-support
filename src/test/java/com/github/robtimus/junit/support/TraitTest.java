@@ -49,7 +49,6 @@ import com.github.robtimus.junit.support.collections.IteratorTests;
 import com.github.robtimus.junit.support.collections.ListIteratorTests;
 import com.github.robtimus.junit.support.io.InputStreamTests;
 import com.github.robtimus.junit.support.io.ReaderTests;
-import com.github.robtimus.junit.support.reflection.MethodProvider;
 
 class TraitTest {
 
@@ -59,7 +58,6 @@ class TraitTest {
 
     private static Set<Class<?>> getIgnoredClasses() {
         Set<Class<?>> result = new HashSet<>();
-        result.add(MethodProvider.class);
         return Collections.unmodifiableSet(result);
     }
 
