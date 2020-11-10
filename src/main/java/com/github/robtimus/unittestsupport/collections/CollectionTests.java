@@ -209,7 +209,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         default void testToArrayWithNullArray() {
             Collection<T> collection = createIterable();
 
-            assertThrows(NullPointerException.class, () -> collection.toArray(null));
+            assertThrows(NullPointerException.class, () -> collection.toArray((Object[]) null));
         }
     }
 
