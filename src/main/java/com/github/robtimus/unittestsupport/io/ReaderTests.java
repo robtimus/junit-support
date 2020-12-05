@@ -490,7 +490,7 @@ public interface ReaderTests {
         default void testMarkAndReset() {
             assertDoesNotThrowIOException(() -> {
                 try (Reader reader = createReader()) {
-                    // mark, read 10, reset, read 10, repeat
+                    // mark, read 10, reset, read 20, repeat
                     final int readSize = 10;
 
                     String fullExpectedContent = expectedContent();

@@ -435,7 +435,7 @@ public interface InputStreamTests {
         default void testMarkAndReset() {
             assertDoesNotThrowIOException(() -> {
                 try (InputStream inputStream = createInputStream()) {
-                    // mark, read 10, reset, read 10, repeat
+                    // mark, read 10, reset, read 20, repeat
                     final int readSize = 10;
 
                     byte[] fullExpectedContent = expectedContent();
