@@ -17,9 +17,13 @@
 
 package com.github.robtimus.unittestsupport.examples.io;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.HashSet;
+import java.util.Set;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import com.github.robtimus.unittestsupport.io.WriterDelegateTests;
 import com.github.robtimus.unittestsupport.io.WriterDelegateTests.AppendCharSequencePortionTests;
@@ -85,10 +89,19 @@ class BufferedWriterTest {
         // no new tests
     }
 
+    @SuppressWarnings("nls")
     abstract static class WriterDelegateTestsBase implements WriterDelegateTests {
+
+        private Set<String> methodsCalled;
+
+        @BeforeEach
+        void initializeMethodsCalled() {
+            methodsCalled = new HashSet<>();
+        }
 
         @Override
         public Writer wrapWriter(Writer delegate) {
+            assertTrue(methodsCalled.add("wrapWriter"), "wrapWriter called multiple times");
             // BufferedWriter does not correctly check the bounds in write(String, int, int);
             // copy the check from BufferedWriter.write(char[], int, int)
             return new BufferedWriter(delegate) {
@@ -105,6 +118,7 @@ class BufferedWriterTest {
 
         @Override
         public String expectedContent(String written) {
+            assertTrue(methodsCalled.add("expectedContent"), "expectedContent called multiple times");
             return written;
         }
     }

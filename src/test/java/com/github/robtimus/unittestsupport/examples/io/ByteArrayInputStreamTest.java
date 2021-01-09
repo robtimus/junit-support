@@ -17,8 +17,12 @@
 
 package com.github.robtimus.unittestsupport.examples.io;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Set;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import com.github.robtimus.unittestsupport.io.InputStreamTests;
 import com.github.robtimus.unittestsupport.io.InputStreamTests.AvailableTests;
@@ -73,13 +77,22 @@ class ByteArrayInputStreamTest {
 
     abstract class InputStreamTestBase implements InputStreamTests {
 
+        private Set<String> methodsCalled;
+
+        @BeforeEach
+        void initializeMethodsCalled() {
+            methodsCalled = new HashSet<>();
+        }
+
         @Override
-        public InputStream createInputStream() {
+        public InputStream inputStream() {
+            assertTrue(methodsCalled.add("inputStream"), "inputStream called multiple times");
             return new ByteArrayInputStream(INPUT.getBytes());
         }
 
         @Override
         public byte[] expectedContent() {
+            assertTrue(methodsCalled.add("expectedContent"), "expectedContent called multiple times");
             return INPUT.getBytes();
         }
     }

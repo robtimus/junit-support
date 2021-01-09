@@ -17,9 +17,13 @@
 
 package com.github.robtimus.unittestsupport.examples.io;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.BufferedReader;
 import java.io.Reader;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.commons.io.input.CharSequenceReader;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import com.github.robtimus.unittestsupport.io.ReaderDelegateTests;
 import com.github.robtimus.unittestsupport.io.ReaderDelegateTests.CloseTests;
@@ -83,19 +87,29 @@ class BufferedReaderTest {
 
     abstract static class ReaderTestBase implements ReaderTests, ReaderDelegateTests {
 
+        private Set<String> methodsCalled;
+
+        @BeforeEach
+        void initializeMethodsCalled() {
+            methodsCalled = new HashSet<>();
+        }
+
         @Override
-        public Reader createReader() {
+        public Reader reader() {
+            assertTrue(methodsCalled.add("reader"), "reader called multiple times");
             // use CharSequenceReader, as StringReader will decrease its index when negative indexes are used
             return new BufferedReader(new CharSequenceReader(INPUT));
         }
 
         @Override
         public Reader wrapReader(Reader delegate) {
+            assertTrue(methodsCalled.add("wrapReader"), "wrapReader called multiple times");
             return new BufferedReader(delegate);
         }
 
         @Override
         public String expectedContent() {
+            assertTrue(methodsCalled.add("expectedContent"), "expectedContent called multiple times");
             return INPUT;
         }
     }

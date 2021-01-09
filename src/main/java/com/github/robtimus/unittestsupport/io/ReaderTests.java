@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.nio.CharBuffer;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -43,14 +44,17 @@ import org.junit.jupiter.api.Test;
 public interface ReaderTests {
 
     /**
-     * Creates the reader to test.
+     * Returns the reader to test.
+     * <p>
+     * This method will be called only once for each test. This makes it possible to initialize the reader in a method annotated with
+     * {@link BeforeEach}, and perform additional tests after the pre-defined test has finished.
      *
-     * @return The created reader.
+     * @return The reader to test.
      */
-    Reader createReader();
+    Reader reader();
 
     /**
-     * Returns the expected content from {@link #createReader() created readers}.
+     * Returns the expected content from {@link #reader() created readers}.
      *
      * @return The expected content.
      */
@@ -68,7 +72,7 @@ public interface ReaderTests {
         @DisplayName("read(CharBuffer)")
         default void testReadIntoCharBuffer() {
             assertDoesNotThrowIOException(() -> {
-                try (Reader reader = createReader()) {
+                try (Reader reader = reader()) {
                     String expected = expectedContent();
                     int bufferSize = 10;
 
@@ -90,7 +94,7 @@ public interface ReaderTests {
         @DisplayName("read(CharBuffer) with an empty CharBuffer")
         default void testReadIntoCharBufferWithEmptyCharBuffer() {
             assertDoesNotThrowIOException(() -> {
-                try (Reader reader = createReader()) {
+                try (Reader reader = reader()) {
                     CharBuffer buffer = CharBuffer.allocate(0);
                     assertEquals(0, reader.read(buffer));
 
@@ -104,7 +108,7 @@ public interface ReaderTests {
         @DisplayName("read(CharBuffer) with a null CharBuffer")
         default void testReadIntoCharBufferWithNullCharBuffer() {
             assertDoesNotThrowIOException(() -> {
-                try (Reader reader = createReader()) {
+                try (Reader reader = reader()) {
                     CharBuffer buffer = null;
                     assertThrows(NullPointerException.class, () -> reader.read(buffer));
 
@@ -127,7 +131,7 @@ public interface ReaderTests {
         @DisplayName("read()")
         default void testReadChar() {
             assertDoesNotThrowIOException(() -> {
-                try (Reader reader = createReader()) {
+                try (Reader reader = reader()) {
                     String expected = expectedContent();
 
                     StringBuilder sb = new StringBuilder(expected.length());
@@ -154,7 +158,7 @@ public interface ReaderTests {
         @DisplayName("read(char[])")
         default void testReadIntoCharArray() {
             assertDoesNotThrowIOException(() -> {
-                try (Reader reader = createReader()) {
+                try (Reader reader = reader()) {
                     String expected = expectedContent();
                     int bufferSize = 10;
 
@@ -174,7 +178,7 @@ public interface ReaderTests {
         @DisplayName("read(char[]) with an empty array")
         default void testReadIntoCharArrayWithEmptyArray() {
             assertDoesNotThrowIOException(() -> {
-                try (Reader reader = createReader()) {
+                try (Reader reader = reader()) {
                     char[] buffer = {};
                     assertEquals(0, reader.read(buffer));
 
@@ -188,7 +192,7 @@ public interface ReaderTests {
         @DisplayName("read(char[]) with a null array")
         default void testReadIntoCharArrayWithNullArray() {
             assertDoesNotThrowIOException(() -> {
-                try (Reader reader = createReader()) {
+                try (Reader reader = reader()) {
                     char[] buffer = null;
                     assertThrows(NullPointerException.class, () -> reader.read(buffer));
 
@@ -211,7 +215,7 @@ public interface ReaderTests {
         @DisplayName("read(char[], int, int)")
         default void testReadIntoCharArrayPortion() {
             assertDoesNotThrowIOException(() -> {
-                try (Reader reader = createReader()) {
+                try (Reader reader = reader()) {
                     String expected = expectedContent();
                     int bufferSize = 10;
 
@@ -232,7 +236,7 @@ public interface ReaderTests {
         @DisplayName("read(char[], int, int) with 0 length")
         default void testReadIntoCharArrayPortionWithZeroLength() {
             assertDoesNotThrowIOException(() -> {
-                try (Reader reader = createReader()) {
+                try (Reader reader = reader()) {
                     char[] buffer = new char[10];
                     assertEquals(0, reader.read(buffer, 5, 0));
 
@@ -246,7 +250,7 @@ public interface ReaderTests {
         @DisplayName("read(char[], int, int) with a null array")
         default void testReadIntoCharArrayPortionWithNullArray() {
             assertDoesNotThrowIOException(() -> {
-                try (Reader reader = createReader()) {
+                try (Reader reader = reader()) {
                     char[] buffer = null;
                     assertThrows(NullPointerException.class, () -> reader.read(buffer, 0, 10));
 
@@ -260,7 +264,7 @@ public interface ReaderTests {
         @DisplayName("read(char[], int, int) with a negative offset")
         default void testReadIntoCharArrayPortionWithNegativeOffset() {
             assertDoesNotThrowIOException(() -> {
-                try (Reader reader = createReader()) {
+                try (Reader reader = reader()) {
                     char[] buffer = new char[10];
                     Exception exception = assertThrows(Exception.class, () -> reader.read(buffer, -1, 10));
                     assertThat(exception, either(instanceOf(IndexOutOfBoundsException.class)).or(instanceOf(IllegalArgumentException.class))
@@ -276,7 +280,7 @@ public interface ReaderTests {
         @DisplayName("read(char[], int, int) with an offset that exceeds the array length")
         default void testReadIntoCharArrayPortionWithTooHighOffset() {
             assertDoesNotThrowIOException(() -> {
-                try (Reader reader = createReader()) {
+                try (Reader reader = reader()) {
                     char[] buffer = new char[10];
                     Exception exception = assertThrows(Exception.class, () -> reader.read(buffer, buffer.length + 1, 0));
                     assertThat(exception, either(instanceOf(IndexOutOfBoundsException.class)).or(instanceOf(IllegalArgumentException.class))
@@ -292,7 +296,7 @@ public interface ReaderTests {
         @DisplayName("read(char[], int, int) with a negative length")
         default void testReadIntoCharArrayPortionWithNegativeLength() {
             assertDoesNotThrowIOException(() -> {
-                try (Reader reader = createReader()) {
+                try (Reader reader = reader()) {
                     char[] buffer = new char[10];
                     Exception exception = assertThrows(Exception.class, () -> reader.read(buffer, 5, -1));
                     assertThat(exception, either(instanceOf(IndexOutOfBoundsException.class)).or(instanceOf(IllegalArgumentException.class))
@@ -308,7 +312,7 @@ public interface ReaderTests {
         @DisplayName("read(char[], int, int) with a length that exceeds the array length")
         default void testReadIntoCharArrayPortionWithTooHighLength() {
             assertDoesNotThrowIOException(() -> {
-                try (Reader reader = createReader()) {
+                try (Reader reader = reader()) {
                     char[] buffer = new char[10];
                     // don't use 0 and 11, use 1 and 10, so it's not the value of the length that triggers the error but the combination off + len
                     Exception exception = assertThrows(Exception.class, () -> reader.read(buffer, 1, buffer.length));
@@ -336,7 +340,7 @@ public interface ReaderTests {
         @DisplayName("skip(long)")
         default void testSkip() {
             assertDoesNotThrowIOException(() -> {
-                try (Reader reader = createReader()) {
+                try (Reader reader = reader()) {
                     // skip 5, add 5, repeat
                     final int skipSize = 5;
                     final int readSize = 5;
@@ -374,7 +378,7 @@ public interface ReaderTests {
         @DisplayName("skip(long) with a zero index")
         default void testSkipWithZeroIndex() {
             assertDoesNotThrowIOException(() -> {
-                try (Reader reader = createReader()) {
+                try (Reader reader = reader()) {
                     String expectedContent = expectedContent();
 
                     StringBuilder sb = new StringBuilder(expectedContent.length());
@@ -399,7 +403,7 @@ public interface ReaderTests {
         @DisplayName("skip(long) with a negative index")
         default void testSkipWithNegativeIndex() {
             assertDoesNotThrowIOException(() -> {
-                try (Reader reader = createReader()) {
+                try (Reader reader = reader()) {
                     String expectedContent = expectedContent();
 
                     StringBuilder sb = new StringBuilder(expectedContent.length());
@@ -435,7 +439,7 @@ public interface ReaderTests {
         @DisplayName("ready()")
         default void testReady() {
             assertDoesNotThrowIOException(() -> {
-                try (Reader reader = createReader()) {
+                try (Reader reader = reader()) {
                     String expectedContent = expectedContent();
 
                     StringBuilder sb = new StringBuilder(expectedContent.length());
@@ -479,7 +483,7 @@ public interface ReaderTests {
         @DisplayName("markSupported()")
         default void testMarkSupported() {
             assertDoesNotThrowIOException(() -> {
-                try (Reader reader = createReader()) {
+                try (Reader reader = reader()) {
                     assertTrue(reader.markSupported());
                 }
             });
@@ -489,7 +493,7 @@ public interface ReaderTests {
         @DisplayName("mark(int) and reset()")
         default void testMarkAndReset() {
             assertDoesNotThrowIOException(() -> {
-                try (Reader reader = createReader()) {
+                try (Reader reader = reader()) {
                     // mark, read 10, reset, read 20, repeat
                     final int readSize = 10;
 
@@ -525,7 +529,7 @@ public interface ReaderTests {
         @DisplayName("reset() without mark(int)")
         default void testResetWithoutMark() {
             assertDoesNotThrowIOException(() -> {
-                try (Reader reader = createReader()) {
+                try (Reader reader = reader()) {
                     String expectedContent = expectedContent();
 
                     if (hasDefaultMark()) {

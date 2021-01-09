@@ -32,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -43,14 +44,17 @@ import org.junit.jupiter.api.Test;
 public interface InputStreamTests {
 
     /**
-     * Creates the input stream to test.
+     * Returns the input stream to test.
+     * <p>
+     * This method will be called only once for each test. This makes it possible to initialize the input stream in a method annotated with
+     * {@link BeforeEach}, and perform additional tests after the pre-defined test has finished.
      *
-     * @return The created input stream.
+     * @return The input stream to test.
      */
-    InputStream createInputStream();
+    InputStream inputStream();
 
     /**
-     * Returns the expected content from {@link #createInputStream() created input streams}.
+     * Returns the expected content from {@link #inputStream() created input streams}.
      *
      * @return The expected content.
      */
@@ -68,7 +72,7 @@ public interface InputStreamTests {
         @DisplayName("read()")
         default void testReadByte() {
             assertDoesNotThrowIOException(() -> {
-                try (InputStream inputStream = createInputStream()) {
+                try (InputStream inputStream = inputStream()) {
                     byte[] expected = expectedContent();
 
                     ByteArrayOutputStream baos = new ByteArrayOutputStream(expected.length);
@@ -95,7 +99,7 @@ public interface InputStreamTests {
         @DisplayName("read(byte[])")
         default void testReadIntoByteArray() {
             assertDoesNotThrowIOException(() -> {
-                try (InputStream inputStream = createInputStream()) {
+                try (InputStream inputStream = inputStream()) {
                     byte[] expected = expectedContent();
                     int bufferSize = 10;
 
@@ -115,7 +119,7 @@ public interface InputStreamTests {
         @DisplayName("read(byte[]) with an empty array")
         default void testReadIntoByteArrayWithEmptyArray() {
             assertDoesNotThrowIOException(() -> {
-                try (InputStream inputStream = createInputStream()) {
+                try (InputStream inputStream = inputStream()) {
                     byte[] buffer = {};
                     assertEquals(0, inputStream.read(buffer));
 
@@ -129,7 +133,7 @@ public interface InputStreamTests {
         @DisplayName("read(byte[]) with a null array")
         default void testReadIntoByteArrayWithNullArray() {
             assertDoesNotThrowIOException(() -> {
-                try (InputStream inputStream = createInputStream()) {
+                try (InputStream inputStream = inputStream()) {
                     byte[] buffer = null;
                     assertThrows(NullPointerException.class, () -> inputStream.read(buffer));
 
@@ -152,7 +156,7 @@ public interface InputStreamTests {
         @DisplayName("read(byte[], int, int)")
         default void testReadIntoByteArrayPortion() {
             assertDoesNotThrowIOException(() -> {
-                try (InputStream inputStream = createInputStream()) {
+                try (InputStream inputStream = inputStream()) {
                     byte[] expected = expectedContent();
                     int bufferSize = 10;
 
@@ -173,7 +177,7 @@ public interface InputStreamTests {
         @DisplayName("read(byte[], int, int) with 0 length")
         default void testReadIntoByteArrayPortionWithZeroLength() {
             assertDoesNotThrowIOException(() -> {
-                try (InputStream inputStream = createInputStream()) {
+                try (InputStream inputStream = inputStream()) {
                     byte[] buffer = new byte[10];
                     assertEquals(0, inputStream.read(buffer, 5, 0));
 
@@ -187,7 +191,7 @@ public interface InputStreamTests {
         @DisplayName("read(byte[], int, int) with a null array")
         default void testReadIntoByteArrayPortionWithNullArray() {
             assertDoesNotThrowIOException(() -> {
-                try (InputStream inputStream = createInputStream()) {
+                try (InputStream inputStream = inputStream()) {
                     byte[] buffer = null;
                     assertThrows(NullPointerException.class, () -> inputStream.read(buffer, 0, 10));
 
@@ -201,7 +205,7 @@ public interface InputStreamTests {
         @DisplayName("read(byte[], int, int) with a negative offset")
         default void testReadIntoByteArrayPortionWithNegativeOffset() {
             assertDoesNotThrowIOException(() -> {
-                try (InputStream inputStream = createInputStream()) {
+                try (InputStream inputStream = inputStream()) {
                     byte[] buffer = new byte[10];
                     Exception exception = assertThrows(Exception.class, () -> inputStream.read(buffer, -1, 10));
                     assertThat(exception, either(instanceOf(IndexOutOfBoundsException.class)).or(instanceOf(IllegalArgumentException.class))
@@ -217,7 +221,7 @@ public interface InputStreamTests {
         @DisplayName("read(byte[], int, int) with an offset that exceeds the array length")
         default void testReadIntoByteArrayPortionWithTooHighOffset() {
             assertDoesNotThrowIOException(() -> {
-                try (InputStream inputStream = createInputStream()) {
+                try (InputStream inputStream = inputStream()) {
                     byte[] buffer = new byte[10];
                     Exception exception = assertThrows(Exception.class, () -> inputStream.read(buffer, buffer.length + 1, 0));
                     assertThat(exception, either(instanceOf(IndexOutOfBoundsException.class)).or(instanceOf(IllegalArgumentException.class))
@@ -233,7 +237,7 @@ public interface InputStreamTests {
         @DisplayName("read(byte[], int, int) with a negative length")
         default void testReadIntoByteArrayPortionWithNegativeLength() {
             assertDoesNotThrowIOException(() -> {
-                try (InputStream inputStream = createInputStream()) {
+                try (InputStream inputStream = inputStream()) {
                     byte[] buffer = new byte[10];
                     Exception exception = assertThrows(Exception.class, () -> inputStream.read(buffer, 5, -1));
                     assertThat(exception, either(instanceOf(IndexOutOfBoundsException.class)).or(instanceOf(IllegalArgumentException.class))
@@ -249,7 +253,7 @@ public interface InputStreamTests {
         @DisplayName("read(byte[], int, int) with a length that exceeds the array length")
         default void testReadIntoByteArrayPortionWithTooHighLength() {
             assertDoesNotThrowIOException(() -> {
-                try (InputStream inputStream = createInputStream()) {
+                try (InputStream inputStream = inputStream()) {
                     byte[] buffer = new byte[10];
                     // don't use 0 and 11, use 1 and 10
                     Exception exception = assertThrows(Exception.class, () -> inputStream.read(buffer, 1, buffer.length));
@@ -277,7 +281,7 @@ public interface InputStreamTests {
         @DisplayName("skip(long)")
         default void testSkip() {
             assertDoesNotThrowIOException(() -> {
-                try (InputStream inputStream = createInputStream()) {
+                try (InputStream inputStream = inputStream()) {
                     // skip 5, add 5, repeat
                     final int skipSize = 5;
                     final int readSize = 5;
@@ -315,7 +319,7 @@ public interface InputStreamTests {
         @DisplayName("skip(long) with a zero index")
         default void testSkipWithZeroIndex() {
             assertDoesNotThrowIOException(() -> {
-                try (InputStream inputStream = createInputStream()) {
+                try (InputStream inputStream = inputStream()) {
                     byte[] expectedContent = expectedContent();
 
                     ByteArrayOutputStream baos = new ByteArrayOutputStream(expectedContent.length);
@@ -340,7 +344,7 @@ public interface InputStreamTests {
         @DisplayName("skip(long) with a negative index")
         default void testSkipWithNegativeIndex() {
             assertDoesNotThrowIOException(() -> {
-                try (InputStream inputStream = createInputStream()) {
+                try (InputStream inputStream = inputStream()) {
                     byte[] expectedContent = expectedContent();
 
                     ByteArrayOutputStream baos = new ByteArrayOutputStream(expectedContent.length);
@@ -376,7 +380,7 @@ public interface InputStreamTests {
         @DisplayName("available()")
         default void testAvailable() {
             assertDoesNotThrowIOException(() -> {
-                try (InputStream inputStream = createInputStream()) {
+                try (InputStream inputStream = inputStream()) {
                     byte[] expectedContent = expectedContent();
 
                     ByteArrayOutputStream baos = new ByteArrayOutputStream(expectedContent.length);
@@ -424,7 +428,7 @@ public interface InputStreamTests {
         @DisplayName("markSupported()")
         default void testMarkSupported() {
             assertDoesNotThrowIOException(() -> {
-                try (InputStream inputStream = createInputStream()) {
+                try (InputStream inputStream = inputStream()) {
                     assertTrue(inputStream.markSupported());
                 }
             });
@@ -434,7 +438,7 @@ public interface InputStreamTests {
         @DisplayName("mark(int) and reset()")
         default void testMarkAndReset() {
             assertDoesNotThrowIOException(() -> {
-                try (InputStream inputStream = createInputStream()) {
+                try (InputStream inputStream = inputStream()) {
                     // mark, read 10, reset, read 20, repeat
                     final int readSize = 10;
 
@@ -470,7 +474,7 @@ public interface InputStreamTests {
         @DisplayName("reset() without mark(int)")
         default void testResetWithoutMark() {
             assertDoesNotThrowIOException(() -> {
-                try (InputStream inputStream = createInputStream()) {
+                try (InputStream inputStream = inputStream()) {
                     byte[] expectedContent = expectedContent();
 
                     if (hasDefaultMark()) {

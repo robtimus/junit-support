@@ -17,8 +17,12 @@
 
 package com.github.robtimus.unittestsupport.examples.io;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.Reader;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.commons.io.input.CharSequenceReader;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import com.github.robtimus.unittestsupport.io.ReaderTests;
 import com.github.robtimus.unittestsupport.io.ReaderTests.MarkResetTests;
@@ -79,14 +83,23 @@ class CharSequenceReaderTest {
 
     abstract static class ReaderTestBase implements ReaderTests {
 
+        private Set<String> methodsCalled;
+
+        @BeforeEach
+        void initializeMethodsCalled() {
+            methodsCalled = new HashSet<>();
+        }
+
         @Override
-        public Reader createReader() {
+        public Reader reader() {
+            assertTrue(methodsCalled.add("reader"), "reader called multiple times");
             // use CharSequenceReader, as StringReader will decrease its index when negative indexes are used
             return new CharSequenceReader(INPUT);
         }
 
         @Override
         public String expectedContent() {
+            assertTrue(methodsCalled.add("expectedContent"), "expectedContent called multiple times");
             return INPUT;
         }
     }

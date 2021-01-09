@@ -33,6 +33,9 @@ public interface ReaderDelegateTests {
 
     /**
      * Creates the reader to test.
+     * <p>
+     * This method will be called only once for each test. This makes it possible to capture the reader to test and its delegate, and perform
+     * additional tests after the pre-defined test has finished.
      *
      * @param delegate The delegate to test against.
      * @return The created reader.

@@ -17,9 +17,13 @@
 
 package com.github.robtimus.unittestsupport.examples.io;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Set;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import com.github.robtimus.unittestsupport.io.InputStreamDelegateTests;
 import com.github.robtimus.unittestsupport.io.InputStreamDelegateTests.CloseTests;
@@ -77,18 +81,28 @@ class BufferedInputStreamTest {
 
     abstract class InputStreamTestBase implements InputStreamTests, InputStreamDelegateTests {
 
+        private Set<String> methodsCalled;
+
+        @BeforeEach
+        void initializeMethodsCalled() {
+            methodsCalled = new HashSet<>();
+        }
+
         @Override
-        public InputStream createInputStream() {
+        public InputStream inputStream() {
+            assertTrue(methodsCalled.add("inputStream"), "inputStream called multiple times");
             return new BufferedInputStream(new ByteArrayInputStream(INPUT.getBytes()));
         }
 
         @Override
         public InputStream wrapInputStream(InputStream delegate) {
+            assertTrue(methodsCalled.add("wrapInputStream"), "wrapInputStream called multiple times");
             return new BufferedInputStream(delegate);
         }
 
         @Override
         public byte[] expectedContent() {
+            assertTrue(methodsCalled.add("expectedContent"), "expectedContent called multiple times");
             return INPUT.getBytes();
         }
     }

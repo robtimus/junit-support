@@ -33,6 +33,9 @@ public interface InputStreamDelegateTests {
 
     /**
      * Creates the input stream to test.
+     * <p>
+     * This method will be called only once for each test. This makes it possible to capture the input stream to test and its delegate, and perform
+     * additional tests after the pre-defined test has finished.
      *
      * @param delegate The delegate to test against.
      * @return The created input stream.
