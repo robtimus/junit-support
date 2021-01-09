@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.function.Consumer;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -36,11 +37,14 @@ import org.junit.jupiter.api.Test;
 public interface IterableTests<T> {
 
     /**
-     * Creates the iterable to test. This should be populated, i.e. not empty, unless the iterable can only be empty.
+     * Returns the iterable to test. This should be populated, i.e. not empty, unless the iterable can only be empty.
+     * <p>
+     * This method will be called only once for each test. This makes it possible to initialize the iterable in a method annotated with
+     * {@link BeforeEach}, and perform additional tests after the pre-defined test has finished.
      *
-     * @return The created iterable.
+     * @return The iterable to test.
      */
-    Iterable<T> createIterable();
+    Iterable<T> iterable();
 
     /**
      * Returns the expected elements contained by the iterable to test.
@@ -70,7 +74,7 @@ public interface IterableTests<T> {
         @Test
         @DisplayName("forEach(Consumer)")
         default void testForEach() {
-            Iterable<T> iterable = createIterable();
+            Iterable<T> iterable = iterable();
 
             List<T> elements = new ArrayList<>();
             iterable.forEach(elements::add);
@@ -81,7 +85,7 @@ public interface IterableTests<T> {
         @Test
         @DisplayName("forEach(Consumer) with null consumer")
         default void testForEachWithNullConsumer() {
-            Iterable<T> iterable = createIterable();
+            Iterable<T> iterable = iterable();
 
             assertThrows(NullPointerException.class, () -> iterable.forEach(null));
         }

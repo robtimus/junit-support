@@ -17,13 +17,17 @@
 
 package com.github.robtimus.unittestsupport.examples.collection;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.UnaryOperator;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import com.github.robtimus.unittestsupport.collections.MapEntryTests;
@@ -515,10 +519,19 @@ class TreeMapTest {
         }
     }
 
+    @SuppressWarnings("nls")
     abstract static class MapTestBase implements MapTests<Integer, String> {
 
+        private Set<String> methodsCalled;
+
+        @BeforeEach
+        void initializeMethodsCalled() {
+            methodsCalled = new HashSet<>();
+        }
+
         @Override
-        public Map<Integer, String> createMap() {
+        public Map<Integer, String> map() {
+            assertTrue(methodsCalled.add("map"), "map called multiple times");
             return CollectionFactory.createMap(TreeMap::new, 0, 10);
         }
 

@@ -18,11 +18,14 @@
 package com.github.robtimus.unittestsupport.examples.collection;
 
 import static com.github.robtimus.unittestsupport.examples.collection.CollectionFactory.createCollection;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import com.github.robtimus.unittestsupport.collections.CollectionTests.ClearTests;
@@ -161,10 +164,19 @@ class EmptySetTest {
         }
     }
 
+    @SuppressWarnings("nls")
     abstract static class SetTestBase implements SetTests<String> {
 
+        private Set<String> methodsCalled;
+
+        @BeforeEach
+        void initializeMethodsCalled() {
+            methodsCalled = new HashSet<>();
+        }
+
         @Override
-        public Set<String> createIterable() {
+        public Set<String> iterable() {
+            assertTrue(methodsCalled.add("iterable"), "iterable called multiple times");
             return Collections.emptySet();
         }
 

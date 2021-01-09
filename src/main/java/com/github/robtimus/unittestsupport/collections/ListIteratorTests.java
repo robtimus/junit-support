@@ -42,7 +42,7 @@ import com.github.robtimus.unittestsupport.collections.annotation.StoreNullNotSu
 public interface ListIteratorTests<T> extends IteratorTests<T> {
 
     @Override
-    List<T> createIterable();
+    List<T> iterable();
 
     @Override
     List<T> expectedElements();
@@ -69,7 +69,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
         @Test
         @DisplayName("iteration using next()")
         default void testIterationUsingNext() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator();
 
             Collection<T> expectedElements = expectedElements();
@@ -96,7 +96,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
         @Test
         @DisplayName("iteration using previous()")
         default void testIterationUsingPrevious() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator(list.size());
 
             Collection<T> expectedElements = expectedElements();
@@ -123,7 +123,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
         @Test
         @DisplayName("next() without hasNext()")
         default void testNextWithoutHasNext() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator();
 
             Collection<T> expectedElements = expectedElements();
@@ -141,7 +141,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
         @Test
         @DisplayName("previous() without hasPrevious()")
         default void testPreviousWithoutHasPrevious() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator(list.size());
 
             Collection<T> expectedElements = expectedElements();
@@ -169,7 +169,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
         @Test
         @DisplayName("remove() for every element using next()")
         default void testRemoveEveryElementUsingNext() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator();
 
             while (iterator.hasNext()) {
@@ -183,7 +183,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
         @Test
         @DisplayName("remove() for every even-indexed element using next()")
         default void testRemoveEveryEvenIndexedElementUsingNext() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator();
 
             List<T> expectedElements = new ArrayList<>(expectedElements());
@@ -204,7 +204,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
         @Test
         @DisplayName("remove() before next()")
         default void testRemoveBeforeNext() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator();
 
             assertThrows(IllegalStateException.class, iterator::remove);
@@ -215,7 +215,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
         @Test
         @DisplayName("remove() after remove() using next()")
         default void testRemoveAfterRemoveUsingNext() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator();
 
             List<T> expectedElements = new ArrayList<>(expectedElements());
@@ -237,7 +237,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
         @Test
         @DisplayName("remove() for every element using previous()")
         default void testRemoveEveryElementUsingPrevious() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator(list.size());
 
             while (iterator.hasPrevious()) {
@@ -251,7 +251,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
         @Test
         @DisplayName("remove() for every even-indexed element using previous()")
         default void testRemoveEveryEvenIndexedElementUsingPrevious() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator(list.size());
 
             List<T> expectedElements = new ArrayList<>(expectedElements());
@@ -272,7 +272,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
         @Test
         @DisplayName("remove() before previous()")
         default void testRemoveBeforePrevious() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator(list.size());
 
             assertThrows(IllegalStateException.class, iterator::remove);
@@ -283,7 +283,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
         @Test
         @DisplayName("remove() after remove() using previous()")
         default void testRemoveAfterRemoveUsingPrevious() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator(list.size());
 
             List<T> expectedElements = new ArrayList<>(expectedElements());
@@ -333,7 +333,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
         @Test
         @DisplayName("set(Object) using next()")
         default void testSetUsingNext() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator();
 
             UnaryOperator<T> operator = replaceElementOperator();
@@ -353,7 +353,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
         @Test
         @DisplayName("set(Object) with null replacement using next()")
         default void testSetWithNullReplacementUsingNext(TestInfo testInfo) {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator();
 
             StoreNullNotSupported annotation = testInfo.getTestClass()
@@ -383,7 +383,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
         @Test
         @DisplayName("set(Object) before next()")
         default void testSetBeforeNext() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator();
 
             T element = singleElement();
@@ -396,7 +396,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
         @Test
         @DisplayName("set(Object) after set(Object) using next()")
         default void testSetAfterSetUsingNext() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator();
 
             UnaryOperator<T> operator = replaceElementOperator();
@@ -418,7 +418,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
         @Test
         @DisplayName("set(Object) using previous()")
         default void testSetUsingPrevious() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator(list.size());
 
             UnaryOperator<T> operator = replaceElementOperator();
@@ -438,7 +438,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
         @Test
         @DisplayName("set(Object) with null replacement using previous()")
         default void testSetWithNullReplacementUsingPrevious(TestInfo testInfo) {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator(list.size());
 
             StoreNullNotSupported annotation = testInfo.getTestClass()
@@ -468,7 +468,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
         @Test
         @DisplayName("set(Object) before previous()")
         default void testSetBeforePrevious() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator(list.size());
 
             T element = singleElement();
@@ -481,7 +481,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
         @Test
         @DisplayName("set(Object) after set(Object) using previous()")
         default void testSetAfterSetUsingPrevous() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator(list.size());
 
             UnaryOperator<T> operator = replaceElementOperator();
@@ -520,7 +520,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
         @Test
         @DisplayName("add(Object) using next()")
         default void testAddUsingNext() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator();
 
             T newElement = newElement();
@@ -543,7 +543,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
         @Test
         @DisplayName("add(Object) with null using next()")
         default void testAddNullUsingNext(TestInfo testInfo) {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator();
 
             StoreNullNotSupported annotation = testInfo.getTestClass()
@@ -581,7 +581,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
         @Test
         @DisplayName("add(Object) using previous()")
         default void testAddUsingPrevious() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator(list.size());
 
             T newElement = newElement();
@@ -613,7 +613,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
         @Test
         @DisplayName("add(Object) with null using previous()")
         default void testAddNullUsingPrevious(TestInfo testInfo) {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator(list.size());
 
             StoreNullNotSupported annotation = testInfo.getTestClass()

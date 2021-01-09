@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.NoSuchElementException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -37,11 +38,14 @@ import org.junit.jupiter.api.Test;
 public interface EnumerationTests<T> {
 
     /**
-     * Creates the enumeration to test.
+     * Returns the enumeration to test.
+     * <p>
+     * This method will be called only once for each test. This makes it possible to initialize the enumeration in a method annotated with
+     * {@link BeforeEach}, and perform additional tests after the pre-defined test has finished.
      *
-     * @return The created enumeration.
+     * @return The enumeration to test.
      */
-    Enumeration<T> createEnumeration();
+    Enumeration<T> enumeration();
 
     /**
      * Returns the expected elements returned by the enumeration to test.
@@ -72,7 +76,7 @@ public interface EnumerationTests<T> {
         @Test
         @DisplayName("iteration")
         default void testIteration() {
-            Enumeration<T> enumeration = createEnumeration();
+            Enumeration<T> enumeration = enumeration();
 
             Collection<T> expectedElements = expectedElements();
             List<T> elements = new ArrayList<>(expectedElements.size());
@@ -96,7 +100,7 @@ public interface EnumerationTests<T> {
         @Test
         @DisplayName("nextElement() without hasMoreElements()")
         default void testNextElementWithoutHasMoreElements() {
-            Enumeration<T> enumeration = createEnumeration();
+            Enumeration<T> enumeration = enumeration();
 
             Collection<T> expectedElements = expectedElements();
             List<T> elements = new ArrayList<>(expectedElements.size());

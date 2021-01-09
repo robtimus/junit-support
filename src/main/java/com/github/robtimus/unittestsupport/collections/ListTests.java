@@ -59,7 +59,7 @@ import com.github.robtimus.unittestsupport.collections.annotation.StoreNullNotSu
 public interface ListTests<T> extends CollectionTests<T> {
 
     @Override
-    List<T> createIterable();
+    List<T> iterable();
 
     @Override
     List<T> expectedElements();
@@ -88,7 +88,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("add(Object)")
         default void testAdd() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             Collection<T> expectedElements = expectedElements();
             for (T object : expectedElements) {
@@ -111,7 +111,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("add(Object) with null")
         default void testAddNull(TestInfo testInfo) {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             StoreNullNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -147,7 +147,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("addAll(Collection)")
         default void testAddAll() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             Collection<T> nonContainedElements = nonContainedElements();
             assertTrue(list.addAll(nonContainedElements));
@@ -166,7 +166,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("addAll(Collection) with an empty collection")
         default void testAddAllWithEmptyCollection() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             assertFalse(list.addAll(Collections.emptyList()));
 
@@ -176,7 +176,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("addAll(Collection) with a null collection")
         default void testAddAllWithNullCollection() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             assertThrows(NullPointerException.class, () -> list.addAll(null));
 
@@ -186,7 +186,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("addAll(Collection) with a collection with a null")
         default void testAddAllWithCollectionWithNull(TestInfo testInfo) {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             Collection<T> c = Collections.singleton(null);
 
@@ -228,7 +228,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("replaceAll(UnaryOperator)")
         default void testReplaceAll() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             UnaryOperator<T> operator = replaceElementOperator();
 
@@ -243,7 +243,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("replaceAll(UnaryOperator) with null operator")
         default void testReplaceAllWithNullOperator() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             assertThrows(NullPointerException.class, () -> list.replaceAll(null));
 
@@ -267,7 +267,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @ArgumentsSource(EqualsArgumentsProvider.class)
         @DisplayName("equals(Object)")
         default void testEquals(List<?> other, boolean expected) {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             if (expected) {
                 assertEquals(other, list);
@@ -279,7 +279,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("equals(Object) with self")
         default void testEqualsSelf() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             assertEquals(list, list);
         }
@@ -287,7 +287,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("equals(Object) with null")
         default void testEqualsNull() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             assertNotEquals(null, list);
         }
@@ -295,7 +295,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("equals(Object) with set")
         default void testEqualsSet() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             assertNotEquals(new HashSet<>(list), list);
         }
@@ -313,7 +313,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("hashCode()")
         default void testHashCode() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             int expected = expectedElements().stream()
                     .mapToInt(Object::hashCode)
@@ -335,7 +335,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("get(int)")
         default void testGet() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             List<T> expectedElements = expectedElements();
 
@@ -350,7 +350,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("get(int) with negative index")
         default void testGetWithNegativeIndex() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             assertThrows(IndexOutOfBoundsException.class, () -> list.get(-1));
         }
@@ -358,7 +358,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("get(int) with index equal to size")
         default void testGetWithIndexEqualToSize() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             assertThrows(IndexOutOfBoundsException.class, () -> list.get(list.size()));
         }
@@ -383,7 +383,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("set(int, Object)")
         default void testSet() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             List<T> expectedElements = new ArrayList<>(expectedElements());
 
@@ -404,7 +404,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("set(int, Object) with null replacement")
         default void testSetWithNullReplacement(TestInfo testInfo) {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             StoreNullNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -436,7 +436,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("set(int, Object) with negative index")
         default void testSetWithNegativeIndex() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             T object = nonContainedElements().iterator().next();
 
@@ -448,7 +448,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("set(int, Object) with index equal to size")
         default void testSetWithIndexEqualToSize() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             T object = nonContainedElements().iterator().next();
 
@@ -473,7 +473,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("add(int, Object) with index 0")
         default void testAddIndexedWithIndexZero() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             Collection<T> expectedElements = expectedElements();
             for (T object : expectedElements) {
@@ -497,7 +497,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("add(int, Object) with index equal to size")
         default void testAddIndexedWithIndexEqualToSize() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             Collection<T> expectedElements = expectedElements();
             for (T object : expectedElements) {
@@ -520,7 +520,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("add(int, Object) with index equal to size / 2")
         default void testAddIndexedWithIndexEqualToSizeDivTwo() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             int index = list.size() / 2;
 
@@ -547,7 +547,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("add(int, Object) with null")
         default void testAddIndexedWithNull(TestInfo testInfo) {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             StoreNullNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -570,7 +570,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("add(int, Object) with negative index")
         default void testAddIndexedWithNegativeIndex() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             T object = nonContainedElements().iterator().next();
 
@@ -582,7 +582,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("add(int, Object) with index larger than size")
         default void testAddIndexedWithIndexLargerThanSize() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             T object = nonContainedElements().iterator().next();
 
@@ -607,7 +607,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("addAll(int, Collection) with index 0")
         default void testAddAllIndexedWithIndexZero() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             Collection<T> nonContainedElements = nonContainedElements();
             assertTrue(list.addAll(0, nonContainedElements));
@@ -626,7 +626,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("addAll(int, Collection) with index equal to size")
         default void testAddAllIndexedWithIndexEqualToSize() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             Collection<T> nonContainedElements = nonContainedElements();
             assertEquals(!nonContainedElements.isEmpty(), list.addAll(list.size(), nonContainedElements));
@@ -645,7 +645,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("addAll(int, Collection) with index equal to size / 2")
         default void testAddAllIndexedWithIndexEqualToSizeDivTwo() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             int index = list.size() / 2;
 
@@ -667,7 +667,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("addAll(int, Collection) with an empty collection")
         default void testAddAllIndexedWithEmptyCollection() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             assertFalse(list.addAll(0, Collections.emptyList()));
 
@@ -677,7 +677,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("addAll(int, Collection) with a null collection")
         default void testAddAllIndexedWithNullCollection() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             assertThrows(NullPointerException.class, () -> list.addAll(0, null));
 
@@ -687,7 +687,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("addAll(int, Collection) with a collection with a null")
         default void testAddAllIndexedWithCollectionWithNull(TestInfo testInfo) {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             Collection<T> c = Collections.singleton(null);
 
@@ -712,7 +712,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("addAll(int, Collection) with negative index")
         default void testAddAllIndexedWithNegativeIndex() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             Collection<T> c = Collections.singleton(nonContainedElements().iterator().next());
 
@@ -724,7 +724,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("addAll(int, Collection) with index larger than size")
         default void testAddAllIndexedWithIndexLargerThanSize() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             Collection<T> c = Collections.singleton(nonContainedElements().iterator().next());
 
@@ -746,7 +746,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("remove(int) with every index")
         default void testRemoveIndexedWithEveryIndex() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             List<T> expectedElements = expectedElements();
 
@@ -762,7 +762,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("remove(int) with even indexes")
         default void testRemoveIndexedWithEvenIndexes() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             List<T> expectedElements = new ArrayList<>(expectedElements());
 
@@ -785,7 +785,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("remove(int) with negative index")
         default void testRemoveIndexedWithNegativeIndex() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             assertThrows(IndexOutOfBoundsException.class, () -> list.remove(-1));
 
@@ -795,7 +795,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("remove(int) with index equal to size")
         default void testRemoveIndexedWithIndexEqualToSize() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             assertThrows(IndexOutOfBoundsException.class, () -> list.remove(list.size()));
 
@@ -819,7 +819,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("indexOf(Object)")
         default void testIndexOf() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             List<T> expectedElements = expectedElements();
 
@@ -835,7 +835,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("indexOf(Object) with null")
         default void testIndexOfWithNull(TestInfo testInfo) {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             ContainsNullNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -851,7 +851,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("indexOf(Object) with an incompatible object")
         default void testIndexOfWithIncompatibleObject(TestInfo testInfo) {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             ContainsIncompatibleNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -881,7 +881,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("lastIndexOf(Object)")
         default void testLastIndexOf() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             List<T> expectedElements = expectedElements();
 
@@ -897,7 +897,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("lastIndexOf(Object) with null")
         default void testLastIndexOfWithNull(TestInfo testInfo) {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             ContainsNullNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -913,7 +913,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("lastIndexOf(Object) with an incompatible object")
         default void testLastIndexOfWithIncompatibleObject(TestInfo testInfo) {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             ContainsIncompatibleNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -941,7 +941,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("listIterator(int) with index 0")
         default void testListIteratorIndexedWithIndexZero() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             ListIterator<T> iterator = list.listIterator(0);
 
@@ -959,7 +959,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("listIterator(int) with index equal to size")
         default void testListIteratorIndexedWithIndexEqualToSize() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             ListIterator<T> iterator = list.listIterator(list.size());
 
@@ -980,7 +980,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("listIterator(int) with index equal to size / 2")
         default void testListIteratorIndexedWithIndexEqualToSizeDivTwo() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             ListIterator<T> iterator = list.listIterator(list.size() / 2);
 
@@ -998,7 +998,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("listIterator(int) with negative index")
         default void testListIteratorIndexedWithNegativeIndex() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             assertThrows(IndexOutOfBoundsException.class, () -> list.listIterator(-1));
         }
@@ -1006,7 +1006,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("listIterator(int) with index larger than size")
         default void testListIteratorIndexedWithIndexLargerThanSize() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             assertThrows(IndexOutOfBoundsException.class, () -> list.listIterator(list.size() + 1));
         }
@@ -1016,8 +1016,8 @@ public interface ListTests<T> extends CollectionTests<T> {
      * Contains tests for {@link List#subList(int, int)}.
      * <p>
      * Note that to test any individual methods of the sub list, add one or more {@link Nested} classes to your test class that implement any other
-     * interface nested in {@link ListTests}. These sub classes should then implement {@link #createIterable()} to call {@link List#subList(int, int)}
-     * on an instance of the list to test.
+     * interface nested in {@link ListTests}. These sub classes should then implement {@link #iterable()} to call {@link List#subList(int, int)} on an
+     * instance of the list to test.
      *
      * @author Rob Spoor
      * @param <T> The element type of the list to test.
@@ -1028,7 +1028,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("subList(int, int) with full range")
         default void testSubListWithFullRange() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             List<T> subList = list.subList(0, list.size());
 
@@ -1038,7 +1038,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("subList(int, int) with partial range")
         default void testSubListWithPartialRange() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             List<T> subList = list.subList(1, list.size() - 1);
 
@@ -1048,7 +1048,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("subList(int, int) with negative from")
         default void testSubListWithNegativeFrom() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             assertThrows(IndexOutOfBoundsException.class, () -> list.subList(-1, list.size()));
         }
@@ -1056,7 +1056,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("subList(int, int) with to larger than size")
         default void testSubListWithToLargerThanSize() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             assertThrows(IndexOutOfBoundsException.class, () -> list.subList(0, list.size() + 1));
         }
@@ -1064,7 +1064,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("subList(int, int) with to smaller than from")
         default void testSubListWithToSmallerThanFrom() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             int from = list.size() / 2;
             int to = from - 1;
@@ -1088,7 +1088,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("spliterator() has ORDERED characteristic")
         default void testSpliteratorHasOrderedCharacteristic() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             Spliterator<T> spliterator = list.spliterator();
 
@@ -1098,7 +1098,7 @@ public interface ListTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("spliterator() has SIZED characteristic")
         default void testSpliteratorHasSizedCharacteristic() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             Spliterator<T> spliterator = list.spliterator();
 

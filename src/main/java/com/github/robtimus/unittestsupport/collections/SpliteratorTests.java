@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Spliterator;
 import java.util.function.Consumer;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -39,11 +40,14 @@ import org.junit.jupiter.api.Test;
 public interface SpliteratorTests<T> {
 
     /**
-     * Creates an iterable that returns spliterators to test.
+     * Returns an iterable that returns spliterators to test.
+     * <p>
+     * This method will be called only once for each test. This makes it possible to initialize the iterable in a method annotated with
+     * {@link BeforeEach}, and perform additional tests after the pre-defined test has finished.
      *
-     * @return The created iterable.
+     * @return An iterable that returns spliterators to test.
      */
-    Iterable<T> createIterable();
+    Iterable<T> iterable();
 
     /**
      * Returns the expected elements returned by the iterator to test.
@@ -71,7 +75,7 @@ public interface SpliteratorTests<T> {
         @Test
         @DisplayName("tryAdvance(Consumer)")
         default void testTryAdvance() {
-            Iterable<T> iterable = createIterable();
+            Iterable<T> iterable = iterable();
             Spliterator<T> spliterator = iterable.spliterator();
 
             Collection<T> expectedElements = expectedElements();
@@ -89,7 +93,7 @@ public interface SpliteratorTests<T> {
         @Test
         @DisplayName("tryAdvance(Consumer) with null consumer")
         default void testTryAdvanceWithNullConsumer() {
-            Iterable<T> iterable = createIterable();
+            Iterable<T> iterable = iterable();
             Spliterator<T> spliterator = iterable.spliterator();
 
             Collection<T> expectedElements = expectedElements();
@@ -117,7 +121,7 @@ public interface SpliteratorTests<T> {
         @Test
         @DisplayName("forEachRemaining(Consumer)")
         default void testForEachRemaining() {
-            Iterable<T> iterable = createIterable();
+            Iterable<T> iterable = iterable();
             Spliterator<T> spliterator = iterable.spliterator();
 
             List<T> expectedElements = new ArrayList<>(expectedElements());
@@ -137,7 +141,7 @@ public interface SpliteratorTests<T> {
         @Test
         @DisplayName("forEachRemaining(Consumer) with null consumer")
         default void testForEachRemainingWithNullConsumer() {
-            Iterable<T> iterable = createIterable();
+            Iterable<T> iterable = iterable();
             Spliterator<T> spliterator = iterable.spliterator();
 
             assertThrows(NullPointerException.class, () -> spliterator.forEachRemaining(null));

@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -40,11 +41,14 @@ import org.junit.jupiter.api.Test;
 public interface IteratorTests<T> {
 
     /**
-     * Creates an iterable that returns iterators to test.
+     * Returns an iterable that returns iterators to test.
+     * <p>
+     * This method will be called only once for each test. This makes it possible to initialize the iterable in a method annotated with
+     * {@link BeforeEach}, and perform additional tests after the pre-defined test has finished.
      *
-     * @return The created iterable.
+     * @return An iterable that returns iterators to test.
      */
-    Iterable<T> createIterable();
+    Iterable<T> iterable();
 
     /**
      * Returns the expected elements returned by the iterator to test.
@@ -72,7 +76,7 @@ public interface IteratorTests<T> {
         @Test
         @DisplayName("iteration")
         default void testIteration() {
-            Iterable<T> iterable = createIterable();
+            Iterable<T> iterable = iterable();
             Iterator<T> iterator = iterable.iterator();
 
             Collection<T> expectedElements = expectedElements();
@@ -93,7 +97,7 @@ public interface IteratorTests<T> {
         @Test
         @DisplayName("next() without hasNext()")
         default void testNextWithoutHasNext() {
-            Iterable<T> iterable = createIterable();
+            Iterable<T> iterable = iterable();
             Iterator<T> iterator = iterable.iterator();
 
             Collection<T> expectedElements = expectedElements();
@@ -121,7 +125,7 @@ public interface IteratorTests<T> {
         @Test
         @DisplayName("remove() for every element")
         default void testRemoveEveryElement() {
-            Iterable<T> iterable = createIterable();
+            Iterable<T> iterable = iterable();
             Iterator<T> iterator = iterable.iterator();
 
             while (iterator.hasNext()) {
@@ -136,7 +140,7 @@ public interface IteratorTests<T> {
         @Test
         @DisplayName("remove() for every even-indexed element")
         default void testRemoveEveryEvenIndexedElement() {
-            Iterable<T> iterable = createIterable();
+            Iterable<T> iterable = iterable();
             Iterator<T> iterator = iterable.iterator();
 
             List<T> expectedElements = new ArrayList<>(expectedElements());
@@ -158,7 +162,7 @@ public interface IteratorTests<T> {
         @Test
         @DisplayName("remove() before next()")
         default void testRemoveBeforeNext() {
-            Iterable<T> iterable = createIterable();
+            Iterable<T> iterable = iterable();
             Iterator<T> iterator = iterable.iterator();
 
             assertThrows(IllegalStateException.class, iterator::remove);
@@ -170,7 +174,7 @@ public interface IteratorTests<T> {
         @Test
         @DisplayName("remove() after remove()")
         default void testRemoveAfterRemove() {
-            Iterable<T> iterable = createIterable();
+            Iterable<T> iterable = iterable();
             Iterator<T> iterator = iterable.iterator();
 
             List<T> expectedElements = new ArrayList<>(expectedElements());
@@ -203,7 +207,7 @@ public interface IteratorTests<T> {
         @Test
         @DisplayName("forEachRemaining(Consumer)")
         default void testForEachRemaining() {
-            Iterable<T> iterable = createIterable();
+            Iterable<T> iterable = iterable();
             Iterator<T> iterator = iterable.iterator();
 
             List<T> expectedElements = new ArrayList<>(expectedElements());
@@ -224,7 +228,7 @@ public interface IteratorTests<T> {
         @Test
         @DisplayName("forEachRemaining(Consumer) with null consumer")
         default void testForEachRemainingWithNullConsumer() {
-            Iterable<T> iterable = createIterable();
+            Iterable<T> iterable = iterable();
             Iterator<T> iterator = iterable.iterator();
 
             assertThrows(NullPointerException.class, () -> iterator.forEachRemaining(null));

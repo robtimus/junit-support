@@ -18,12 +18,16 @@
 package com.github.robtimus.unittestsupport.examples.collection;
 
 import static com.github.robtimus.unittestsupport.examples.collection.CollectionFactory.createCollection;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.UnaryOperator;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import com.github.robtimus.unittestsupport.collections.CollectionTests.ContainsAllTests;
@@ -241,7 +245,7 @@ class ArrayAsListTest {
         class RemoveTest implements RemoveTests<String> {
 
             @Override
-            public Collection<String> createIterable() {
+            public Collection<String> iterable() {
                 List<String> list = createCollection(ArrayList::new, 0, 10);
                 return list.subList(3, 7);
             }
@@ -279,10 +283,19 @@ class ArrayAsListTest {
         }
     }
 
+    @SuppressWarnings("nls")
     abstract static class ListTestBase implements ListTests<String> {
 
+        private Set<String> methodsCalled;
+
+        @BeforeEach
+        void initializeMethodsCalled() {
+            methodsCalled = new HashSet<>();
+        }
+
         @Override
-        public List<String> createIterable() {
+        public List<String> iterable() {
+            assertTrue(methodsCalled.add("iterable"), "iterable called multiple times");
             List<String> list = createCollection(ArrayList::new, 0, 10);
             String[] array = list.toArray(new String[0]);
             return Arrays.asList(array);

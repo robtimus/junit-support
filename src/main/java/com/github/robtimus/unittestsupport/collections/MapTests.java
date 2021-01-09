@@ -45,6 +45,7 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -76,11 +77,14 @@ import com.github.robtimus.unittestsupport.collections.annotation.StoreNullNotSu
 public interface MapTests<K, V> {
 
     /**
-     * Creates the map to test. This should be populated, i.e. not empty, unless the map can only be empty.
+     * Returns the map to test. This should be populated, i.e. not empty, unless the map can only be empty.
+     * <p>
+     * This method will be called only once for each test. This makes it possible to initialize the map in a method annotated with {@link BeforeEach},
+     * and perform additional tests after the pre-defined test has finished.
      *
-     * @return The created map.
+     * @return The map to test.
      */
-    Map<K, V> createMap();
+    Map<K, V> map();
 
     /**
      * Returns a map with the expected entries contained by the map to test.
@@ -115,7 +119,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("containsKey(Object)")
         default void testContainsKey() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             for (K o : expectedEntries().keySet()) {
                 assertTrue(map.containsKey(o));
@@ -129,7 +133,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("containsKey(Object) with null")
         default void testContainsKeyWithNull(TestInfo testInfo) {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             ContainsNullKeyNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -145,7 +149,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("containsKey(Object) with an incompatible object")
         default void testContainsKeyWithIncompatibleObject(TestInfo testInfo) {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             ContainsIncompatibleKeyNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -176,7 +180,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("containsValue(Object)")
         default void testContainsValue() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             for (V o : expectedEntries().values()) {
                 assertTrue(map.containsValue(o));
@@ -190,7 +194,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("containsValue(Object) with null")
         default void testContainsValueWithNull(TestInfo testInfo) {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             ContainsNullNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -206,7 +210,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("containsValue(Object) with an incompatible object")
         default void testContainsValueWithIncompatibleObject(TestInfo testInfo) {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             ContainsIncompatibleNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -237,7 +241,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("get(Object)")
         default void testGet() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             for (Map.Entry<K, V> entry : expectedEntries().entrySet()) {
                 assertEquals(entry.getValue(), map.get(entry.getKey()));
@@ -251,7 +255,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("get(Object) with null")
         default void testGetWithNull(TestInfo testInfo) {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             ContainsNullKeyNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -267,7 +271,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("get(Object) with an incompatible object")
         default void testGetWithIncompatibleObject(TestInfo testInfo) {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             ContainsIncompatibleKeyNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -305,7 +309,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("put(Object, Object)")
         default void testPut() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = new HashMap<>(expectedEntries());
 
@@ -332,7 +336,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("put(Object, Object) with null key")
         default void testPutWithNullKey(TestInfo testInfo) {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             StoreNullKeyNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -359,7 +363,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("put(Object, Object) with null value")
         default void testPutWithNullValue(TestInfo testInfo) {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             StoreNullNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -405,7 +409,7 @@ public interface MapTests<K, V> {
         @ArgumentsSource(RemoveArgumentsProvider.class)
         @DisplayName("remove(Object)")
         default void testRemove(Object key, Object expectedValue, boolean expected) {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             assertEquals(expectedValue, map.remove(key));
 
@@ -421,7 +425,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("remove(Object) with null")
         default void testRemoveNull(TestInfo testInfo) {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             RemoveNullKeyNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -439,7 +443,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("remove(Object) with incompatible object")
         default void testRemoveIncompatibleObject(TestInfo testInfo) {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             RemoveIncompatibleKeyNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -480,7 +484,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("putAll(Map)")
         default void testPutAll() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = new HashMap<>(expectedEntries());
 
@@ -520,7 +524,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("putAll(Map) with a null map")
         default void testPutAllWithNullMap() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             assertThrows(NullPointerException.class, () -> map.putAll(null));
 
@@ -530,7 +534,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("putAll(Map) with a map with a null key")
         default void testPutAllWithMapWithNullKey(TestInfo testInfo) {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             V nonContainedValue = nonContainedEntries().values().iterator().next();
             Map<K, V> m = Collections.singletonMap(null, nonContainedValue);
@@ -556,7 +560,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("putAll(Map) with a map with a null value")
         default void testPutAllWithMapWithNullValue(TestInfo testInfo) {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 
@@ -593,7 +597,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("clear()")
         default void testClear() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             map.clear();
 
@@ -612,8 +616,8 @@ public interface MapTests<K, V> {
     interface KeySetTests<K, V> extends MapTests<K, V>, SetTests<K> {
 
         @Override
-        default Set<K> createIterable() {
-            return createMap().keySet();
+        default Set<K> iterable() {
+            return map().keySet();
         }
 
         @Override
@@ -637,8 +641,8 @@ public interface MapTests<K, V> {
         interface IteratorTests<K, V> extends KeySetTests<K, V>, com.github.robtimus.unittestsupport.collections.IteratorTests<K> {
 
             @Override
-            default Set<K> createIterable() {
-                return KeySetTests.super.createIterable();
+            default Set<K> iterable() {
+                return KeySetTests.super.iterable();
             }
 
             @Override
@@ -673,7 +677,7 @@ public interface MapTests<K, V> {
                 @Test
                 @DisplayName("remove() for every element")
                 default void testRemoveEveryElement() {
-                    Map<K, V> map = createMap();
+                    Map<K, V> map = map();
                     Set<K> keySet = map.keySet();
                     Iterator<K> iterator = keySet.iterator();
 
@@ -691,7 +695,7 @@ public interface MapTests<K, V> {
                 @Test
                 @DisplayName("remove() for every even-indexed element")
                 default void testRemoveEveryEvenIndexedElement() {
-                    Map<K, V> map = createMap();
+                    Map<K, V> map = map();
                     Set<K> keySet = map.keySet();
                     Iterator<K> iterator = keySet.iterator();
 
@@ -718,7 +722,7 @@ public interface MapTests<K, V> {
                 @Test
                 @DisplayName("remove() before next()")
                 default void testRemoveBeforeNext() {
-                    Map<K, V> map = createMap();
+                    Map<K, V> map = map();
                     Set<K> keySet = map.keySet();
                     Iterator<K> iterator = keySet.iterator();
 
@@ -736,7 +740,7 @@ public interface MapTests<K, V> {
                 @Test
                 @DisplayName("remove() after remove()")
                 default void testRemoveAfterRemove() {
-                    Map<K, V> map = createMap();
+                    Map<K, V> map = map();
                     Set<K> keySet = map.keySet();
                     Iterator<K> iterator = keySet.iterator();
 
@@ -858,7 +862,7 @@ public interface MapTests<K, V> {
             @ArgumentsSource(CollectionTests.RemoveArgumentsProvider.class)
             @DisplayName("remove(Object)")
             default void testRemove(Object o, boolean expected) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<K> keySet = map.keySet();
 
                 assertEquals(expected, keySet.remove(o));
@@ -879,7 +883,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("remove(Object) with null")
             default void testRemoveNull(TestInfo testInfo) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<K> keySet = map.keySet();
 
                 RemoveNullNotSupported annotation = testInfo.getTestClass()
@@ -903,7 +907,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("remove(Object) with incompatible object")
             default void testRemoveIncompatibleObject(TestInfo testInfo) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<K> keySet = map.keySet();
 
                 RemoveIncompatibleNotSupported annotation = testInfo.getTestClass()
@@ -973,7 +977,7 @@ public interface MapTests<K, V> {
             @ArgumentsSource(RemoveAllArgumentsProvider.class)
             @DisplayName("removeAll(Collection)")
             default void testRemoveAll(Collection<?> c, boolean expected) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<K> keySet = map.keySet();
 
                 assertEquals(expected, keySet.removeAll(c));
@@ -994,7 +998,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("removeAll(Collection) with a null collection")
             default void testRemoveAllWithNullCollection() {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<K> keySet = map.keySet();
 
                 assertThrows(NullPointerException.class, () -> keySet.removeAll(null));
@@ -1010,7 +1014,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("removeAll(Collection) with a collection with a null")
             default void testRemoveAllWithCollectionWithNull(TestInfo testInfo) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<K> keySet = map.keySet();
 
                 Collection<?> c = Collections.singleton(null);
@@ -1036,7 +1040,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("removeAll(Collection) with a collection with an incompatible object")
             default void testRemoveAllWithCollectionWithIncompatibleObject(TestInfo testInfo) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<K> keySet = map.keySet();
 
                 Collection<?> c = Collections.singleton(new IncompatibleObject());
@@ -1073,7 +1077,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("removeIf(Predicate) with matching predicate")
             default void testRemoveIfWithMatchingPredicate() {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<K> keySet = map.keySet();
 
                 boolean isEmpty = keySet.isEmpty();
@@ -1087,7 +1091,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("removeIf(Predicate) with non-matching predicate")
             default void testRemoveIfWithNonMatchingPredicate() {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<K> keySet = map.keySet();
 
                 assertFalse(keySet.removeIf(e -> false));
@@ -1103,7 +1107,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("removeIf(Predicate) with null predicate")
             default void testRemoveIfWithNullPredicate() {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<K> keySet = map.keySet();
 
                 assertThrows(NullPointerException.class, () -> keySet.removeIf(null));
@@ -1136,7 +1140,7 @@ public interface MapTests<K, V> {
             @ArgumentsSource(RetainAllArgumentsProvider.class)
             @DisplayName("retainAll(Collection)")
             default void testRetainAll(Collection<?> c, boolean expected) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<K> keySet = map.keySet();
 
                 assertEquals(expected, keySet.retainAll(c));
@@ -1157,7 +1161,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("retainAll(Collection) with a null collection")
             default void testRetainAllWithNullCollection() {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<K> keySet = map.keySet();
 
                 assertThrows(NullPointerException.class, () -> keySet.retainAll(null));
@@ -1173,7 +1177,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("retainAll(Collection) with a collection with a null")
             default void testRetainAllWithCollectionWithNull(TestInfo testInfo) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<K> keySet = map.keySet();
 
                 Map<K, V> expectedEntries = expectedEntries();
@@ -1200,7 +1204,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("retainAll(Collection) with a collection with an incompatible object")
             default void testRetainAllWithCollectionWithIncompatibleObject(TestInfo testInfo) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<K> keySet = map.keySet();
 
                 Map<K, V> expectedEntries = expectedEntries();
@@ -1238,7 +1242,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("clear()")
             default void testClear() {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<K> keySet = map.keySet();
 
                 keySet.clear();
@@ -1297,8 +1301,8 @@ public interface MapTests<K, V> {
     interface ValuesTests<K, V> extends MapTests<K, V>, CollectionTests<V> {
 
         @Override
-        default Collection<V> createIterable() {
-            return createMap().values();
+        default Collection<V> iterable() {
+            return map().values();
         }
 
         @Override
@@ -1322,8 +1326,8 @@ public interface MapTests<K, V> {
         interface IteratorTests<K, V> extends ValuesTests<K, V>, com.github.robtimus.unittestsupport.collections.IteratorTests<V> {
 
             @Override
-            default Collection<V> createIterable() {
-                return ValuesTests.super.createIterable();
+            default Collection<V> iterable() {
+                return ValuesTests.super.iterable();
             }
 
             @Override
@@ -1358,7 +1362,7 @@ public interface MapTests<K, V> {
                 @Test
                 @DisplayName("remove() for every element")
                 default void testRemoveEveryElement() {
-                    Map<K, V> map = createMap();
+                    Map<K, V> map = map();
                     Collection<V> values = map.values();
                     Iterator<V> iterator = values.iterator();
 
@@ -1376,7 +1380,7 @@ public interface MapTests<K, V> {
                 @Test
                 @DisplayName("remove() for every even-indexed element")
                 default void testRemoveEveryEvenIndexedElement() {
-                    Map<K, V> map = createMap();
+                    Map<K, V> map = map();
                     Collection<V> values = map.values();
                     Iterator<V> iterator = values.iterator();
 
@@ -1404,7 +1408,7 @@ public interface MapTests<K, V> {
                 @Test
                 @DisplayName("remove() before next()")
                 default void testRemoveBeforeNext() {
-                    Map<K, V> map = createMap();
+                    Map<K, V> map = map();
                     Collection<V> values = map.values();
                     Iterator<V> iterator = values.iterator();
 
@@ -1422,7 +1426,7 @@ public interface MapTests<K, V> {
                 @Test
                 @DisplayName("remove() after remove()")
                 default void testRemoveAfterRemove() {
-                    Map<K, V> map = createMap();
+                    Map<K, V> map = map();
                     Collection<V> values = map.values();
                     Iterator<V> iterator = values.iterator();
 
@@ -1545,7 +1549,7 @@ public interface MapTests<K, V> {
             @ArgumentsSource(CollectionTests.RemoveArgumentsProvider.class)
             @DisplayName("remove(Object)")
             default void testRemove(Object o, boolean expected) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Collection<V> values = map.values();
 
                 assertEquals(expected, values.remove(o));
@@ -1566,7 +1570,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("remove(Object) with null")
             default void testRemoveNull(TestInfo testInfo) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Collection<V> values = map.values();
 
                 RemoveNullNotSupported annotation = testInfo.getTestClass()
@@ -1590,7 +1594,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("remove(Object) with incompatible object")
             default void testRemoveIncompatibleObject(TestInfo testInfo) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Collection<V> values = map.values();
 
                 RemoveIncompatibleNotSupported annotation = testInfo.getTestClass()
@@ -1660,7 +1664,7 @@ public interface MapTests<K, V> {
             @ArgumentsSource(RemoveAllArgumentsProvider.class)
             @DisplayName("removeAll(Collection)")
             default void testRemoveAll(Collection<?> c, boolean expected) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Collection<V> values = map.values();
 
                 assertEquals(expected, values.removeAll(c));
@@ -1681,7 +1685,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("removeAll(Collection) with a null collection")
             default void testRemoveAllWithNullCollection() {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Collection<V> values = map.values();
 
                 assertThrows(NullPointerException.class, () -> values.removeAll(null));
@@ -1697,7 +1701,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("removeAll(Collection) with a collection with a null")
             default void testRemoveAllWithCollectionWithNull(TestInfo testInfo) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Collection<V> values = map.values();
 
                 Collection<?> c = Collections.singleton(null);
@@ -1723,7 +1727,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("removeAll(Collection) with a collection with an incompatible object")
             default void testRemoveAllWithCollectionWithIncompatibleObject(TestInfo testInfo) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Collection<V> values = map.values();
 
                 Collection<?> c = Collections.singleton(new IncompatibleObject());
@@ -1760,7 +1764,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("removeIf(Predicate) with matching predicate")
             default void testRemoveIfWithMatchingPredicate() {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Collection<V> values = map.values();
 
                 boolean isEmpty = values.isEmpty();
@@ -1774,7 +1778,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("removeIf(Predicate) with non-matching predicate")
             default void testRemoveIfWithNonMatchingPredicate() {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Collection<V> values = map.values();
 
                 assertFalse(values.removeIf(e -> false));
@@ -1790,7 +1794,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("removeIf(Predicate) with null predicate")
             default void testRemoveIfWithNullPredicate() {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Collection<V> values = map.values();
 
                 assertThrows(NullPointerException.class, () -> values.removeIf(null));
@@ -1823,7 +1827,7 @@ public interface MapTests<K, V> {
             @ArgumentsSource(RetainAllArgumentsProvider.class)
             @DisplayName("retainAll(Collection)")
             default void testRetainAll(Collection<?> c, boolean expected) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Collection<V> values = map.values();
 
                 assertEquals(expected, values.retainAll(c));
@@ -1844,7 +1848,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("retainAll(Collection) with a null collection")
             default void testRetainAllWithNullCollection() {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Collection<V> values = map.values();
 
                 assertThrows(NullPointerException.class, () -> values.retainAll(null));
@@ -1860,7 +1864,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("retainAll(Collection) with a collection with a null")
             default void testRetainAllWithCollectionWithNull(TestInfo testInfo) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Collection<V> values = map.values();
 
                 Map<K, V> expectedEntries = expectedEntries();
@@ -1887,7 +1891,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("retainAll(Collection) with a collection with an incompatible object")
             default void testRetainAllWithCollectionWithIncompatibleObject(TestInfo testInfo) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Collection<V> values = map.values();
 
                 Map<K, V> expectedEntries = expectedEntries();
@@ -1925,7 +1929,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("clear()")
             default void testClear() {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Collection<V> values = map.values();
 
                 values.clear();
@@ -1947,8 +1951,8 @@ public interface MapTests<K, V> {
     interface EntrySetTests<K, V> extends MapTests<K, V>, SetTests<Map.Entry<K, V>> {
 
         @Override
-        default Set<Map.Entry<K, V>> createIterable() {
-            return createMap().entrySet();
+        default Set<Map.Entry<K, V>> iterable() {
+            return map().entrySet();
         }
 
         @Override
@@ -1972,8 +1976,8 @@ public interface MapTests<K, V> {
         interface IteratorTests<K, V> extends EntrySetTests<K, V>, com.github.robtimus.unittestsupport.collections.IteratorTests<Map.Entry<K, V>> {
 
             @Override
-            default Set<Map.Entry<K, V>> createIterable() {
-                return EntrySetTests.super.createIterable();
+            default Set<Map.Entry<K, V>> iterable() {
+                return EntrySetTests.super.iterable();
             }
 
             @Override
@@ -2009,7 +2013,7 @@ public interface MapTests<K, V> {
                 @Test
                 @DisplayName("remove() for every element")
                 default void testRemoveEveryElement() {
-                    Map<K, V> map = createMap();
+                    Map<K, V> map = map();
                     Set<Map.Entry<K, V>> entrySet = map.entrySet();
                     Iterator<Map.Entry<K, V>> iterator = entrySet.iterator();
 
@@ -2027,7 +2031,7 @@ public interface MapTests<K, V> {
                 @Test
                 @DisplayName("remove() for every even-indexed element")
                 default void testRemoveEveryEvenIndexedElement() {
-                    Map<K, V> map = createMap();
+                    Map<K, V> map = map();
                     Set<Map.Entry<K, V>> entrySet = map.entrySet();
                     Iterator<Map.Entry<K, V>> iterator = entrySet.iterator();
 
@@ -2057,7 +2061,7 @@ public interface MapTests<K, V> {
                 @Test
                 @DisplayName("remove() before next()")
                 default void testRemoveBeforeNext() {
-                    Map<K, V> map = createMap();
+                    Map<K, V> map = map();
                     Set<Map.Entry<K, V>> entrySet = map.entrySet();
                     Iterator<Map.Entry<K, V>> iterator = entrySet.iterator();
 
@@ -2075,7 +2079,7 @@ public interface MapTests<K, V> {
                 @Test
                 @DisplayName("remove() after remove()")
                 default void testRemoveAfterRemove() {
-                    Map<K, V> map = createMap();
+                    Map<K, V> map = map();
                     Set<Map.Entry<K, V>> entrySet = map.entrySet();
                     Iterator<Map.Entry<K, V>> iterator = entrySet.iterator();
 
@@ -2200,7 +2204,7 @@ public interface MapTests<K, V> {
             @ArgumentsSource(CollectionTests.RemoveArgumentsProvider.class)
             @DisplayName("remove(Object)")
             default void testRemove(Object o, boolean expected) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<Map.Entry<K, V>> entrySet = map.entrySet();
 
                 assertEquals(expected, entrySet.remove(o));
@@ -2221,7 +2225,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("remove(Object) with null")
             default void testRemoveNull(TestInfo testInfo) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<Map.Entry<K, V>> entrySet = map.entrySet();
 
                 RemoveNullNotSupported annotation = testInfo.getTestClass()
@@ -2245,7 +2249,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("remove(Object) with incompatible object")
             default void testRemoveIncompatibleObject(TestInfo testInfo) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<?> entrySet = map.entrySet();
 
                 RemoveIncompatibleNotSupported annotation = testInfo.getTestClass()
@@ -2315,7 +2319,7 @@ public interface MapTests<K, V> {
             @ArgumentsSource(RemoveAllArgumentsProvider.class)
             @DisplayName("removeAll(Collection)")
             default void testRemoveAll(Collection<?> c, boolean expected) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<Map.Entry<K, V>> entrySet = map.entrySet();
 
                 assertEquals(expected, entrySet.removeAll(c));
@@ -2336,7 +2340,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("removeAll(Collection) with a null collection")
             default void testRemoveAllWithNullCollection() {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<Map.Entry<K, V>> entrySet = map.entrySet();
 
                 assertThrows(NullPointerException.class, () -> entrySet.removeAll(null));
@@ -2352,7 +2356,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("removeAll(Collection) with a collection with a null")
             default void testRemoveAllWithCollectionWithNull(TestInfo testInfo) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<Map.Entry<K, V>> entrySet = map.entrySet();
 
                 Collection<?> c = Collections.singleton(null);
@@ -2378,7 +2382,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("removeAll(Collection) with a collection with an incompatible object")
             default void testRemoveAllWithCollectionWithIncompatibleObject(TestInfo testInfo) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<Map.Entry<K, V>> entrySet = map.entrySet();
 
                 Collection<?> c = Collections.singleton(new IncompatibleObject());
@@ -2415,7 +2419,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("removeIf(Predicate) with matching predicate")
             default void testRemoveIfWithMatchingPredicate() {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<Map.Entry<K, V>> entrySet = map.entrySet();
 
                 boolean isEmpty = entrySet.isEmpty();
@@ -2429,7 +2433,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("removeIf(Predicate) with non-matching predicate")
             default void testRemoveIfWithNonMatchingPredicate() {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<Map.Entry<K, V>> entrySet = map.entrySet();
 
                 assertFalse(entrySet.removeIf(e -> false));
@@ -2445,7 +2449,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("removeIf(Predicate) with null predicate")
             default void testRemoveIfWithNullPredicate() {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<Map.Entry<K, V>> entrySet = map.entrySet();
 
                 assertThrows(NullPointerException.class, () -> entrySet.removeIf(null));
@@ -2478,7 +2482,7 @@ public interface MapTests<K, V> {
             @ArgumentsSource(RetainAllArgumentsProvider.class)
             @DisplayName("retainAll(Collection)")
             default void testRetainAll(Collection<?> c, boolean expected) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<Map.Entry<K, V>> entrySet = map.entrySet();
 
                 assertEquals(expected, entrySet.retainAll(c));
@@ -2499,7 +2503,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("retainAll(Collection) with a null collection")
             default void testRetainAllWithNullCollection() {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<Map.Entry<K, V>> entrySet = map.entrySet();
 
                 assertThrows(NullPointerException.class, () -> entrySet.retainAll(null));
@@ -2515,7 +2519,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("retainAll(Collection) with a collection with a null")
             default void testRetainAllWithCollectionWithNull(TestInfo testInfo) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<Map.Entry<K, V>> entrySet = map.entrySet();
 
                 Map<K, V> expectedEntries = expectedEntries();
@@ -2542,7 +2546,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("retainAll(Collection) with a collection with an incompatible object")
             default void testRetainAllWithCollectionWithIncompatibleObject(TestInfo testInfo) {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<Map.Entry<K, V>> entrySet = map.entrySet();
 
                 Map<K, V> expectedEntries = expectedEntries();
@@ -2580,7 +2584,7 @@ public interface MapTests<K, V> {
             @Test
             @DisplayName("clear()")
             default void testClear() {
-                Map<K, V> map = createMap();
+                Map<K, V> map = map();
                 Set<Map.Entry<K, V>> entrySet = map.entrySet();
 
                 entrySet.clear();
@@ -2643,7 +2647,7 @@ public interface MapTests<K, V> {
         @ArgumentsSource(EqualsArgumentsProvider.class)
         @DisplayName("equals(Object)")
         default void testEquals(Map<?, ?> other, boolean expected) {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             if (expected) {
                 assertEquals(other, map);
@@ -2655,7 +2659,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("equals(Object) with self")
         default void testEqualsSelf() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             assertEquals(map, map);
         }
@@ -2663,7 +2667,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("equals(Object) with null")
         default void testEqualsNull() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             assertNotEquals(null, map);
         }
@@ -2671,7 +2675,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("equals(Object) with set")
         default void testEqualsList() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             assertNotEquals(map.entrySet(), map);
         }
@@ -2690,7 +2694,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("hashCode()")
         default void testHashCode() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             int expected = expectedEntries().entrySet().stream()
                     .mapToInt(Map.Entry::hashCode)
@@ -2717,7 +2721,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("getOrDefault(Object, Object)")
         default void testGetOrDefault() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> nonContainedEntries = nonContainedEntries();
 
@@ -2741,7 +2745,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("getOrDefault(Object, Object) with null")
         default void testGetOrDefaultWithNull(TestInfo testInfo) {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             ContainsNullKeyNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -2765,7 +2769,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("getOrDefault(Object, Object) with an incompatible object")
         default void testGetOrDefaultWithIncompatibleObject(TestInfo testInfo) {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             ContainsIncompatibleKeyNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -2800,7 +2804,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("forEach(BiConsumer)")
         default void testForEach() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> m = new HashMap<>();
 
@@ -2812,7 +2816,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("forEach(BiConsumer) with null consumer")
         default void testForEachWithNullConsumer() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             assertThrows(NullPointerException.class, () -> map.forEach(null));
         }
@@ -2838,7 +2842,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("replaceAll(BiFunction)")
         default void testReplaceAll() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             BiFunction<K, V, V> function = replaceValueFunction();
 
@@ -2853,7 +2857,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("replaceAll(BiFunction) with null function")
         default void testReplaceAllWithNullOperator() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             assertThrows(NullPointerException.class, () -> map.replaceAll(null));
 
@@ -2874,7 +2878,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("putIfAbsent(Object, Object)")
         default void testPutIfAbsent() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> nonContainedEntries = nonContainedEntries();
             V nonContained = nonContainedEntries.values().iterator().next();
@@ -2898,7 +2902,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("putIfAbsent(Object, Object) with existing null value")
         default void testPutIfAbsentWithExistingNullValue() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = new HashMap<>(expectedEntries());
 
@@ -2941,7 +2945,7 @@ public interface MapTests<K, V> {
         @ArgumentsSource(RemoveExactValueArgumentsProvider.class)
         @DisplayName("remove(Object, Object)")
         default void testRemoveExactValue(Object key, Object value, boolean expected) {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             assertEquals(expected, map.remove(key, value));
 
@@ -2957,7 +2961,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("remove(Object, Object) with null key")
         default void testRemoveExactValueWithNullKey(TestInfo testInfo) {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             V nonContained = nonContainedEntries().values().iterator().next();
 
@@ -2977,7 +2981,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("remove(Object, Object) with incompatible key")
         default void testRemoveExactValueWithIncompatibleKey(TestInfo testInfo) {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             V nonContained = nonContainedEntries().values().iterator().next();
 
@@ -2997,7 +3001,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("remove(Object, Object) with null value")
         default void testRemoveExactValueWithNullValue(TestInfo testInfo) {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             K nonContained = nonContainedEntries().keySet().iterator().next();
 
@@ -3017,7 +3021,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("remove(Object, Object) with incompatible value")
         default void testRemoveExactValueWithIncompatibleValue(TestInfo testInfo) {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             K nonContained = nonContainedEntries().keySet().iterator().next();
 
@@ -3052,7 +3056,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("replace(Object, Object, Object)")
         default void testReplaceExactValue() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = new HashMap<>(expectedEntries());
 
@@ -3080,7 +3084,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("replace(Object, Object, Object) with null key")
         default void testReplaceExactValueWithNullKey(TestInfo testInfo) {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             V nonContained = nonContainedEntries().values().iterator().next();
 
@@ -3100,7 +3104,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("replace(Object, Object, Object) with null value")
         default void testReplaceExactValueWithNullValue(TestInfo testInfo) {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             K nonContained = nonContainedEntries().keySet().iterator().next();
 
@@ -3137,7 +3141,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("replace(Object, Object)")
         default void testReplace() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = new HashMap<>(expectedEntries());
 
@@ -3159,7 +3163,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("replace(Object, Object) with null key")
         default void testReplaceExactValueWithNullKey(TestInfo testInfo) {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             V nonContained = nonContainedEntries().values().iterator().next();
 
@@ -3179,7 +3183,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("replace(Object, Object) with null value")
         default void testReplaceExactValueWithNullValue(TestInfo testInfo) {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 
@@ -3217,7 +3221,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("computeIfAbsent(Object, Function)")
         default void testComputeIfAbsent() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> nonContainedEntries = nonContainedEntries();
             V nonContained = nonContainedEntries.values().iterator().next();
@@ -3242,7 +3246,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("computeIfAbsent(Object, Function) with function returning null")
         default void testComputeIfAbsentWithFunctionReturningNull() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 
@@ -3260,7 +3264,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("computeIfAbsent(Object, Function) with throwing function")
         default void testComputeIfAbsentWithThrowingFunction() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             RuntimeException exception = new RuntimeException();
             Function<K, V> function = k -> {
@@ -3284,7 +3288,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("computeIfAbsent(Object, Function) with null function")
         default void testComputeIfAbsentWithNullFunction() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 
@@ -3313,7 +3317,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("computeIfPresent(Object, BiFunction)")
         default void testComputeIfPresent() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> nonContainedEntries = nonContainedEntries();
             V nonContained = nonContainedEntries.values().iterator().next();
@@ -3338,7 +3342,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("computeIfPresent(Object, BiFunction) with function returning null")
         default void testComputeIfPresentWithFunctionReturningNull() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 
@@ -3356,7 +3360,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("computeIfPresent(Object, BiFunction) with throwing function")
         default void testComputeIfPresentWithThrowingFunction() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             RuntimeException exception = new RuntimeException();
             BiFunction<K, V, V> function = (k, v) -> {
@@ -3380,7 +3384,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("computeIfPresent(Object, BiFunction) with null function")
         default void testComputeIfPresentWithNullFunction() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 
@@ -3409,7 +3413,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("compute(Object, BiFunction)")
         default void testCompute() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = new HashMap<>(expectedEntries());
             Map<K, V> nonContainedEntries = nonContainedEntries();
@@ -3435,7 +3439,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("compute(Object, BiFunction) with function returning null")
         default void testComputeWithFunctionReturningNull() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 
@@ -3453,7 +3457,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("compute(Object, BiFunction) with throwing function")
         default void testComputeWithThrowingFunction() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             RuntimeException exception = new RuntimeException();
             BiFunction<K, V, V> function = (k, v) -> {
@@ -3478,7 +3482,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("compute(Object, BiFunction) with null function")
         default void testComputeWithNullFunction() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 
@@ -3514,7 +3518,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("merge(Object, Object, BiFunction)")
         default void testMerge() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             BinaryOperator<V> operator = combineValuesOperator();
 
@@ -3543,7 +3547,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("merge(Object, Object, BiFunction) with function returning null")
         default void testMergeWithFunctionReturningNull() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
             Map<K, V> nonContainedEntries = nonContainedEntries();
@@ -3564,7 +3568,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("merge(Object, Object, BiFunction) with throwing function")
         default void testMergeWithThrowingFunction() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             RuntimeException exception = new RuntimeException();
             BinaryOperator<V> operator = (v1, v2) -> {
@@ -3593,7 +3597,7 @@ public interface MapTests<K, V> {
         @Test
         @DisplayName("merge(Object, Object, BiFunction) with null function")
         default void testMergeWithNullFunction() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 

@@ -58,7 +58,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
         @Test
         @DisplayName("replaceAll(UnaryOperator)")
         default void testReplaceAll() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             UnaryOperator<T> operator = replaceElementOperator();
 
@@ -74,7 +74,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
         @Test
         @DisplayName("replaceAll(UnaryOperator) with null operator")
         default void testReplaceAllWithNullOperator() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             assertThrowsUnsupportedOperationExceptionOr(NullPointerException.class, () -> list.replaceAll(null));
 
@@ -101,7 +101,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
         @Test
         @DisplayName("set(int, Object)")
         default void testSet() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             List<T> expectedElements = expectedElements();
 
@@ -120,7 +120,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
         @Test
         @DisplayName("set(int, Object) with null replacement")
         default void testSetWithNullReplacement() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             List<T> expectedElements = expectedElements();
 
@@ -147,7 +147,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
         @Test
         @DisplayName("add(int, Object)")
         default void testAddIndexed() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             Collection<T> expectedElements = expectedElements();
 
@@ -165,7 +165,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
         @Test
         @DisplayName("add(int, Object) with null")
         default void testAddIndexedWithNull() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             assertThrows(UnsupportedOperationException.class, () -> list.add(0, null));
 
@@ -175,7 +175,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
         @Test
         @DisplayName("add(int, Object) with negative index")
         default void testAddIndexedWithNegativeIndex() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             T object = nonContainedElements().iterator().next();
 
@@ -187,7 +187,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
         @Test
         @DisplayName("add(int, Object) with index larger than size")
         default void testAddIndexedWithIndexLargerThanSize() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             T object = nonContainedElements().iterator().next();
 
@@ -209,7 +209,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
         @Test
         @DisplayName("addAll(int, Collection)")
         default void testAddAllIndexed() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             Collection<T> expectedElements = expectedElements();
             List<T> elements = new ArrayList<>(expectedElements);
@@ -225,7 +225,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
         @Test
         @DisplayName("addAll(int, Collection) with empty collection")
         default void testAddAllIndexedWithEmptyCollection() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             assertOptionallyThrowsUnsupportedOperationException(() -> assertFalse(list.addAll(0, Collections.emptyList())));
 
@@ -235,7 +235,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
         @Test
         @DisplayName("addAll(int, Collection) with null")
         default void testAddAllIndexedWithNull() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             assertThrowsUnsupportedOperationExceptionOr(NullPointerException.class, () -> list.addAll(0, null));
 
@@ -245,7 +245,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
         @Test
         @DisplayName("addAll(int, Collection) with null element")
         default void testAddAllIndexedWithNullElement() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             assertThrows(UnsupportedOperationException.class, () -> list.addAll(0, Collections.singleton(null)));
 
@@ -255,7 +255,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
         @Test
         @DisplayName("addAll(int, Collection) with negative index")
         default void testAddAllIndexedWithNegativeIndex() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             Collection<T> c = Collections.singleton(nonContainedElements().iterator().next());
 
@@ -267,7 +267,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
         @Test
         @DisplayName("addAll(int, Collection) with index larger than size")
         default void testAddAllIndexedWithIndexLargerThanSize() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             Collection<T> c = Collections.singleton(nonContainedElements().iterator().next());
 
@@ -289,7 +289,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
         @Test
         @DisplayName("remove(int)")
         default void testRemoveIndexed() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             for (int i = list.size() - 1; i >= 0; i--) {
                 int index = i;
@@ -302,7 +302,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
         @Test
         @DisplayName("remove(int) with negative index")
         default void testRemoveIndexedWithNegativeIndex() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             assertThrowsUnsupportedOperationExceptionOr(IndexOutOfBoundsException.class, () -> list.remove(-1));
 
@@ -312,7 +312,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
         @Test
         @DisplayName("remove(int) with index equal to size")
         default void testRemoveIndexedWithIndexEqualToSize() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
 
             assertThrowsUnsupportedOperationExceptionOr(IndexOutOfBoundsException.class, () -> list.remove(list.size()));
 

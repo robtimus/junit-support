@@ -48,7 +48,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
         @Test
         @DisplayName("remove() using next() throws UnsupportedOperationException")
         default void testRemoveUsingNext() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator();
 
             while (iterator.hasNext()) {
@@ -63,7 +63,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
         @Test
         @DisplayName("remove() before next()")
         default void testRemoveBeforeNext() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator();
 
             assertThrowsUnsupportedOperationExceptionOr(IllegalStateException.class, iterator::remove);
@@ -74,7 +74,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
         @Test
         @DisplayName("remove() using previous() throws UnsupportedOperationException")
         default void testRemoveUsingPrevious() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator(list.size());
 
             while (iterator.hasPrevious()) {
@@ -89,7 +89,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
         @Test
         @DisplayName("remove() before previous()")
         default void testRemoveBeforePrevious() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator(list.size());
 
             assertThrowsUnsupportedOperationExceptionOr(IllegalStateException.class, iterator::remove);
@@ -128,7 +128,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
         @Test
         @DisplayName("set(Object) using next() throws UnsupportedOperationException")
         default void testSetUsingNext() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator();
 
             UnaryOperator<T> operator = replaceElementOperator();
@@ -145,7 +145,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
         @Test
         @DisplayName("set(Object) with null replacement using next()")
         default void testSetWithNullReplacementUsingNext(TestInfo testInfo) {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator();
 
             StoreNullNotSupported annotation = testInfo.getTestClass()
@@ -168,7 +168,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
         @Test
         @DisplayName("set(Object) before next()")
         default void testSetBeforeNext() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator();
 
             T element = singleElement();
@@ -181,7 +181,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
         @Test
         @DisplayName("set(Object) using previous() throws UnsupportedOperationException")
         default void testSetUsingPrevious() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator(list.size());
 
             UnaryOperator<T> operator = replaceElementOperator();
@@ -198,7 +198,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
         @Test
         @DisplayName("set(Object) with null replacement using previous()")
         default void testSetWithNullReplacementUsingPrevious(TestInfo testInfo) {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator();
 
             StoreNullNotSupported annotation = testInfo.getTestClass()
@@ -221,7 +221,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
         @Test
         @DisplayName("set(Object) before previous()")
         default void testSetBeforePrevious() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator(list.size());
 
             T element = singleElement();
@@ -251,7 +251,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
         @Test
         @DisplayName("add(Object) using next()")
         default void testAddUsingNext() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator();
 
             T newElement = newElement();
@@ -270,7 +270,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
         @Test
         @DisplayName("add(Object) with null using next()")
         default void testAddNullUsingNext(TestInfo testInfo) {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator();
 
             StoreNullNotSupported annotation = testInfo.getTestClass()
@@ -299,7 +299,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
         @Test
         @DisplayName("add(Object) using previous()")
         default void testAddUsingPrevious() {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator(list.size());
 
             T newElement = newElement();
@@ -318,7 +318,7 @@ public interface UnmodifiableListIteratorTests<T> extends ListIteratorTests<T> {
         @Test
         @DisplayName("add(Object) with null using previous()")
         default void testAddNullUsingPrevious(TestInfo testInfo) {
-            List<T> list = createIterable();
+            List<T> list = iterable();
             ListIterator<T> iterator = list.listIterator(list.size());
 
             StoreNullNotSupported annotation = testInfo.getTestClass()

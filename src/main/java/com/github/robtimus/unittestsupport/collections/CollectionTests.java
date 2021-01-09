@@ -61,7 +61,7 @@ import com.github.robtimus.unittestsupport.collections.annotation.RemoveNullNotS
 public interface CollectionTests<T> extends IterableTests<T> {
 
     @Override
-    Collection<T> createIterable();
+    Collection<T> iterable();
 
     /**
      * Returns some elements that should not be contained by the collection to test.
@@ -86,7 +86,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @Test
         @DisplayName("contains(Object)")
         default void testContains() {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             for (T o : expectedElements()) {
                 assertTrue(collection.contains(o));
@@ -100,7 +100,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @Test
         @DisplayName("contains(Object) with null")
         default void testContainsWithNull(TestInfo testInfo) {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             ContainsNullNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -116,7 +116,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @Test
         @DisplayName("contains(Object) with an incompatible object")
         default void testContainsWithIncompatibleObject(TestInfo testInfo) {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             ContainsIncompatibleNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -142,7 +142,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @Test
         @DisplayName("toArray()")
         default void testToObjectArray() {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             Object[] array = collection.toArray();
 
@@ -162,7 +162,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @Test
         @DisplayName("toArray(Object[]) with same length")
         default void testToArrayWithSameLength() {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             Collection<T> expectedElements = expectedElements();
 
@@ -178,7 +178,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @Test
         @DisplayName("toArray(Object[]) with larger length")
         default void testToArrayWithLargerLength() {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             Object[] a = new Object[collection.size() + 2];
             Object o = new IncompatibleObject();
@@ -194,7 +194,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @Test
         @DisplayName("toArray(Object[]) with smaller length")
         default void testToArrayWithSmallerLength() {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             Collection<T> expectedElements = expectedElements();
 
@@ -211,7 +211,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @Test
         @DisplayName("toArray(Object[]) with null array")
         default void testToArrayWithNullArray() {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             assertThrows(NullPointerException.class, () -> collection.toArray((Object[]) null));
         }
@@ -237,7 +237,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @ArgumentsSource(RemoveArgumentsProvider.class)
         @DisplayName("remove(Object)")
         default void testRemove(Object o, boolean expected) {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             assertEquals(expected, collection.remove(o));
 
@@ -253,7 +253,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @Test
         @DisplayName("remove(Object) with null")
         default void testRemoveNull(TestInfo testInfo) {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             RemoveNullNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -271,7 +271,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @Test
         @DisplayName("remove(Object) with incompatible object")
         default void testRemoveIncompatibleObject(TestInfo testInfo) {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             RemoveIncompatibleNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -304,7 +304,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @Test
         @DisplayName("containsAll(Collection)")
         default void testContainsAll() {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             List<T> expected = new ArrayList<>(expectedElements());
             T nonContained = nonContainedElements().iterator().next();
@@ -322,7 +322,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @Test
         @DisplayName("containsAll(Collection) with a null collection")
         default void testContainsAllWithNullCollection() {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             assertThrows(NullPointerException.class, () -> collection.containsAll(null));
         }
@@ -330,7 +330,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @Test
         @DisplayName("containsAll(Collection) with a collection with a null")
         default void testContainsAllWithCollectionWithNull(TestInfo testInfo) {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             Collection<T> c = new ArrayList<>(expectedElements());
             c.add(null);
@@ -349,7 +349,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @Test
         @DisplayName("containsAll(Collection) with a collection with an incompatible object")
         default void testContainsAllWithCollectionWithIncompatibleObject(TestInfo testInfo) {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             Collection<Object> c = new ArrayList<>(expectedElements());
             c.add(new IncompatibleObject());
@@ -384,7 +384,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @ArgumentsSource(RemoveAllArgumentsProvider.class)
         @DisplayName("removeAll(Collection)")
         default void testRemoveAll(Collection<?> c, boolean expected) {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             assertEquals(expected, collection.removeAll(c));
 
@@ -400,7 +400,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @Test
         @DisplayName("removeAll(Collection) with a null collection")
         default void testRemoveAllWithNullCollection() {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             assertThrows(NullPointerException.class, () -> collection.removeAll(null));
 
@@ -410,7 +410,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @Test
         @DisplayName("removeAll(Collection) with a collection with a null")
         default void testRemoveAllWithCollectionWithNull(TestInfo testInfo) {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             Collection<?> c = Collections.singleton(null);
 
@@ -430,7 +430,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @Test
         @DisplayName("removeAll(Collection) with a collection with an incompatible object")
         default void testRemoveAllWithCollectionWithIncompatibleObject(TestInfo testInfo) {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             Collection<?> c = Collections.singleton(new IncompatibleObject());
 
@@ -460,7 +460,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @Test
         @DisplayName("removeIf(Predicate) with matching predicate")
         default void testRemoveIfWithMatchingPredicate() {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             boolean isEmpty = collection.isEmpty();
             assertEquals(!isEmpty, collection.removeIf(e -> true));
@@ -471,7 +471,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @Test
         @DisplayName("removeIf(Predicate) with non-matching predicate")
         default void testRemoveIfWithNonMatchingPredicate() {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             assertFalse(collection.removeIf(e -> false));
 
@@ -481,7 +481,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @Test
         @DisplayName("removeIf(Predicate) with null predicate")
         default void testRemoveIfWithNullPredicate() {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             assertThrows(NullPointerException.class, () -> collection.removeIf(null));
 
@@ -507,7 +507,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @ArgumentsSource(RetainAllArgumentsProvider.class)
         @DisplayName("retainAll(Collection)")
         default void testRetainAll(Collection<?> c, boolean expected) {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             assertEquals(expected, collection.retainAll(c));
 
@@ -523,7 +523,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @Test
         @DisplayName("retainAll(Collection) with a null collection")
         default void testRetainAllWithNullCollection() {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             assertThrows(NullPointerException.class, () -> collection.retainAll(null));
 
@@ -533,7 +533,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @Test
         @DisplayName("retainAll(Collection) with a collection with a null")
         default void testRetainAllWithCollectionWithNull(TestInfo testInfo) {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             Collection<T> expectedElements = expectedElements();
 
@@ -556,7 +556,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @Test
         @DisplayName("retainAll(Collection) with a collection with an incompatible object")
         default void testRetainAllWithCollectionWithIncompatibleObject(TestInfo testInfo) {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             Collection<T> expectedElements = expectedElements();
 
@@ -589,7 +589,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
         @Test
         @DisplayName("clear()")
         default void testClear() {
-            Collection<T> collection = createIterable();
+            Collection<T> collection = iterable();
 
             collection.clear();
 

@@ -76,7 +76,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("put(Object, Object) with contained entries")
         default void testPutWithContainedEntries() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 
@@ -92,7 +92,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("put(Object, Object) with updated entries")
         default void testPutWithUpdatedEntries() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 
@@ -110,7 +110,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("put(Object, Object) with null key")
         default void testPutWithNullKey() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             V nonContainedValue = nonContainedEntries().values().iterator().next();
 
@@ -122,7 +122,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("put(Object, Object) with null value")
         default void testPutWithNullValue() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 
@@ -147,7 +147,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("remove(Object) with contained elements")
         default void testRemoveContainedElements() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 
@@ -161,7 +161,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("remove(Object) with non-contained elements")
         default void testRemoveNonContainedElements() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             for (K key : nonContainedEntries().keySet()) {
                 assertOptionallyThrowsUnsupportedOperationException(() -> assertNull(map.remove(key)));
@@ -173,7 +173,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("remove(Object) with null")
         default void testRemoveNull() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             assertOptionallyThrowsUnsupportedOperationException(() -> assertNull(map.remove(null)));
 
@@ -183,7 +183,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("remove(Object) with an incompatible object")
         default void testRemoveIncompatibleObject() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             assertOptionallyThrowsUnsupportedOperationException(() -> assertNull(map.remove(new IncompatibleObject())));
 
@@ -211,7 +211,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("putAll(Map) with contained entries")
         default void testPutAllWithContainedEntries() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 
@@ -227,7 +227,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("putAll(Object, Object) with updated entries")
         default void testPutAllWithUpdatedEntries() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 
@@ -246,7 +246,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("putAll(Map) with non-contained entries")
         default void testPutAllWithNonContainedEntries() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             for (Map.Entry<K, V> entry : nonContainedEntries().entrySet()) {
                 Map<K, V> m = Collections.singletonMap(entry.getKey(), entry.getValue());
@@ -260,7 +260,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("putAll(Map) with an empty map")
         default void testPutAllWithEmptyMap() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             assertOptionallyThrowsUnsupportedOperationException(() -> map.putAll(Collections.emptyMap()));
 
@@ -270,7 +270,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("putAll(Collection) with null")
         default void testPutAllWithNull() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             assertThrowsUnsupportedOperationExceptionOr(NullPointerException.class, () -> map.putAll(null));
 
@@ -280,7 +280,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("putAll(Map) with a map with a null key")
         default void testPutAllWithMapWithNullKey() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             V nonContainedValue = nonContainedEntries().values().iterator().next();
             Map<K, V> m = Collections.singletonMap(null, nonContainedValue);
@@ -293,7 +293,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("putAll(Object, Object) with a map with a null value")
         default void testPutAllWithMapWithNullValue() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             K nonContainedKey = nonContainedEntries().keySet().iterator().next();
             Map<K, V> m = Collections.singletonMap(nonContainedKey, null);
@@ -317,7 +317,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("clear()")
         default void testClear() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             assertThrows(UnsupportedOperationException.class, map::clear);
 
@@ -336,8 +336,8 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
     interface KeySetTests<K, V> extends UnmodifiableMapTests<K, V>, UnmodifiableSetTests<K> {
 
         @Override
-        default Set<K> createIterable() {
-            return createMap().keySet();
+        default Set<K> iterable() {
+            return map().keySet();
         }
 
         @Override
@@ -361,8 +361,8 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         interface IteratorTests<K, V> extends KeySetTests<K, V>, UnmodifiableIteratorTests<K> {
 
             @Override
-            default Set<K> createIterable() {
-                return KeySetTests.super.createIterable();
+            default Set<K> iterable() {
+                return KeySetTests.super.iterable();
             }
 
             @Override
@@ -397,7 +397,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
                 @Test
                 @DisplayName("remove() throws UnsupportedOperationException")
                 default void testRemove() {
-                    Map<K, V> map = createMap();
+                    Map<K, V> map = map();
                     Set<K> keySet = map.keySet();
                     Iterator<K> iterator = keySet.iterator();
 
@@ -646,8 +646,8 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
     interface ValuesTests<K, V> extends UnmodifiableMapTests<K, V>, CollectionTests<V> {
 
         @Override
-        default Collection<V> createIterable() {
-            return createMap().values();
+        default Collection<V> iterable() {
+            return map().values();
         }
 
         @Override
@@ -671,8 +671,8 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         interface IteratorTests<K, V> extends ValuesTests<K, V>, UnmodifiableIteratorTests<V> {
 
             @Override
-            default Collection<V> createIterable() {
-                return ValuesTests.super.createIterable();
+            default Collection<V> iterable() {
+                return ValuesTests.super.iterable();
             }
 
             @Override
@@ -707,7 +707,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
                 @Test
                 @DisplayName("remove() throws UnsupportedOperationException")
                 default void testRemove() {
-                    Map<K, V> map = createMap();
+                    Map<K, V> map = map();
                     Collection<V> values = map.values();
                     Iterator<V> iterator = values.iterator();
 
@@ -919,8 +919,8 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
     interface EntrySetTests<K, V> extends UnmodifiableMapTests<K, V>, SetTests<Map.Entry<K, V>> {
 
         @Override
-        default Set<Entry<K, V>> createIterable() {
-            return createMap().entrySet();
+        default Set<Entry<K, V>> iterable() {
+            return map().entrySet();
         }
 
         @Override
@@ -944,8 +944,8 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         interface IteratorTests<K, V> extends EntrySetTests<K, V>, UnmodifiableIteratorTests<Map.Entry<K, V>> {
 
             @Override
-            default Set<Map.Entry<K, V>> createIterable() {
-                return EntrySetTests.super.createIterable();
+            default Set<Map.Entry<K, V>> iterable() {
+                return EntrySetTests.super.iterable();
             }
 
             @Override
@@ -980,7 +980,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
                 @Test
                 @DisplayName("remove() throws UnsupportedOperationException")
                 default void testRemove() {
-                    Map<K, V> map = createMap();
+                    Map<K, V> map = map();
                     Set<Map.Entry<K, V>> entrySet = map.entrySet();
                     Iterator<Map.Entry<K, V>> iterator = entrySet.iterator();
 
@@ -1238,7 +1238,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("replaceAll(BiFunction)")
         default void testReplaceAll() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             BiFunction<K, V, V> function = replaceValueFunction();
 
@@ -1254,7 +1254,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("replaceAll(BiFunction) with null function")
         default void testReplaceAllWithNullOperator() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             assertThrowsUnsupportedOperationExceptionOr(NullPointerException.class, () -> map.replaceAll(null));
 
@@ -1275,7 +1275,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("putIfAbsent(Object, Object)")
         default void testPutIfAbsent() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> nonContainedEntries = nonContainedEntries();
             V nonContained = nonContainedEntries.values().iterator().next();
@@ -1310,7 +1310,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("remove(Object, Object) with contained elements")
         default void testRemoveExactValueWithContainedElements() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 
@@ -1324,7 +1324,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("remove(Object, Object) with non-contained elements")
         default void testRemoveExactValueWithNonContainedElements() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             for (Map.Entry<K, V> entry : nonContainedEntries().entrySet()) {
                 assertOptionallyThrowsUnsupportedOperationException(() -> assertNull(map.remove(entry.getKey(), entry.getValue())));
@@ -1336,7 +1336,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("remove(Object, Object) with null key")
         default void testRemoveExactValueWithNullKey() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             V nonContained = nonContainedEntries().values().iterator().next();
 
@@ -1348,7 +1348,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("remove(Object, Object) with an incompatible key")
         default void testRemoveExactValueWithIncompatibleObjectKey() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             V nonContained = nonContainedEntries().values().iterator().next();
 
@@ -1360,7 +1360,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("remove(Object, Object) with null value")
         default void testRemoveExactValueWithNullValue() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             K nonContained = nonContainedEntries().keySet().iterator().next();
 
@@ -1372,7 +1372,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("remove(Object, Object) with an incompatible value")
         default void testRemoveExactValueWithIncompatibleObjectValue() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             K nonContained = nonContainedEntries().keySet().iterator().next();
 
@@ -1395,7 +1395,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("replace(Object, Object, Object) with contained elements")
         default void testReplaceExactValueWithContainedElements() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 
@@ -1415,7 +1415,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("replace(Object, Object, Object) with non-contained elements")
         default void testReplaceExactValueWithNonContainedElements() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> nonContainedEntries = nonContainedEntries();
             V nonContained = nonContainedEntries.values().iterator().next();
@@ -1430,7 +1430,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("replace(Object, Object, Object) with null key")
         default void testReplaceExactValueWithNullKey() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             V nonContained = nonContainedEntries().values().iterator().next();
 
@@ -1442,7 +1442,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("replace(Object, Object, Object) with null value")
         default void testReplaceExactValueWithNullValue() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             K nonContained = nonContainedEntries().keySet().iterator().next();
 
@@ -1465,7 +1465,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("replace(Object, Object) with contained elements")
         default void testReplaceWithContainedElements() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 
@@ -1485,7 +1485,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("replace(Object, Object) with non-contained elements")
         default void testReplaceWithNonContainedElements() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             for (Map.Entry<K, V> entry : nonContainedEntries().entrySet()) {
                 assertOptionallyThrowsUnsupportedOperationException(() -> assertNull(map.replace(entry.getKey(), entry.getValue())));
@@ -1497,7 +1497,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("replace(Object, Object) with null key")
         default void testReplaceWithNullKey() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             V nonContained = nonContainedEntries().values().iterator().next();
 
@@ -1509,7 +1509,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("replace(Object, Object) with null value")
         default void testReplaceWithNullValue() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             K nonContained = nonContainedEntries().keySet().iterator().next();
 
@@ -1532,7 +1532,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("computeIfAbsent(Object, Function)")
         default void testComputeIfAbsent() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> nonContainedEntries = nonContainedEntries();
             V nonContained = nonContainedEntries.values().iterator().next();
@@ -1556,7 +1556,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("computeIfAbsent(Object, Function) with function returning null")
         default void testComputeIfAbsentWithFunctionReturningNull() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 
@@ -1574,7 +1574,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("computeIfAbsent(Object, Function) with throwing function")
         default void testComputeIfAbsentWithThrowingFunction() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             RuntimeException exception = new RuntimeException();
             Function<K, V> function = k -> {
@@ -1598,7 +1598,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("computeIfAbsent(Object, Function) with null function")
         default void testComputeIfAbsentWithNullFunction() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 
@@ -1627,7 +1627,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("computeIfPresent(Object, BiFunction)")
         default void testComputeIfPresent() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> nonContainedEntries = nonContainedEntries();
             V nonContained = nonContainedEntries.values().iterator().next();
@@ -1650,7 +1650,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("computeIfPresent(Object, BiFunction) with function returning null")
         default void testComputeIfPresentWithFunctionReturningNull() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 
@@ -1668,7 +1668,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("computeIfPresent(Object, BiFunction) with throwing function")
         default void testComputeIfPresentWithThrowingFunction() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             RuntimeException exception = new RuntimeException();
             BiFunction<K, V, V> function = (k, v) -> {
@@ -1691,7 +1691,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("computeIfPresent(Object, BiFunction) with null function")
         default void testComputeIfPresentWithNullFunction() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 
@@ -1727,7 +1727,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("compute(Object, BiFunction)")
         default void testCompute() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             UnaryOperator<V> operator = replaceValueOperator();
 
@@ -1750,7 +1750,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("compute(Object, BiFunction) with function returning null")
         default void testComputeWithFunctionReturningNull() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 
@@ -1768,7 +1768,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("compute(Object, BiFunction) with throwing function")
         default void testComputeWithThrowingFunction() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             RuntimeException exception = new RuntimeException();
             BiFunction<K, V, V> function = (k, v) -> {
@@ -1791,7 +1791,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("compute(Object, BiFunction) with null function")
         default void testComputeWithNullFunction() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 
@@ -1827,7 +1827,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("merge(Object, Object, BiFunction)")
         default void testMerge() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             BinaryOperator<V> operator = combineValuesOperator();
 
@@ -1847,7 +1847,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("merge(Object, Object, BiFunction) with function returning null")
         default void testMergeWithFunctionReturningNull() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 
@@ -1865,7 +1865,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("merge(Object, Object, BiFunction) with throwing function")
         default void testMergeWithThrowingFunction() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             RuntimeException exception = new RuntimeException();
             BinaryOperator<V> operator = (v1, v2) -> {
@@ -1888,7 +1888,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("merge(Object, Object, BiFunction) with null function")
         default void testMergeWithNullFunction() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 

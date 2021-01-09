@@ -45,7 +45,7 @@ public interface UnmodifiableIteratorTests<T> extends IteratorTests<T> {
         @Test
         @DisplayName("remove() throws UnsupportedOperationException")
         default void testRemove() {
-            Iterable<T> iterable = createIterable();
+            Iterable<T> iterable = iterable();
             Iterator<T> iterator = iterable.iterator();
 
             while (iterator.hasNext()) {

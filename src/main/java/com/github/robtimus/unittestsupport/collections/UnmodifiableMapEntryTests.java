@@ -55,7 +55,7 @@ public interface UnmodifiableMapEntryTests<K, V> extends MapEntryTests<K, V> {
         @Test
         @DisplayName("setValue(Object) with same value")
         default void testSetValueWithSameValue() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             for (Map.Entry<K, V> entry : map.entrySet()) {
                 V value = entry.getValue();
@@ -69,7 +69,7 @@ public interface UnmodifiableMapEntryTests<K, V> extends MapEntryTests<K, V> {
         @Test
         @DisplayName("setValue(Object) with updated value")
         default void testSetValueWithUpdatedValue() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             UnaryOperator<V> operator = replaceValueOperator();
 

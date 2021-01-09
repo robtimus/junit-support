@@ -54,7 +54,7 @@ import com.github.robtimus.unittestsupport.collections.annotation.StoreNullNotSu
 public interface SetTests<T> extends CollectionTests<T> {
 
     @Override
-    Set<T> createIterable();
+    Set<T> iterable();
 
     /**
      * Contains tests for {@link Set#add(Object)}.
@@ -84,7 +84,7 @@ public interface SetTests<T> extends CollectionTests<T> {
         @ArgumentsSource(AddArgumentsProvider.class)
         @DisplayName("add(Object)")
         default void testAdd(T o, boolean expected) {
-            Set<T> set = createIterable();
+            Set<T> set = iterable();
 
             assertEquals(expected, set.add(o));
 
@@ -100,7 +100,7 @@ public interface SetTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("add(Object) with null")
         default void testAddNull(TestInfo testInfo) {
-            Set<T> set = createIterable();
+            Set<T> set = iterable();
 
             StoreNullNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -151,7 +151,7 @@ public interface SetTests<T> extends CollectionTests<T> {
         @ArgumentsSource(AddAllArgumentsProvider.class)
         @DisplayName("addAll(Collection)")
         default void testAddAll(Collection<? extends T> c, boolean expected) {
-            Set<T> set = createIterable();
+            Set<T> set = iterable();
 
             assertEquals(expected, set.addAll(c));
 
@@ -168,7 +168,7 @@ public interface SetTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("addAll(Collection) with a null collection")
         default void testAddAllWithNullCollection() {
-            Set<T> set = createIterable();
+            Set<T> set = iterable();
 
             assertThrows(NullPointerException.class, () -> set.addAll(null));
 
@@ -178,7 +178,7 @@ public interface SetTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("addAll(Collection) with a collection with a null")
         default void testAddAllWithCollectionWithNull(TestInfo testInfo) {
-            Set<T> set = createIterable();
+            Set<T> set = iterable();
 
             Collection<T> c = Collections.singleton(null);
 
@@ -216,7 +216,7 @@ public interface SetTests<T> extends CollectionTests<T> {
         @ArgumentsSource(EqualsArgumentsProvider.class)
         @DisplayName("equals(Object)")
         default void testEquals(Set<?> other, boolean expected) {
-            Set<T> set = createIterable();
+            Set<T> set = iterable();
 
             if (expected) {
                 assertEquals(other, set);
@@ -228,7 +228,7 @@ public interface SetTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("equals(Object) with self")
         default void testEqualsSelf() {
-            Set<T> set = createIterable();
+            Set<T> set = iterable();
 
             assertEquals(set, set);
         }
@@ -236,7 +236,7 @@ public interface SetTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("equals(Object) with null")
         default void testEqualsNull() {
-            Set<T> set = createIterable();
+            Set<T> set = iterable();
 
             assertNotEquals(null, set);
         }
@@ -244,7 +244,7 @@ public interface SetTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("equals(Object) with list")
         default void testEqualsList() {
-            Set<T> set = createIterable();
+            Set<T> set = iterable();
 
             assertNotEquals(new ArrayList<>(set), set);
         }
@@ -262,7 +262,7 @@ public interface SetTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("hashCode()")
         default void testHashCode() {
-            Set<T> set = createIterable();
+            Set<T> set = iterable();
 
             int expected = expectedElements().stream()
                     .mapToInt(Object::hashCode)
@@ -284,7 +284,7 @@ public interface SetTests<T> extends CollectionTests<T> {
         @Test
         @DisplayName("spliterator() has DISTINCT characteristic")
         default void testSpliteratorHasDistinctCharacteristic() {
-            Set<T> set = createIterable();
+            Set<T> set = iterable();
 
             Spliterator<T> spliterator = set.spliterator();
 

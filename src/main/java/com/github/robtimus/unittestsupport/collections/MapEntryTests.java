@@ -52,7 +52,7 @@ public interface MapEntryTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("getValue()")
         default void testGetValue() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = expectedEntries();
 
@@ -85,7 +85,7 @@ public interface MapEntryTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("setValue(Object)")
         default void testSetValue() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             Map<K, V> expectedEntries = new HashMap<>(expectedEntries());
 
@@ -104,7 +104,7 @@ public interface MapEntryTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("setValue(Object) with null")
         default void testSetValueWithNull(TestInfo testInfo) {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             StoreNullNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
@@ -144,7 +144,7 @@ public interface MapEntryTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("equals(Object)")
         default void testEquals() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             for (Map.Entry<K, V> entry : map.entrySet()) {
                 Map.Entry<K, V> other = new SimpleEntry<>(entry);
@@ -156,7 +156,7 @@ public interface MapEntryTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("equals(Object) with self")
         default void testEqualsSelf() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             for (Map.Entry<K, V> entry : map.entrySet()) {
                 assertEquals(entry, entry);
@@ -166,7 +166,7 @@ public interface MapEntryTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("equals(Object) with other key")
         default void testEqualsWithOtherKey() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             K otherKey = nonContainedEntries().keySet().iterator().next();
 
@@ -180,7 +180,7 @@ public interface MapEntryTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("equals(Object) with other value")
         default void testEqualsWithOtherValue() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             V otherValue = nonContainedEntries().values().iterator().next();
 
@@ -194,7 +194,7 @@ public interface MapEntryTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("equals(Object) with null key")
         default void testEqualsWithNullKey() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             for (Map.Entry<K, V> entry : map.entrySet()) {
                 Map.Entry<K, V> other = new SimpleEntry<>(null, entry.getValue());
@@ -206,7 +206,7 @@ public interface MapEntryTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("equals(Object) with null value")
         default void testEqualsWithNullValue() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             for (Map.Entry<K, V> entry : map.entrySet()) {
                 Map.Entry<K, V> other = new SimpleEntry<>(entry.getKey(), null);
@@ -218,7 +218,7 @@ public interface MapEntryTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("equals(Object) with null")
         default void testEqualsNull() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             for (Map.Entry<K, V> entry : map.entrySet()) {
                 assertNotEquals(null, entry);
@@ -228,7 +228,7 @@ public interface MapEntryTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("equals(Object) with incompatible object")
         default void testEqualsIncompatibleObject() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             for (Map.Entry<K, V> entry : map.entrySet()) {
                 assertNotEquals(1, entry);
@@ -249,7 +249,7 @@ public interface MapEntryTests<K, V> extends MapTests<K, V> {
         @Test
         @DisplayName("hashCode()")
         default void testHashCode() {
-            Map<K, V> map = createMap();
+            Map<K, V> map = map();
 
             for (Map.Entry<K, V> entry : map.entrySet()) {
                 K key = entry.getKey();
