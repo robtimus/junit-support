@@ -130,7 +130,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
                 assertThrows(UnsupportedOperationException.class, () -> map.put(entry.getKey(), null));
             }
 
-            assertEquals(expectedEntries(), map);
+            assertEquals(expectedEntries, map);
         }
     }
 
@@ -1420,7 +1420,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
             Map<K, V> nonContainedEntries = nonContainedEntries();
             V nonContained = nonContainedEntries.values().iterator().next();
 
-            for (Map.Entry<K, V> entry : nonContainedEntries().entrySet()) {
+            for (Map.Entry<K, V> entry : nonContainedEntries.entrySet()) {
                 assertOptionallyThrowsUnsupportedOperationException(() -> assertFalse(map.replace(entry.getKey(), entry.getValue(), nonContained)));
             }
 

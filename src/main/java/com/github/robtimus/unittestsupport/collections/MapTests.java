@@ -558,14 +558,14 @@ public interface MapTests<K, V> {
         default void testPutAllWithMapWithNullValue(TestInfo testInfo) {
             Map<K, V> map = createMap();
 
-            Map<K, V> m = new HashMap<>(expectedEntries());
+            Map<K, V> expectedEntries = expectedEntries();
+
+            Map<K, V> m = new HashMap<>(expectedEntries);
             m.replaceAll((k, v) -> null);
 
             StoreNullNotSupported annotation = testInfo.getTestClass()
                     .orElseThrow(() -> new IllegalStateException("test class should be available")) //$NON-NLS-1$
                     .getAnnotation(StoreNullNotSupported.class);
-
-            Map<K, V> expectedEntries = expectedEntries();
 
             if (annotation == null) {
                 map.putAll(m);
@@ -2719,7 +2719,9 @@ public interface MapTests<K, V> {
         default void testGetOrDefault() {
             Map<K, V> map = createMap();
 
-            List<Map.Entry<K, V>> nonContained = new ArrayList<>(nonContainedEntries().entrySet());
+            Map<K, V> nonContainedEntries = nonContainedEntries();
+
+            List<Map.Entry<K, V>> nonContained = new ArrayList<>(nonContainedEntries.entrySet());
             V firstValue = nonContained.get(0).getValue();
             V lastValue = nonContained.get(nonContained.size() - 1).getValue();
 
@@ -2729,7 +2731,7 @@ public interface MapTests<K, V> {
                 assertEquals(entry.getValue(), map.getOrDefault(entry.getKey(), null));
             }
 
-            for (K key : nonContainedEntries().keySet()) {
+            for (K key : nonContainedEntries.keySet()) {
                 assertEquals(firstValue, map.getOrDefault(key, firstValue));
                 assertEquals(lastValue, map.getOrDefault(key, lastValue));
                 assertNull(map.getOrDefault(key, null));

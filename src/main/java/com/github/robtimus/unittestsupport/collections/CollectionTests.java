@@ -164,13 +164,15 @@ public interface CollectionTests<T> extends IterableTests<T> {
         default void testToArrayWithSameLength() {
             Collection<T> collection = createIterable();
 
-            Class<?> genericType = commonType(expectedElements());
+            Collection<T> expectedElements = expectedElements();
+
+            Class<?> genericType = commonType(expectedElements);
             Object[] a = (Object[]) Array.newInstance(genericType, collection.size());
 
             Object[] array = collection.toArray(a);
 
             assertSame(a, array);
-            assertHasElements(array, expectedElements(), fixedOrder());
+            assertHasElements(array, expectedElements, fixedOrder());
         }
 
         @Test
@@ -194,14 +196,16 @@ public interface CollectionTests<T> extends IterableTests<T> {
         default void testToArrayWithSmallerLength() {
             Collection<T> collection = createIterable();
 
-            Class<?> genericType = commonType(expectedElements());
+            Collection<T> expectedElements = expectedElements();
+
+            Class<?> genericType = commonType(expectedElements);
             Object[] a = (Object[]) Array.newInstance(genericType, 0);
 
             Object[] array = collection.toArray(a);
 
             assertNotSame(a, array);
             assertThat(array, instanceOf(a.getClass()));
-            assertHasElements(array, expectedElements(), fixedOrder());
+            assertHasElements(array, expectedElements, fixedOrder());
         }
 
         @Test
@@ -531,7 +535,9 @@ public interface CollectionTests<T> extends IterableTests<T> {
         default void testRetainAllWithCollectionWithNull(TestInfo testInfo) {
             Collection<T> collection = createIterable();
 
-            Collection<Object> c = new ArrayList<>(expectedElements());
+            Collection<T> expectedElements = expectedElements();
+
+            Collection<Object> c = new ArrayList<>(expectedElements);
             c.add(null);
 
             ContainsNullNotSupported annotation = testInfo.getTestClass()
@@ -544,7 +550,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
                 assertThrows(annotation.expected(), () -> collection.retainAll(c));
             }
 
-            assertHasElements(collection, expectedElements(), fixedOrder());
+            assertHasElements(collection, expectedElements, fixedOrder());
         }
 
         @Test
@@ -552,7 +558,9 @@ public interface CollectionTests<T> extends IterableTests<T> {
         default void testRetainAllWithCollectionWithIncompatibleObject(TestInfo testInfo) {
             Collection<T> collection = createIterable();
 
-            Collection<Object> c = new ArrayList<>(expectedElements());
+            Collection<T> expectedElements = expectedElements();
+
+            Collection<Object> c = new ArrayList<>(expectedElements);
             c.add(new IncompatibleObject());
 
             ContainsIncompatibleNotSupported annotation = testInfo.getTestClass()
@@ -565,7 +573,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
                 assertThrows(annotation.expected(), () -> collection.retainAll(c));
             }
 
-            assertHasElements(collection, expectedElements(), fixedOrder());
+            assertHasElements(collection, expectedElements, fixedOrder());
         }
     }
 

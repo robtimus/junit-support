@@ -131,7 +131,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
                 assertThrows(UnsupportedOperationException.class, () -> list.set(index, null));
             }
 
-            assertEquals(expectedElements(), list);
+            assertEquals(expectedElements, list);
         }
     }
 
