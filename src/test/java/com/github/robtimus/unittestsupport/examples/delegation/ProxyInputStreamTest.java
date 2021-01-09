@@ -42,7 +42,7 @@ class ProxyInputStreamTest implements DelegateTests<InputStream> {
         return Stream.of(
                 method("read"),
                 method("read", parameter(new byte[3])),
-                method("read", parameter(new byte[3]), intParameter(0), intParameter(3)),
+                method("read", parameter(new byte[3]), parameter(0), parameter(3)),
                 method("skip", long.class),
                 method("available"),
                 method("close"),

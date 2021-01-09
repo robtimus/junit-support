@@ -54,7 +54,7 @@ class DelegatingListTest implements DelegateTests<List<String>> {
                 method("remove", Object.class),
                 method("containsAll", parameter(Collection.class, Collections.emptyList())),
                 method("addAll", parameter(Collection.class, Collections.emptyList())),
-                method("addAll", intParameter(0), parameter(Collection.class, Collections.emptyList())),
+                method("addAll", parameter(0), parameter(Collection.class, Collections.emptyList())),
                 method("removeAll", parameter(Collection.class, Collections.emptyList())),
                 method("retainAll", parameter(Collection.class, Collections.emptyList())),
                 method("replaceAll", parameter(UnaryOperator.class, t -> t.toString() + t)),

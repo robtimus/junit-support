@@ -314,7 +314,7 @@ public interface DelegateTests<T> {
      * @param value The value for the parameter.
      * @return The created method parameter.
      */
-    default Parameter booleanParameter(boolean value) {
+    default Parameter parameter(boolean value) {
         return new Parameter(boolean.class, value);
     }
 
@@ -324,7 +324,7 @@ public interface DelegateTests<T> {
      * @param value The value for the parameter.
      * @return The created method parameter.
      */
-    default Parameter charParameter(char value) {
+    default Parameter parameter(char value) {
         return new Parameter(char.class, value);
     }
 
@@ -334,7 +334,7 @@ public interface DelegateTests<T> {
      * @param value The value for the parameter.
      * @return The created method parameter.
      */
-    default Parameter byteParameter(byte value) {
+    default Parameter parameter(byte value) {
         return new Parameter(byte.class, value);
     }
 
@@ -344,7 +344,7 @@ public interface DelegateTests<T> {
      * @param value The value for the parameter.
      * @return The created method parameter.
      */
-    default Parameter shortParameter(short value) {
+    default Parameter parameter(short value) {
         return new Parameter(short.class, value);
     }
 
@@ -354,7 +354,7 @@ public interface DelegateTests<T> {
      * @param value The value for the parameter.
      * @return The created method parameter.
      */
-    default Parameter intParameter(int value) {
+    default Parameter parameter(int value) {
         return new Parameter(int.class, value);
     }
 
@@ -364,7 +364,7 @@ public interface DelegateTests<T> {
      * @param value The value for the parameter.
      * @return The created method parameter.
      */
-    default Parameter longParameter(long value) {
+    default Parameter parameter(long value) {
         return new Parameter(long.class, value);
     }
 
@@ -374,7 +374,7 @@ public interface DelegateTests<T> {
      * @param value The value for the parameter.
      * @return The created method parameter.
      */
-    default Parameter floatParameter(float value) {
+    default Parameter parameter(float value) {
         return new Parameter(float.class, value);
     }
 
@@ -384,7 +384,7 @@ public interface DelegateTests<T> {
      * @param value The value for the parameter.
      * @return The created method parameter.
      */
-    default Parameter doubleParameter(double value) {
+    default Parameter parameter(double value) {
         return new Parameter(double.class, value);
     }
 }
