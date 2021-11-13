@@ -19,10 +19,9 @@ package com.github.robtimus.unittestsupport.collections;
 
 import static com.github.robtimus.unittestsupport.collections.CollectionAssertions.assertHasElements;
 import static com.github.robtimus.unittestsupport.collections.CollectionUtils.commonType;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -204,7 +203,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
             Object[] array = collection.toArray(a);
 
             assertNotSame(a, array);
-            assertThat(array, instanceOf(a.getClass()));
+            assertInstanceOf(a.getClass(), array);
             assertHasElements(array, expectedElements, fixedOrder());
         }
 

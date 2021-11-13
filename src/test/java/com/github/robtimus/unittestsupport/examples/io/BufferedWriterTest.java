@@ -108,7 +108,7 @@ class BufferedWriterTest {
 
                 @Override
                 public void write(String s, int off, int len) throws IOException {
-                    if ((off < 0) || (off > s.length()) || (len < 0) || ((off + len) > s.length()) || ((off + len) < 0)) {
+                    if (off < 0 || off > s.length() || len < 0 || off + len > s.length() || off + len < 0) {
                         throw new IndexOutOfBoundsException();
                     }
                     super.write(s, off, len);

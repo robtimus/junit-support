@@ -40,10 +40,8 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.reflections.ReflectionUtils;
 import org.reflections.Reflections;
-import org.reflections.scanners.SubTypesScanner;
-import org.reflections.scanners.TypeElementsScanner;
+import org.reflections.scanners.Scanners;
 import com.github.robtimus.unittestsupport.collections.EnumerationTests;
 import com.github.robtimus.unittestsupport.collections.IteratorTests;
 import com.github.robtimus.unittestsupport.collections.ListIteratorTests;
@@ -94,9 +92,15 @@ class TraitTest {
     @TestFactory
     @DisplayName("Traits are implemented correctly")
     Stream<DynamicNode> testTraits() {
-        Reflections reflections = new Reflections(getClass().getPackage().getName(), new TypeElementsScanner(), new SubTypesScanner(false));
+        String packageName = getClass().getPackage().getName();
+        Reflections reflections = new Reflections(packageName);
 
-        return ReflectionUtils.forNames(reflections.getAllTypes(), reflections.getConfiguration().getClassLoaders()).stream()
+        Set<String> classNames = reflections.getAll(Scanners.SubTypes).stream()
+                // Scanners.SubTypes by default includes super classes / interfaces from other packages
+                .filter(s -> s.startsWith(packageName))
+                .collect(Collectors.toSet());
+
+        return reflections.forNames(classNames, reflections.getConfiguration().getClassLoaders()).stream()
                 .filter(Class::isInterface)
                 .filter(c -> !"package-info".equals(c.getSimpleName())) //$NON-NLS-1$
                 .filter(c -> !c.isAnnotation())
