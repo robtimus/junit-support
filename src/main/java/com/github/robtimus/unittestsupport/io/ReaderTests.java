@@ -26,6 +26,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
@@ -167,6 +168,8 @@ public interface ReaderTests {
                     char[] buffer = new char[bufferSize];
                     int len;
                     while ((len = reader.read(buffer)) != -1) {
+                        // read must block until data is available, EOF or IOException
+                        assertNotEquals(0, len);
                         sb.append(buffer, 0, len);
                     }
                     assertEquals(expected, sb.toString());
@@ -225,6 +228,8 @@ public interface ReaderTests {
                     int off = 5;
                     int len;
                     while ((len = reader.read(buffer, off, bufferSize)) != -1) {
+                        // read must block until data is available, EOF or IOException
+                        assertNotEquals(0, len);
                         sb.append(buffer, off, len);
                     }
                     assertEquals(expected, sb.toString());

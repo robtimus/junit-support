@@ -27,6 +27,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.ByteArrayOutputStream;
@@ -108,6 +109,8 @@ public interface InputStreamTests {
                     byte[] buffer = new byte[bufferSize];
                     int len;
                     while ((len = inputStream.read(buffer)) != -1) {
+                        // read must block until data is available, EOF or IOException
+                        assertNotEquals(0, len);
                         baos.write(buffer, 0, len);
                     }
                     assertArrayEquals(expected, baos.toByteArray());
@@ -166,6 +169,8 @@ public interface InputStreamTests {
                     int off = 5;
                     int len;
                     while ((len = inputStream.read(buffer, off, bufferSize)) != -1) {
+                        // read must block until data is available, EOF or IOException
+                        assertNotEquals(0, len);
                         baos.write(buffer, off, len);
                     }
                     assertArrayEquals(expected, baos.toByteArray());
