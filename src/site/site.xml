@@ -15,15 +15,15 @@
   limitations under the License.
 -->
 
-<project name="unit-test-support"
+<project name="junit-support"
   xmlns="https://maven.apache.org/xsd/decoration-1.7.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="https://maven.apache.org/xsd/decoration-1.7.0.xsd https://maven.apache.org/xsd/decoration-1.7.0.xsd">
 
   <body>
-    <menu name="unit-test-support">
+    <menu name="junit-support">
       <item name="Overview" href="index.html" />
       <item name="Download" href="download.html" />
-      <item name="Releases" href="https://github.com/robtimus/unit-test-support/releases" />
+      <item name="Releases" href="https://github.com/robtimus/junit-support/releases" />
       <item name="JavaDocs" href="apidocs/index.html" />
     </menu>
   </body>
