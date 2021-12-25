@@ -41,7 +41,7 @@ public final class AdditionalAssertions {
     }
 
     /**
-     * <em>Assert</em> that the supplied throwable has a direct cause of the given type, and returns this cause.
+     * Asserts that the supplied throwable has a direct cause of the given type, and returns this cause.
      * <p>
      * If the throwable has no cause, or the direct cause has a different type, this method will fail.
      * <p>
@@ -57,7 +57,7 @@ public final class AdditionalAssertions {
     }
 
     /**
-     * <em>Assert</em> that the supplied throwable has a cause, directly or indirectly, of the given type, and returns this cause.
+     * Asserts that the supplied throwable has a cause, directly or indirectly, of the given type, and returns this cause.
      * <p>
      * If the throwable has no cause, or the direct cause has a different type, this method will fail.
      * <p>
@@ -74,7 +74,7 @@ public final class AdditionalAssertions {
     }
 
     /**
-     * <em>Assert</em> that the supplied throwable has a cause, directly or indirectly, of the given type, and returns this cause.
+     * Asserts that the supplied throwable has a cause, directly or indirectly, of the given type, and returns this cause.
      * <p>
      * If the throwable has no cause, or the direct cause has a different type, this method will fail.
      * <p>
@@ -104,7 +104,7 @@ public final class AdditionalAssertions {
     }
 
     /**
-     * <em>Assert</em> that the supplied throwable has a cause, directly or indirectly, of the given type, and returns this cause.
+     * Asserts that the supplied throwable has a cause, directly or indirectly, of the given type, and returns this cause.
      * <p>
      * If the throwable has no cause, or has no direct or indirect cause of the given type, this method will fail.
      * <p>
@@ -120,7 +120,7 @@ public final class AdditionalAssertions {
     }
 
     /**
-     * <em>Assert</em> that the supplied throwable has a cause, directly or indirectly, of the given type, and returns this cause.
+     * Asserts that the supplied throwable has a cause, directly or indirectly, of the given type, and returns this cause.
      * <p>
      * If the throwable has no cause, or has no direct or indirect cause of the given type, this method will fail.
      * <p>
@@ -137,7 +137,7 @@ public final class AdditionalAssertions {
     }
 
     /**
-     * <em>Assert</em> that the supplied throwable has a cause, directly or indirectly, of the given type, and returns this cause.
+     * Asserts that the supplied throwable has a cause, directly or indirectly, of the given type, and returns this cause.
      * <p>
      * If the throwable has no cause, or has no direct or indirect cause of the given type, this method will fail.
      * <p>
@@ -174,7 +174,7 @@ public final class AdditionalAssertions {
     }
 
     /**
-     * <em>Assert</em> that execution of the supplied {@link Executable} throws an exception of exactly one of the supplied types,
+     * Asserts that execution of the supplied {@link Executable} throws an exception of exactly one of the supplied types,
      * and returns the exception.
      * <p>
      * If no exception is thrown, or if an exception of a different type is thrown, this method will fail.
@@ -196,7 +196,7 @@ public final class AdditionalAssertions {
     }
 
     /**
-     * <em>Assert</em> that execution of the supplied {@link Executable} throws an exception of exactly one of the supplied types,
+     * Asserts that execution of the supplied {@link Executable} throws an exception of exactly one of the supplied types,
      * and returns the exception.
      * <p>
      * If no exception is thrown, or if an exception of a different type is thrown, this method will fail.
@@ -219,7 +219,7 @@ public final class AdditionalAssertions {
     }
 
     /**
-     * <em>Assert</em> that execution of the supplied {@link Executable} throws an exception of exactly one of the supplied types,
+     * Asserts that execution of the supplied {@link Executable} throws an exception of exactly one of the supplied types,
      * and returns the exception.
      * <p>
      * If no exception is thrown, or if an exception of a different type is thrown, this method will fail.
@@ -242,7 +242,7 @@ public final class AdditionalAssertions {
     }
 
     /**
-     * <em>Assert</em> that execution of the supplied {@link Executable} throws an exception of exactly one of the supplied types,
+     * Asserts that execution of the supplied {@link Executable} throws an exception of exactly one of the supplied types,
      * and returns the exception.
      * <p>
      * If no exception is thrown, or if an exception of a different type is thrown, this method will fail.
@@ -260,7 +260,7 @@ public final class AdditionalAssertions {
     }
 
     /**
-     * <em>Assert</em> that execution of the supplied {@link Executable} throws an exception of exactly one of the supplied types,
+     * Asserts that execution of the supplied {@link Executable} throws an exception of exactly one of the supplied types,
      * and returns the exception.
      * <p>
      * If no exception is thrown, or if an exception of a different type is thrown, this method will fail.
@@ -281,7 +281,7 @@ public final class AdditionalAssertions {
     }
 
     /**
-     * <em>Assert</em> that execution of the supplied {@link Executable} throws an exception of exactly one of the supplied types,
+     * Asserts that execution of the supplied {@link Executable} throws an exception of exactly one of the supplied types,
      * and returns the exception.
      * <p>
      * If no exception is thrown, or if an exception of a different type is thrown, this method will fail.
@@ -329,7 +329,7 @@ public final class AdditionalAssertions {
     }
 
     /**
-     * <em>Assert</em> that execution of the supplied {@link Executable} throws an exception of one of the supplied types, and returns the exception.
+     * Asserts that execution of the supplied {@link Executable} throws an exception of one of the supplied types, and returns the exception.
      * <p>
      * If no exception is thrown, or if an exception of a different type is thrown, this method will fail.
      * <p>
@@ -350,7 +350,7 @@ public final class AdditionalAssertions {
     }
 
     /**
-     * <em>Assert</em> that execution of the supplied {@link Executable} throws an exception of one of the supplied types, and returns the exception.
+     * Asserts that execution of the supplied {@link Executable} throws an exception of one of the supplied types, and returns the exception.
      * <p>
      * If no exception is thrown, or if an exception of a different type is thrown, this method will fail.
      * <p>
@@ -372,7 +372,7 @@ public final class AdditionalAssertions {
     }
 
     /**
-     * <em>Assert</em> that execution of the supplied {@link Executable} throws an exception of one of the supplied types, and returns the exception.
+     * Asserts that execution of the supplied {@link Executable} throws an exception of one of the supplied types, and returns the exception.
      * <p>
      * If no exception is thrown, or if an exception of a different type is thrown, this method will fail.
      * <p>
@@ -394,7 +394,7 @@ public final class AdditionalAssertions {
     }
 
     /**
-     * <em>Assert</em> that execution of the supplied {@link Executable} throws an exception of one of the supplied types, and returns the exception.
+     * Asserts that execution of the supplied {@link Executable} throws an exception of one of the supplied types, and returns the exception.
      * <p>
      * If no exception is thrown, or if an exception of a different type is thrown, this method will fail.
      * <p>
@@ -411,7 +411,7 @@ public final class AdditionalAssertions {
     }
 
     /**
-     * <em>Assert</em> that execution of the supplied {@link Executable} throws an exception of one of the supplied types, and returns the exception.
+     * Asserts that execution of the supplied {@link Executable} throws an exception of one of the supplied types, and returns the exception.
      * <p>
      * If no exception is thrown, or if an exception of a different type is thrown, this method will fail.
      * <p>
@@ -431,7 +431,7 @@ public final class AdditionalAssertions {
     }
 
     /**
-     * <em>Assert</em> that execution of the supplied {@link Executable} throws an exception of one of the supplied types, and returns the exception.
+     * Asserts that execution of the supplied {@link Executable} throws an exception of one of the supplied types, and returns the exception.
      * <p>
      * If no exception is thrown, or if an exception of a different type is thrown, this method will fail.
      * <p>
