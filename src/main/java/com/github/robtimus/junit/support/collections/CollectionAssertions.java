@@ -41,7 +41,6 @@ import org.hamcrest.Matcher;
 public final class CollectionAssertions {
 
     private CollectionAssertions() {
-        throw new IllegalStateException("cannot create instances of " + getClass().getName()); //$NON-NLS-1$
     }
 
     /**

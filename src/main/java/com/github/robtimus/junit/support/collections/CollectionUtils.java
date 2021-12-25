@@ -29,7 +29,6 @@ import java.util.Set;
 final class CollectionUtils {
 
     private CollectionUtils() {
-        throw new IllegalStateException("cannot create instances of " + getClass().getName()); //$NON-NLS-1$
     }
 
     static <T> List<T> toList(Iterable<T> iterable) {

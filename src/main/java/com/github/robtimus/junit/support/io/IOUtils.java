@@ -24,7 +24,6 @@ import java.io.Reader;
 final class IOUtils {
 
     private IOUtils() {
-        throw new IllegalStateException("cannot create instances of " + getClass().getName()); //$NON-NLS-1$
     }
 
     static int readAll(Reader reader, char[] buffer) throws IOException {

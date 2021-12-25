@@ -44,7 +44,6 @@ import com.github.robtimus.io.function.IORunnable;
 public final class IOAssertions {
 
     private IOAssertions() {
-        throw new IllegalStateException("cannot create instances of " + getClass().getName()); //$NON-NLS-1$
     }
 
     /**
