@@ -157,13 +157,12 @@ public final class AdditionalAssertions {
         List<String> causes = new ArrayList<>();
 
         Throwable cause = throwable.getCause();
-        while (cause != null && !expectedType.isInstance(cause)) {
+        while (cause != null) {
+            if (expectedType.isInstance(cause)) {
+                return expectedType.cast(cause);
+            }
             causes.add("<" + cause + ">");
             cause = cause.getCause();
-        }
-        if (cause != null) {
-            // expectedType.isInstance(cause)
-            return expectedType.cast(cause);
         }
 
         String message = String.format("%sexpected caused by %s but was: %s",

@@ -336,6 +336,22 @@ class AdditionalAssertionsTest {
                 assertHasCause(expectedCauseType, exception, () -> message);
             }
         }
+
+        @Test
+        @DisplayName("has root cause")
+        void testHasRootCause() {
+            IOException root = new IOException("root");
+            IOException intermediate1 = new IOException(root);
+            IOException intermediate2 = new IOException(intermediate1);
+            IOException intermediate3 = new IOException(intermediate2);
+            IOException exception = new IOException(intermediate3);
+
+            IOException cause = assertHasCause(IOException.class, exception);
+            while (cause.getCause() != null) {
+                cause = assertHasCause(IOException.class, cause);
+            }
+            assertSame(root, cause);
+        }
     }
 
     @Nested
