@@ -106,7 +106,7 @@ public final class CollectionAssertions {
      * @param otherExpectedType The other possible expected exception type.
      * @param action The action to run.
      */
-    public static void assertThrowsUnsupportedOperationExceptionOr(Class<? extends Throwable> otherExpectedType, Runnable action) {
+    public static void assertThrowsUnsupportedOperationExceptionOr(Class<? extends Exception> otherExpectedType, Runnable action) {
         assertThrowsUnsupportedOperationExceptionOr(instanceOf(otherExpectedType), action);
     }
 
@@ -117,7 +117,7 @@ public final class CollectionAssertions {
      * @param otherExpectedMatcher An alternative matcher for the expected exception type.
      * @param action The action to run.
      */
-    public static void assertThrowsUnsupportedOperationExceptionOr(Matcher<? super Throwable> otherExpectedMatcher, Runnable action) {
+    public static void assertThrowsUnsupportedOperationExceptionOr(Matcher<? super Exception> otherExpectedMatcher, Runnable action) {
         Exception exception = assertThrows(Exception.class, action::run);
         assertThat(exception, either(otherExpectedMatcher).or(instanceOf(UnsupportedOperationException.class)));
     }
