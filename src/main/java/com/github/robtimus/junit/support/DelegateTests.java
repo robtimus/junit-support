@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
@@ -101,24 +100,9 @@ public interface DelegateTests<T> {
         }
 
         private DelegateMethod(String name, Class<?>[] parameterTypes, int modifiers, Consumer<T> action) {
-            this.displayName = getDisplayName(name, parameterTypes);
+            this.displayName = DisplayNameUtils.getMethodDisplayName(name, parameterTypes);
             this.modifiers = modifiers;
             this.action = action;
-        }
-
-        @SuppressWarnings("nls")
-        private static String getDisplayName(String name, Class<?>[] parameterTypes) {
-            return Arrays.stream(parameterTypes)
-                    .map(DelegateMethod::getTypeName)
-                    .collect(Collectors.joining(", ", name + "(", ")"));
-        }
-
-        @SuppressWarnings("nls")
-        private static String getTypeName(Class<?> parameterType) {
-            if (parameterType.isArray()) {
-                return getTypeName(parameterType.getComponentType()) + "[]";
-            }
-            return parameterType.getSimpleName();
         }
 
         private DynamicTest asDynamicTest(Class<T> delegateType, UnaryOperator<T> wrapper) {
