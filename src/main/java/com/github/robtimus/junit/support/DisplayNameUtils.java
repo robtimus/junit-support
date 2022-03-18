@@ -1,5 +1,5 @@
 /*
- * ClassUtils.java
+ * DisplayNameUtils.java
  * Copyright 2021 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
