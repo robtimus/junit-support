@@ -51,7 +51,7 @@ public final class IOAssertions {
      * This method works a lot like {@link Assertions#assertDoesNotThrow(Executable)}, except any exception other than {@link IOException} will not
      * be caught.
      *
-     * @param runnable The piece
+     * @param runnable The piece of code that should not throw an {@link IOException}.
      */
     public static void assertDoesNotThrowIOException(IORunnable runnable) {
         try {
