@@ -50,7 +50,7 @@ public final class AdditionalAssertions {
      * @param <T> The expected cause type.
      * @param expectedType The expected cause type.
      * @param throwable The throwable to check.
-     * @return The nearest cause of the given exception with the given type.
+     * @return The direct cause of the given exception, cast to the given type.
      */
     public static <T extends Throwable> T assertHasDirectCause(Class<T> expectedType, Throwable throwable) {
         return assertHasDirectCause(expectedType, throwable, (Object) null);
@@ -67,7 +67,7 @@ public final class AdditionalAssertions {
      * @param expectedType The expected cause type.
      * @param throwable The throwable to check.
      * @param message The failure message to fail with.
-     * @return The nearest cause of the given exception with the given type.
+     * @return The direct cause of the given exception, cast to the given type.
      */
     public static <T extends Throwable> T assertHasDirectCause(Class<T> expectedType, Throwable throwable, String message) {
         return assertHasDirectCause(expectedType, throwable, (Object) message);
@@ -84,7 +84,7 @@ public final class AdditionalAssertions {
      * @param expectedType The expected cause type.
      * @param throwable The throwable to check.
      * @param messageSupplier The supplier for the failure message to fail with.
-     * @return The nearest cause of the given exception with the given type.
+     * @return The direct cause of the given exception, cast to the given type.
      */
     public static <T extends Throwable> T assertHasDirectCause(Class<T> expectedType, Throwable throwable, Supplier<String> messageSupplier) {
         return assertHasDirectCause(expectedType, throwable, (Object) messageSupplier);
