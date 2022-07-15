@@ -32,9 +32,12 @@ import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Reader;
+import java.util.function.Supplier;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
+import org.junit.jupiter.api.function.ThrowingSupplier;
 import com.github.robtimus.io.function.IORunnable;
+import com.github.robtimus.io.function.IOSupplier;
 
 /**
  * A collection of utility methods that support asserting conditions related to I/O.
@@ -64,21 +67,150 @@ public final class IOAssertions {
     }
 
     /**
+     * Asserts that a piece of code does not throw an {@link IOException}.
+     * This method works a lot like {@link Assertions#assertDoesNotThrow(Executable, String)}, except any exception other than {@link IOException}
+     * will not be caught.
+     *
+     * @param runnable The piece of code that should not throw an {@link IOException}.
+     * @param message The failure message to fail with.
+     * @since 1.2
+     */
+    public static void assertDoesNotThrowIOException(IORunnable runnable, String message) {
+        try {
+            runnable.run();
+        } catch (IOException e) {
+            assertDoesNotThrow(() -> {
+                throw e;
+            }, message);
+        }
+    }
+
+    /**
+     * Asserts that a piece of code does not throw an {@link IOException}.
+     * This method works a lot like {@link Assertions#assertDoesNotThrow(Executable, Supplier)}, except any exception other than {@link IOException}
+     * will not be caught.
+     *
+     * @param runnable The piece of code that should not throw an {@link IOException}.
+     * @param messageSupplier The supplier for the failure message to fail with.
+     * @since 1.2
+     */
+    public static void assertDoesNotThrowIOException(IORunnable runnable, Supplier<String> messageSupplier) {
+        try {
+            runnable.run();
+        } catch (IOException e) {
+            assertDoesNotThrow(() -> {
+                throw e;
+            }, messageSupplier);
+        }
+    }
+
+    /**
+     * Asserts that a piece of code does not throw an {@link IOException}.
+     * This method works a lot like {@link Assertions#assertDoesNotThrow(ThrowingSupplier)}, except any exception other than {@link IOException} will
+     * not be caught.
+     *
+     * @param <T> The type of results supplied by the given supplier.
+     * @param supplier The piece of code that should not throw an {@link IOException}.
+     * @return A result supplied by the given supplier.
+     * @since 1.2
+     */
+    public static <T> T assertDoesNotThrowIOException(IOSupplier<T> supplier) {
+        try {
+            return supplier.get();
+        } catch (IOException e) {
+            return assertDoesNotThrow(() -> {
+                throw e;
+            });
+        }
+    }
+
+    /**
+     * Asserts that a piece of code does not throw an {@link IOException}.
+     * This method works a lot like {@link Assertions#assertDoesNotThrow(ThrowingSupplier, String)}, except any exception other than
+     * {@link IOException} will not be caught.
+     *
+     * @param <T> The type of results supplied by the given supplier.
+     * @param supplier The piece of code that should not throw an {@link IOException}.
+     * @param message The failure message to fail with.
+     * @return A result supplied by the given supplier.
+     * @since 1.2
+     */
+    public static <T> T assertDoesNotThrowIOException(IOSupplier<T> supplier, String message) {
+        try {
+            return supplier.get();
+        } catch (IOException e) {
+            return assertDoesNotThrow(() -> {
+                throw e;
+            }, message);
+        }
+    }
+
+    /**
+     * Asserts that a piece of code does not throw an {@link IOException}.
+     * This method works a lot like {@link Assertions#assertDoesNotThrow(ThrowingSupplier, Supplier)}, except any exception other than
+     * {@link IOException} will not be caught.
+     *
+     * @param <T> The type of results supplied by the given supplier.
+     * @param supplier The piece of code that should not throw an {@link IOException}.
+     * @param messageSupplier The supplier for the failure message to fail with.
+     * @return A result supplied by the given supplier.
+     * @since 1.2
+     */
+    public static <T> T assertDoesNotThrowIOException(IOSupplier<T> supplier, Supplier<String> messageSupplier) {
+        try {
+            return supplier.get();
+        } catch (IOException e) {
+            return assertDoesNotThrow(() -> {
+                throw e;
+            }, messageSupplier);
+        }
+    }
+
+    /**
      * Asserts that a {@link Reader} contains specific content.
      *
      * @param reader The reader to read from. It will be exhausted at the end of this method call.
      * @param expectedContent The expected content.
      */
     public static void assertContainsContent(Reader reader, String expectedContent) {
+        String content = assertDoesNotThrow(() -> readContent(reader, expectedContent));
+        assertEquals(expectedContent, content);
+    }
+
+    /**
+     * Asserts that a {@link Reader} contains specific content.
+     *
+     * @param reader The reader to read from. It will be exhausted at the end of this method call.
+     * @param expectedContent The expected content.
+     * @param message The failure message to fail with.
+     * @since 1.2
+     */
+    public static void assertContainsContent(Reader reader, String expectedContent, String message) {
+        String content = assertDoesNotThrow(() -> readContent(reader, expectedContent), message);
+        assertEquals(expectedContent, content, message);
+    }
+
+    /**
+     * Asserts that a {@link Reader} contains specific content.
+     *
+     * @param reader The reader to read from. It will be exhausted at the end of this method call.
+     * @param expectedContent The expected content.
+     * @param messageSupplier The supplier for the failure message to fail with.
+     * @since 1.2
+     */
+    public static void assertContainsContent(Reader reader, String expectedContent, Supplier<String> messageSupplier) {
+        String content = assertDoesNotThrow(() -> readContent(reader, expectedContent), messageSupplier);
+        assertEquals(expectedContent, content, messageSupplier);
+    }
+
+    private static String readContent(Reader reader, String expectedContent) throws IOException {
         StringBuilder sb = new StringBuilder(expectedContent.length());
-        assertDoesNotThrow(() -> {
-            char[] buffer = new char[1024];
-            int len;
-            while ((len = reader.read(buffer)) != -1) {
-                sb.append(buffer, 0, len);
-            }
-        });
-        assertEquals(expectedContent, sb.toString());
+        char[] buffer = new char[1024];
+        int len;
+        while ((len = reader.read(buffer)) != -1) {
+            sb.append(buffer, 0, len);
+        }
+        return sb.toString();
     }
 
     /**
@@ -88,15 +220,44 @@ public final class IOAssertions {
      * @param expectedContent The expected content.
      */
     public static void assertContainsContent(InputStream inputStream, byte[] expectedContent) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(expectedContent.length);
-        assertDoesNotThrow(() -> {
-            byte[] buffer = new byte[1024];
-            int len;
-            while ((len = inputStream.read(buffer)) != -1) {
-                baos.write(buffer, 0, len);
-            }
-        });
-        assertArrayEquals(expectedContent, baos.toByteArray());
+        byte[] content = assertDoesNotThrow(() -> readContent(inputStream, expectedContent.length));
+        assertArrayEquals(expectedContent, content);
+    }
+
+    /**
+     * Asserts that an {@link InputStream} contains specific content.
+     *
+     * @param inputStream The input stream to read from. It will be exhausted at the end of this method call.
+     * @param expectedContent The expected content.
+     * @param message The failure message to fail with.
+     * @since 1.2
+     */
+    public static void assertContainsContent(InputStream inputStream, byte[] expectedContent, String message) {
+        byte[] content = assertDoesNotThrow(() -> readContent(inputStream, expectedContent.length), message);
+        assertArrayEquals(expectedContent, content, message);
+    }
+
+    /**
+     * Asserts that an {@link InputStream} contains specific content.
+     *
+     * @param inputStream The input stream to read from. It will be exhausted at the end of this method call.
+     * @param expectedContent The expected content.
+     * @param messageSupplier The supplier for the failure message to fail with.
+     * @since 1.2
+     */
+    public static void assertContainsContent(InputStream inputStream, byte[] expectedContent, Supplier<String> messageSupplier) {
+        byte[] content = assertDoesNotThrow(() -> readContent(inputStream, expectedContent.length), messageSupplier);
+        assertArrayEquals(expectedContent, content, messageSupplier);
+    }
+
+    private static byte[] readContent(InputStream inputStream, int expectedContentLength) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(expectedContentLength);
+        byte[] buffer = new byte[1024];
+        int len;
+        while ((len = inputStream.read(buffer)) != -1) {
+            baos.write(buffer, 0, len);
+        }
+        return baos.toByteArray();
     }
 
     static void assertNegativeSkip(Reader reader, boolean allowNegativeSkip) throws IOException {
@@ -125,18 +286,46 @@ public final class IOAssertions {
      * @return A deserialized copy of the object.
      */
     public static <T> T assertSerializable(T object) {
-        return assertDoesNotThrow(() -> {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
-                oos.writeObject(object);
-            }
-            byte[] bytes = baos.toByteArray();
-            try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes))) {
-                @SuppressWarnings("unchecked")
-                T deserialized = (T) ois.readObject();
-                return deserialized;
-            }
-        });
+        return assertDoesNotThrow(() -> serializeAndDeserialize(object));
+    }
+
+    /**
+     * Asserts that an object is serializable.
+     *
+     * @param <T> The type of object to test.
+     * @param object The object to test.
+     * @param message The failure message to fail with.
+     * @return A deserialized copy of the object.
+     * @since 1.2
+     */
+    public static <T> T assertSerializable(T object, String message) {
+        return assertDoesNotThrow(() -> serializeAndDeserialize(object), message);
+    }
+
+    /**
+     * Asserts that an object is serializable.
+     *
+     * @param <T> The type of object to test.
+     * @param object The object to test.
+     * @param messageSupplier The supplier for the failure message to fail with.
+     * @return A deserialized copy of the object.
+     * @since 1.2
+     */
+    public static <T> T assertSerializable(T object, Supplier<String> messageSupplier) {
+        return assertDoesNotThrow(() -> serializeAndDeserialize(object), messageSupplier);
+    }
+
+    private static <T> T serializeAndDeserialize(T object) throws IOException, ClassNotFoundException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+            oos.writeObject(object);
+        }
+        byte[] bytes = baos.toByteArray();
+        try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes))) {
+            @SuppressWarnings("unchecked")
+            T deserialized = (T) ois.readObject();
+            return deserialized;
+        }
     }
 
     /**
@@ -145,11 +334,35 @@ public final class IOAssertions {
      * @param object The object to test.
      */
     public static void assertNotSerializable(Object object) {
-        assertThrows(NotSerializableException.class, () -> {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
-                oos.writeObject(object);
-            }
-        });
+        assertThrows(NotSerializableException.class, () -> serializeOnly(object));
+    }
+
+    /**
+     * Asserts that an object is not serializable.
+     *
+     * @param object The object to test.
+     * @param message The failure message to fail with.
+     * @since 1.2
+     */
+    public static void assertNotSerializable(Object object, String message) {
+        assertThrows(NotSerializableException.class, () -> serializeOnly(object), message);
+    }
+
+    /**
+     * Asserts that an object is not serializable.
+     *
+     * @param object The object to test.
+     * @param messageSupplier The supplier for the failure message to fail with.
+     * @since 1.2
+     */
+    public static void assertNotSerializable(Object object, Supplier<String> messageSupplier) {
+        assertThrows(NotSerializableException.class, () -> serializeOnly(object), messageSupplier);
+    }
+
+    private static void serializeOnly(Object object) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+            oos.writeObject(object);
+        }
     }
 }
