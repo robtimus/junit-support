@@ -17,19 +17,25 @@
 
 package com.github.robtimus.junit.support;
 
+import static com.github.robtimus.junit.support.AdditionalAssertions.assertDoesNotThrowCheckedException;
 import static com.github.robtimus.junit.support.AdditionalAssertions.assertHasCause;
 import static com.github.robtimus.junit.support.AdditionalAssertions.assertHasDirectCause;
 import static com.github.robtimus.junit.support.AdditionalAssertions.assertThrowsExactlyOneOf;
 import static com.github.robtimus.junit.support.AdditionalAssertions.assertThrowsOneOf;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.sql.SQLException;
+import java.util.function.Supplier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
+import org.junit.jupiter.api.function.ThrowingSupplier;
 import org.opentest4j.AssertionFailedError;
 
 @SuppressWarnings("nls")
@@ -738,6 +744,217 @@ class AdditionalAssertionsTest {
                 assertThrowsOneOf(IllegalArgumentException.class, NullPointerException.class, () -> {
                     /* do nothing */
                 }, () -> message);
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("assertDoesNotThrowCheckedException")
+    class AssertDoesNotThrowCheckedException {
+
+        @Nested
+        @DisplayName("Executable does not throw anything")
+        class ExecutableThrowsNothing {
+
+            @Test
+            @DisplayName("without message or message supplier")
+            void testWithoutMessageOrMessageSupplier() {
+                Executable executable = () -> { /* nothing */ };
+                assertDoesNotThrowCheckedException(executable);
+            }
+
+            @Test
+            @DisplayName("with message")
+            void testWithMessage() {
+                Executable executable = () -> { /* nothing */ };
+                assertDoesNotThrowCheckedException(executable, "error");
+            }
+
+            @Test
+            @DisplayName("with message supplier")
+            void testWithMessageSupplier() {
+                Executable executable = () -> { /* nothing */ };
+                Supplier<String> messageSupplier = () -> "error";
+                assertDoesNotThrowCheckedException(executable, messageSupplier);
+            }
+        }
+
+        @Nested
+        @DisplayName("Executable throws checked exception")
+        class ExecutableThrowsCheckedException {
+
+            @Test
+            @DisplayName("without message or message supplier")
+            void testWithoutMessageOrMessageSupplier() {
+                Executable executable = () -> {
+                    throw new IOException();
+                };
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertDoesNotThrowCheckedException(executable));
+                assertThat(error.getMessage(), startsWith("Unexpected exception thrown: " + IOException.class.getName()));
+            }
+
+            @Test
+            @DisplayName("with message")
+            void testWithMessage() {
+                Executable executable = () -> {
+                    throw new IOException();
+                };
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertDoesNotThrowCheckedException(executable, "error"));
+                assertThat(error.getMessage(), startsWith("error ==> Unexpected exception thrown: " + IOException.class.getName()));
+            }
+
+            @Test
+            @DisplayName("with message supplier")
+            void testWithMessageSupplier() {
+                Executable executable = () -> {
+                    throw new IOException();
+                };
+                Supplier<String> messageSupplier = () -> "error";
+                AssertionFailedError error = assertThrows(AssertionFailedError.class,
+                        () -> assertDoesNotThrowCheckedException(executable, messageSupplier));
+                assertThat(error.getMessage(), startsWith("error ==> Unexpected exception thrown: " + IOException.class.getName()));
+            }
+        }
+
+        @Nested
+        @DisplayName("Executable throws unchecked exception")
+        class ExecutableThrowsUncheckedException {
+
+            @Test
+            @DisplayName("without message or message supplier")
+            void testWithoutMessageOrMessageSupplier() {
+                RuntimeException exception = new IllegalStateException();
+                Executable executable = () -> {
+                    throw exception;
+                };
+                RuntimeException thrown = assertThrows(RuntimeException.class, () -> assertDoesNotThrowCheckedException(executable));
+                assertSame(exception, thrown);
+            }
+
+            @Test
+            @DisplayName("with message")
+            void testWithMessage() {
+                RuntimeException exception = new IllegalStateException();
+                Executable executable = () -> {
+                    throw exception;
+                };
+                RuntimeException thrown = assertThrows(RuntimeException.class, () -> assertDoesNotThrowCheckedException(executable, "error"));
+                assertSame(exception, thrown);
+            }
+
+            @Test
+            @DisplayName("with message supplier")
+            void testWithMessageSupplier() {
+                RuntimeException exception = new IllegalStateException();
+                Executable executable = () -> {
+                    throw exception;
+                };
+                Supplier<String> messageSupplier = () -> "error";
+                RuntimeException thrown = assertThrows(RuntimeException.class, () -> assertDoesNotThrowCheckedException(executable, messageSupplier));
+                assertSame(exception, thrown);
+            }
+        }
+
+        @Nested
+        @DisplayName("ThrowingSupplier does not throw anything")
+        class ThrowingSupplierThrowsNothing {
+
+            @Test
+            @DisplayName("without message or message supplier")
+            void testWithoutMessageOrMessageSupplier() {
+                ThrowingSupplier<String> supplier = () -> "foo";
+                assertEquals("foo", assertDoesNotThrowCheckedException(supplier));
+            }
+
+            @Test
+            @DisplayName("with message")
+            void testWithMessage() {
+                ThrowingSupplier<String> supplier = () -> "foo";
+                assertEquals("foo", assertDoesNotThrowCheckedException(supplier, "error"));
+            }
+
+            @Test
+            @DisplayName("with message supplier")
+            void testWithMessageSupplier() {
+                ThrowingSupplier<String> supplier = () -> "foo";
+                Supplier<String> messageSupplier = () -> "error";
+                assertEquals("foo", assertDoesNotThrowCheckedException(supplier, messageSupplier));
+            }
+        }
+
+        @Nested
+        @DisplayName("ThrowingSupplier throws checked exception")
+        class ThrowingSupplierThrowsCheckedException {
+
+            @Test
+            @DisplayName("without message or message supplier")
+            void testWithoutMessageOrMessageSupplier() {
+                ThrowingSupplier<String> supplier = () -> {
+                    throw new IOException();
+                };
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertDoesNotThrowCheckedException(supplier));
+                assertThat(error.getMessage(), startsWith("Unexpected exception thrown: " + IOException.class.getName()));
+            }
+
+            @Test
+            @DisplayName("with message")
+            void testWithMessage() {
+                ThrowingSupplier<String> supplier = () -> {
+                    throw new IOException();
+                };
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertDoesNotThrowCheckedException(supplier, "error"));
+                assertThat(error.getMessage(), startsWith("error ==> Unexpected exception thrown: " + IOException.class.getName()));
+            }
+
+            @Test
+            @DisplayName("with message supplier")
+            void testWithMessageSupplier() {
+                ThrowingSupplier<String> supplier = () -> {
+                    throw new IOException();
+                };
+                Supplier<String> messageSupplier = () -> "error";
+                AssertionFailedError error = assertThrows(AssertionFailedError.class,
+                        () -> assertDoesNotThrowCheckedException(supplier, messageSupplier));
+                assertThat(error.getMessage(), startsWith("error ==> Unexpected exception thrown: " + IOException.class.getName()));
+            }
+        }
+
+        @Nested
+        @DisplayName("ThrowingSupplier throws unchecked exception")
+        class ThrowingSupplierThrowsUncheckedException {
+
+            @Test
+            @DisplayName("without message or message supplier")
+            void testWithoutMessageOrMessageSupplier() {
+                RuntimeException exception = new IllegalStateException();
+                ThrowingSupplier<String> supplier = () -> {
+                    throw exception;
+                };
+                RuntimeException thrown = assertThrows(RuntimeException.class, () -> assertDoesNotThrowCheckedException(supplier));
+                assertSame(exception, thrown);
+            }
+
+            @Test
+            @DisplayName("with message")
+            void testWithMessage() {
+                RuntimeException exception = new IllegalStateException();
+                ThrowingSupplier<String> supplier = () -> {
+                    throw exception;
+                };
+                RuntimeException thrown = assertThrows(RuntimeException.class, () -> assertDoesNotThrowCheckedException(supplier, "error"));
+                assertSame(exception, thrown);
+            }
+
+            @Test
+            @DisplayName("with message supplier")
+            void testWithMessageSupplier() {
+                RuntimeException exception = new IllegalStateException();
+                ThrowingSupplier<String> supplier = () -> {
+                    throw exception;
+                };
+                Supplier<String> messageSupplier = () -> "error";
+                RuntimeException thrown = assertThrows(RuntimeException.class, () -> assertDoesNotThrowCheckedException(supplier, messageSupplier));
+                assertSame(exception, thrown);
             }
         }
     }

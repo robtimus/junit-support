@@ -52,7 +52,7 @@ public final class IOAssertions {
     /**
      * Asserts that a piece of code does not throw an {@link IOException}.
      * This method works a lot like {@link Assertions#assertDoesNotThrow(Executable)}, except any exception other than {@link IOException} will not
-     * be caught.
+     * be caught. It allows failed assertion errors to pass through.
      *
      * @param runnable The piece of code that should not throw an {@link IOException}.
      */
@@ -69,7 +69,7 @@ public final class IOAssertions {
     /**
      * Asserts that a piece of code does not throw an {@link IOException}.
      * This method works a lot like {@link Assertions#assertDoesNotThrow(Executable, String)}, except any exception other than {@link IOException}
-     * will not be caught.
+     * will not be caught. It allows failed assertion errors to pass through.
      *
      * @param runnable The piece of code that should not throw an {@link IOException}.
      * @param message The failure message to fail with.
@@ -88,7 +88,7 @@ public final class IOAssertions {
     /**
      * Asserts that a piece of code does not throw an {@link IOException}.
      * This method works a lot like {@link Assertions#assertDoesNotThrow(Executable, Supplier)}, except any exception other than {@link IOException}
-     * will not be caught.
+     * will not be caught. It allows failed assertion errors to pass through.
      *
      * @param runnable The piece of code that should not throw an {@link IOException}.
      * @param messageSupplier The supplier for the failure message to fail with.
@@ -107,7 +107,7 @@ public final class IOAssertions {
     /**
      * Asserts that a piece of code does not throw an {@link IOException}.
      * This method works a lot like {@link Assertions#assertDoesNotThrow(ThrowingSupplier)}, except any exception other than {@link IOException} will
-     * not be caught.
+     * not be caught. It allows failed assertion errors to pass through.
      *
      * @param <T> The type of results supplied by the given supplier.
      * @param supplier The piece of code that should not throw an {@link IOException}.
@@ -127,7 +127,7 @@ public final class IOAssertions {
     /**
      * Asserts that a piece of code does not throw an {@link IOException}.
      * This method works a lot like {@link Assertions#assertDoesNotThrow(ThrowingSupplier, String)}, except any exception other than
-     * {@link IOException} will not be caught.
+     * {@link IOException} will not be caught. It allows failed assertion errors to pass through.
      *
      * @param <T> The type of results supplied by the given supplier.
      * @param supplier The piece of code that should not throw an {@link IOException}.
@@ -148,7 +148,7 @@ public final class IOAssertions {
     /**
      * Asserts that a piece of code does not throw an {@link IOException}.
      * This method works a lot like {@link Assertions#assertDoesNotThrow(ThrowingSupplier, Supplier)}, except any exception other than
-     * {@link IOException} will not be caught.
+     * {@link IOException} will not be caught. It allows failed assertion errors to pass through.
      *
      * @param <T> The type of results supplied by the given supplier.
      * @param supplier The piece of code that should not throw an {@link IOException}.

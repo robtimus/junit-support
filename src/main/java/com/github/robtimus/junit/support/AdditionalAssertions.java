@@ -17,6 +17,7 @@
 
 package com.github.robtimus.junit.support;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,6 +26,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
+import org.junit.jupiter.api.function.ThrowingSupplier;
 import org.junit.platform.commons.util.StringUtils;
 import org.junit.platform.commons.util.UnrecoverableExceptions;
 import org.opentest4j.AssertionFailedError;
@@ -474,6 +476,136 @@ public final class AdditionalAssertions {
                 buildPrefix(nullSafeGet(messageOrSupplier)),
                 formatClasses(expectedTypes));
         throw new AssertionFailedError(message);
+    }
+
+    /**
+     * Asserts that a piece of code does not throw a checked exception.
+     * This method works a lot like {@link Assertions#assertDoesNotThrow(Executable)}, except any error or unchecked exception will not be caught.
+     * It allows failed assertion errors to pass through.
+     *
+     * @param executable The piece of code that should not throw a checked exception.
+     * @since 1.2
+     */
+    public static void assertDoesNotThrowCheckedException(Executable executable) {
+        try {
+            executable.execute();
+        } catch (Error | RuntimeException e) {
+            throw e;
+        } catch (Throwable t) {
+            assertDoesNotThrow(() -> {
+                throw t;
+            });
+        }
+    }
+
+    /**
+     * Asserts that a piece of code does not throw a checked exception.
+     * This method works a lot like {@link Assertions#assertDoesNotThrow(Executable, String)}, except any error or unchecked exception will not be
+     * caught. It allows failed assertion errors to pass through.
+     *
+     * @param executable The piece of code that should not throw a checked exception.
+     * @param message The failure message to fail with.
+     * @since 1.2
+     */
+    public static void assertDoesNotThrowCheckedException(Executable executable, String message) {
+        try {
+            executable.execute();
+        } catch (Error | RuntimeException e) {
+            throw e;
+        } catch (Throwable t) {
+            assertDoesNotThrow(() -> {
+                throw t;
+            }, message);
+        }
+    }
+
+    /**
+     * Asserts that a piece of code does not throw a checked exception.
+     * This method works a lot like {@link Assertions#assertDoesNotThrow(Executable, Supplier)}, except any error or unchecked exception will not be
+     * caught. It allows failed assertion errors to pass through.
+     *
+     * @param executable The piece of code that should not throw a checked exception.
+     * @param messageSupplier The supplier for the failure message to fail with.
+     * @since 1.2
+     */
+    public static void assertDoesNotThrowCheckedException(Executable executable, Supplier<String> messageSupplier) {
+        try {
+            executable.execute();
+        } catch (Error | RuntimeException e) {
+            throw e;
+        } catch (Throwable t) {
+            assertDoesNotThrow(() -> {
+                throw t;
+            }, messageSupplier);
+        }
+    }
+
+    /**
+     * Asserts that a piece of code does not throw a checked exception.
+     * This method works a lot like {@link Assertions#assertDoesNotThrow(ThrowingSupplier)}, except any error or unchecked exception will not be
+     * caught. It allows failed assertion errors to pass through.
+     *
+     * @param <T> The type of results supplied by the given supplier.
+     * @param supplier The piece of code that should not throw a checked exception.
+     * @return A result supplied by the given supplier.
+     * @since 1.2
+     */
+    public static <T> T assertDoesNotThrowCheckedException(ThrowingSupplier<T> supplier) {
+        try {
+            return supplier.get();
+        } catch (Error | RuntimeException e) {
+            throw e;
+        } catch (Throwable t) {
+            return assertDoesNotThrow(() -> {
+                throw t;
+            });
+        }
+    }
+
+    /**
+     * Asserts that a piece of code does not throw a checked exception.
+     * This method works a lot like {@link Assertions#assertDoesNotThrow(ThrowingSupplier, String)}, except any error or unchecked exception will not
+     * be caught. It allows failed assertion errors to pass through.
+     *
+     * @param <T> The type of results supplied by the given supplier.
+     * @param supplier The piece of code that should not throw a checked exception.
+     * @param message The failure message to fail with.
+     * @return A result supplied by the given supplier.
+     * @since 1.2
+     */
+    public static <T> T assertDoesNotThrowCheckedException(ThrowingSupplier<T> supplier, String message) {
+        try {
+            return supplier.get();
+        } catch (Error | RuntimeException e) {
+            throw e;
+        } catch (Throwable t) {
+            return assertDoesNotThrow(() -> {
+                throw t;
+            }, message);
+        }
+    }
+
+    /**
+     * Asserts that a piece of code does not throw a checked exception.
+     * This method works a lot like {@link Assertions#assertDoesNotThrow(ThrowingSupplier, Supplier)}, except any error or unchecked exception will
+     * not be caught. It allows failed assertion errors to pass through.
+     *
+     * @param <T> The type of results supplied by the given supplier.
+     * @param supplier The piece of code that should not throw a checked exception.
+     * @param messageSupplier The supplier for the failure message to fail with.
+     * @return A result supplied by the given supplier.
+     * @since 1.2
+     */
+    public static <T> T assertDoesNotThrowCheckedException(ThrowingSupplier<T> supplier, Supplier<String> messageSupplier) {
+        try {
+            return supplier.get();
+        } catch (Error | RuntimeException e) {
+            throw e;
+        } catch (Throwable t) {
+            return assertDoesNotThrow(() -> {
+                throw t;
+            }, messageSupplier);
+        }
     }
 
     private static String formatClasses(Collection<? extends Class<?>> classes) {
