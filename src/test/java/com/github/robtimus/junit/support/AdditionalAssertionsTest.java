@@ -20,6 +20,7 @@ package com.github.robtimus.junit.support;
 import static com.github.robtimus.junit.support.AdditionalAssertions.assertDoesNotThrowCheckedException;
 import static com.github.robtimus.junit.support.AdditionalAssertions.assertHasCause;
 import static com.github.robtimus.junit.support.AdditionalAssertions.assertHasDirectCause;
+import static com.github.robtimus.junit.support.AdditionalAssertions.assertIsPresent;
 import static com.github.robtimus.junit.support.AdditionalAssertions.assertThrowsExactlyOneOf;
 import static com.github.robtimus.junit.support.AdditionalAssertions.assertThrowsOneOf;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -30,6 +31,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.sql.SQLException;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -42,8 +47,208 @@ import org.opentest4j.AssertionFailedError;
 class AdditionalAssertionsTest {
 
     @Nested
-    @DisplayName("hasDirectCause")
-    class HasDirectCause {
+    @DisplayName("assertIsPresent")
+    class AssertIsPresent {
+
+        @Nested
+        @DisplayName("without message or supplier")
+        class WithoutMessageOrSupplier {
+
+            @Test
+            @DisplayName("Optional is present")
+            void testOptionalIsPresent() {
+                Optional<String> optional = Optional.of("foo");
+                assertEquals("foo", assertIsPresent(optional));
+            }
+
+            @Test
+            @DisplayName("Optional is empty")
+            void testOptionalIsEmpty() {
+                Optional<String> optional = Optional.empty();
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertIsPresent(optional));
+                assertThat(error.getMessage(), startsWith("expected: not equal but was: <Optional.empty>"));
+            }
+
+            @Test
+            @DisplayName("OptionalInt is present")
+            void testOptionalIntIsPresent() {
+                OptionalInt optional = OptionalInt.of(1);
+                assertEquals(1, assertIsPresent(optional));
+            }
+
+            @Test
+            @DisplayName("OptionalInt is empty")
+            void testOptionalIntIsEmpty() {
+                OptionalInt optional = OptionalInt.empty();
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertIsPresent(optional));
+                assertThat(error.getMessage(), startsWith("expected: not equal but was: <OptionalInt.empty>"));
+            }
+
+            @Test
+            @DisplayName("OptionalLong is present")
+            void testOptionalLongIsPresent() {
+                OptionalLong optional = OptionalLong.of(1);
+                assertEquals(1, assertIsPresent(optional));
+            }
+
+            @Test
+            @DisplayName("OptionalLong is empty")
+            void testOptionalLongIsEmpty() {
+                OptionalLong optional = OptionalLong.empty();
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertIsPresent(optional));
+                assertThat(error.getMessage(), startsWith("expected: not equal but was: <OptionalLong.empty>"));
+            }
+
+            @Test
+            @DisplayName("OptionalDouble is present")
+            void testOptionalDoubleIsPresent() {
+                OptionalDouble optional = OptionalDouble.of(1);
+                assertEquals(1, assertIsPresent(optional));
+            }
+
+            @Test
+            @DisplayName("OptionalDouble is empty")
+            void testOptionalDoubleIsEmpty() {
+                OptionalDouble optional = OptionalDouble.empty();
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertIsPresent(optional));
+                assertThat(error.getMessage(), startsWith("expected: not equal but was: <OptionalDouble.empty>"));
+            }
+        }
+
+        @Nested
+        @DisplayName("with message")
+        class WithMessage {
+
+            @Test
+            @DisplayName("Optional is present")
+            void testOptionalIsPresent() {
+                Optional<String> optional = Optional.of("foo");
+                assertEquals("foo", assertIsPresent(optional, "error"));
+            }
+
+            @Test
+            @DisplayName("Optional is empty")
+            void testOptionalIsEmpty() {
+                Optional<String> optional = Optional.empty();
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertIsPresent(optional, "error"));
+                assertThat(error.getMessage(), startsWith("error ==> expected: not equal but was: <Optional.empty>"));
+            }
+
+            @Test
+            @DisplayName("OptionalInt is present")
+            void testOptionalIntIsPresent() {
+                OptionalInt optional = OptionalInt.of(1);
+                assertEquals(1, assertIsPresent(optional, "error"));
+            }
+
+            @Test
+            @DisplayName("OptionalInt is empty")
+            void testOptionalIntIsEmpty() {
+                OptionalInt optional = OptionalInt.empty();
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertIsPresent(optional, "error"));
+                assertThat(error.getMessage(), startsWith("error ==> expected: not equal but was: <OptionalInt.empty>"));
+            }
+
+            @Test
+            @DisplayName("OptionalLong is present")
+            void testOptionalLongIsPresent() {
+                OptionalLong optional = OptionalLong.of(1);
+                assertEquals(1, assertIsPresent(optional, "error"));
+            }
+
+            @Test
+            @DisplayName("OptionalLong is empty")
+            void testOptionalLongIsEmpty() {
+                OptionalLong optional = OptionalLong.empty();
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertIsPresent(optional, "error"));
+                assertThat(error.getMessage(), startsWith("error ==> expected: not equal but was: <OptionalLong.empty>"));
+            }
+
+            @Test
+            @DisplayName("OptionalDouble is present")
+            void testOptionalDoubleIsPresent() {
+                OptionalDouble optional = OptionalDouble.of(1);
+                assertEquals(1, assertIsPresent(optional, "error"));
+            }
+
+            @Test
+            @DisplayName("OptionalDouble is empty")
+            void testOptionalDoubleIsEmpty() {
+                OptionalDouble optional = OptionalDouble.empty();
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertIsPresent(optional, "error"));
+                assertThat(error.getMessage(), startsWith("error ==> expected: not equal but was: <OptionalDouble.empty>"));
+            }
+        }
+
+        @Nested
+        @DisplayName("with message supplier")
+        class WithMessageSupplier {
+
+            @Test
+            @DisplayName("Optional is present")
+            void testOptionalIsPresent() {
+                Optional<String> optional = Optional.of("foo");
+                assertEquals("foo", assertIsPresent(optional, () -> "error"));
+            }
+
+            @Test
+            @DisplayName("Optional is empty")
+            void testOptionalIsEmpty() {
+                Optional<String> optional = Optional.empty();
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertIsPresent(optional, () -> "error"));
+                assertThat(error.getMessage(), startsWith("error ==> expected: not equal but was: <Optional.empty>"));
+            }
+
+            @Test
+            @DisplayName("OptionalInt is present")
+            void testOptionalIntIsPresent() {
+                OptionalInt optional = OptionalInt.of(1);
+                assertEquals(1, assertIsPresent(optional, () -> "error"));
+            }
+
+            @Test
+            @DisplayName("OptionalInt is empty")
+            void testOptionalIntIsEmpty() {
+                OptionalInt optional = OptionalInt.empty();
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertIsPresent(optional, () -> "error"));
+                assertThat(error.getMessage(), startsWith("error ==> expected: not equal but was: <OptionalInt.empty>"));
+            }
+
+            @Test
+            @DisplayName("OptionalLong is present")
+            void testOptionalLongIsPresent() {
+                OptionalLong optional = OptionalLong.of(1);
+                assertEquals(1, assertIsPresent(optional, () -> "error"));
+            }
+
+            @Test
+            @DisplayName("OptionalLong is empty")
+            void testOptionalLongIsEmpty() {
+                OptionalLong optional = OptionalLong.empty();
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertIsPresent(optional, () -> "error"));
+                assertThat(error.getMessage(), startsWith("error ==> expected: not equal but was: <OptionalLong.empty>"));
+            }
+
+            @Test
+            @DisplayName("OptionalDouble is present")
+            void testOptionalDoubleIsPresent() {
+                OptionalDouble optional = OptionalDouble.of(1);
+                assertEquals(1, assertIsPresent(optional, () -> "error"));
+            }
+
+            @Test
+            @DisplayName("OptionalDouble is empty")
+            void testOptionalDoubleIsEmpty() {
+                OptionalDouble optional = OptionalDouble.empty();
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertIsPresent(optional, () -> "error"));
+                assertThat(error.getMessage(), startsWith("error ==> expected: not equal but was: <OptionalDouble.empty>"));
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("assertHasDirectCause")
+    class AssertHasDirectCause {
 
         @Nested
         @DisplayName("without message or supplier")
@@ -143,7 +348,7 @@ class AdditionalAssertionsTest {
 
         @Nested
         @DisplayName("with message supplier")
-        class WithMessageOrSupplier {
+        class WithMessageSupplier {
 
             @Test
             @DisplayName("with matching cause")
@@ -194,8 +399,8 @@ class AdditionalAssertionsTest {
     }
 
     @Nested
-    @DisplayName("hasCause")
-    class HasCause {
+    @DisplayName("assertHasCause")
+    class AssertHasCause {
 
         @Nested
         @DisplayName("without message or supplier")

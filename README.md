@@ -63,3 +63,30 @@ If you want to test all implementations of a class or interface, you can use [Cl
     }
 
 Since `TraitTest` is in the root package of this project, this finds all classes in this project itself, performs some filtering and sorting, and creates a test for each filtered class.
+
+### Injecting resources
+
+A lot of people have one or more utility methods like this:
+
+    private static String readResource(String name) {
+        StringBuilder sb = new StringBuilder();
+        try (Reader input = new InputStreamReader(MyClassTest.class.getResourceAsStream(name), StandardCharsets.UTF_8)) {
+            char[] buffer = new char[4096];
+            int len;
+            while ((len = input.read(buffer)) != -1) {
+                sb.append(buffer, 0, len);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return sb.toString();
+    }
+
+Instead of having to write this boilerplate code for every project (and sometimes for each test), annotate fields, constructor arguments or method arguments with [Resource](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/io/Resource.html) to inject a Java resource into the field, constructor argument or method argument, as `String`, `CharSequence`, `StringBuilder` or `byte[]`:
+
+    @Test
+    void testWithResource(@Resource("input.json") String json) {
+        // use json as needed
+    }
+
+Note that the resource name is relative to the class that defines the method. Use a leading `/` to start from the root of the class path.

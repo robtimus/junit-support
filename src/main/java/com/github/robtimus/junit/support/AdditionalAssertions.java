@@ -18,10 +18,15 @@
 package com.github.robtimus.junit.support;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
@@ -40,6 +45,161 @@ import org.opentest4j.AssertionFailedError;
 public final class AdditionalAssertions {
 
     private AdditionalAssertions() {
+    }
+
+    /**
+     * Asserts that the supplied optional is not empty.
+     *
+     * @param <T> The optional value type.
+     * @param optional The optional to check.
+     * @return The optional's value.
+     * @since 1.2
+     */
+    public static <T> T assertIsPresent(Optional<T> optional) {
+        assertNotEquals(Optional.empty(), optional);
+        return optional.get(); // NOSONAR
+    }
+
+    /**
+     * Asserts that the supplied optional is not empty.
+     *
+     * @param <T> The optional value type.
+     * @param optional The optional to check.
+     * @param message The failure message to fail with.
+     * @return The optional's value.
+     * @since 1.2
+     */
+    public static <T> T assertIsPresent(Optional<T> optional, String message) {
+        assertNotEquals(Optional.empty(), optional, message);
+        return optional.get(); // NOSONAR
+    }
+
+    /**
+     * Asserts that the supplied optional is not empty.
+     *
+     * @param <T> The optional value type.
+     * @param optional The optional to check.
+     * @param messageSupplier The supplier for the failure message to fail with.
+     * @return The optional's value.
+     * @since 1.2
+     */
+    public static <T> T assertIsPresent(Optional<T> optional, Supplier<String> messageSupplier) {
+        assertNotEquals(Optional.empty(), optional, messageSupplier);
+        return optional.get(); // NOSONAR
+    }
+
+    /**
+     * Asserts that the supplied optional is not empty.
+     *
+     * @param optional The optional to check.
+     * @return The optional's value.
+     * @since 1.2
+     */
+    public static int assertIsPresent(OptionalInt optional) {
+        assertNotEquals(OptionalInt.empty(), optional);
+        return optional.getAsInt();
+    }
+
+    /**
+     * Asserts that the supplied optional is not empty.
+     *
+     * @param optional The optional to check.
+     * @param message The failure message to fail with.
+     * @return The optional's value.
+     * @since 1.2
+     */
+    public static int assertIsPresent(OptionalInt optional, String message) {
+        assertNotEquals(OptionalInt.empty(), optional, message);
+        return optional.getAsInt();
+    }
+
+    /**
+     * Asserts that the supplied optional is not empty.
+     *
+     * @param optional The optional to check.
+     * @param messageSupplier The supplier for the failure message to fail with.
+     * @return The optional's value.
+     * @since 1.2
+     */
+    public static int assertIsPresent(OptionalInt optional, Supplier<String> messageSupplier) {
+        assertNotEquals(OptionalInt.empty(), optional, messageSupplier);
+        return optional.getAsInt();
+    }
+
+    /**
+     * Asserts that the supplied optional is not empty.
+     *
+     * @param optional The optional to check.
+     * @return The optional's value.
+     * @since 1.2
+     */
+    public static long assertIsPresent(OptionalLong optional) {
+        assertNotEquals(OptionalLong.empty(), optional);
+        return optional.getAsLong();
+    }
+
+    /**
+     * Asserts that the supplied optional is not empty.
+     *
+     * @param optional The optional to check.
+     * @param message The failure message to fail with.
+     * @return The optional's value.
+     * @since 1.2
+     */
+    public static long assertIsPresent(OptionalLong optional, String message) {
+        assertNotEquals(OptionalLong.empty(), optional, message);
+        return optional.getAsLong();
+    }
+
+    /**
+     * Asserts that the supplied optional is not empty.
+     *
+     * @param optional The optional to check.
+     * @param messageSupplier The supplier for the failure message to fail with.
+     * @return The optional's value.
+     * @since 1.2
+     */
+    public static long assertIsPresent(OptionalLong optional, Supplier<String> messageSupplier) {
+        assertNotEquals(OptionalLong.empty(), optional, messageSupplier);
+        return optional.getAsLong();
+    }
+
+    /**
+     * Asserts that the supplied optional is not empty.
+     *
+     * @param optional The optional to check.
+     * @return The optional's value.
+     * @since 1.2
+     */
+    public static double assertIsPresent(OptionalDouble optional) {
+        assertNotEquals(OptionalDouble.empty(), optional);
+        return optional.getAsDouble();
+    }
+
+    /**
+     * Asserts that the supplied optional is not empty.
+     *
+     * @param optional The optional to check.
+     * @param message The failure message to fail with.
+     * @return The optional's value.
+     * @since 1.2
+     */
+    public static double assertIsPresent(OptionalDouble optional, String message) {
+        assertNotEquals(OptionalDouble.empty(), optional, message);
+        return optional.getAsDouble();
+    }
+
+    /**
+     * Asserts that the supplied optional is not empty.
+     *
+     * @param optional The optional to check.
+     * @param messageSupplier The supplier for the failure message to fail with.
+     * @return The optional's value.
+     * @since 1.2
+     */
+    public static double assertIsPresent(OptionalDouble optional, Supplier<String> messageSupplier) {
+        assertNotEquals(OptionalDouble.empty(), optional, messageSupplier);
+        return optional.getAsDouble();
     }
 
     /**

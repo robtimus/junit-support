@@ -64,6 +64,7 @@
   <properties>
     <version.commons-io>2.11.0</version.commons-io>
     <version.io-functions>2.0</version.io-functions>
+    <version.junit-testkit>1.8.2</version.junit-testkit>
     <version.reflections>0.10.2</version.reflections>
   </properties>
 
@@ -99,6 +100,13 @@
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>${version.commons-io}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-testkit</artifactId>
+      <version>${version.junit-testkit}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
