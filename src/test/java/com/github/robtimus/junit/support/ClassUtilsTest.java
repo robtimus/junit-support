@@ -42,7 +42,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.extension.ExtendWith;
-import com.github.robtimus.junit.support.collections.CollectionAssertions;
 import com.github.robtimus.junit.support.collections.CollectionTests;
 import com.github.robtimus.junit.support.collections.annotation.StoreNullKeyNotSupported;
 import com.github.robtimus.junit.support.io.IOAssertions;
@@ -61,7 +60,6 @@ class ClassUtilsTest {
                 ClassUtils.class,
                 getClass(),
                 TraitTest.class,
-                CollectionAssertions.class,
                 CollectionTests.class,
                 CollectionTests.ClearTests.class,
                 StoreNullKeyNotSupported.class,

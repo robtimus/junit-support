@@ -45,7 +45,7 @@ See [here](https://github.com/robtimus/junit-support/tree/master/src/test/java/c
 
 ### Additional assertions
 
-Classes [AdditionalAssertions](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/AdditionalAssertions.html), [CollectionAssertions](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/collections/CollectionAssertions.html) and [IOAssertions](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/io/IOAssertions.html) provide some additional assertions that can be used in unit tests.
+Classes [AdditionalAssertions](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/AdditionalAssertions.html) and [IOAssertions](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/io/IOAssertions.html) provide some additional assertions that can be used in unit tests.
 
 ### Dynamically testing all implementations
 

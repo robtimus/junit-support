@@ -17,7 +17,6 @@
 
 package com.github.robtimus.junit.support.io;
 
-import static com.github.robtimus.junit.support.AdditionalAssertions.assertDoesNotThrowCheckedException;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.either;
 import static org.hamcrest.Matchers.instanceOf;
@@ -34,10 +33,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Reader;
 import java.util.function.Supplier;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.function.Executable;
-import com.github.robtimus.io.function.IORunnable;
-import com.github.robtimus.junit.support.AdditionalAssertions;
 
 /**
  * A collection of utility methods that support asserting conditions related to I/O.
@@ -47,19 +42,6 @@ import com.github.robtimus.junit.support.AdditionalAssertions;
 public final class IOAssertions {
 
     private IOAssertions() {
-    }
-
-    /**
-     * Asserts that a piece of code does not throw an {@link IOException}.
-     * This method works a lot like {@link Assertions#assertDoesNotThrow(Executable)}, except any exception other than {@link IOException} will not
-     * be caught. It allows failed assertion errors to pass through.
-     *
-     * @param runnable The piece of code that should not throw an {@link IOException}.
-     * @deprecated Use {@link AdditionalAssertions#assertDoesNotThrowCheckedException(Executable)} instead.
-     */
-    @Deprecated
-    public static void assertDoesNotThrowIOException(IORunnable runnable) {
-        assertDoesNotThrowCheckedException(runnable::run);
     }
 
     /**
@@ -79,7 +61,7 @@ public final class IOAssertions {
      * @param reader The reader to read from. It will be exhausted at the end of this method call.
      * @param expectedContent The expected content.
      * @param message The failure message to fail with.
-     * @since 1.2
+     * @since 2.0
      */
     public static void assertContainsContent(Reader reader, String expectedContent, String message) {
         String content = assertDoesNotThrow(() -> readContent(reader, expectedContent), message);
@@ -92,7 +74,7 @@ public final class IOAssertions {
      * @param reader The reader to read from. It will be exhausted at the end of this method call.
      * @param expectedContent The expected content.
      * @param messageSupplier The supplier for the failure message to fail with.
-     * @since 1.2
+     * @since 2.0
      */
     public static void assertContainsContent(Reader reader, String expectedContent, Supplier<String> messageSupplier) {
         String content = assertDoesNotThrow(() -> readContent(reader, expectedContent), messageSupplier);
@@ -126,7 +108,7 @@ public final class IOAssertions {
      * @param inputStream The input stream to read from. It will be exhausted at the end of this method call.
      * @param expectedContent The expected content.
      * @param message The failure message to fail with.
-     * @since 1.2
+     * @since 2.0
      */
     public static void assertContainsContent(InputStream inputStream, byte[] expectedContent, String message) {
         byte[] content = assertDoesNotThrow(() -> readContent(inputStream, expectedContent.length), message);
@@ -139,7 +121,7 @@ public final class IOAssertions {
      * @param inputStream The input stream to read from. It will be exhausted at the end of this method call.
      * @param expectedContent The expected content.
      * @param messageSupplier The supplier for the failure message to fail with.
-     * @since 1.2
+     * @since 2.0
      */
     public static void assertContainsContent(InputStream inputStream, byte[] expectedContent, Supplier<String> messageSupplier) {
         byte[] content = assertDoesNotThrow(() -> readContent(inputStream, expectedContent.length), messageSupplier);
@@ -192,7 +174,7 @@ public final class IOAssertions {
      * @param object The object to test.
      * @param message The failure message to fail with.
      * @return A deserialized copy of the object.
-     * @since 1.2
+     * @since 2.0
      */
     public static <T> T assertSerializable(T object, String message) {
         return assertDoesNotThrow(() -> serializeAndDeserialize(object), message);
@@ -205,7 +187,7 @@ public final class IOAssertions {
      * @param object The object to test.
      * @param messageSupplier The supplier for the failure message to fail with.
      * @return A deserialized copy of the object.
-     * @since 1.2
+     * @since 2.0
      */
     public static <T> T assertSerializable(T object, Supplier<String> messageSupplier) {
         return assertDoesNotThrow(() -> serializeAndDeserialize(object), messageSupplier);
@@ -238,7 +220,7 @@ public final class IOAssertions {
      *
      * @param object The object to test.
      * @param message The failure message to fail with.
-     * @since 1.2
+     * @since 2.0
      */
     public static void assertNotSerializable(Object object, String message) {
         assertThrows(NotSerializableException.class, () -> serializeOnly(object), message);
@@ -249,7 +231,7 @@ public final class IOAssertions {
      *
      * @param object The object to test.
      * @param messageSupplier The supplier for the failure message to fail with.
-     * @since 1.2
+     * @since 2.0
      */
     public static void assertNotSerializable(Object object, Supplier<String> messageSupplier) {
         assertThrows(NotSerializableException.class, () -> serializeOnly(object), messageSupplier);

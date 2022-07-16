@@ -36,7 +36,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
  * </ul>
  *
  * @author Rob Spoor
- * @since 1.2
+ * @since 2.0
  */
 @ExtendWith(TestResourceExtension.class)
 @Target({ ElementType.FIELD, ElementType.PARAMETER })

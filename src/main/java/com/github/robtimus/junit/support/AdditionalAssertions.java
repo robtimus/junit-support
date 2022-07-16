@@ -53,7 +53,7 @@ public final class AdditionalAssertions {
      * @param <T> The optional value type.
      * @param optional The optional to check.
      * @return The optional's value.
-     * @since 1.2
+     * @since 2.0
      */
     public static <T> T assertIsPresent(Optional<T> optional) {
         assertNotEquals(Optional.empty(), optional);
@@ -67,7 +67,7 @@ public final class AdditionalAssertions {
      * @param optional The optional to check.
      * @param message The failure message to fail with.
      * @return The optional's value.
-     * @since 1.2
+     * @since 2.0
      */
     public static <T> T assertIsPresent(Optional<T> optional, String message) {
         assertNotEquals(Optional.empty(), optional, message);
@@ -81,7 +81,7 @@ public final class AdditionalAssertions {
      * @param optional The optional to check.
      * @param messageSupplier The supplier for the failure message to fail with.
      * @return The optional's value.
-     * @since 1.2
+     * @since 2.0
      */
     public static <T> T assertIsPresent(Optional<T> optional, Supplier<String> messageSupplier) {
         assertNotEquals(Optional.empty(), optional, messageSupplier);
@@ -93,7 +93,7 @@ public final class AdditionalAssertions {
      *
      * @param optional The optional to check.
      * @return The optional's value.
-     * @since 1.2
+     * @since 2.0
      */
     public static int assertIsPresent(OptionalInt optional) {
         assertNotEquals(OptionalInt.empty(), optional);
@@ -106,7 +106,7 @@ public final class AdditionalAssertions {
      * @param optional The optional to check.
      * @param message The failure message to fail with.
      * @return The optional's value.
-     * @since 1.2
+     * @since 2.0
      */
     public static int assertIsPresent(OptionalInt optional, String message) {
         assertNotEquals(OptionalInt.empty(), optional, message);
@@ -119,7 +119,7 @@ public final class AdditionalAssertions {
      * @param optional The optional to check.
      * @param messageSupplier The supplier for the failure message to fail with.
      * @return The optional's value.
-     * @since 1.2
+     * @since 2.0
      */
     public static int assertIsPresent(OptionalInt optional, Supplier<String> messageSupplier) {
         assertNotEquals(OptionalInt.empty(), optional, messageSupplier);
@@ -131,7 +131,7 @@ public final class AdditionalAssertions {
      *
      * @param optional The optional to check.
      * @return The optional's value.
-     * @since 1.2
+     * @since 2.0
      */
     public static long assertIsPresent(OptionalLong optional) {
         assertNotEquals(OptionalLong.empty(), optional);
@@ -144,7 +144,7 @@ public final class AdditionalAssertions {
      * @param optional The optional to check.
      * @param message The failure message to fail with.
      * @return The optional's value.
-     * @since 1.2
+     * @since 2.0
      */
     public static long assertIsPresent(OptionalLong optional, String message) {
         assertNotEquals(OptionalLong.empty(), optional, message);
@@ -157,7 +157,7 @@ public final class AdditionalAssertions {
      * @param optional The optional to check.
      * @param messageSupplier The supplier for the failure message to fail with.
      * @return The optional's value.
-     * @since 1.2
+     * @since 2.0
      */
     public static long assertIsPresent(OptionalLong optional, Supplier<String> messageSupplier) {
         assertNotEquals(OptionalLong.empty(), optional, messageSupplier);
@@ -169,7 +169,7 @@ public final class AdditionalAssertions {
      *
      * @param optional The optional to check.
      * @return The optional's value.
-     * @since 1.2
+     * @since 2.0
      */
     public static double assertIsPresent(OptionalDouble optional) {
         assertNotEquals(OptionalDouble.empty(), optional);
@@ -182,7 +182,7 @@ public final class AdditionalAssertions {
      * @param optional The optional to check.
      * @param message The failure message to fail with.
      * @return The optional's value.
-     * @since 1.2
+     * @since 2.0
      */
     public static double assertIsPresent(OptionalDouble optional, String message) {
         assertNotEquals(OptionalDouble.empty(), optional, message);
@@ -195,7 +195,7 @@ public final class AdditionalAssertions {
      * @param optional The optional to check.
      * @param messageSupplier The supplier for the failure message to fail with.
      * @return The optional's value.
-     * @since 1.2
+     * @since 2.0
      */
     public static double assertIsPresent(OptionalDouble optional, Supplier<String> messageSupplier) {
         assertNotEquals(OptionalDouble.empty(), optional, messageSupplier);
@@ -347,7 +347,7 @@ public final class AdditionalAssertions {
      * @param executable The {@link Executable} to run.
      * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
      * @see Assertions#assertThrows(Class, Executable)
-     * @since 1.2
+     * @since 2.0
      */
     public static <T extends Throwable> Optional<T> assertOptionallyThrows(Class<T> expectedType, Executable executable) {
         return assertOptionallyThrows(expectedType, executable, (Object) null);
@@ -367,7 +367,7 @@ public final class AdditionalAssertions {
      * @param message The failure message to fail with.
      * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
      * @see Assertions#assertThrows(Class, Executable, String)
-     * @since 1.2
+     * @since 2.0
      */
     public static <T extends Throwable> Optional<T> assertOptionallyThrows(Class<T> expectedType, Executable executable, String message) {
         return assertOptionallyThrows(expectedType, executable, (Object) message);
@@ -387,7 +387,7 @@ public final class AdditionalAssertions {
      * @param messageSupplier The supplier for the failure message to fail with.
      * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
      * @see Assertions#assertThrows(Class, Executable, Supplier)
-     * @since 1.2
+     * @since 2.0
      */
     public static <T extends Throwable> Optional<T> assertOptionallyThrows(Class<T> expectedType, Executable executable,
             Supplier<String> messageSupplier) {
@@ -427,7 +427,7 @@ public final class AdditionalAssertions {
      * @param executable The {@link Executable} to run.
      * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
      * @see Assertions#assertThrowsExactly(Class, Executable)
-     * @since 1.2
+     * @since 2.0
      */
     public static <T extends Throwable> Optional<T> assertOptionallyThrowsExactly(Class<T> expectedType, Executable executable) {
         return assertOptionallyThrowsExactly(expectedType, executable, (Object) null);
@@ -447,7 +447,7 @@ public final class AdditionalAssertions {
      * @param message The failure message to fail with.
      * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
      * @see Assertions#assertThrowsExactly(Class, Executable, String)
-     * @since 1.2
+     * @since 2.0
      */
     public static <T extends Throwable> Optional<T> assertOptionallyThrowsExactly(Class<T> expectedType, Executable executable, String message) {
         return assertOptionallyThrowsExactly(expectedType, executable, (Object) message);
@@ -467,7 +467,7 @@ public final class AdditionalAssertions {
      * @param messageSupplier The supplier for the failure message to fail with.
      * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
      * @see Assertions#assertThrowsExactly(Class, Executable, Supplier)
-     * @since 1.2
+     * @since 2.0
      */
     public static <T extends Throwable> Optional<T> assertOptionallyThrowsExactly(Class<T> expectedType, Executable executable,
             Supplier<String> messageSupplier) {
@@ -652,7 +652,7 @@ public final class AdditionalAssertions {
      * @param executable The {@link Executable} to run.
      * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
      * @see Assertions#assertThrowsExactly(Class, Executable)
-     * @since 1.2
+     * @since 2.0
      */
     public static <T extends Throwable> Optional<T> assertOptionallyThrowsExactlyOneOf(Class<? extends T> expectedType1,
             Class<? extends T> expectedType2, Executable executable) {
@@ -678,7 +678,7 @@ public final class AdditionalAssertions {
      * @param message The failure message to fail with.
      * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
      * @see Assertions#assertThrowsExactly(Class, Executable, String)
-     * @since 1.2
+     * @since 2.0
      */
     public static <T extends Throwable> Optional<T> assertOptionallyThrowsExactlyOneOf(Class<? extends T> expectedType1,
             Class<? extends T> expectedType2, Executable executable, String message) {
@@ -704,7 +704,7 @@ public final class AdditionalAssertions {
      * @param messageSupplier The supplier for the failure message to fail with.
      * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
      * @see Assertions#assertThrowsExactly(Class, Executable, Supplier)
-     * @since 1.2
+     * @since 2.0
      */
     public static <T extends Throwable> Optional<T> assertOptionallyThrowsExactlyOneOf(Class<? extends T> expectedType1,
             Class<? extends T> expectedType2, Executable executable, Supplier<String> messageSupplier) {
@@ -728,7 +728,7 @@ public final class AdditionalAssertions {
      * @param executable The {@link Executable} to run.
      * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
      * @see Assertions#assertThrowsExactly(Class, Executable)
-     * @since 1.2
+     * @since 2.0
      */
     public static <T extends Throwable> Optional<T> assertOptionallyThrowsExactlyOneOf(Collection<? extends Class<? extends T>> expectedTypes,
             Executable executable) {
@@ -752,7 +752,7 @@ public final class AdditionalAssertions {
      * @param message The failure message to fail with.
      * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
      * @see Assertions#assertThrowsExactly(Class, Executable, String)
-     * @since 1.2
+     * @since 2.0
      */
     public static <T extends Throwable> Optional<T> assertOptionallyThrowsExactlyOneOf(Collection<? extends Class<? extends T>> expectedTypes,
             Executable executable, String message) {
@@ -776,7 +776,7 @@ public final class AdditionalAssertions {
      * @param messageSupplier The supplier for the failure message to fail with.
      * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
      * @see Assertions#assertThrowsExactly(Class, Executable, Supplier)
-     * @since 1.2
+     * @since 2.0
      */
     public static <T extends Throwable> Optional<T> assertOptionallyThrowsExactlyOneOf(Collection<? extends Class<? extends T>> expectedTypes,
             Executable executable, Supplier<String> messageSupplier) {
@@ -955,7 +955,7 @@ public final class AdditionalAssertions {
      * @param executable The {@link Executable} to run.
      * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
      * @see Assertions#assertThrows(Class, Executable)
-     * @since 1.2
+     * @since 2.0
      */
     public static <T extends Throwable> Optional<T> assertOptionallyThrowsOneOf(Class<? extends T> expectedType1, Class<? extends T> expectedType2,
             Executable executable) {
@@ -979,7 +979,7 @@ public final class AdditionalAssertions {
      * @param message The failure message to fail with.
      * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
      * @see Assertions#assertThrows(Class, Executable, String)
-     * @since 1.2
+     * @since 2.0
      */
     public static <T extends Throwable> Optional<T> assertOptionallyThrowsOneOf(Class<? extends T> expectedType1, Class<? extends T> expectedType2,
             Executable executable, String message) {
@@ -1003,7 +1003,7 @@ public final class AdditionalAssertions {
      * @param messageSupplier The supplier for the failure message to fail with.
      * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
      * @see Assertions#assertThrows(Class, Executable, Supplier)
-     * @since 1.2
+     * @since 2.0
      */
     public static <T extends Throwable> Optional<T> assertOptionallyThrowsOneOf(Class<? extends T> expectedType1, Class<? extends T> expectedType2,
             Executable executable, Supplier<String> messageSupplier) {
@@ -1025,7 +1025,7 @@ public final class AdditionalAssertions {
      * @param executable The {@link Executable} to run.
      * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
      * @see Assertions#assertThrows(Class, Executable)
-     * @since 1.2
+     * @since 2.0
      */
     public static <T extends Throwable> Optional<T> assertOptionallyThrowsOneOf(Collection<? extends Class<? extends T>> expectedTypes,
             Executable executable) {
@@ -1047,7 +1047,7 @@ public final class AdditionalAssertions {
      * @param message The failure message to fail with.
      * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
      * @see Assertions#assertThrows(Class, Executable, String)
-     * @since 1.2
+     * @since 2.0
      */
     public static <T extends Throwable> Optional<T> assertOptionallyThrowsOneOf(Collection<? extends Class<? extends T>> expectedTypes,
             Executable executable, String message) {
@@ -1069,7 +1069,7 @@ public final class AdditionalAssertions {
      * @param messageSupplier The supplier for the failure message to fail with.
      * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
      * @see Assertions#assertThrows(Class, Executable, Supplier)
-     * @since 1.2
+     * @since 2.0
      */
     public static <T extends Throwable> Optional<T> assertOptionallyThrowsOneOf(Collection<? extends Class<? extends T>> expectedTypes,
             Executable executable, Supplier<String> messageSupplier) {
@@ -1106,7 +1106,7 @@ public final class AdditionalAssertions {
      * It allows failed assertion errors to pass through.
      *
      * @param executable The piece of code that should not throw a checked exception.
-     * @since 1.2
+     * @since 2.0
      */
     public static void assertDoesNotThrowCheckedException(Executable executable) {
         try {
@@ -1127,7 +1127,7 @@ public final class AdditionalAssertions {
      *
      * @param executable The piece of code that should not throw a checked exception.
      * @param message The failure message to fail with.
-     * @since 1.2
+     * @since 2.0
      */
     public static void assertDoesNotThrowCheckedException(Executable executable, String message) {
         try {
@@ -1148,7 +1148,7 @@ public final class AdditionalAssertions {
      *
      * @param executable The piece of code that should not throw a checked exception.
      * @param messageSupplier The supplier for the failure message to fail with.
-     * @since 1.2
+     * @since 2.0
      */
     public static void assertDoesNotThrowCheckedException(Executable executable, Supplier<String> messageSupplier) {
         try {
@@ -1170,7 +1170,7 @@ public final class AdditionalAssertions {
      * @param <T> The type of results supplied by the given supplier.
      * @param supplier The piece of code that should not throw a checked exception.
      * @return A result supplied by the given supplier.
-     * @since 1.2
+     * @since 2.0
      */
     public static <T> T assertDoesNotThrowCheckedException(ThrowingSupplier<T> supplier) {
         try {
@@ -1193,7 +1193,7 @@ public final class AdditionalAssertions {
      * @param supplier The piece of code that should not throw a checked exception.
      * @param message The failure message to fail with.
      * @return A result supplied by the given supplier.
-     * @since 1.2
+     * @since 2.0
      */
     public static <T> T assertDoesNotThrowCheckedException(ThrowingSupplier<T> supplier, String message) {
         try {
@@ -1216,7 +1216,7 @@ public final class AdditionalAssertions {
      * @param supplier The piece of code that should not throw a checked exception.
      * @param messageSupplier The supplier for the failure message to fail with.
      * @return A result supplied by the given supplier.
-     * @since 1.2
+     * @since 2.0
      */
     public static <T> T assertDoesNotThrowCheckedException(ThrowingSupplier<T> supplier, Supplier<String> messageSupplier) {
         try {
