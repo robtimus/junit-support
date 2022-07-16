@@ -21,6 +21,10 @@ import static com.github.robtimus.junit.support.AdditionalAssertions.assertDoesN
 import static com.github.robtimus.junit.support.AdditionalAssertions.assertHasCause;
 import static com.github.robtimus.junit.support.AdditionalAssertions.assertHasDirectCause;
 import static com.github.robtimus.junit.support.AdditionalAssertions.assertIsPresent;
+import static com.github.robtimus.junit.support.AdditionalAssertions.assertOptionallyThrows;
+import static com.github.robtimus.junit.support.AdditionalAssertions.assertOptionallyThrowsExactly;
+import static com.github.robtimus.junit.support.AdditionalAssertions.assertOptionallyThrowsExactlyOneOf;
+import static com.github.robtimus.junit.support.AdditionalAssertions.assertOptionallyThrowsOneOf;
 import static com.github.robtimus.junit.support.AdditionalAssertions.assertThrowsExactlyOneOf;
 import static com.github.robtimus.junit.support.AdditionalAssertions.assertThrowsOneOf;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -566,6 +570,291 @@ class AdditionalAssertionsTest {
     }
 
     @Nested
+    @DisplayName("assertOptionallyThrows")
+    class AssertOptionallyThrows {
+
+        @Nested
+        @DisplayName("without message or supplier")
+        class WithoutMessageOrSupplier {
+
+            @Test
+            @DisplayName("expected exception is thrown")
+            void testExpectedThrown() {
+                IllegalArgumentException exception = new NumberFormatException("first");
+
+                Optional<IllegalArgumentException> thrown = assertOptionallyThrows(IllegalArgumentException.class, () -> throwException(exception));
+
+                assertSame(exception, assertIsPresent(thrown));
+            }
+
+            @Test
+            @DisplayName("different exception is thrown")
+            void testDifferentThrown() {
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, this::throwOtherException);
+
+                String expectedMessage = String.format("Unexpected exception type thrown ==> expected: <%s> but was: <%s>",
+                        IllegalArgumentException.class.getName(), IllegalStateException.class.getName());
+                assertEquals(expectedMessage, error.getMessage());
+            }
+
+            @Test
+            @DisplayName("nothing is thrown")
+            void testNothingThrown() {
+                Optional<IllegalArgumentException> thrown = throwNothing();
+                assertEquals(Optional.empty(), thrown);
+            }
+
+            private void throwOtherException() {
+                IllegalStateException exception = new IllegalStateException("other");
+
+                assertOptionallyThrows(IllegalArgumentException.class, () -> throwException(exception));
+            }
+
+            private Optional<IllegalArgumentException> throwNothing() {
+                return assertOptionallyThrows(IllegalArgumentException.class, () -> {
+                    /* do nothing */
+                });
+            }
+        }
+
+        @Nested
+        @DisplayName("with message")
+        class WithMessage {
+
+            @Test
+            @DisplayName("expected exception is thrown")
+            void testExpectedThrown() {
+                IllegalArgumentException exception = new NumberFormatException("first");
+
+                Optional<IllegalArgumentException> thrown = assertOptionallyThrows(IllegalArgumentException.class, () -> throwException(exception),
+                        "Wrong type of exception thrown");
+
+                assertSame(exception, assertIsPresent(thrown));
+            }
+
+            @Test
+            @DisplayName("different exception is thrown")
+            void testDifferentThrown() {
+                String message = "Wrong type of exception thrown";
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwOtherException(message));
+
+                String expectedMessage = String.format("%s ==> Unexpected exception type thrown ==> expected: <%s> but was: <%s>",
+                        message, IllegalArgumentException.class.getName(), IllegalStateException.class.getName());
+                assertEquals(expectedMessage, error.getMessage());
+            }
+
+            @Test
+            @DisplayName("nothing is thrown")
+            void testNothingThrown() {
+                Optional<IllegalArgumentException> thrown = throwNothing("Wrong type of exception thrown");
+                assertEquals(Optional.empty(), thrown);
+            }
+
+            private void throwOtherException(String message) {
+                IllegalStateException exception = new IllegalStateException("other");
+
+                assertOptionallyThrows(IllegalArgumentException.class, () -> throwException(exception), message);
+            }
+
+            private Optional<IllegalArgumentException> throwNothing(String message) {
+                return assertOptionallyThrows(IllegalArgumentException.class, () -> {
+                    /* do nothing */
+                }, message);
+            }
+        }
+
+        @Nested
+        @DisplayName("with message supplier")
+        class WithMessageSupplier {
+
+            @Test
+            @DisplayName("expected exception is thrown")
+            void testExpectedThrown() {
+                IllegalArgumentException exception = new NumberFormatException("first");
+
+                Optional<IllegalArgumentException> thrown = assertOptionallyThrows(IllegalArgumentException.class, () -> throwException(exception),
+                        () -> "Wrong type of exception thrown");
+
+                assertSame(exception, assertIsPresent(thrown));
+            }
+
+            @Test
+            @DisplayName("different exception is thrown")
+            void testDifferentThrown() {
+                String message = "Wrong type of exception thrown";
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwOtherException(message));
+
+                String expectedMessage = String.format("%s ==> Unexpected exception type thrown ==> expected: <%s> but was: <%s>",
+                        message, IllegalArgumentException.class.getName(), IllegalStateException.class.getName());
+                assertEquals(expectedMessage, error.getMessage());
+            }
+
+            @Test
+            @DisplayName("nothing is thrown")
+            void testNothingThrown() {
+                Optional<IllegalArgumentException> thrown = throwNothing("Wrong type of exception thrown");
+                assertEquals(Optional.empty(), thrown);
+            }
+
+            private void throwOtherException(String message) {
+                IllegalStateException exception = new IllegalStateException("other");
+
+                assertOptionallyThrows(IllegalArgumentException.class, () -> throwException(exception), () -> message);
+            }
+
+            private Optional<IllegalArgumentException> throwNothing(String message) {
+                return assertOptionallyThrows(IllegalArgumentException.class, () -> {
+                    /* do nothing */
+                }, () -> message);
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("assertOptionallyThrowsExactly")
+    class AssertOptionallyThrowsExactly {
+
+        @Nested
+        @DisplayName("without message or supplier")
+        class WithoutMessageOrSupplier {
+
+            @Test
+            @DisplayName("expected exception is thrown")
+            void testExpectedThrown() {
+                IllegalArgumentException exception = new IllegalArgumentException("first");
+
+                Optional<IllegalArgumentException> thrown = assertOptionallyThrowsExactly(IllegalArgumentException.class,
+                        () -> throwException(exception));
+
+                assertSame(exception, assertIsPresent(thrown));
+            }
+
+            @Test
+            @DisplayName("different exception is thrown")
+            void testDifferentThrown() {
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, this::throwOtherException);
+
+                String expectedMessage = String.format("Unexpected exception type thrown ==> expected: <%s> but was: <%s>",
+                        IllegalArgumentException.class.getName(), NumberFormatException.class.getName());
+                assertEquals(expectedMessage, error.getMessage());
+            }
+
+            @Test
+            @DisplayName("nothing is thrown")
+            void testNothingThrown() {
+                Optional<IllegalArgumentException> thrown = throwNothing();
+                assertEquals(Optional.empty(), thrown);
+            }
+
+            private void throwOtherException() {
+                NumberFormatException exception = new NumberFormatException("other");
+
+                assertOptionallyThrowsExactly(IllegalArgumentException.class, () -> throwException(exception));
+            }
+
+            private Optional<IllegalArgumentException> throwNothing() {
+                return assertOptionallyThrowsExactly(IllegalArgumentException.class, () -> {
+                    /* do nothing */
+                });
+            }
+        }
+
+        @Nested
+        @DisplayName("with message")
+        class WithMessage {
+
+            @Test
+            @DisplayName("expected exception is thrown")
+            void testExpectedThrown() {
+                IllegalArgumentException exception = new IllegalArgumentException("first");
+
+                Optional<IllegalArgumentException> thrown = assertOptionallyThrowsExactly(IllegalArgumentException.class,
+                        () -> throwException(exception),
+                        "Wrong type of exception thrown");
+
+                assertSame(exception, assertIsPresent(thrown));
+            }
+
+            @Test
+            @DisplayName("different exception is thrown")
+            void testDifferentThrown() {
+                String message = "Wrong type of exception thrown";
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwOtherException(message));
+
+                String expectedMessage = String.format("%s ==> Unexpected exception type thrown ==> expected: <%s> but was: <%s>",
+                        message, IllegalArgumentException.class.getName(), NumberFormatException.class.getName());
+                assertEquals(expectedMessage, error.getMessage());
+            }
+
+            @Test
+            @DisplayName("nothing is thrown")
+            void testNothingThrown() {
+                Optional<IllegalArgumentException> thrown = throwNothing("Wrong type of exception thrown");
+                assertEquals(Optional.empty(), thrown);
+            }
+
+            private void throwOtherException(String message) {
+                NumberFormatException exception = new NumberFormatException("other");
+
+                assertOptionallyThrowsExactly(IllegalArgumentException.class, () -> throwException(exception), message);
+            }
+
+            private Optional<IllegalArgumentException> throwNothing(String message) {
+                return assertOptionallyThrowsExactly(IllegalArgumentException.class, () -> {
+                    /* do nothing */
+                }, message);
+            }
+        }
+
+        @Nested
+        @DisplayName("with message supplier")
+        class WithMessageSupplier {
+
+            @Test
+            @DisplayName("expected exception is thrown")
+            void testExpectedThrown() {
+                IllegalArgumentException exception = new IllegalArgumentException("first");
+
+                Optional<IllegalArgumentException> thrown = assertOptionallyThrowsExactly(IllegalArgumentException.class,
+                        () -> throwException(exception),
+                        () -> "Wrong type of exception thrown");
+
+                assertSame(exception, assertIsPresent(thrown));
+            }
+
+            @Test
+            @DisplayName("different exception is thrown")
+            void testDifferentThrown() {
+                String message = "Wrong type of exception thrown";
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwOtherException(message));
+
+                String expectedMessage = String.format("%s ==> Unexpected exception type thrown ==> expected: <%s> but was: <%s>",
+                        message, IllegalArgumentException.class.getName(), NumberFormatException.class.getName());
+                assertEquals(expectedMessage, error.getMessage());
+            }
+
+            @Test
+            @DisplayName("nothing is thrown")
+            void testNothingThrown() {
+                Optional<IllegalArgumentException> thrown = throwNothing("Wrong type of exception thrown");
+                assertEquals(Optional.empty(), thrown);
+            }
+
+            private void throwOtherException(String message) {
+                NumberFormatException exception = new NumberFormatException("other");
+
+                assertOptionallyThrowsExactly(IllegalArgumentException.class, () -> throwException(exception), () -> message);
+            }
+
+            private Optional<IllegalArgumentException> throwNothing(String message) {
+                return assertOptionallyThrowsExactly(IllegalArgumentException.class, () -> {
+                    /* do nothing */
+                }, () -> message);
+            }
+        }
+    }
+
+    @Nested
     @DisplayName("assertThrowsExactlyOneOf")
     class AssertThrowsExactlyOneOf {
 
@@ -760,6 +1049,189 @@ class AdditionalAssertionsTest {
     }
 
     @Nested
+    @DisplayName("assertOptionallyThrowsExactlyOneOf")
+    class AssertOptionallyThrowsExactlyOneOf {
+
+        @Nested
+        @DisplayName("without message or supplier")
+        class WithoutMessageOrSupplier {
+
+            @Test
+            @DisplayName("first expected exception is thrown")
+            void testFirstThrown() {
+                IllegalArgumentException exception = new IllegalArgumentException("first");
+
+                Optional<RuntimeException> thrown = assertOptionallyThrowsExactlyOneOf(IllegalArgumentException.class, NullPointerException.class,
+                        () -> throwException(exception));
+
+                assertSame(exception, assertIsPresent(thrown));
+            }
+
+            @Test
+            @DisplayName("second expected exception is thrown")
+            void testSecondThrown() {
+                NullPointerException exception = new NullPointerException("second");
+
+                Optional<RuntimeException> thrown = assertOptionallyThrowsExactlyOneOf(IllegalArgumentException.class, NullPointerException.class,
+                        () -> throwException(exception));
+
+                assertSame(exception, assertIsPresent(thrown));
+            }
+
+            @Test
+            @DisplayName("different exception is thrown")
+            void testDifferentThrown() {
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, this::throwOtherException);
+
+                String expectedMessage = String.format("Unexpected exception type thrown ==> expected: one of <%s>, <%s> but was: <%s>",
+                        IllegalArgumentException.class.getName(), NullPointerException.class.getName(), NumberFormatException.class.getName());
+                assertEquals(expectedMessage, error.getMessage());
+            }
+
+            @Test
+            @DisplayName("nothing is thrown")
+            void testNothingThrown() {
+                Optional<RuntimeException> thrown = throwNothing();
+                assertEquals(Optional.empty(), thrown);
+            }
+
+            private void throwOtherException() {
+                NumberFormatException exception = new NumberFormatException("other");
+
+                assertOptionallyThrowsExactlyOneOf(IllegalArgumentException.class, NullPointerException.class, () -> throwException(exception));
+            }
+
+            private Optional<RuntimeException> throwNothing() {
+                return assertOptionallyThrowsExactlyOneOf(IllegalArgumentException.class, NullPointerException.class, () -> {
+                    /* do nothing */
+                });
+            }
+        }
+
+        @Nested
+        @DisplayName("with message")
+        class WithMessage {
+
+            @Test
+            @DisplayName("first expected exception is thrown")
+            void testFirstThrown() {
+                IllegalArgumentException exception = new IllegalArgumentException("first");
+
+                Optional<RuntimeException> thrown = assertOptionallyThrowsExactlyOneOf(IllegalArgumentException.class, NullPointerException.class,
+                        () -> throwException(exception),
+                        "Wrong type of exception thrown");
+
+                assertSame(exception, assertIsPresent(thrown));
+            }
+
+            @Test
+            @DisplayName("second expected exception is thrown")
+            void testSecondThrown() {
+                NullPointerException exception = new NullPointerException("second");
+
+                Optional<RuntimeException> thrown = assertOptionallyThrowsExactlyOneOf(IllegalArgumentException.class, NullPointerException.class,
+                        () -> throwException(exception),
+                        "Wrong type of exception thrown");
+
+                assertSame(exception, assertIsPresent(thrown));
+            }
+
+            @Test
+            @DisplayName("different exception is thrown")
+            void testDifferentThrown() {
+                String message = "Wrong type of exception thrown";
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwOtherException(message));
+
+                String expectedMessage = String.format("%s ==> Unexpected exception type thrown ==> expected: one of <%s>, <%s> but was: <%s>",
+                        message,
+                        IllegalArgumentException.class.getName(), NullPointerException.class.getName(), NumberFormatException.class.getName());
+                assertEquals(expectedMessage, error.getMessage());
+            }
+
+            @Test
+            @DisplayName("nothing is thrown")
+            void testNothingThrown() {
+                Optional<RuntimeException> thrown = throwNothing("Wrong type of exception thrown");
+                assertEquals(Optional.empty(), thrown);
+            }
+
+            private void throwOtherException(String message) {
+                NumberFormatException exception = new NumberFormatException("other");
+
+                assertOptionallyThrowsExactlyOneOf(IllegalArgumentException.class, NullPointerException.class, () -> throwException(exception),
+                        message);
+            }
+
+            private Optional<RuntimeException> throwNothing(String message) {
+                return assertOptionallyThrowsExactlyOneOf(IllegalArgumentException.class, NullPointerException.class, () -> {
+                    /* do nothing */
+                }, message);
+            }
+        }
+
+        @Nested
+        @DisplayName("with message supplier")
+        class WithMessageSupplier {
+
+            @Test
+            @DisplayName("first expected exception is thrown")
+            void testFirstThrown() {
+                IllegalArgumentException exception = new IllegalArgumentException("first");
+
+                Optional<RuntimeException> thrown = assertOptionallyThrowsExactlyOneOf(IllegalArgumentException.class, NullPointerException.class,
+                        () -> throwException(exception),
+                        () -> "Wrong type of exception thrown");
+
+                assertSame(exception, assertIsPresent(thrown));
+            }
+
+            @Test
+            @DisplayName("second expected exception is thrown")
+            void testSecondThrown() {
+                NullPointerException exception = new NullPointerException("second");
+
+                Optional<RuntimeException> thrown = assertOptionallyThrowsExactlyOneOf(IllegalArgumentException.class, NullPointerException.class,
+                        () -> throwException(exception),
+                        "Wrong type of exception thrown");
+
+                assertSame(exception, assertIsPresent(thrown));
+            }
+
+            @Test
+            @DisplayName("different exception is thrown")
+            void testDifferentThrown() {
+                String message = "Wrong type of exception thrown";
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwOtherException(message));
+
+                String expectedMessage = String.format("%s ==> Unexpected exception type thrown ==> expected: one of <%s>, <%s> but was: <%s>",
+                        message,
+                        IllegalArgumentException.class.getName(), NullPointerException.class.getName(), NumberFormatException.class.getName());
+                assertEquals(expectedMessage, error.getMessage());
+            }
+
+            @Test
+            @DisplayName("nothing is thrown")
+            void testNothingThrown() {
+                Optional<RuntimeException> thrown = throwNothing("Wrong type of exception thrown");
+                assertEquals(Optional.empty(), thrown);
+            }
+
+            private void throwOtherException(String message) {
+                NumberFormatException exception = new NumberFormatException("other");
+
+                assertOptionallyThrowsExactlyOneOf(IllegalArgumentException.class, NullPointerException.class, () -> throwException(exception),
+                        () -> message);
+            }
+
+            private Optional<RuntimeException> throwNothing(String message) {
+                return assertOptionallyThrowsExactlyOneOf(IllegalArgumentException.class, NullPointerException.class, () -> {
+                    /* do nothing */
+                }, () -> message);
+            }
+        }
+    }
+
+    @Nested
     @DisplayName("assertThrowsOneOf")
     class AssertThrowsOneOf {
 
@@ -947,6 +1419,188 @@ class AdditionalAssertionsTest {
 
             private void throwNothing(String message) {
                 assertThrowsOneOf(IllegalArgumentException.class, NullPointerException.class, () -> {
+                    /* do nothing */
+                }, () -> message);
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("assertOptionallyThrowsOneOf")
+    class AssertOptionallyThrowsOneOf {
+
+        @Nested
+        @DisplayName("without message or supplier")
+        class WithoutMessageOrSupplier {
+
+            @Test
+            @DisplayName("first expected exception is thrown")
+            void testFirstThrown() {
+                IllegalArgumentException exception = new NumberFormatException("first");
+
+                Optional<RuntimeException> thrown = assertOptionallyThrowsOneOf(IllegalArgumentException.class, NullPointerException.class,
+                        () -> throwException(exception));
+
+                assertSame(exception, assertIsPresent(thrown));
+            }
+
+            @Test
+            @DisplayName("second expected exception is thrown")
+            void testSecondThrown() {
+                NullPointerException exception = new NullPointerException("second");
+
+                Optional<RuntimeException> thrown = assertOptionallyThrowsOneOf(IllegalArgumentException.class, NullPointerException.class,
+                        () -> throwException(exception));
+
+                assertSame(exception, assertIsPresent(thrown));
+            }
+
+            @Test
+            @DisplayName("different exception is thrown")
+            void testDifferentThrown() {
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, this::throwOtherException);
+
+                String expectedMessage = String.format("Unexpected exception type thrown ==> expected: one of <%s>, <%s> but was: <%s>",
+                        IllegalArgumentException.class.getName(), NullPointerException.class.getName(), IllegalStateException.class.getName());
+                assertEquals(expectedMessage, error.getMessage());
+            }
+
+            @Test
+            @DisplayName("nothing is thrown")
+            void testNothingThrown() {
+                Optional<RuntimeException> thrown = throwNothing();
+                assertEquals(Optional.empty(), thrown);
+            }
+
+            private void throwOtherException() {
+                IllegalStateException exception = new IllegalStateException("other");
+
+                assertThrowsOneOf(IllegalArgumentException.class, NullPointerException.class, () -> throwException(exception));
+            }
+
+            private Optional<RuntimeException> throwNothing() {
+                return assertOptionallyThrowsOneOf(IllegalArgumentException.class, NullPointerException.class, () -> {
+                    /* do nothing */
+                });
+            }
+        }
+
+        @Nested
+        @DisplayName("with message")
+        class WithMessage {
+
+            @Test
+            @DisplayName("first expected exception is thrown")
+            void testFirstThrown() {
+                IllegalArgumentException exception = new NumberFormatException("first");
+
+                Optional<RuntimeException> thrown = assertOptionallyThrowsOneOf(IllegalArgumentException.class, NullPointerException.class,
+                        () -> throwException(exception),
+                        "Wrong type of exception thrown");
+
+                assertSame(exception, assertIsPresent(thrown));
+            }
+
+            @Test
+            @DisplayName("second expected exception is thrown")
+            void testSecondThrown() {
+                NullPointerException exception = new NullPointerException("second");
+
+                Optional<RuntimeException> thrown = assertOptionallyThrowsOneOf(IllegalArgumentException.class, NullPointerException.class,
+                        () -> throwException(exception),
+                        "Wrong type of exception thrown");
+
+                assertSame(exception, assertIsPresent(thrown));
+            }
+
+            @Test
+            @DisplayName("different exception is thrown")
+            void testDifferentThrown() {
+                String message = "Wrong type of exception thrown";
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwOtherException(message));
+
+                String expectedMessage = String.format("%s ==> Unexpected exception type thrown ==> expected: one of <%s>, <%s> but was: <%s>",
+                        message,
+                        IllegalArgumentException.class.getName(), NullPointerException.class.getName(), IllegalStateException.class.getName());
+                assertEquals(expectedMessage, error.getMessage());
+            }
+
+            @Test
+            @DisplayName("nothing is thrown")
+            void testNothingThrown() {
+                Optional<RuntimeException> thrown = throwNothing("Wrong type of exception thrown");
+                assertEquals(Optional.empty(), thrown);
+            }
+
+            private void throwOtherException(String message) {
+                IllegalStateException exception = new IllegalStateException("other");
+
+                assertOptionallyThrowsOneOf(IllegalArgumentException.class, NullPointerException.class, () -> throwException(exception), message);
+            }
+
+            private Optional<RuntimeException> throwNothing(String message) {
+                return assertOptionallyThrowsOneOf(IllegalArgumentException.class, NullPointerException.class, () -> {
+                    /* do nothing */
+                }, message);
+            }
+        }
+
+        @Nested
+        @DisplayName("with message supplier")
+        class WithMessageSupplier {
+
+            @Test
+            @DisplayName("first expected exception is thrown")
+            void testFirstThrown() {
+                IllegalArgumentException exception = new NumberFormatException("first");
+
+                Optional<RuntimeException> thrown = assertOptionallyThrowsOneOf(IllegalArgumentException.class, NullPointerException.class,
+                        () -> throwException(exception),
+                        () -> "Wrong type of exception thrown");
+
+                assertSame(exception, assertIsPresent(thrown));
+            }
+
+            @Test
+            @DisplayName("second expected exception is thrown")
+            void testSecondThrown() {
+                NullPointerException exception = new NullPointerException("second");
+
+                Optional<RuntimeException> thrown = assertOptionallyThrowsOneOf(IllegalArgumentException.class, NullPointerException.class,
+                        () -> throwException(exception),
+                        "Wrong type of exception thrown");
+
+                assertSame(exception, assertIsPresent(thrown));
+            }
+
+            @Test
+            @DisplayName("different exception is thrown")
+            void testDifferentThrown() {
+                String message = "Wrong type of exception thrown";
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwOtherException(message));
+
+                String expectedMessage = String.format("%s ==> Unexpected exception type thrown ==> expected: one of <%s>, <%s> but was: <%s>",
+                        message,
+                        IllegalArgumentException.class.getName(), NullPointerException.class.getName(), IllegalStateException.class.getName());
+                assertEquals(expectedMessage, error.getMessage());
+            }
+
+            @Test
+            @DisplayName("nothing is thrown")
+            void testNothingThrown() {
+                Optional<RuntimeException> thrown = throwNothing("Wrong type of exception thrown");
+                assertEquals(Optional.empty(), thrown);
+            }
+
+            private void throwOtherException(String message) {
+                IllegalStateException exception = new IllegalStateException("other");
+
+                assertOptionallyThrowsOneOf(IllegalArgumentException.class, NullPointerException.class, () -> throwException(exception),
+                        () -> message);
+            }
+
+            private Optional<RuntimeException> throwNothing(String message) {
+                return assertOptionallyThrowsOneOf(IllegalArgumentException.class, NullPointerException.class, () -> {
                     /* do nothing */
                 }, () -> message);
             }

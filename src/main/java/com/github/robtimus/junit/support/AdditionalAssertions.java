@@ -335,6 +335,168 @@ public final class AdditionalAssertions {
     }
 
     /**
+     * Asserts that execution of the supplied {@link Executable} throws an exception of the supplied type, or throws nothing at all.
+     * If an exception was thrown, it is returned.
+     * <p>
+     * If an exception of a different type is thrown, this method will fail.
+     * <p>
+     * If you do not want to perform additional checks on the exception instance, ignore the return value.
+     *
+     * @param <T> The expected exception type.
+     * @param expectedType The expected exception type to check for.
+     * @param executable The {@link Executable} to run.
+     * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
+     * @see Assertions#assertThrows(Class, Executable)
+     * @since 1.2
+     */
+    public static <T extends Throwable> Optional<T> assertOptionallyThrows(Class<T> expectedType, Executable executable) {
+        return assertOptionallyThrows(expectedType, executable, (Object) null);
+    }
+
+    /**
+     * Asserts that execution of the supplied {@link Executable} throws an exception of the supplied type, or throws nothing at all.
+     * If an exception was thrown, it is returned.
+     * <p>
+     * If an exception of a different type is thrown, this method will fail.
+     * <p>
+     * If you do not want to perform additional checks on the exception instance, ignore the return value.
+     *
+     * @param <T> The expected exception type.
+     * @param expectedType The expected exception type to check for.
+     * @param executable The {@link Executable} to run.
+     * @param message The failure message to fail with.
+     * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
+     * @see Assertions#assertThrows(Class, Executable, String)
+     * @since 1.2
+     */
+    public static <T extends Throwable> Optional<T> assertOptionallyThrows(Class<T> expectedType, Executable executable, String message) {
+        return assertOptionallyThrows(expectedType, executable, (Object) message);
+    }
+
+    /**
+     * Asserts that execution of the supplied {@link Executable} throws an exception of the supplied type, or throws nothing at all.
+     * If an exception was thrown, it is returned.
+     * <p>
+     * If an exception of a different type is thrown, this method will fail.
+     * <p>
+     * If you do not want to perform additional checks on the exception instance, ignore the return value.
+     *
+     * @param <T> The expected exception type.
+     * @param expectedType The expected exception type to check for.
+     * @param executable The {@link Executable} to run.
+     * @param messageSupplier The supplier for the failure message to fail with.
+     * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
+     * @see Assertions#assertThrows(Class, Executable, Supplier)
+     * @since 1.2
+     */
+    public static <T extends Throwable> Optional<T> assertOptionallyThrows(Class<T> expectedType, Executable executable,
+            Supplier<String> messageSupplier) {
+
+        return assertOptionallyThrows(expectedType, executable, (Object) messageSupplier);
+    }
+
+    private static <T extends Throwable> Optional<T> assertOptionallyThrows(Class<T> expectedType, Executable executable, Object messageOrSupplier) {
+        try {
+            executable.execute();
+            return Optional.empty();
+        } catch (Throwable actualException) {
+            if (expectedType.isInstance(actualException)) {
+                return Optional.of(expectedType.cast(actualException));
+            }
+            UnrecoverableExceptions.rethrowIfUnrecoverable(actualException);
+
+            String message = String.format("%s%sexpected: %s but was: %s",
+                    buildPrefix(nullSafeGet(messageOrSupplier)),
+                    buildPrefix("Unexpected exception type thrown"),
+                    formatClass(expectedType),
+                    formatClass(actualException.getClass()));
+            throw new AssertionFailedError(message, actualException);
+        }
+    }
+
+    /**
+     * Asserts that execution of the supplied {@link Executable} throws an exception of exactly the supplied type, or throws nothing at all.
+     * If an exception was thrown, it is returned.
+     * <p>
+     * If an exception of a different type is thrown, this method will fail.
+     * <p>
+     * If you do not want to perform additional checks on the exception instance, ignore the return value.
+     *
+     * @param <T> The expected exception type.
+     * @param expectedType The expected exception type to check for.
+     * @param executable The {@link Executable} to run.
+     * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
+     * @see Assertions#assertThrowsExactly(Class, Executable)
+     * @since 1.2
+     */
+    public static <T extends Throwable> Optional<T> assertOptionallyThrowsExactly(Class<T> expectedType, Executable executable) {
+        return assertOptionallyThrowsExactly(expectedType, executable, (Object) null);
+    }
+
+    /**
+     * Asserts that execution of the supplied {@link Executable} throws an exception of exactly the supplied type, or throws nothing at all.
+     * If an exception was thrown, it is returned.
+     * <p>
+     * If an exception of a different type is thrown, this method will fail.
+     * <p>
+     * If you do not want to perform additional checks on the exception instance, ignore the return value.
+     *
+     * @param <T> The expected exception type.
+     * @param expectedType The expected exception type to check for.
+     * @param executable The {@link Executable} to run.
+     * @param message The failure message to fail with.
+     * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
+     * @see Assertions#assertThrowsExactly(Class, Executable, String)
+     * @since 1.2
+     */
+    public static <T extends Throwable> Optional<T> assertOptionallyThrowsExactly(Class<T> expectedType, Executable executable, String message) {
+        return assertOptionallyThrowsExactly(expectedType, executable, (Object) message);
+    }
+
+    /**
+     * Asserts that execution of the supplied {@link Executable} throws an exception of exactly the supplied type, or throws nothing at all.
+     * If an exception was thrown, it is returned.
+     * <p>
+     * If an exception of a different type is thrown, this method will fail.
+     * <p>
+     * If you do not want to perform additional checks on the exception instance, ignore the return value.
+     *
+     * @param <T> The expected exception type.
+     * @param expectedType The expected exception type to check for.
+     * @param executable The {@link Executable} to run.
+     * @param messageSupplier The supplier for the failure message to fail with.
+     * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
+     * @see Assertions#assertThrowsExactly(Class, Executable, Supplier)
+     * @since 1.2
+     */
+    public static <T extends Throwable> Optional<T> assertOptionallyThrowsExactly(Class<T> expectedType, Executable executable,
+            Supplier<String> messageSupplier) {
+
+        return assertOptionallyThrowsExactly(expectedType, executable, (Object) messageSupplier);
+    }
+
+    private static <T extends Throwable> Optional<T> assertOptionallyThrowsExactly(Class<T> expectedType, Executable executable,
+            Object messageOrSupplier) {
+
+        try {
+            executable.execute();
+            return Optional.empty();
+        } catch (Throwable actualException) {
+            if (expectedType.equals(actualException.getClass())) {
+                return Optional.of(expectedType.cast(actualException));
+            }
+            UnrecoverableExceptions.rethrowIfUnrecoverable(actualException);
+
+            String message = String.format("%s%sexpected: %s but was: %s",
+                    buildPrefix(nullSafeGet(messageOrSupplier)),
+                    buildPrefix("Unexpected exception type thrown"),
+                    formatClass(expectedType),
+                    formatClass(actualException.getClass()));
+            throw new AssertionFailedError(message, actualException);
+        }
+    }
+
+    /**
      * Asserts that execution of the supplied {@link Executable} throws an exception of exactly one of the supplied types,
      * and returns the exception.
      * <p>
@@ -465,12 +627,173 @@ public final class AdditionalAssertions {
     private static <T extends Throwable> T assertThrowsExactlyOneOf(Collection<? extends Class<? extends T>> expectedTypes, Executable executable,
             Object messageOrSupplier) {
 
+        return assertOptionallyThrowsExactlyOneOf(expectedTypes, executable, messageOrSupplier)
+                .orElseThrow(() -> {
+                    String message = String.format("%sExpected one of %s to be thrown, but nothing was thrown.",
+                            buildPrefix(nullSafeGet(messageOrSupplier)),
+                            formatClasses(expectedTypes));
+                    return new AssertionFailedError(message);
+                });
+    }
+
+    /**
+     * Asserts that execution of the supplied {@link Executable} throws an exception of exactly one of the supplied types, or throws nothing at all.
+     * If an exception was thrown, it is returned.
+     * <p>
+     * If an exception of a different type is thrown, this method will fail.
+     * <p>
+     * If no exception is thrown, or if an exception of a different type is thrown, this method will fail.
+     * <p>
+     * If you do not want to perform additional checks on the exception instance, ignore the return value.
+     *
+     * @param <T> The common super type of the expected exception types.
+     * @param expectedType1 The first expected exception type to check for.
+     * @param expectedType2 The second expected exception type to check for.
+     * @param executable The {@link Executable} to run.
+     * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
+     * @see Assertions#assertThrowsExactly(Class, Executable)
+     * @since 1.2
+     */
+    public static <T extends Throwable> Optional<T> assertOptionallyThrowsExactlyOneOf(Class<? extends T> expectedType1,
+            Class<? extends T> expectedType2, Executable executable) {
+
+        List<Class<? extends T>> expectedTypes = Arrays.asList(expectedType1, expectedType2);
+        return assertOptionallyThrowsExactlyOneOf(expectedTypes, executable);
+    }
+
+    /**
+     * Asserts that execution of the supplied {@link Executable} throws an exception of exactly one of the supplied types, or throws nothing at all.
+     * If an exception was thrown, it is returned.
+     * <p>
+     * If an exception of a different type is thrown, this method will fail.
+     * <p>
+     * If no exception is thrown, or if an exception of a different type is thrown, this method will fail.
+     * <p>
+     * If you do not want to perform additional checks on the exception instance, ignore the return value.
+     *
+     * @param <T> The common super type of the expected exception types.
+     * @param expectedType1 The first expected exception type to check for.
+     * @param expectedType2 The second expected exception type to check for.
+     * @param executable The {@link Executable} to run.
+     * @param message The failure message to fail with.
+     * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
+     * @see Assertions#assertThrowsExactly(Class, Executable, String)
+     * @since 1.2
+     */
+    public static <T extends Throwable> Optional<T> assertOptionallyThrowsExactlyOneOf(Class<? extends T> expectedType1,
+            Class<? extends T> expectedType2, Executable executable, String message) {
+
+        List<Class<? extends T>> expectedTypes = Arrays.asList(expectedType1, expectedType2);
+        return assertOptionallyThrowsExactlyOneOf(expectedTypes, executable, message);
+    }
+
+    /**
+     * Asserts that execution of the supplied {@link Executable} throws an exception of exactly one of the supplied types, or throws nothing at all.
+     * If an exception was thrown, it is returned.
+     * <p>
+     * If an exception of a different type is thrown, this method will fail.
+     * <p>
+     * If no exception is thrown, or if an exception of a different type is thrown, this method will fail.
+     * <p>
+     * If you do not want to perform additional checks on the exception instance, ignore the return value.
+     *
+     * @param <T> The common super type of the expected exception types.
+     * @param expectedType1 The first expected exception type to check for.
+     * @param expectedType2 The second expected exception type to check for.
+     * @param executable The {@link Executable} to run.
+     * @param messageSupplier The supplier for the failure message to fail with.
+     * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
+     * @see Assertions#assertThrowsExactly(Class, Executable, Supplier)
+     * @since 1.2
+     */
+    public static <T extends Throwable> Optional<T> assertOptionallyThrowsExactlyOneOf(Class<? extends T> expectedType1,
+            Class<? extends T> expectedType2, Executable executable, Supplier<String> messageSupplier) {
+
+        List<Class<? extends T>> expectedTypes = Arrays.asList(expectedType1, expectedType2);
+        return assertOptionallyThrowsExactlyOneOf(expectedTypes, executable, messageSupplier);
+    }
+
+    /**
+     * Asserts that execution of the supplied {@link Executable} throws an exception of exactly one of the supplied types, or throws nothing at all.
+     * If an exception was thrown, it is returned.
+     * <p>
+     * If an exception of a different type is thrown, this method will fail.
+     * <p>
+     * If no exception is thrown, or if an exception of a different type is thrown, this method will fail.
+     * <p>
+     * If you do not want to perform additional checks on the exception instance, ignore the return value.
+     *
+     * @param <T> The common super type of the expected exception types.
+     * @param expectedTypes The expected exception types to check for.
+     * @param executable The {@link Executable} to run.
+     * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
+     * @see Assertions#assertThrowsExactly(Class, Executable)
+     * @since 1.2
+     */
+    public static <T extends Throwable> Optional<T> assertOptionallyThrowsExactlyOneOf(Collection<? extends Class<? extends T>> expectedTypes,
+            Executable executable) {
+
+        return assertOptionallyThrowsExactlyOneOf(expectedTypes, executable, (Object) null);
+    }
+
+    /**
+     * Asserts that execution of the supplied {@link Executable} throws an exception of exactly one of the supplied types, or throws nothing at all.
+     * If an exception was thrown, it is returned.
+     * <p>
+     * If an exception of a different type is thrown, this method will fail.
+     * <p>
+     * If no exception is thrown, or if an exception of a different type is thrown, this method will fail.
+     * <p>
+     * If you do not want to perform additional checks on the exception instance, ignore the return value.
+     *
+     * @param <T> The common super type of the expected exception types.
+     * @param expectedTypes The expected exception types to check for.
+     * @param executable The {@link Executable} to run.
+     * @param message The failure message to fail with.
+     * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
+     * @see Assertions#assertThrowsExactly(Class, Executable, String)
+     * @since 1.2
+     */
+    public static <T extends Throwable> Optional<T> assertOptionallyThrowsExactlyOneOf(Collection<? extends Class<? extends T>> expectedTypes,
+            Executable executable, String message) {
+
+        return assertOptionallyThrowsExactlyOneOf(expectedTypes, executable, (Object) message);
+    }
+
+    /**
+     * Asserts that execution of the supplied {@link Executable} throws an exception of exactly one of the supplied types, or throws nothing at all.
+     * If an exception was thrown, it is returned.
+     * <p>
+     * If an exception of a different type is thrown, this method will fail.
+     * <p>
+     * If no exception is thrown, or if an exception of a different type is thrown, this method will fail.
+     * <p>
+     * If you do not want to perform additional checks on the exception instance, ignore the return value.
+     *
+     * @param <T> The common super type of the expected exception types.
+     * @param expectedTypes The expected exception types to check for.
+     * @param executable The {@link Executable} to run.
+     * @param messageSupplier The supplier for the failure message to fail with.
+     * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
+     * @see Assertions#assertThrowsExactly(Class, Executable, Supplier)
+     * @since 1.2
+     */
+    public static <T extends Throwable> Optional<T> assertOptionallyThrowsExactlyOneOf(Collection<? extends Class<? extends T>> expectedTypes,
+            Executable executable, Supplier<String> messageSupplier) {
+
+        return assertOptionallyThrowsExactlyOneOf(expectedTypes, executable, (Object) messageSupplier);
+    }
+
+    private static <T extends Throwable> Optional<T> assertOptionallyThrowsExactlyOneOf(Collection<? extends Class<? extends T>> expectedTypes,
+            Executable executable, Object messageOrSupplier) {
+
         try {
             executable.execute();
+            return Optional.empty();
         } catch (Throwable actualException) {
             for (Class<? extends T> expectedType : expectedTypes) {
                 if (expectedType.equals(actualException.getClass())) {
-                    return expectedType.cast(actualException);
+                    return Optional.of(expectedType.cast(actualException));
                 }
             }
             UnrecoverableExceptions.rethrowIfUnrecoverable(actualException);
@@ -482,11 +805,6 @@ public final class AdditionalAssertions {
                     formatClass(actualException.getClass()));
             throw new AssertionFailedError(message, actualException);
         }
-
-        String message = String.format("%sExpected one of %s to be thrown, but nothing was thrown.",
-                buildPrefix(nullSafeGet(messageOrSupplier)),
-                formatClasses(expectedTypes));
-        throw new AssertionFailedError(message);
     }
 
     /**
@@ -614,12 +932,161 @@ public final class AdditionalAssertions {
     private static <T extends Throwable> T assertThrowsOneOf(Collection<? extends Class<? extends T>> expectedTypes, Executable executable,
             Object messageOrSupplier) {
 
+        return assertOptionallyThrowsOneOf(expectedTypes, executable, messageOrSupplier)
+                .orElseThrow(() -> {
+                    String message = String.format("%sExpected one of %s to be thrown, but nothing was thrown.",
+                            buildPrefix(nullSafeGet(messageOrSupplier)),
+                            formatClasses(expectedTypes));
+                    return new AssertionFailedError(message);
+                });
+    }
+
+    /**
+     * Asserts that execution of the supplied {@link Executable} throws an exception of one of the supplied types, or throws nothing at all.
+     * If an exception was thrown, it is returned.
+     * <p>
+     * If an exception of a different type is thrown, this method will fail.
+     * <p>
+     * If you do not want to perform additional checks on the exception instance, ignore the return value.
+     *
+     * @param <T> The common super type of the expected exception types.
+     * @param expectedType1 The first expected exception type to check for.
+     * @param expectedType2 The second expected exception type to check for.
+     * @param executable The {@link Executable} to run.
+     * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
+     * @see Assertions#assertThrows(Class, Executable)
+     * @since 1.2
+     */
+    public static <T extends Throwable> Optional<T> assertOptionallyThrowsOneOf(Class<? extends T> expectedType1, Class<? extends T> expectedType2,
+            Executable executable) {
+
+        List<Class<? extends T>> expectedTypes = Arrays.asList(expectedType1, expectedType2);
+        return assertOptionallyThrowsOneOf(expectedTypes, executable);
+    }
+
+    /**
+     * Asserts that execution of the supplied {@link Executable} throws an exception of one of the supplied types, or throws nothing at all.
+     * If an exception was thrown, it is returned.
+     * <p>
+     * If an exception of a different type is thrown, this method will fail.
+     * <p>
+     * If you do not want to perform additional checks on the exception instance, ignore the return value.
+     *
+     * @param <T> The common super type of the expected exception types.
+     * @param expectedType1 The first expected exception type to check for.
+     * @param expectedType2 The second expected exception type to check for.
+     * @param executable The {@link Executable} to run.
+     * @param message The failure message to fail with.
+     * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
+     * @see Assertions#assertThrows(Class, Executable, String)
+     * @since 1.2
+     */
+    public static <T extends Throwable> Optional<T> assertOptionallyThrowsOneOf(Class<? extends T> expectedType1, Class<? extends T> expectedType2,
+            Executable executable, String message) {
+
+        List<Class<? extends T>> expectedTypes = Arrays.asList(expectedType1, expectedType2);
+        return assertOptionallyThrowsOneOf(expectedTypes, executable, message);
+    }
+
+    /**
+     * Asserts that execution of the supplied {@link Executable} throws an exception of one of the supplied types, or throws nothing at all.
+     * If an exception was thrown, it is returned.
+     * <p>
+     * If an exception of a different type is thrown, this method will fail.
+     * <p>
+     * If you do not want to perform additional checks on the exception instance, ignore the return value.
+     *
+     * @param <T> The common super type of the expected exception types.
+     * @param expectedType1 The first expected exception type to check for.
+     * @param expectedType2 The second expected exception type to check for.
+     * @param executable The {@link Executable} to run.
+     * @param messageSupplier The supplier for the failure message to fail with.
+     * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
+     * @see Assertions#assertThrows(Class, Executable, Supplier)
+     * @since 1.2
+     */
+    public static <T extends Throwable> Optional<T> assertOptionallyThrowsOneOf(Class<? extends T> expectedType1, Class<? extends T> expectedType2,
+            Executable executable, Supplier<String> messageSupplier) {
+
+        List<Class<? extends T>> expectedTypes = Arrays.asList(expectedType1, expectedType2);
+        return assertOptionallyThrowsOneOf(expectedTypes, executable, messageSupplier);
+    }
+
+    /**
+     * Asserts that execution of the supplied {@link Executable} throws an exception of one of the supplied types, or throws nothing at all.
+     * If an exception was thrown, it is returned.
+     * <p>
+     * If an exception of a different type is thrown, this method will fail.
+     * <p>
+     * If you do not want to perform additional checks on the exception instance, ignore the return value.
+     *
+     * @param <T> The common super type of the expected exception types.
+     * @param expectedTypes The expected exception types to check for.
+     * @param executable The {@link Executable} to run.
+     * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
+     * @see Assertions#assertThrows(Class, Executable)
+     * @since 1.2
+     */
+    public static <T extends Throwable> Optional<T> assertOptionallyThrowsOneOf(Collection<? extends Class<? extends T>> expectedTypes,
+            Executable executable) {
+
+        return assertOptionallyThrowsOneOf(expectedTypes, executable, (Object) null);
+    }
+
+    /**
+     * Asserts that execution of the supplied {@link Executable} throws an exception of one of the supplied types, or throws nothing at all.
+     * If an exception was thrown, it is returned.
+     * <p>
+     * If an exception of a different type is thrown, this method will fail.
+     * <p>
+     * If you do not want to perform additional checks on the exception instance, ignore the return value.
+     *
+     * @param <T> The common super type of the expected exception types.
+     * @param expectedTypes The expected exception types to check for.
+     * @param executable The {@link Executable} to run.
+     * @param message The failure message to fail with.
+     * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
+     * @see Assertions#assertThrows(Class, Executable, String)
+     * @since 1.2
+     */
+    public static <T extends Throwable> Optional<T> assertOptionallyThrowsOneOf(Collection<? extends Class<? extends T>> expectedTypes,
+            Executable executable, String message) {
+
+        return assertOptionallyThrowsOneOf(expectedTypes, executable, (Object) message);
+    }
+
+    /**
+     * Asserts that execution of the supplied {@link Executable} throws an exception of one of the supplied types, or throws nothing at all.
+     * If an exception was thrown, it is returned.
+     * <p>
+     * If an exception of a different type is thrown, this method will fail.
+     * <p>
+     * If you do not want to perform additional checks on the exception instance, ignore the return value.
+     *
+     * @param <T> The common super type of the expected exception types.
+     * @param expectedTypes The expected exception types to check for.
+     * @param executable The {@link Executable} to run.
+     * @param messageSupplier The supplier for the failure message to fail with.
+     * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
+     * @see Assertions#assertThrows(Class, Executable, Supplier)
+     * @since 1.2
+     */
+    public static <T extends Throwable> Optional<T> assertOptionallyThrowsOneOf(Collection<? extends Class<? extends T>> expectedTypes,
+            Executable executable, Supplier<String> messageSupplier) {
+
+        return assertOptionallyThrowsOneOf(expectedTypes, executable, (Object) messageSupplier);
+    }
+
+    private static <T extends Throwable> Optional<T> assertOptionallyThrowsOneOf(Collection<? extends Class<? extends T>> expectedTypes,
+            Executable executable, Object messageOrSupplier) {
+
         try {
             executable.execute();
+            return Optional.empty();
         } catch (Throwable actualException) {
             for (Class<? extends T> expectedType : expectedTypes) {
                 if (expectedType.isInstance(actualException)) {
-                    return expectedType.cast(actualException);
+                    return Optional.of(expectedType.cast(actualException));
                 }
             }
             UnrecoverableExceptions.rethrowIfUnrecoverable(actualException);
@@ -631,11 +1098,6 @@ public final class AdditionalAssertions {
                     formatClass(actualException.getClass()));
             throw new AssertionFailedError(message, actualException);
         }
-
-        String message = String.format("%sExpected one of %s to be thrown, but nothing was thrown.",
-                buildPrefix(nullSafeGet(messageOrSupplier)),
-                formatClasses(expectedTypes));
-        throw new AssertionFailedError(message);
     }
 
     /**

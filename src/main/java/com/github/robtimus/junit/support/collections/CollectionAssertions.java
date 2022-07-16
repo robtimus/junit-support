@@ -17,6 +17,8 @@
 
 package com.github.robtimus.junit.support.collections;
 
+import static com.github.robtimus.junit.support.AdditionalAssertions.assertOptionallyThrows;
+import static com.github.robtimus.junit.support.AdditionalAssertions.assertThrowsOneOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -32,6 +34,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.hamcrest.Matcher;
+import org.junit.jupiter.api.function.Executable;
+import com.github.robtimus.junit.support.AdditionalAssertions;
 
 /**
  * A collection of utility methods that support asserting conditions for collections and related types.
@@ -45,6 +49,8 @@ public final class CollectionAssertions {
 
     /**
      * Asserts that a collection contains specific expected elements.
+     * <p>
+     * This method is meant to be used internally only.
      *
      * @param collection The collection to check.
      * @param expected The expected elements.
@@ -90,13 +96,11 @@ public final class CollectionAssertions {
      * This can be used to test operations on unmodifiable collections that will not throw any exception if the collection is not actually updated.
      *
      * @param action The action to run.
+     * @deprecated Use {@link AdditionalAssertions#assertOptionallyThrows(Class, Executable)} instead.
      */
+    @Deprecated
     public static void assertOptionallyThrowsUnsupportedOperationException(Runnable action) {
-        try {
-            action.run();
-        } catch (@SuppressWarnings("unused") UnsupportedOperationException e) {
-            // ignore
-        }
+        assertOptionallyThrows(UnsupportedOperationException.class, action::run);
     }
 
     /**
@@ -105,9 +109,11 @@ public final class CollectionAssertions {
      *
      * @param otherExpectedType The other possible expected exception type.
      * @param action The action to run.
+     * @deprecated Use {@link AdditionalAssertions#assertThrowsOneOf(Class, Class, Executable)} instead.
      */
+    @Deprecated
     public static void assertThrowsUnsupportedOperationExceptionOr(Class<? extends Exception> otherExpectedType, Runnable action) {
-        assertThrowsUnsupportedOperationExceptionOr(instanceOf(otherExpectedType), action);
+        assertThrowsOneOf(UnsupportedOperationException.class, otherExpectedType, action::run);
     }
 
     /**
@@ -116,7 +122,9 @@ public final class CollectionAssertions {
      *
      * @param otherExpectedMatcher An alternative matcher for the expected exception type.
      * @param action The action to run.
+     * @deprecated Use {@link AdditionalAssertions#assertThrowsOneOf(Collection, Executable)} in combination with other assertions instead.
      */
+    @Deprecated
     public static void assertThrowsUnsupportedOperationExceptionOr(Matcher<? super Exception> otherExpectedMatcher, Runnable action) {
         Exception exception = assertThrows(Exception.class, action::run);
         assertThat(exception, either(otherExpectedMatcher).or(instanceOf(UnsupportedOperationException.class)));

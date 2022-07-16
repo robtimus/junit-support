@@ -17,8 +17,8 @@
 
 package com.github.robtimus.junit.support.collections;
 
-import static com.github.robtimus.junit.support.collections.CollectionAssertions.assertOptionallyThrowsUnsupportedOperationException;
-import static com.github.robtimus.junit.support.collections.CollectionAssertions.assertThrowsUnsupportedOperationExceptionOr;
+import static com.github.robtimus.junit.support.AdditionalAssertions.assertOptionallyThrows;
+import static com.github.robtimus.junit.support.AdditionalAssertions.assertThrowsOneOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -63,7 +63,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
             UnaryOperator<T> operator = replaceElementOperator();
 
             if (list.isEmpty()) {
-                assertOptionallyThrowsUnsupportedOperationException(() -> list.replaceAll(operator));
+                assertOptionallyThrows(UnsupportedOperationException.class, () -> list.replaceAll(operator));
             } else {
                 assertThrows(UnsupportedOperationException.class, () -> list.replaceAll(operator));
             }
@@ -76,7 +76,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
         default void testReplaceAllWithNullOperator() {
             List<T> list = iterable();
 
-            assertThrowsUnsupportedOperationExceptionOr(NullPointerException.class, () -> list.replaceAll(null));
+            assertThrowsOneOf(UnsupportedOperationException.class, NullPointerException.class, () -> list.replaceAll(null));
 
             assertEquals(expectedElements(), list);
         }
@@ -179,7 +179,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
 
             T object = nonContainedElements().iterator().next();
 
-            assertThrowsUnsupportedOperationExceptionOr(IndexOutOfBoundsException.class, () -> list.add(-1, object));
+            assertThrowsOneOf(UnsupportedOperationException.class, IndexOutOfBoundsException.class, () -> list.add(-1, object));
 
             assertEquals(expectedElements(), list);
         }
@@ -191,7 +191,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
 
             T object = nonContainedElements().iterator().next();
 
-            assertThrowsUnsupportedOperationExceptionOr(IndexOutOfBoundsException.class, () -> list.set(list.size() + 1, object));
+            assertThrowsOneOf(UnsupportedOperationException.class, IndexOutOfBoundsException.class, () -> list.set(list.size() + 1, object));
 
             assertEquals(expectedElements(), list);
         }
@@ -227,7 +227,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
         default void testAddAllIndexedWithEmptyCollection() {
             List<T> list = iterable();
 
-            assertOptionallyThrowsUnsupportedOperationException(() -> assertFalse(list.addAll(0, Collections.emptyList())));
+            assertOptionallyThrows(UnsupportedOperationException.class, () -> assertFalse(list.addAll(0, Collections.emptyList())));
 
             assertEquals(expectedElements(), list);
         }
@@ -237,7 +237,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
         default void testAddAllIndexedWithNull() {
             List<T> list = iterable();
 
-            assertThrowsUnsupportedOperationExceptionOr(NullPointerException.class, () -> list.addAll(0, null));
+            assertThrowsOneOf(UnsupportedOperationException.class, NullPointerException.class, () -> list.addAll(0, null));
 
             assertEquals(expectedElements(), list);
         }
@@ -259,7 +259,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
 
             Collection<T> c = Collections.singleton(nonContainedElements().iterator().next());
 
-            assertThrowsUnsupportedOperationExceptionOr(IndexOutOfBoundsException.class, () -> list.addAll(-1, c));
+            assertThrowsOneOf(UnsupportedOperationException.class, IndexOutOfBoundsException.class, () -> list.addAll(-1, c));
 
             assertEquals(expectedElements(), list);
         }
@@ -271,7 +271,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
 
             Collection<T> c = Collections.singleton(nonContainedElements().iterator().next());
 
-            assertThrowsUnsupportedOperationExceptionOr(IndexOutOfBoundsException.class, () -> list.addAll(list.size() + 1, c));
+            assertThrowsOneOf(UnsupportedOperationException.class, IndexOutOfBoundsException.class, () -> list.addAll(list.size() + 1, c));
 
             assertEquals(expectedElements(), list);
         }
@@ -304,7 +304,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
         default void testRemoveIndexedWithNegativeIndex() {
             List<T> list = iterable();
 
-            assertThrowsUnsupportedOperationExceptionOr(IndexOutOfBoundsException.class, () -> list.remove(-1));
+            assertThrowsOneOf(UnsupportedOperationException.class, IndexOutOfBoundsException.class, () -> list.remove(-1));
 
             assertEquals(expectedElements(), list);
         }
@@ -314,7 +314,7 @@ public interface UnmodifiableListTests<T> extends ListTests<T>, UnmodifiableColl
         default void testRemoveIndexedWithIndexEqualToSize() {
             List<T> list = iterable();
 
-            assertThrowsUnsupportedOperationExceptionOr(IndexOutOfBoundsException.class, () -> list.remove(list.size()));
+            assertThrowsOneOf(UnsupportedOperationException.class, IndexOutOfBoundsException.class, () -> list.remove(list.size()));
 
             assertEquals(expectedElements(), list);
         }
