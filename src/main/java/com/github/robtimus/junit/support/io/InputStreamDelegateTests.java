@@ -17,7 +17,7 @@
 
 package com.github.robtimus.junit.support.io;
 
-import static com.github.robtimus.junit.support.io.IOAssertions.assertDoesNotThrowIOException;
+import static com.github.robtimus.junit.support.AdditionalAssertions.assertDoesNotThrowCheckedException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import java.io.InputStream;
@@ -53,7 +53,7 @@ public interface InputStreamDelegateTests {
         @Test
         @DisplayName("close() delegates")
         default void testCloseDelegates() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 @SuppressWarnings("resource")
                 InputStream delegate = mock(InputStream.class);
                 try (InputStream inputStream = wrapInputStream(delegate)) {

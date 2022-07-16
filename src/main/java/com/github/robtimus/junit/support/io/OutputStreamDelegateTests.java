@@ -17,7 +17,7 @@
 
 package com.github.robtimus.junit.support.io;
 
-import static com.github.robtimus.junit.support.io.IOAssertions.assertDoesNotThrowIOException;
+import static com.github.robtimus.junit.support.AdditionalAssertions.assertDoesNotThrowCheckedException;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.either;
 import static org.hamcrest.Matchers.instanceOf;
@@ -94,7 +94,7 @@ public interface OutputStreamDelegateTests {
         @Test
         @DisplayName("write(int)")
         default void testWriteByte() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 byte[] content = contentToWrite();
                 byte[] expectedContent = expectedContent(content);
 
@@ -121,7 +121,7 @@ public interface OutputStreamDelegateTests {
         @Test
         @DisplayName("write(byte[])")
         default void testWriteByteArray() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 byte[] content = contentToWrite();
                 byte[] expectedContent = expectedContent(content);
 
@@ -141,7 +141,7 @@ public interface OutputStreamDelegateTests {
         @Test
         @DisplayName("write(byte[]) with a large array")
         default void testWriteByteArrayWithLargeArray() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 byte[] content = longContentToWrite();
                 byte[] expectedContent = expectedContent(content);
 
@@ -157,7 +157,7 @@ public interface OutputStreamDelegateTests {
         @Test
         @DisplayName("write(byte[]) with an empty array")
         default void testWriteByteArrayWithEmptyArray() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 byte[] content = {};
                 byte[] expectedContent = expectedContent(content);
 
@@ -173,7 +173,7 @@ public interface OutputStreamDelegateTests {
         @Test
         @DisplayName("write(byte[]) with a null array")
         default void testWriteByteArrayWithNullArray() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 byte[] expectedContent = {};
 
                 ByteArrayOutputStream delegate = new ByteArrayOutputStream(expectedContent.length);
@@ -198,7 +198,7 @@ public interface OutputStreamDelegateTests {
         @Test
         @DisplayName("write(byte[], int, int)")
         default void testWriteByteArrayPortion() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 byte[] content = contentToWrite();
                 byte[] expectedContent = expectedContent(content);
 
@@ -218,7 +218,7 @@ public interface OutputStreamDelegateTests {
         @Test
         @DisplayName("write(byte[], int, int) with a large array")
         default void testWriteByteArrayPortionWithLargeArray() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 byte[] content = longContentToWrite();
                 byte[] expectedContent = expectedContent(content);
 
@@ -234,7 +234,7 @@ public interface OutputStreamDelegateTests {
         @Test
         @DisplayName("write(byte[], int, int) with a null array")
         default void testWriteByteArrayPortionWithNullArray() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 byte[] expectedContent = {};
 
                 ByteArrayOutputStream delegate = new ByteArrayOutputStream(expectedContent.length);
@@ -251,7 +251,7 @@ public interface OutputStreamDelegateTests {
         @Test
         @DisplayName("write(byte[], int, int) with 0 length")
         default void testWriteByteArrayPortionWithZeroLength() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 byte[] content = contentToWrite();
                 byte[] expectedContent = expectedContent(new byte[0]);
 
@@ -267,7 +267,7 @@ public interface OutputStreamDelegateTests {
         @Test
         @DisplayName("write(byte[], int, int) with a negative offset")
         default void testWriteByteArrayPortionWithNegativeOffset() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 byte[] expectedContent = {};
 
                 ByteArrayOutputStream delegate = new ByteArrayOutputStream(expectedContent.length);
@@ -285,7 +285,7 @@ public interface OutputStreamDelegateTests {
         @Test
         @DisplayName("write(byte[], int, int) with an offset that exceeds the array length")
         default void testWriteByteArrayPortionWithTooHighOffset() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 byte[] expectedContent = {};
 
                 ByteArrayOutputStream delegate = new ByteArrayOutputStream(expectedContent.length);
@@ -303,7 +303,7 @@ public interface OutputStreamDelegateTests {
         @Test
         @DisplayName("write(byte[], int, int) with a negative length")
         default void testWriteByteArrayPortionWithNegativeLength() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 byte[] expectedContent = {};
 
                 ByteArrayOutputStream delegate = new ByteArrayOutputStream(expectedContent.length);
@@ -321,7 +321,7 @@ public interface OutputStreamDelegateTests {
         @Test
         @DisplayName("write(byte[], int, int) with a length that exceeds the array length")
         default void testWriteByteArrayPortionWithTooHighLength() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 byte[] expectedContent = {};
 
                 ByteArrayOutputStream delegate = new ByteArrayOutputStream(expectedContent.length);
@@ -350,7 +350,7 @@ public interface OutputStreamDelegateTests {
         @DisplayName("flush() delegates")
         @SuppressWarnings("resource")
         default void testFlushDelegates() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 OutputStream delegate = mock(OutputStream.class);
                 try (OutputStream outputStream = wrapOutputStream(delegate)) {
                     outputStream.flush();
@@ -371,7 +371,7 @@ public interface OutputStreamDelegateTests {
         @Test
         @DisplayName("close() delegates")
         default void testCloseDelegates() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 @SuppressWarnings("resource")
                 OutputStream delegate = mock(OutputStream.class);
                 try (OutputStream outputStream = wrapOutputStream(delegate)) {

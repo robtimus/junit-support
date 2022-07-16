@@ -17,8 +17,8 @@
 
 package com.github.robtimus.junit.support.io;
 
+import static com.github.robtimus.junit.support.AdditionalAssertions.assertDoesNotThrowCheckedException;
 import static com.github.robtimus.junit.support.io.IOAssertions.assertContainsContent;
-import static com.github.robtimus.junit.support.io.IOAssertions.assertDoesNotThrowIOException;
 import static com.github.robtimus.junit.support.io.IOAssertions.assertNegativeSkip;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.either;
@@ -72,7 +72,7 @@ public interface ReaderTests {
         @Test
         @DisplayName("read(CharBuffer)")
         default void testReadIntoCharBuffer() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 try (Reader reader = reader()) {
                     String expected = expectedContent();
                     int bufferSize = 10;
@@ -94,7 +94,7 @@ public interface ReaderTests {
         @Test
         @DisplayName("read(CharBuffer) with an empty CharBuffer")
         default void testReadIntoCharBufferWithEmptyCharBuffer() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 try (Reader reader = reader()) {
                     CharBuffer buffer = CharBuffer.allocate(0);
                     assertEquals(0, reader.read(buffer));
@@ -108,7 +108,7 @@ public interface ReaderTests {
         @Test
         @DisplayName("read(CharBuffer) with a null CharBuffer")
         default void testReadIntoCharBufferWithNullCharBuffer() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 try (Reader reader = reader()) {
                     CharBuffer buffer = null;
                     assertThrows(NullPointerException.class, () -> reader.read(buffer));
@@ -131,7 +131,7 @@ public interface ReaderTests {
         @Test
         @DisplayName("read()")
         default void testReadChar() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 try (Reader reader = reader()) {
                     String expected = expectedContent();
 
@@ -158,7 +158,7 @@ public interface ReaderTests {
         @Test
         @DisplayName("read(char[])")
         default void testReadIntoCharArray() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 try (Reader reader = reader()) {
                     String expected = expectedContent();
                     int bufferSize = 10;
@@ -180,7 +180,7 @@ public interface ReaderTests {
         @Test
         @DisplayName("read(char[]) with an empty array")
         default void testReadIntoCharArrayWithEmptyArray() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 try (Reader reader = reader()) {
                     char[] buffer = {};
                     assertEquals(0, reader.read(buffer));
@@ -194,7 +194,7 @@ public interface ReaderTests {
         @Test
         @DisplayName("read(char[]) with a null array")
         default void testReadIntoCharArrayWithNullArray() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 try (Reader reader = reader()) {
                     char[] buffer = null;
                     assertThrows(NullPointerException.class, () -> reader.read(buffer));
@@ -217,7 +217,7 @@ public interface ReaderTests {
         @Test
         @DisplayName("read(char[], int, int)")
         default void testReadIntoCharArrayPortion() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 try (Reader reader = reader()) {
                     String expected = expectedContent();
                     int bufferSize = 10;
@@ -240,7 +240,7 @@ public interface ReaderTests {
         @Test
         @DisplayName("read(char[], int, int) with 0 length")
         default void testReadIntoCharArrayPortionWithZeroLength() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 try (Reader reader = reader()) {
                     char[] buffer = new char[10];
                     assertEquals(0, reader.read(buffer, 5, 0));
@@ -254,7 +254,7 @@ public interface ReaderTests {
         @Test
         @DisplayName("read(char[], int, int) with a null array")
         default void testReadIntoCharArrayPortionWithNullArray() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 try (Reader reader = reader()) {
                     char[] buffer = null;
                     assertThrows(NullPointerException.class, () -> reader.read(buffer, 0, 10));
@@ -268,7 +268,7 @@ public interface ReaderTests {
         @Test
         @DisplayName("read(char[], int, int) with a negative offset")
         default void testReadIntoCharArrayPortionWithNegativeOffset() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 try (Reader reader = reader()) {
                     char[] buffer = new char[10];
                     Exception exception = assertThrows(Exception.class, () -> reader.read(buffer, -1, 10));
@@ -284,7 +284,7 @@ public interface ReaderTests {
         @Test
         @DisplayName("read(char[], int, int) with an offset that exceeds the array length")
         default void testReadIntoCharArrayPortionWithTooHighOffset() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 try (Reader reader = reader()) {
                     char[] buffer = new char[10];
                     Exception exception = assertThrows(Exception.class, () -> reader.read(buffer, buffer.length + 1, 0));
@@ -300,7 +300,7 @@ public interface ReaderTests {
         @Test
         @DisplayName("read(char[], int, int) with a negative length")
         default void testReadIntoCharArrayPortionWithNegativeLength() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 try (Reader reader = reader()) {
                     char[] buffer = new char[10];
                     Exception exception = assertThrows(Exception.class, () -> reader.read(buffer, 5, -1));
@@ -316,7 +316,7 @@ public interface ReaderTests {
         @Test
         @DisplayName("read(char[], int, int) with a length that exceeds the array length")
         default void testReadIntoCharArrayPortionWithTooHighLength() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 try (Reader reader = reader()) {
                     char[] buffer = new char[10];
                     // don't use 0 and 11, use 1 and 10, so it's not the value of the length that triggers the error but the combination off + len
@@ -344,7 +344,7 @@ public interface ReaderTests {
         @Test
         @DisplayName("skip(long)")
         default void testSkip() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 try (Reader reader = reader()) {
                     // skip 5, add 5, repeat
                     final int skipSize = 5;
@@ -382,7 +382,7 @@ public interface ReaderTests {
         @Test
         @DisplayName("skip(long) with a zero index")
         default void testSkipWithZeroIndex() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 try (Reader reader = reader()) {
                     String expectedContent = expectedContent();
 
@@ -407,7 +407,7 @@ public interface ReaderTests {
         @Test
         @DisplayName("skip(long) with a negative index")
         default void testSkipWithNegativeIndex() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 try (Reader reader = reader()) {
                     String expectedContent = expectedContent();
 
@@ -443,7 +443,7 @@ public interface ReaderTests {
         @Test
         @DisplayName("ready()")
         default void testReady() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 try (Reader reader = reader()) {
                     String expectedContent = expectedContent();
 
@@ -487,7 +487,7 @@ public interface ReaderTests {
         @Test
         @DisplayName("markSupported()")
         default void testMarkSupported() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 try (Reader reader = reader()) {
                     assertTrue(reader.markSupported());
                 }
@@ -497,7 +497,7 @@ public interface ReaderTests {
         @Test
         @DisplayName("mark(int) and reset()")
         default void testMarkAndReset() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 try (Reader reader = reader()) {
                     // mark, read 10, reset, read 20, repeat
                     final int readSize = 10;
@@ -533,7 +533,7 @@ public interface ReaderTests {
         @Test
         @DisplayName("reset() without mark(int)")
         default void testResetWithoutMark() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 try (Reader reader = reader()) {
                     String expectedContent = expectedContent();
 

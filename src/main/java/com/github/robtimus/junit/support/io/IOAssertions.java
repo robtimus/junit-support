@@ -17,6 +17,7 @@
 
 package com.github.robtimus.junit.support.io;
 
+import static com.github.robtimus.junit.support.AdditionalAssertions.assertDoesNotThrowCheckedException;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.either;
 import static org.hamcrest.Matchers.instanceOf;
@@ -35,9 +36,8 @@ import java.io.Reader;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
-import org.junit.jupiter.api.function.ThrowingSupplier;
 import com.github.robtimus.io.function.IORunnable;
-import com.github.robtimus.io.function.IOSupplier;
+import com.github.robtimus.junit.support.AdditionalAssertions;
 
 /**
  * A collection of utility methods that support asserting conditions related to I/O.
@@ -55,115 +55,11 @@ public final class IOAssertions {
      * be caught. It allows failed assertion errors to pass through.
      *
      * @param runnable The piece of code that should not throw an {@link IOException}.
+     * @deprecated Use {@link AdditionalAssertions#assertDoesNotThrowCheckedException(Executable)} instead.
      */
+    @Deprecated
     public static void assertDoesNotThrowIOException(IORunnable runnable) {
-        try {
-            runnable.run();
-        } catch (IOException e) {
-            assertDoesNotThrow(() -> {
-                throw e;
-            });
-        }
-    }
-
-    /**
-     * Asserts that a piece of code does not throw an {@link IOException}.
-     * This method works a lot like {@link Assertions#assertDoesNotThrow(Executable, String)}, except any exception other than {@link IOException}
-     * will not be caught. It allows failed assertion errors to pass through.
-     *
-     * @param runnable The piece of code that should not throw an {@link IOException}.
-     * @param message The failure message to fail with.
-     * @since 1.2
-     */
-    public static void assertDoesNotThrowIOException(IORunnable runnable, String message) {
-        try {
-            runnable.run();
-        } catch (IOException e) {
-            assertDoesNotThrow(() -> {
-                throw e;
-            }, message);
-        }
-    }
-
-    /**
-     * Asserts that a piece of code does not throw an {@link IOException}.
-     * This method works a lot like {@link Assertions#assertDoesNotThrow(Executable, Supplier)}, except any exception other than {@link IOException}
-     * will not be caught. It allows failed assertion errors to pass through.
-     *
-     * @param runnable The piece of code that should not throw an {@link IOException}.
-     * @param messageSupplier The supplier for the failure message to fail with.
-     * @since 1.2
-     */
-    public static void assertDoesNotThrowIOException(IORunnable runnable, Supplier<String> messageSupplier) {
-        try {
-            runnable.run();
-        } catch (IOException e) {
-            assertDoesNotThrow(() -> {
-                throw e;
-            }, messageSupplier);
-        }
-    }
-
-    /**
-     * Asserts that a piece of code does not throw an {@link IOException}.
-     * This method works a lot like {@link Assertions#assertDoesNotThrow(ThrowingSupplier)}, except any exception other than {@link IOException} will
-     * not be caught. It allows failed assertion errors to pass through.
-     *
-     * @param <T> The type of results supplied by the given supplier.
-     * @param supplier The piece of code that should not throw an {@link IOException}.
-     * @return A result supplied by the given supplier.
-     * @since 1.2
-     */
-    public static <T> T assertDoesNotThrowIOException(IOSupplier<T> supplier) {
-        try {
-            return supplier.get();
-        } catch (IOException e) {
-            return assertDoesNotThrow(() -> {
-                throw e;
-            });
-        }
-    }
-
-    /**
-     * Asserts that a piece of code does not throw an {@link IOException}.
-     * This method works a lot like {@link Assertions#assertDoesNotThrow(ThrowingSupplier, String)}, except any exception other than
-     * {@link IOException} will not be caught. It allows failed assertion errors to pass through.
-     *
-     * @param <T> The type of results supplied by the given supplier.
-     * @param supplier The piece of code that should not throw an {@link IOException}.
-     * @param message The failure message to fail with.
-     * @return A result supplied by the given supplier.
-     * @since 1.2
-     */
-    public static <T> T assertDoesNotThrowIOException(IOSupplier<T> supplier, String message) {
-        try {
-            return supplier.get();
-        } catch (IOException e) {
-            return assertDoesNotThrow(() -> {
-                throw e;
-            }, message);
-        }
-    }
-
-    /**
-     * Asserts that a piece of code does not throw an {@link IOException}.
-     * This method works a lot like {@link Assertions#assertDoesNotThrow(ThrowingSupplier, Supplier)}, except any exception other than
-     * {@link IOException} will not be caught. It allows failed assertion errors to pass through.
-     *
-     * @param <T> The type of results supplied by the given supplier.
-     * @param supplier The piece of code that should not throw an {@link IOException}.
-     * @param messageSupplier The supplier for the failure message to fail with.
-     * @return A result supplied by the given supplier.
-     * @since 1.2
-     */
-    public static <T> T assertDoesNotThrowIOException(IOSupplier<T> supplier, Supplier<String> messageSupplier) {
-        try {
-            return supplier.get();
-        } catch (IOException e) {
-            return assertDoesNotThrow(() -> {
-                throw e;
-            }, messageSupplier);
-        }
+        assertDoesNotThrowCheckedException(runnable::run);
     }
 
     /**

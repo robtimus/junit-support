@@ -17,7 +17,7 @@
 
 package com.github.robtimus.junit.support.io;
 
-import static com.github.robtimus.junit.support.io.IOAssertions.assertDoesNotThrowIOException;
+import static com.github.robtimus.junit.support.AdditionalAssertions.assertDoesNotThrowCheckedException;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.either;
 import static org.hamcrest.Matchers.instanceOf;
@@ -103,7 +103,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("write(int)")
         default void testWriteChar() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String content = contentToWrite();
                 String expectedContent = expectedContent(content);
 
@@ -130,7 +130,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("write(char[])")
         default void testWriteCharArray() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String content = contentToWrite();
                 String expectedContent = expectedContent(content);
 
@@ -151,7 +151,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("write(char[]) with a large array")
         default void testWriteCharArrayWithLargeArray() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String content = longContentToWrite();
                 String expectedContent = expectedContent(content);
 
@@ -169,7 +169,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("write(char[]) with an empty array")
         default void testWriteCharArrayWithEmptyArray() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String expectedContent = expectedContent(""); //$NON-NLS-1$
 
                 char[] chars = {};
@@ -186,7 +186,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("write(char[]) with a null array")
         default void testWriteCharArrayWithNullArray() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String expectedContent = ""; //$NON-NLS-1$
 
                 StringWriter delegate = new StringWriter(expectedContent.length());
@@ -211,7 +211,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("write(char[], int, int)")
         default void testWriteCharArrayPortion() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String content = contentToWrite();
                 String expectedContent = expectedContent(content);
 
@@ -232,7 +232,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("write(char[], int, int) with a large array")
         default void testWriteCharArrayPortionWithLargeArray() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String content = longContentToWrite();
                 String expectedContent = expectedContent(content);
 
@@ -250,7 +250,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("write(char[], int, int) with a null array")
         default void testWriteCharArrayPortionWithNullArray() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String expectedContent = ""; //$NON-NLS-1$
 
                 StringWriter delegate = new StringWriter(expectedContent.length());
@@ -267,7 +267,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("write(char[], int, int) with 0 length")
         default void testWriteCharArrayPortionWithZeroLength() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String content = contentToWrite();
                 String expectedContent = expectedContent(""); //$NON-NLS-1$
 
@@ -285,7 +285,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("write(char[], int, int) with a negative offset")
         default void testWriteCharArrayPortionWithNegativeOffset() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String expectedContent = ""; //$NON-NLS-1$
 
                 StringWriter delegate = new StringWriter(expectedContent.length());
@@ -303,7 +303,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("write(char[], int, int) with an offset that exceeds the array length")
         default void testWriteCharArrayPortionWithTooHighOffset() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String expectedContent = ""; //$NON-NLS-1$
 
                 StringWriter delegate = new StringWriter(expectedContent.length());
@@ -321,7 +321,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("write(char[], int, int) with a negative length")
         default void testWriteCharArrayPortionWithNegativeLength() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String expectedContent = ""; //$NON-NLS-1$
 
                 StringWriter delegate = new StringWriter(expectedContent.length());
@@ -339,7 +339,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("write(char[], int, int) with a length that exceeds the array length")
         default void testWriteCharArrayPortionWithTooHighLength() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String expectedContent = ""; //$NON-NLS-1$
 
                 StringWriter delegate = new StringWriter(expectedContent.length());
@@ -367,7 +367,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("write(String)")
         default void testWriteString() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String content = contentToWrite();
                 String expectedContent = expectedContent(content);
 
@@ -387,7 +387,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("write(String) with a large String")
         default void testWriteStringWithLargeString() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String content = longContentToWrite();
                 String expectedContent = expectedContent(content);
 
@@ -403,7 +403,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("write(String) with an empty String")
         default void testWriteStringWithEmptyString() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String expectedContent = expectedContent(""); //$NON-NLS-1$
 
                 StringWriter delegate = new StringWriter(expectedContent.length());
@@ -418,7 +418,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("write(String) with a null String")
         default void testWriteStringWithNullString() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String expectedContent = ""; //$NON-NLS-1$
 
                 StringWriter delegate = new StringWriter(expectedContent.length());
@@ -443,7 +443,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("write(String, int, int)")
         default void testWriteStringPortion() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String content = contentToWrite();
                 String expectedContent = expectedContent(content);
 
@@ -463,7 +463,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("write(String, int, int) with a large String")
         default void testWriteStringPortionWithLargeString() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String content = longContentToWrite();
                 String expectedContent = expectedContent(content);
 
@@ -479,7 +479,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("write(String, int, int) with a null String")
         default void testWriteStringPortionWithNullString() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String expectedContent = ""; //$NON-NLS-1$
 
                 StringWriter delegate = new StringWriter(expectedContent.length());
@@ -496,7 +496,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("write(String, int, int) with 0 length")
         default void testWriteStringPortionWithZeroLength() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String content = contentToWrite();
                 String expectedContent = expectedContent(""); //$NON-NLS-1$
 
@@ -512,7 +512,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("write(String, int, int) with a negative offset")
         default void testWriteStringPortionWithNegativeOffset() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String expectedContent = ""; //$NON-NLS-1$
 
                 StringWriter delegate = new StringWriter(expectedContent.length());
@@ -530,7 +530,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("write(String, int, int) with an offset that exceeds the String length")
         default void testWriteStringPortionWithTooHighOffset() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String expectedContent = ""; //$NON-NLS-1$
 
                 StringWriter delegate = new StringWriter(expectedContent.length());
@@ -548,7 +548,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("write(String, int, int) with a negative length")
         default void testWriteStringPortionWithNegativeLength() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String expectedContent = ""; //$NON-NLS-1$
 
                 StringWriter delegate = new StringWriter(expectedContent.length());
@@ -566,7 +566,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("write(String, int, int) with a length that exceeds the String length")
         default void testWriteStringPortionWithTooHighLength() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String expectedContent = ""; //$NON-NLS-1$
 
                 StringWriter delegate = new StringWriter(expectedContent.length());
@@ -595,7 +595,7 @@ public interface WriterDelegateTests {
         @ArgumentsSource(CharSequenceTransformationProvider.class)
         @DisplayName("append(CharSequence)")
         default void testAppendCharSequence(@SuppressWarnings("unused") String type, Function<String, CharSequence> contentTransformation) {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String content = contentToWrite();
                 String expectedContent = expectedContent(content);
 
@@ -619,7 +619,7 @@ public interface WriterDelegateTests {
         default void testAppendCharSequenceWithLargeCharSequence(@SuppressWarnings("unused") String type,
                 Function<String, CharSequence> contentTransformation) {
 
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String content = longContentToWrite();
                 String expectedContent = expectedContent(content);
 
@@ -638,7 +638,7 @@ public interface WriterDelegateTests {
         default void testAppendCharSequenceWithEmptyCharSequence(@SuppressWarnings("unused") String type,
                 Function<String, CharSequence> contentTransformation) {
 
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String expectedContent = expectedContent(""); //$NON-NLS-1$
 
                 StringWriter delegate = new StringWriter(expectedContent.length());
@@ -653,7 +653,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("append(CharSequence) with a null CharSequence")
         default void testAppendCharSequenceWithNullCharSequence() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String expectedContent = expectedContent("null"); //$NON-NLS-1$
 
                 StringWriter delegate = new StringWriter(expectedContent.length());
@@ -678,7 +678,7 @@ public interface WriterDelegateTests {
         @ArgumentsSource(CharSequenceTransformationProvider.class)
         @DisplayName("append(CharSequence, int, int)")
         default void testAppendCharSequencePortion(@SuppressWarnings("unused") String type, Function<String, CharSequence> contentTransformation) {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String content = contentToWrite();
                 String expectedContent = expectedContent(content);
 
@@ -701,7 +701,7 @@ public interface WriterDelegateTests {
         default void testAppendCharSequencePortionWithLargeCharSequence(@SuppressWarnings("unused") String type,
                 Function<String, CharSequence> contentTransformation) {
 
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String content = longContentToWrite();
                 String expectedContent = expectedContent(content);
 
@@ -717,7 +717,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("append(CharSequence, int, int) with a null CharSequence")
         default void testAppendCharSequencePortionWithNullCharSequence() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String expectedContent = expectedContent("ul"); //$NON-NLS-1$
 
                 StringWriter delegate = new StringWriter(expectedContent.length());
@@ -736,7 +736,7 @@ public interface WriterDelegateTests {
         default void testAppendCharSequencePortionWithStartEqualToEnd(@SuppressWarnings("unused") String type,
                 Function<String, CharSequence> contentTransformation) {
 
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String content = contentToWrite();
                 String expectedContent = expectedContent(""); //$NON-NLS-1$
 
@@ -752,7 +752,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("append(CharSequence, int, int) with a negative start")
         default void testAppendCharSequencePortionWithNegativeStart() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String expectedContent = ""; //$NON-NLS-1$
 
                 StringWriter delegate = new StringWriter(expectedContent.length());
@@ -770,7 +770,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("append(CharSequence, int, int) with a start that exceeds the CharSequence length")
         default void testAppendCharSequencePortionWithTooHighStart() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String expectedContent = ""; //$NON-NLS-1$
 
                 StringWriter delegate = new StringWriter(expectedContent.length());
@@ -788,7 +788,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("append(CharSequence, int, int) with a negative end")
         default void testAppendCharSequencePortionWithNegativeEnd() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String expectedContent = ""; //$NON-NLS-1$
 
                 StringWriter delegate = new StringWriter(expectedContent.length());
@@ -806,7 +806,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("append(CharSequence, int, int) with an end that's smaller than the start")
         default void testAppendCharSequencePortionWithEndSmallerThanStart() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String expectedContent = ""; //$NON-NLS-1$
 
                 StringWriter delegate = new StringWriter(expectedContent.length());
@@ -824,7 +824,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("append(CharSequence, int, int) with an end that exceeds the CharSequence length")
         default void testAppendCharSequencePortionWithTooHighEnd() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String expectedContent = ""; //$NON-NLS-1$
 
                 StringWriter delegate = new StringWriter(expectedContent.length());
@@ -851,7 +851,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("append(char)")
         default void testAppendChar() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 String content = contentToWrite();
                 String expectedContent = expectedContent(content);
 
@@ -879,7 +879,7 @@ public interface WriterDelegateTests {
         @DisplayName("flush() delegates")
         @SuppressWarnings("resource")
         default void testFlushDelegates() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 Writer delegate = mock(Writer.class);
                 try (Writer writer = wrapWriter(delegate)) {
                     writer.flush();
@@ -900,7 +900,7 @@ public interface WriterDelegateTests {
         @Test
         @DisplayName("close() delegates")
         default void testCloseDelegates() {
-            assertDoesNotThrowIOException(() -> {
+            assertDoesNotThrowCheckedException(() -> {
                 @SuppressWarnings("resource")
                 Writer delegate = mock(Writer.class);
                 try (Writer writer = wrapWriter(delegate)) {
