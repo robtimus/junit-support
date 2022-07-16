@@ -1,5 +1,5 @@
 /*
- * ResourceExtension.java
+ * TestResourceExtension.java
  * Copyright 2022 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,15 +42,15 @@ import org.junit.platform.commons.util.ExceptionUtils;
 import org.junit.platform.commons.util.ReflectionUtils;
 import com.github.robtimus.io.function.IOBiFunction;
 
-class ResourceExtension implements BeforeAllCallback, BeforeEachCallback, ParameterResolver {
+class TestResourceExtension implements BeforeAllCallback, BeforeEachCallback, ParameterResolver {
 
     private static final Map<Class<?>, IOBiFunction<InputStream, String, ?>> RESOURCE_CONVERTERS = createResourceConverters();
 
     private static Map<Class<?>, IOBiFunction<InputStream, String, ?>> createResourceConverters() {
         Map<Class<?>, IOBiFunction<InputStream, String, ?>> converters = new HashMap<>();
-        converters.put(String.class, ResourceExtension::readContentAsString);
-        converters.put(CharSequence.class, ResourceExtension::readContentAsStringBuilder);
-        converters.put(StringBuilder.class, ResourceExtension::readContentAsStringBuilder);
+        converters.put(String.class, TestResourceExtension::readContentAsString);
+        converters.put(CharSequence.class, TestResourceExtension::readContentAsStringBuilder);
+        converters.put(StringBuilder.class, TestResourceExtension::readContentAsStringBuilder);
         converters.put(byte[].class, (inputStream, charset) -> readContentAsBytes(inputStream));
         return Collections.unmodifiableMap(converters);
     }
@@ -67,11 +67,11 @@ class ResourceExtension implements BeforeAllCallback, BeforeEachCallback, Parame
     }
 
     private void injectFields(Object testInstance, Class<?> testClass, Predicate<Field> predicate) {
-        findAnnotatedFields(testClass, Resource.class, predicate).forEach(field -> setResource(field, testInstance, testClass));
+        findAnnotatedFields(testClass, TestResource.class, predicate).forEach(field -> setResource(field, testInstance, testClass));
     }
 
     private void setResource(Field field, Object testInstance, Class<?> testClass) {
-        Resource resource = field.getAnnotation(Resource.class);
+        TestResource resource = field.getAnnotation(TestResource.class);
 
         Class<?> fieldType = field.getType();
         IOBiFunction<InputStream, String, ?> resourceConverter = RESOURCE_CONVERTERS.get(fieldType);
@@ -91,7 +91,7 @@ class ResourceExtension implements BeforeAllCallback, BeforeEachCallback, Parame
 
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
-        Resource resource = parameterContext.findAnnotation(Resource.class).orElse(null);
+        TestResource resource = parameterContext.findAnnotation(TestResource.class).orElse(null);
         return resource != null && isValidParameterType(parameterContext.getParameter().getType());
     }
 
@@ -101,9 +101,9 @@ class ResourceExtension implements BeforeAllCallback, BeforeEachCallback, Parame
 
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
-        // supportsParameter ensures that @Resource is present and the parameter type is supported
+        // supportsParameter ensures that @TestResource is present and the parameter type is supported
 
-        Resource resource = parameterContext.findAnnotation(Resource.class).orElseThrow(IllegalStateException::new);
+        TestResource resource = parameterContext.findAnnotation(TestResource.class).orElseThrow(IllegalStateException::new);
 
         Class<?> parameterType = parameterContext.getParameter().getType();
         IOBiFunction<InputStream, String, ?> resourceConverter = RESOURCE_CONVERTERS.get(parameterType);
@@ -115,7 +115,7 @@ class ResourceExtension implements BeforeAllCallback, BeforeEachCallback, Parame
     }
 
     @SuppressWarnings("resource")
-    private Object resolveResource(Resource resource, Class<?> declaringClass, Class<?> resourceType,
+    private Object resolveResource(TestResource resource, Class<?> declaringClass, Class<?> resourceType,
             IOBiFunction<InputStream, String, ?> resourceConverter,
             Function<String, RuntimeException> exceptionWithMessage,
             BiFunction<String, Throwable, RuntimeException> exceptionWithMessageAndCause) {

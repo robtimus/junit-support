@@ -1,5 +1,5 @@
 /*
- * Resource.java
+ * TestResource.java
  * Copyright 2022 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,8 +24,8 @@ import java.lang.annotation.Target;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
- * {@code Resource} can be used to annotate a parameter in a lifecycle method or test method resolved into the contents of a resource. The resource
- * will be loaded relative to the class where the method is defined.
+ * {@code TestResource} can be used to annotate a parameter in a lifecycle method or test method resolved into the contents of a (test) resource.
+ * The resource will be loaded relative to the class where the method is defined.
  *
  * The following parameter types are supported:
  * <ul>
@@ -38,10 +38,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
  * @author Rob Spoor
  * @since 1.2
  */
-@ExtendWith(ResourceExtension.class)
+@ExtendWith(TestResourceExtension.class)
 @Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Resource {
+public @interface TestResource {
 
     /**
      * The resource to load.

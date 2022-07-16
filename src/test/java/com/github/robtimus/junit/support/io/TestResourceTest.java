@@ -1,5 +1,5 @@
 /*
- * ResourceTest.java
+ * TestResourceTest.java
  * Copyright 2022 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,18 +44,18 @@ import org.junit.platform.testkit.engine.EngineTestKit;
 import org.opentest4j.AssertionFailedError;
 
 @SuppressWarnings("nls")
-final class ResourceTest {
+final class TestResourceTest {
 
-    @Resource("lorem.txt")
+    @TestResource("lorem.txt")
     private static String resourceAsString;
-    @Resource("lorem.txt")
+    @TestResource("lorem.txt")
     private static CharSequence resourceAsCharSequence;
-    @Resource("lorem.txt")
+    @TestResource("lorem.txt")
     private static StringBuilder resourceAsStringBuilder;
-    @Resource("lorem.txt")
+    @TestResource("lorem.txt")
     private static byte[] resourceAsBytes;
 
-    private ResourceTest() {
+    private TestResourceTest() {
     }
 
     @Nested
@@ -68,10 +68,10 @@ final class ResourceTest {
         private final byte[] resourceAsBytes;
 
         ConstructorInjection(
-                @Resource("lorem.txt") String resourceAsString,
-                @Resource("lorem.txt") CharSequence resourceAsCharSequence,
-                @Resource("lorem.txt") StringBuilder resourceAsStringBuilder,
-                @Resource("lorem.txt") byte[] resourceAsBytes) {
+                @TestResource("lorem.txt") String resourceAsString,
+                @TestResource("lorem.txt") CharSequence resourceAsCharSequence,
+                @TestResource("lorem.txt") StringBuilder resourceAsStringBuilder,
+                @TestResource("lorem.txt") byte[] resourceAsBytes) {
 
             this.resourceAsString = resourceAsString;
             this.resourceAsCharSequence = resourceAsCharSequence;
@@ -109,13 +109,13 @@ final class ResourceTest {
     @DisplayName("instance field injection")
     class InstanceFieldInjection {
 
-        @Resource("lorem.txt")
+        @TestResource("lorem.txt")
         private String resourceAsString;
-        @Resource("lorem.txt")
+        @TestResource("lorem.txt")
         private CharSequence resourceAsCharSequence;
-        @Resource("lorem.txt")
+        @TestResource("lorem.txt")
         private StringBuilder resourceAsStringBuilder;
-        @Resource("lorem.txt")
+        @TestResource("lorem.txt")
         private byte[] resourceAsBytes;
 
         @Test
@@ -180,26 +180,26 @@ final class ResourceTest {
 
         @Test
         @DisplayName("as String")
-        void testAsString(@Resource("lorem.txt") String resource) {
+        void testAsString(@TestResource("lorem.txt") String resource) {
             assertEquals(new String(readResource("lorem.txt")), resource);
         }
 
         @Test
         @DisplayName("as CharSequence")
-        void testAsCharSequence(@Resource("lorem.txt") CharSequence resource) {
+        void testAsCharSequence(@TestResource("lorem.txt") CharSequence resource) {
             assertNotEquals(String.class, resource.getClass());
             assertEquals(new String(readResource("lorem.txt")), resource.toString());
         }
 
         @Test
         @DisplayName("as StringBuilder")
-        void testAsStringBuilder(@Resource("lorem.txt") StringBuilder resource) {
+        void testAsStringBuilder(@TestResource("lorem.txt") StringBuilder resource) {
             assertEquals(new String(readResource("lorem.txt")), resource.toString());
         }
 
         @Test
         @DisplayName("as bytes")
-        void testAsBytes(@Resource("lorem.txt") byte[] resource) {
+        void testAsBytes(@TestResource("lorem.txt") byte[] resource) {
             assertArrayEquals(readResource("lorem.txt"), resource);
         }
     }
@@ -215,7 +215,7 @@ final class ResourceTest {
             @Test
             @DisplayName("constructor injection")
             void testConstructorInjection() {
-                assertSingleTestFailure(ResourceTest.MissingAnnotation.WithConstructorInjection.class, ParameterResolutionException.class,
+                assertSingleTestFailure(TestResourceTest.MissingAnnotation.WithConstructorInjection.class, ParameterResolutionException.class,
                         startsWith("No ParameterResolver registered for parameter [" + StringBuilder.class.getName()));
             }
 
@@ -223,7 +223,7 @@ final class ResourceTest {
             @DisplayName("instance field injection")
             void testInstanceFieldInjection() {
                 // Injection doesn't fail, because the field is ignored during field injection because it's not annotated
-                assertSingleTestFailure(ResourceTest.MissingAnnotation.WithInstanceFieldInjection.class, AssertionFailedError.class,
+                assertSingleTestFailure(TestResourceTest.MissingAnnotation.WithInstanceFieldInjection.class, AssertionFailedError.class,
                         equalTo("expected: not <null>"));
             }
 
@@ -231,14 +231,14 @@ final class ResourceTest {
             @DisplayName("static field injection")
             void testStaticFieldInjection() {
                 // Injection doesn't fail, because the field is ignored during field injection because it's not annotated
-                assertSingleTestFailure(ResourceTest.MissingAnnotation.WithStaticFieldInjection.class, AssertionFailedError.class,
+                assertSingleTestFailure(TestResourceTest.MissingAnnotation.WithStaticFieldInjection.class, AssertionFailedError.class,
                         equalTo("expected: not <null>"));
             }
 
             @Test
             @DisplayName("method injection")
             void testMissingAnnotation() {
-                assertSingleTestFailure(ResourceTest.MissingAnnotation.WithMethodInjection.class, ParameterResolutionException.class,
+                assertSingleTestFailure(TestResourceTest.MissingAnnotation.WithMethodInjection.class, ParameterResolutionException.class,
                         startsWith("No ParameterResolver registered for parameter [" + StringBuilder.class.getName()));
             }
         }
@@ -250,28 +250,28 @@ final class ResourceTest {
             @Test
             @DisplayName("constructor injection")
             void testConstructorInjection() {
-                assertSingleTestFailure(ResourceTest.UnsupportedType.WithConstructorInjection.class, ParameterResolutionException.class,
+                assertSingleTestFailure(TestResourceTest.UnsupportedType.WithConstructorInjection.class, ParameterResolutionException.class,
                         startsWith("No ParameterResolver registered for parameter [" + LocalDate.class.getName()));
             }
 
             @Test
             @DisplayName("instance field injection")
             void testInstanceFieldInjection() {
-                assertSingleTestFailure(ResourceTest.UnsupportedType.WithInstanceFieldInjection.class, ExtensionConfigurationException.class,
+                assertSingleTestFailure(TestResourceTest.UnsupportedType.WithInstanceFieldInjection.class, ExtensionConfigurationException.class,
                         equalTo("Field type not supported: " + LocalDate.class));
             }
 
             @Test
             @DisplayName("static field injection")
             void testStaticFieldInjection() {
-                assertSingleContainerFailure(ResourceTest.UnsupportedType.WithStaticFieldInjection.class, ExtensionConfigurationException.class,
+                assertSingleContainerFailure(TestResourceTest.UnsupportedType.WithStaticFieldInjection.class, ExtensionConfigurationException.class,
                         equalTo("Field type not supported: " + LocalDate.class));
             }
 
             @Test
             @DisplayName("method injection")
             void testMissingAnnotation() {
-                assertSingleTestFailure(ResourceTest.UnsupportedType.WithMethodInjection.class, ParameterResolutionException.class,
+                assertSingleTestFailure(TestResourceTest.UnsupportedType.WithMethodInjection.class, ParameterResolutionException.class,
                         startsWith("No ParameterResolver registered for parameter [" + LocalDate.class.getName()));
             }
         }
@@ -283,28 +283,28 @@ final class ResourceTest {
             @Test
             @DisplayName("constructor injection")
             void testConstructorInjection() {
-                assertSingleTestFailure(ResourceTest.MissingResource.WithConstructorInjection.class, ParameterResolutionException.class,
+                assertSingleTestFailure(TestResourceTest.MissingResource.WithConstructorInjection.class, ParameterResolutionException.class,
                         equalTo("Resource not found: missing.txt"));
             }
 
             @Test
             @DisplayName("instance field injection")
             void testInstanceFieldInjection() {
-                assertSingleTestFailure(ResourceTest.MissingResource.WithInstanceFieldInjection.class, ExtensionConfigurationException.class,
+                assertSingleTestFailure(TestResourceTest.MissingResource.WithInstanceFieldInjection.class, ExtensionConfigurationException.class,
                         equalTo("Resource not found: missing.txt"));
             }
 
             @Test
             @DisplayName("static field injection")
             void testStaticFieldInjection() {
-                assertSingleContainerFailure(ResourceTest.MissingResource.WithStaticFieldInjection.class, ExtensionConfigurationException.class,
+                assertSingleContainerFailure(TestResourceTest.MissingResource.WithStaticFieldInjection.class, ExtensionConfigurationException.class,
                         equalTo("Resource not found: missing.txt"));
             }
 
             @Test
             @DisplayName("method injection")
             void testMissingAnnotation() {
-                assertSingleTestFailure(ResourceTest.MissingResource.WithMethodInjection.class, ParameterResolutionException.class,
+                assertSingleTestFailure(TestResourceTest.MissingResource.WithMethodInjection.class, ParameterResolutionException.class,
                         equalTo("Resource not found: missing.txt"));
             }
         }
@@ -361,7 +361,7 @@ final class ResourceTest {
 
     private static byte[] readResource(String resource) {
         return assertDoesNotThrow(() -> {
-            try (InputStream inputStream = ResourceTest.class.getResourceAsStream(resource)) {
+            try (InputStream inputStream = TestResourceTest.class.getResourceAsStream(resource)) {
                 return readAll(inputStream);
             }
         });
@@ -418,7 +418,7 @@ final class ResourceTest {
 
             private final LocalDate resource;
 
-            WithConstructorInjection(@Resource("lorem.txt") LocalDate resource) {
+            WithConstructorInjection(@TestResource("lorem.txt") LocalDate resource) {
                 this.resource = resource;
             }
 
@@ -430,7 +430,7 @@ final class ResourceTest {
 
         static final class WithInstanceFieldInjection {
 
-            @Resource("lorem.txt")
+            @TestResource("lorem.txt")
             private LocalDate resource;
 
             @Test
@@ -441,7 +441,7 @@ final class ResourceTest {
 
         static final class WithStaticFieldInjection {
 
-            @Resource("lorem.txt")
+            @TestResource("lorem.txt")
             private static LocalDate resource;
 
             @Test
@@ -453,7 +453,7 @@ final class ResourceTest {
         static final class WithMethodInjection {
 
             @Test
-            void testUnsupportedType(@Resource("lorem.txt") LocalDate resource) {
+            void testUnsupportedType(@TestResource("lorem.txt") LocalDate resource) {
                 assertNotNull(resource);
             }
         }
@@ -465,7 +465,7 @@ final class ResourceTest {
 
             private final String resource;
 
-            WithConstructorInjection(@Resource("missing.txt") String resource) {
+            WithConstructorInjection(@TestResource("missing.txt") String resource) {
                 this.resource = resource;
             }
 
@@ -477,7 +477,7 @@ final class ResourceTest {
 
         static final class WithInstanceFieldInjection {
 
-            @Resource("missing.txt")
+            @TestResource("missing.txt")
             private String resource;
 
             @Test
@@ -488,7 +488,7 @@ final class ResourceTest {
 
         static final class WithStaticFieldInjection {
 
-            @Resource("missing.txt")
+            @TestResource("missing.txt")
             private static String resource;
 
             @Test
@@ -500,7 +500,7 @@ final class ResourceTest {
         static final class WithMethodInjection {
 
             @Test
-            void testMissingResource(@Resource("missing.txt") String resource) {
+            void testMissingResource(@TestResource("missing.txt") String resource) {
                 assertNotNull(resource);
             }
         }
