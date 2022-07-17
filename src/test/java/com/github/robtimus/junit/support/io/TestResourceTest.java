@@ -258,14 +258,14 @@ final class TestResourceTest {
             @DisplayName("instance field injection")
             void testInstanceFieldInjection() {
                 assertSingleTestFailure(TestResourceTest.UnsupportedType.WithInstanceFieldInjection.class, ExtensionConfigurationException.class,
-                        equalTo("Field type not supported: " + LocalDate.class));
+                        equalTo("Target type not supported: " + LocalDate.class));
             }
 
             @Test
             @DisplayName("static field injection")
             void testStaticFieldInjection() {
                 assertSingleContainerFailure(TestResourceTest.UnsupportedType.WithStaticFieldInjection.class, ExtensionConfigurationException.class,
-                        equalTo("Field type not supported: " + LocalDate.class));
+                        equalTo("Target type not supported: " + LocalDate.class));
             }
 
             @Test

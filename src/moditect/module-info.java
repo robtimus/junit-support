@@ -8,6 +8,7 @@ module com.github.robtimus.junit.support {
     exports com.github.robtimus.junit.support;
     exports com.github.robtimus.junit.support.collections;
     exports com.github.robtimus.junit.support.collections.annotation;
+    exports com.github.robtimus.junit.extension;
     exports com.github.robtimus.junit.support.io;
     exports com.github.robtimus.junit.support.matchers.nio.file;
 }

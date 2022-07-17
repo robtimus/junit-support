@@ -18,31 +18,21 @@
 package com.github.robtimus.junit.support.io;
 
 import static com.github.robtimus.junit.support.io.IOUtils.readAll;
-import static org.junit.platform.commons.util.AnnotationUtils.findAnnotatedFields;
-import static org.junit.platform.commons.util.ReflectionUtils.makeAccessible;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import org.junit.jupiter.api.extension.BeforeAllCallback;
-import org.junit.jupiter.api.extension.BeforeEachCallback;
-import org.junit.jupiter.api.extension.ExtensionConfigurationException;
+import java.util.Optional;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.api.extension.ParameterContext;
-import org.junit.jupiter.api.extension.ParameterResolutionException;
-import org.junit.jupiter.api.extension.ParameterResolver;
-import org.junit.platform.commons.util.ExceptionUtils;
-import org.junit.platform.commons.util.ReflectionUtils;
+import org.junit.platform.commons.JUnitException;
 import com.github.robtimus.io.function.IOBiFunction;
+import com.github.robtimus.junit.support.extension.AbstractInjectExtension;
+import com.github.robtimus.junit.support.extension.InjectionTarget;
 
-class TestResourceExtension implements BeforeAllCallback, BeforeEachCallback, ParameterResolver {
+class TestResourceExtension extends AbstractInjectExtension<TestResource> {
 
     private static final Map<Class<?>, IOBiFunction<InputStream, String, ?>> RESOURCE_CONVERTERS = createResourceConverters();
 
@@ -55,79 +45,32 @@ class TestResourceExtension implements BeforeAllCallback, BeforeEachCallback, Pa
         return Collections.unmodifiableMap(converters);
     }
 
-    @Override
-    public void beforeAll(ExtensionContext context) throws Exception {
-        injectFields(null, context.getRequiredTestClass(), ReflectionUtils::isStatic);
+    TestResourceExtension() {
+        super(TestResource.class);
     }
 
     @Override
-    public void beforeEach(ExtensionContext context) throws Exception {
-        context.getRequiredTestInstances().getAllInstances()
-                .forEach(instance -> injectFields(instance, instance.getClass(), ReflectionUtils::isNotStatic));
-    }
-
-    private void injectFields(Object testInstance, Class<?> testClass, Predicate<Field> predicate) {
-        findAnnotatedFields(testClass, TestResource.class, predicate).forEach(field -> setResource(field, testInstance, testClass));
-    }
-
-    private void setResource(Field field, Object testInstance, Class<?> testClass) {
-        TestResource resource = field.getAnnotation(TestResource.class);
-
-        Class<?> fieldType = field.getType();
-        IOBiFunction<InputStream, String, ?> resourceConverter = RESOURCE_CONVERTERS.get(fieldType);
-        if (resourceConverter == null) {
-            throw new ExtensionConfigurationException("Field type not supported: " + fieldType); //$NON-NLS-1$
-        }
-
-        Object resourceValue = resolveResource(resource, testClass, fieldType, resourceConverter,
-                ExtensionConfigurationException::new, ExtensionConfigurationException::new);
-
-        try {
-            makeAccessible(field).set(testInstance, resourceValue);
-        } catch (Exception t) {
-            ExceptionUtils.throwAsUncheckedException(t);
-        }
+    protected Optional<JUnitException> validateTarget(InjectionTarget target, TestResource resource, ExtensionContext context) {
+        Class<?> targetType = target.type();
+        return RESOURCE_CONVERTERS.containsKey(targetType)
+                ? Optional.empty()
+                : Optional.of(target.createException("Target type not supported: " + targetType)); //$NON-NLS-1$
     }
 
     @Override
-    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
-        TestResource resource = parameterContext.findAnnotation(TestResource.class).orElse(null);
-        return resource != null && isValidParameterType(parameterContext.getParameter().getType());
-    }
-
-    private boolean isValidParameterType(Class<?> parameterType) {
-        return RESOURCE_CONVERTERS.containsKey(parameterType);
-    }
-
-    @Override
-    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
-        // supportsParameter ensures that @TestResource is present and the parameter type is supported
-
-        TestResource resource = parameterContext.findAnnotation(TestResource.class).orElseThrow(IllegalStateException::new);
-
-        Class<?> parameterType = parameterContext.getParameter().getType();
-        IOBiFunction<InputStream, String, ?> resourceConverter = RESOURCE_CONVERTERS.get(parameterType);
-
-        Class<?> declaringClass = parameterContext.getDeclaringExecutable().getDeclaringClass();
-
-        return resolveResource(resource, declaringClass, parameterType, resourceConverter,
-                ParameterResolutionException::new, ParameterResolutionException::new);
-    }
-
     @SuppressWarnings("resource")
-    private Object resolveResource(TestResource resource, Class<?> declaringClass, Class<?> resourceType,
-            IOBiFunction<InputStream, String, ?> resourceConverter,
-            Function<String, RuntimeException> exceptionWithMessage,
-            BiFunction<String, Throwable, RuntimeException> exceptionWithMessageAndCause) {
-
-        InputStream inputStream = declaringClass.getResourceAsStream(resource.value());
+    protected Object resolveValue(TestResource resource, InjectionTarget target, ExtensionContext context) {
+        InputStream inputStream = target.declaringClass().getResourceAsStream(resource.value());
         if (inputStream == null) {
-            throw exceptionWithMessage.apply("Resource not found: " + resource.value()); //$NON-NLS-1$
+            throw target.createException("Resource not found: " + resource.value()); //$NON-NLS-1$
         }
+
+        Class<?> targetType = target.type();
+        IOBiFunction<InputStream, String, ?> resourceConverter = RESOURCE_CONVERTERS.get(targetType);
         try {
             return resourceConverter.apply(inputStream, resource.charset());
         } catch (IOException e) {
-            throw exceptionWithMessageAndCause.apply("Could not convert resource to " + resourceType, e); //$NON-NLS-1$
+            throw target.createException("Could not convert resource to " + targetType, e); //$NON-NLS-1$
         }
     }
 
