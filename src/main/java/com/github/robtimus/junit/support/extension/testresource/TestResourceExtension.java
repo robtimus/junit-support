@@ -71,8 +71,8 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
     protected Object resolveValue(TestResource resource, InjectionTarget target, ExtensionContext context) {
         Class<?> targetType = target.type();
         if (CACHEABLE_RESOURCE_TYPES.contains(targetType)) {
-            Namespace namespace = NAMESPACE.append(target.declaringClass());
-            return context.getStore(namespace).getOrComputeIfAbsent(resource.value(), k -> resolveValue(resource, target));
+            Namespace namespace = NAMESPACE.append(target.declaringClass(), resource.value());
+            return context.getStore(namespace).getOrComputeIfAbsent(resource.charset(), k -> resolveValue(resource, target));
         }
         return resolveValue(resource, target);
     }
