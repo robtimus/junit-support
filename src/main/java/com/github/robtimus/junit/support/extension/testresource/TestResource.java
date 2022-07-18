@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.io;
+package com.github.robtimus.junit.support.extension.testresource;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -24,8 +24,8 @@ import java.lang.annotation.Target;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
- * {@code TestResource} can be used to annotate a parameter in a lifecycle method or test method resolved into the contents of a (test) resource.
- * The resource will be loaded relative to the class where the method is defined.
+ * {@code TestResource} can be used to annotate a field or a parameter in a lifecycle method or test method that should be resolved into the contents
+ * of a (test) resource. The resource will be loaded relative to the class where the method is defined.
  *
  * The following parameter types are supported:
  * <ul>

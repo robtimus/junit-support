@@ -15,10 +15,9 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.io;
+package com.github.robtimus.junit.support.extension.testresource;
 
 import static com.github.robtimus.junit.support.AdditionalAssertions.assertIsPresent;
-import static com.github.robtimus.junit.support.io.IOUtils.readAll;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.startsWith;
@@ -28,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.time.LocalDate;
 import org.hamcrest.Matcher;
@@ -362,7 +362,14 @@ final class TestResourceTest {
     private static byte[] readResource(String resource) {
         return assertDoesNotThrow(() -> {
             try (InputStream inputStream = TestResourceTest.class.getResourceAsStream(resource)) {
-                return readAll(inputStream);
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+                byte[] buffer = new byte[1024];
+                int len;
+                while ((len = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, len);
+                }
+                return outputStream.toByteArray();
             }
         });
     }

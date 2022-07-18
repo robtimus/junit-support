@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.io;
+package com.github.robtimus.junit.support.extension.testresource;
 
-import static com.github.robtimus.junit.support.io.IOUtils.readAll;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -99,13 +99,27 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
 
     private static StringBuilder readContentAsStringBuilder(InputStream inputStream, String charset) throws IOException {
         try (Reader reader = new InputStreamReader(inputStream, charset)) {
-            return readAll(reader);
+            StringBuilder sb = new StringBuilder();
+
+            char[] buffer = new char[1024];
+            int len;
+            while ((len = reader.read(buffer)) != -1) {
+                sb.append(buffer, 0, len);
+            }
+            return sb;
         }
     }
 
     private static byte[] readContentAsBytes(InputStream inputStream) throws IOException {
         try (InputStream is = inputStream) {
-            return readAll(inputStream);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, len);
+            }
+            return outputStream.toByteArray();
         }
     }
 }

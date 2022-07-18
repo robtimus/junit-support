@@ -17,7 +17,6 @@
 
 package com.github.robtimus.junit.support.io;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -79,27 +78,5 @@ final class IOUtils {
             remaining -= skipped;
         }
         return n;
-    }
-
-    static StringBuilder readAll(Reader reader) throws IOException {
-        StringBuilder sb = new StringBuilder();
-
-        char[] buffer = new char[1024];
-        int len;
-        while ((len = reader.read(buffer)) != -1) {
-            sb.append(buffer, 0, len);
-        }
-        return sb;
-    }
-
-    static byte[] readAll(InputStream inputStream) throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-        byte[] buffer = new byte[1024];
-        int len;
-        while ((len = inputStream.read(buffer)) != -1) {
-            outputStream.write(buffer, 0, len);
-        }
-        return outputStream.toByteArray();
     }
 }
