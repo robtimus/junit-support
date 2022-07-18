@@ -24,9 +24,12 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
 import org.junit.platform.commons.JUnitException;
 import com.github.robtimus.io.function.IOBiFunction;
 import com.github.robtimus.junit.support.extension.AbstractInjectExtension;
@@ -34,15 +37,22 @@ import com.github.robtimus.junit.support.extension.InjectionTarget;
 
 class TestResourceExtension extends AbstractInjectExtension<TestResource> {
 
-    private static final Map<Class<?>, IOBiFunction<InputStream, String, ?>> RESOURCE_CONVERTERS = createResourceConverters();
+    private static final Map<Class<?>, IOBiFunction<InputStream, String, ?>> RESOURCE_CONVERTERS;
+    private static final Set<Class<?>> CACHEABLE_RESOURCE_TYPES;
 
-    private static Map<Class<?>, IOBiFunction<InputStream, String, ?>> createResourceConverters() {
-        Map<Class<?>, IOBiFunction<InputStream, String, ?>> converters = new HashMap<>();
-        converters.put(String.class, TestResourceExtension::readContentAsString);
-        converters.put(CharSequence.class, TestResourceExtension::readContentAsStringBuilder);
-        converters.put(StringBuilder.class, TestResourceExtension::readContentAsStringBuilder);
-        converters.put(byte[].class, (inputStream, charset) -> readContentAsBytes(inputStream));
-        return Collections.unmodifiableMap(converters);
+    private static final Namespace NAMESPACE = Namespace.create(TestResourceExtension.class);
+
+    static {
+        Map<Class<?>, IOBiFunction<InputStream, String, ?>> resourceConverters = new HashMap<>();
+        resourceConverters.put(String.class, TestResourceExtension::readContentAsString);
+        resourceConverters.put(CharSequence.class, TestResourceExtension::readContentAsStringBuilder);
+        resourceConverters.put(StringBuilder.class, TestResourceExtension::readContentAsStringBuilder);
+        resourceConverters.put(byte[].class, (inputStream, charset) -> readContentAsBytes(inputStream));
+        RESOURCE_CONVERTERS = Collections.unmodifiableMap(resourceConverters);
+
+        Set<Class<?>> cacheResourceTypes = new HashSet<>();
+        cacheResourceTypes.add(String.class);
+        CACHEABLE_RESOURCE_TYPES = Collections.unmodifiableSet(cacheResourceTypes);
     }
 
     TestResourceExtension() {
@@ -58,8 +68,17 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
     }
 
     @Override
-    @SuppressWarnings("resource")
     protected Object resolveValue(TestResource resource, InjectionTarget target, ExtensionContext context) {
+        Class<?> targetType = target.type();
+        if (CACHEABLE_RESOURCE_TYPES.contains(targetType)) {
+            Namespace namespace = NAMESPACE.append(target.declaringClass());
+            return context.getStore(namespace).getOrComputeIfAbsent(resource.value(), k -> resolveValue(resource, target));
+        }
+        return resolveValue(resource, target);
+    }
+
+    @SuppressWarnings("resource")
+    private Object resolveValue(TestResource resource, InjectionTarget target) {
         InputStream inputStream = target.declaringClass().getResourceAsStream(resource.value());
         if (inputStream == null) {
             throw target.createException("Resource not found: " + resource.value()); //$NON-NLS-1$
