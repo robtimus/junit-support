@@ -77,16 +77,15 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
         return resolveValue(resource, target);
     }
 
-    @SuppressWarnings("resource")
     private Object resolveValue(TestResource resource, InjectionTarget target) {
-        InputStream inputStream = target.declaringClass().getResourceAsStream(resource.value());
-        if (inputStream == null) {
-            throw target.createException("Resource not found: " + resource.value()); //$NON-NLS-1$
-        }
-
         Class<?> targetType = target.type();
-        IOBiFunction<InputStream, String, ?> resourceConverter = RESOURCE_CONVERTERS.get(targetType);
-        try {
+        try (InputStream inputStream = target.declaringClass().getResourceAsStream(resource.value())) {
+            if (inputStream == null) {
+                throw target.createException("Resource not found: " + resource.value()); //$NON-NLS-1$
+            }
+
+            IOBiFunction<InputStream, String, ?> resourceConverter = RESOURCE_CONVERTERS.get(targetType);
+
             return resourceConverter.apply(inputStream, resource.charset());
         } catch (IOException e) {
             throw target.createException("Could not convert resource to " + targetType, e); //$NON-NLS-1$
@@ -111,15 +110,13 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
     }
 
     private static byte[] readContentAsBytes(InputStream inputStream) throws IOException {
-        try (InputStream is = inputStream) {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-            byte[] buffer = new byte[1024];
-            int len;
-            while ((len = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, len);
-            }
-            return outputStream.toByteArray();
+        byte[] buffer = new byte[1024];
+        int len;
+        while ((len = inputStream.read(buffer)) != -1) {
+            outputStream.write(buffer, 0, len);
         }
+        return outputStream.toByteArray();
     }
 }
