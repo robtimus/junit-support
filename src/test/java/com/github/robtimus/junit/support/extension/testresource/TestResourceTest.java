@@ -19,17 +19,21 @@ package com.github.robtimus.junit.support.extension.testresource;
 
 import static com.github.robtimus.junit.support.AdditionalAssertions.assertIsPresent;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.matchesRegex;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.time.LocalDate;
+import java.util.Properties;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -37,6 +41,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionConfigurationException;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.engine.JupiterTestEngine;
+import org.junit.platform.commons.JUnitException;
+import org.junit.platform.commons.PreconditionViolationException;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.testkit.engine.EngineExecutionResults;
@@ -54,6 +60,9 @@ final class TestResourceTest {
     private static StringBuilder resourceAsStringBuilder;
     @TestResource("lorem.txt")
     private static byte[] resourceAsBytes;
+    @TestResource("test.properties")
+    @AsProperties
+    private static Properties resourceAsProperties;
 
     private TestResourceTest() {
     }
@@ -66,17 +75,20 @@ final class TestResourceTest {
         private final CharSequence resourceAsCharSequence;
         private final StringBuilder resourceAsStringBuilder;
         private final byte[] resourceAsBytes;
+        private final Properties resourceAsProperties;
 
         ConstructorInjection(
                 @TestResource("lorem.txt") String resourceAsString,
                 @TestResource("lorem.txt") CharSequence resourceAsCharSequence,
                 @TestResource("lorem.txt") StringBuilder resourceAsStringBuilder,
-                @TestResource("lorem.txt") byte[] resourceAsBytes) {
+                @TestResource("lorem.txt") byte[] resourceAsBytes,
+                @TestResource("test.properties") @AsProperties Properties resourceAsProperties) {
 
             this.resourceAsString = resourceAsString;
             this.resourceAsCharSequence = resourceAsCharSequence;
             this.resourceAsStringBuilder = resourceAsStringBuilder;
             this.resourceAsBytes = resourceAsBytes;
+            this.resourceAsProperties = resourceAsProperties;
         }
 
         @Test
@@ -102,6 +114,15 @@ final class TestResourceTest {
         @DisplayName("as bytes")
         void testAsBytes() {
             assertArrayEquals(readResource("lorem.txt"), resourceAsBytes);
+        }
+
+        @Test
+        @DisplayName("as Properties")
+        void testAsProperties() {
+            Properties expected = new Properties();
+            expected.setProperty("key1", "value1");
+            expected.setProperty("key2", "value2");
+            assertEquals(expected, resourceAsProperties);
         }
     }
 
@@ -117,6 +138,9 @@ final class TestResourceTest {
         private StringBuilder resourceAsStringBuilder;
         @TestResource("lorem.txt")
         private byte[] resourceAsBytes;
+        @TestResource("test.properties")
+        @AsProperties
+        private Properties resourceAsProperties;
 
         @Test
         @DisplayName("as String")
@@ -141,6 +165,15 @@ final class TestResourceTest {
         @DisplayName("as bytes")
         void testAsBytes() {
             assertArrayEquals(readResource("lorem.txt"), resourceAsBytes);
+        }
+
+        @Test
+        @DisplayName("as Properties")
+        void testAsProperties() {
+            Properties expected = new Properties();
+            expected.setProperty("key1", "value1");
+            expected.setProperty("key2", "value2");
+            assertEquals(expected, resourceAsProperties);
         }
     }
 
@@ -172,6 +205,15 @@ final class TestResourceTest {
         void testAsBytes() {
             assertArrayEquals(readResource("lorem.txt"), resourceAsBytes);
         }
+
+        @Test
+        @DisplayName("as Properties")
+        void testAsProperties() {
+            Properties expected = new Properties();
+            expected.setProperty("key1", "value1");
+            expected.setProperty("key2", "value2");
+            assertEquals(expected, resourceAsProperties);
+        }
     }
 
     @Nested
@@ -201,6 +243,158 @@ final class TestResourceTest {
         @DisplayName("as bytes")
         void testAsBytes(@TestResource("lorem.txt") byte[] resource) {
             assertArrayEquals(readResource("lorem.txt"), resource);
+        }
+
+        @Test
+        @DisplayName("as Properties")
+        void testAsProperties(@TestResource("test.properties") @AsProperties Properties resource) {
+            Properties expected = new Properties();
+            expected.setProperty("key1", "value1");
+            expected.setProperty("key2", "value2");
+            assertEquals(expected, resource);
+        }
+    }
+
+    @Nested
+    @DisplayName("@LoadWith")
+    class LoadWithTest {
+
+        @Nested
+        @DisplayName("local method")
+        class LocalMethod {
+
+            @Nested
+            @DisplayName("without argument type")
+            class WithoutArgumentType {
+
+                @Test
+                @DisplayName("uses InputStream")
+                void testUsesInputStream(@TestResource("lorem.txt") @LoadWith("loadBytes") byte[] resource) {
+                    assertArrayEquals(readResource("lorem.txt"), resource);
+                }
+
+                @Test
+                @DisplayName("uses Reader")
+                void testUsesReader(@TestResource("lorem.txt") @LoadWith("loadString") String resource) {
+                    assertEquals(new String(readResource("lorem.txt")), resource);
+                }
+
+                @SuppressWarnings("unused")
+                private byte[] loadBytes(InputStream inputStream) throws IOException {
+                    return TestResourceLoaders.toBytes(inputStream);
+                }
+
+                @SuppressWarnings("unused")
+                private String loadString(Reader reader) throws IOException {
+                    return TestResourceLoaders.toString(reader);
+                }
+            }
+
+            @Nested
+            @DisplayName("with argument type")
+            class WithArgumentType {
+
+                @Test
+                @DisplayName("uses InputStream")
+                void testUsesInputStream(@TestResource("lorem.txt") @LoadWith("loadResource(InputStream)") byte[] resource) {
+                    assertArrayEquals(readResource("lorem.txt"), resource);
+                }
+
+                @Test
+                @DisplayName("uses Reader")
+                void testUsesReader(@TestResource("lorem.txt") @LoadWith("loadResource(Reader)") String resource) {
+                    assertEquals(new String(readResource("lorem.txt")), resource);
+                }
+
+                @SuppressWarnings("unused")
+                private byte[] loadResource(InputStream inputStream) throws IOException {
+                    return TestResourceLoaders.toBytes(inputStream);
+                }
+
+                @SuppressWarnings("unused")
+                private String loadResource(Reader reader) throws IOException {
+                    return TestResourceLoaders.toString(reader);
+                }
+            }
+
+            @Nested
+            @DisplayName("factory not static")
+            class FactoryNotStatic {
+
+                @Nested
+                @DisplayName("instance field injection")
+                class InstanceFieldInection {
+
+                    @Nested
+                    @DisplayName("with InputStream")
+                    class WithInputStream {
+
+                        @TestResource("lorem.txt")
+                        @LoadWith("load")
+                        private byte[] resource;
+
+                        @Test
+                        void testInjectionSucceeded() {
+                            assertNotNull(resource);
+                        }
+
+                        byte[] load(InputStream inputStream) throws IOException {
+                            return TestResourceLoaders.toBytes(inputStream);
+                        }
+                    }
+
+                    @Nested
+                    @DisplayName("with Reader")
+                    class WithReader {
+
+                        @TestResource("lorem.txt")
+                        @LoadWith("load")
+                        private String resource;
+
+                        @Test
+                        void testInjectionSucceeded() {
+                            assertNotNull(resource);
+                        }
+
+                        String load(Reader reader) throws IOException {
+                            return TestResourceLoaders.toString(reader);
+                        }
+                    }
+                }
+
+                @Nested
+                @DisplayName("method injection")
+                class MethodInection {
+
+                    @Nested
+                    @DisplayName("with InputStream")
+                    class WithInputStream {
+
+                        @Test
+                        void testInjectionSucceeded(@TestResource("lorem.txt") @LoadWith("load") byte[] resource) {
+                            assertNotNull(resource);
+                        }
+
+                        byte[] load(InputStream inputStream) throws IOException {
+                            return TestResourceLoaders.toBytes(inputStream);
+                        }
+                    }
+
+                    @Nested
+                    @DisplayName("with Reader")
+                    class WithReader {
+
+                        @Test
+                        void testInjectionSucceeded(@TestResource("lorem.txt") @LoadWith("load") String resource) {
+                            assertNotNull(resource);
+                        }
+
+                        String load(Reader reader) throws IOException {
+                            return TestResourceLoaders.toString(reader);
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -303,9 +497,264 @@ final class TestResourceTest {
 
             @Test
             @DisplayName("method injection")
-            void testMissingAnnotation() {
+            void testMethodInjection() {
                 assertSingleTestFailure(TestResourceTest.MissingResource.WithMethodInjection.class, ParameterResolutionException.class,
                         equalTo("Resource not found: missing.txt"));
+            }
+        }
+
+        @Nested
+        @DisplayName("@LoadWith errors")
+        class LoadWithErrors {
+
+            @Test
+            @DisplayName("blank method")
+            void testBlankMethod() {
+                assertSingleContainerFailure(TestResourceTest.LoadWithErrors.BlankMethod.class, PreconditionViolationException.class,
+                        equalTo("fullyQualifiedMethodName must not be null or blank"));
+            }
+
+            @Test
+            @DisplayName("invalid method syntax")
+            void testInvalidMethodSyntax() {
+                assertSingleContainerFailure(TestResourceTest.LoadWithErrors.InvalidMethodSyntax.class, PreconditionViolationException.class,
+                        startsWith(String.format("[%s] is not a valid fully qualified method name",
+                                "com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders#")));
+            }
+
+            @Test
+            @DisplayName("class not found")
+            void testClassNotFound() {
+                assertSingleContainerFailure(TestResourceTest.LoadWithErrors.ClassNotFound.class, JUnitException.class,
+                        equalTo(String.format("Could not load class [%s]", "com.github.robtimus.junit.support.extension.testresource.NonExisting")));
+            }
+
+            @Nested
+            @DisplayName("method not found")
+            class MethodNotFound {
+
+                @Test
+                @DisplayName("without parameters")
+                void testWithoutParameters() {
+                    assertSingleContainerFailure(TestResourceTest.LoadWithErrors.MethodNotFound.WithoutParameters.class, JUnitException.class,
+                            equalTo(String.format("Could not find method [%s] in class [%s]",
+                                    "nonExisting", "com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders")));
+                }
+
+                @Test
+                @DisplayName("with InputStream parameters")
+                void testWithInputStreamParameters() {
+                    assertSingleContainerFailure(TestResourceTest.LoadWithErrors.MethodNotFound.WithInputStreamParameter.class, JUnitException.class,
+                            equalTo(String.format("Could not find method [%s] in class [%s]",
+                                    "toString", "com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders")));
+                }
+
+                @Test
+                @DisplayName("with Reader parameters")
+                void testWithReaderParameter() {
+                    assertSingleContainerFailure(TestResourceTest.LoadWithErrors.MethodNotFound.WithReaderParameter.class, JUnitException.class,
+                            equalTo(String.format("Could not find method [%s] in class [%s]",
+                                    "toBytes", "com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders")));
+                }
+            }
+
+            @Test
+            @DisplayName("invalid parameters")
+            void testInvalidParameters() {
+                assertSingleContainerFailure(TestResourceTest.LoadWithErrors.InvalidParameters.class, PreconditionViolationException.class,
+                        equalTo(String.format("factory method [%s] has unsupported formal parameters",
+                                "com.github.robtimus.junit.support.extension.testresource.TestResourceTest#readResource(String)")));
+            }
+
+            @Nested
+            @DisplayName("target type mismatch")
+            class TargetTypeMismatch {
+
+                @Test
+                @DisplayName("with InputStream")
+                void testWithInputStream() {
+                    assertSingleContainerFailure(TestResourceTest.LoadWithErrors.TargetTypeMismatch.WithInputStream.class,
+                            IllegalArgumentException.class, startsWith("Can not set static java.lang.String field"));
+                }
+
+                @Test
+                @DisplayName("with Reader")
+                void testWithReader() {
+                    assertSingleContainerFailure(TestResourceTest.LoadWithErrors.TargetTypeMismatch.WithReader.class,
+                            IllegalArgumentException.class, startsWith("Can not set static [B field"));
+                }
+            }
+
+            @Nested
+            @DisplayName("void return type")
+            class VoidReturnType {
+
+                @Test
+                @DisplayName("with InputStream")
+                void testWithInputStream() {
+                    // Injection doesn't fail, because calling a void method through reflection returns null
+                    assertSingleTestFailure(TestResourceTest.LoadWithErrors.VoidReturnType.WithInputStream.class, AssertionFailedError.class,
+                            equalTo("expected: not <null>"));
+                }
+
+                @Test
+                @DisplayName("with Reader")
+                void testWithReader() {
+                    // Injection doesn't fail, because calling a void method through reflection returns null
+                    assertSingleTestFailure(TestResourceTest.LoadWithErrors.VoidReturnType.WithReader.class, AssertionFailedError.class,
+                            equalTo("expected: not <null>"));
+                }
+            }
+
+            @Nested
+            @DisplayName("factory throws exception")
+            class FactoryThrowsException {
+
+                @Test
+                @DisplayName("with InputStream")
+                void testWithInputStream() {
+                    assertSingleContainerFailure(TestResourceTest.LoadWithErrors.FactoryThrowsException.WithInputStream.class, IOException.class,
+                            equalTo("error"));
+                }
+
+                @Test
+                @DisplayName("with Reader")
+                void testWithReader() {
+                    assertSingleContainerFailure(TestResourceTest.LoadWithErrors.FactoryThrowsException.WithReader.class, IOException.class,
+                            equalTo("error"));
+                }
+            }
+
+            @Nested
+            @DisplayName("factory not static")
+            class FactoryNotStatic {
+
+                @Nested
+                @DisplayName("constructor injection")
+                class ConstructorInjection {
+
+                    @Test
+                    @DisplayName("with InputStream")
+                    void testWithInputStream() {
+                        assertSingleTestFailure(TestResourceTest.LoadWithErrors.FactoryNotStatic.ConstructorInjection.WithInputStream.class,
+                                ParameterResolutionException.class, matchesRegex(".*Cannot invoke non-static method .* on a null target.*"));
+                    }
+
+                    @Test
+                    @DisplayName("with Reader")
+                    void testWithReader() {
+                        assertSingleTestFailure(TestResourceTest.LoadWithErrors.FactoryNotStatic.ConstructorInjection.WithReader.class,
+                                ParameterResolutionException.class, matchesRegex(".*Cannot invoke non-static method .* on a null target.*"));
+                    }
+                }
+
+                @Nested
+                @DisplayName("static field injection")
+                class StaticFieldInjection {
+
+                    @Test
+                    @DisplayName("with InputStream")
+                    void testWithInputStream() {
+                        assertSingleContainerFailure(TestResourceTest.LoadWithErrors.FactoryNotStatic.StaticFieldInjection.WithInputStream.class,
+                                PreconditionViolationException.class, matchesRegex(".*Cannot invoke non-static method .* on a null target.*"));
+                    }
+
+                    @Test
+                    @DisplayName("with Reader")
+                    void testWithReader() {
+                        assertSingleContainerFailure(TestResourceTest.LoadWithErrors.FactoryNotStatic.StaticFieldInjection.WithReader.class,
+                                PreconditionViolationException.class, matchesRegex(".*Cannot invoke non-static method .* on a null target.*"));
+                    }
+                }
+
+                @Nested
+                @DisplayName("different class")
+                class DifferentClass {
+
+                    @Nested
+                    @DisplayName("constructor injection")
+                    class ConstructorInjection {
+
+                        @Test
+                        @DisplayName("with InputStream")
+                        void testWithInputStream() {
+                            assertSingleTestFailure(
+                                    TestResourceTest.LoadWithErrors.FactoryNotStatic.DifferentClass.ConstructorInjection.WithInputStream.class,
+                                    ParameterResolutionException.class, matchesRegex(".*Cannot invoke non-static method .* on a null target.*"));
+                        }
+
+                        @Test
+                        @DisplayName("with Reader")
+                        void testWithReader() {
+                            assertSingleTestFailure(
+                                    TestResourceTest.LoadWithErrors.FactoryNotStatic.DifferentClass.ConstructorInjection.WithReader.class,
+                                    ParameterResolutionException.class, matchesRegex(".*Cannot invoke non-static method .* on a null target.*"));
+                        }
+                    }
+
+                    @Nested
+                    @DisplayName("instance field injection")
+                    class InstanceFieldInjection {
+
+                        @Test
+                        @DisplayName("with InputStream")
+                        void testWithInputStream() {
+                            assertSingleTestFailure(
+                                    TestResourceTest.LoadWithErrors.FactoryNotStatic.DifferentClass.InstanceFieldInjection.WithInputStream.class,
+                                    IllegalArgumentException.class, equalTo("object is not an instance of declaring class"));
+                        }
+
+                        @Test
+                        @DisplayName("with Reader")
+                        void testWithReader() {
+                            assertSingleTestFailure(
+                                    TestResourceTest.LoadWithErrors.FactoryNotStatic.DifferentClass.InstanceFieldInjection.WithReader.class,
+                                    IllegalArgumentException.class, equalTo("object is not an instance of declaring class"));
+                        }
+                    }
+
+                    @Nested
+                    @DisplayName("static field injection")
+                    class StaticFieldInjection {
+
+                        @Test
+                        @DisplayName("with InputStream")
+                        void testWithInputStream() {
+                            assertSingleContainerFailure(
+                                    TestResourceTest.LoadWithErrors.FactoryNotStatic.DifferentClass.StaticFieldInjection.WithInputStream.class,
+                                    PreconditionViolationException.class, matchesRegex(".*Cannot invoke non-static method .* on a null target.*"));
+                        }
+
+                        @Test
+                        @DisplayName("with Reader")
+                        void testWithReader() {
+                            assertSingleContainerFailure(
+                                    TestResourceTest.LoadWithErrors.FactoryNotStatic.DifferentClass.StaticFieldInjection.WithReader.class,
+                                    PreconditionViolationException.class, matchesRegex(".*Cannot invoke non-static method .* on a null target.*"));
+                        }
+                    }
+
+                    @Nested
+                    @DisplayName("method injection")
+                    class MethodInjection {
+
+                        @Test
+                        @DisplayName("with InputStream")
+                        void testWithInputStream() {
+                            assertSingleTestFailure(
+                                    TestResourceTest.LoadWithErrors.FactoryNotStatic.DifferentClass.MethodInjection.WithInputStream.class,
+                                    ParameterResolutionException.class, containsString("object is not an instance of declaring class"));
+                        }
+
+                        @Test
+                        @DisplayName("with Reader")
+                        void testWithReader() {
+                            assertSingleTestFailure(
+                                    TestResourceTest.LoadWithErrors.FactoryNotStatic.DifferentClass.MethodInjection.WithReader.class,
+                                    ParameterResolutionException.class, containsString("object is not an instance of declaring class"));
+                        }
+                    }
+                }
             }
         }
 
@@ -316,7 +765,7 @@ final class TestResourceTest {
             assertEquals(1, results.testEvents().failed().count());
 
             Throwable throwable = getSingleTestFailure(results);
-            assertInstanceOf(errorType, throwable);
+            assertEquals(errorType, throwable.getClass());
             assertThat(throwable.getMessage(), messageMatcher);
         }
 
@@ -328,7 +777,7 @@ final class TestResourceTest {
             assertEquals(1, results.containerEvents().failed().count());
 
             Throwable throwable = getSingleContainerFailure(results);
-            assertInstanceOf(errorType, throwable);
+            assertEquals(errorType, throwable.getClass());
             assertThat(throwable.getMessage(), messageMatcher);
         }
 
@@ -509,6 +958,393 @@ final class TestResourceTest {
             @Test
             void testMissingResource(@TestResource("missing.txt") String resource) {
                 assertNotNull(resource);
+            }
+        }
+    }
+
+    static final class LoadWithErrors {
+
+        static final class BlankMethod {
+
+            @TestResource("lorem.txt")
+            @LoadWith("")
+            private static byte[] resource;
+
+            @Test
+            void testMethod() {
+                assertNotNull(resource);
+            }
+        }
+
+        static final class InvalidMethodSyntax {
+
+            @TestResource("lorem.txt")
+            @LoadWith("com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders#")
+            private static byte[] resource;
+
+            @Test
+            void testMethod() {
+                assertNotNull(resource);
+            }
+        }
+
+        static final class ClassNotFound {
+
+            @TestResource("lorem.txt")
+            @LoadWith("com.github.robtimus.junit.support.extension.testresource.NonExisting#toProperties")
+            private static byte[] resource;
+
+            @Test
+            void testMethod() {
+                assertNotNull(resource);
+            }
+        }
+
+        static final class MethodNotFound {
+
+            static final class WithoutParameters {
+
+                @TestResource("lorem.txt")
+                @LoadWith("com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders#nonExisting")
+                private static byte[] resource;
+
+                @Test
+                void testMethod() {
+                    assertNotNull(resource);
+                }
+            }
+
+            static final class WithInputStreamParameter {
+
+                @TestResource("lorem.txt")
+                @LoadWith("com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders#toString(InputStream)")
+                private static byte[] resource;
+
+                @Test
+                void testMethod() {
+                    assertNotNull(resource);
+                }
+            }
+
+            static final class WithReaderParameter {
+
+                @TestResource("lorem.txt")
+                @LoadWith("com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders#toBytes(Reader)")
+                private static byte[] resource;
+
+                @Test
+                void testMethod() {
+                    assertNotNull(resource);
+                }
+            }
+        }
+
+        static final class InvalidParameters {
+
+            @TestResource("lorem.txt")
+            @LoadWith("com.github.robtimus.junit.support.extension.testresource.TestResourceTest#readResource(String)")
+            private static byte[] resource;
+
+            @Test
+            void testMethod() {
+                assertNotNull(resource);
+            }
+        }
+
+        static final class TargetTypeMismatch {
+
+            static final class WithInputStream {
+
+                @TestResource("lorem.txt")
+                @LoadWith("com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders#toBytes")
+                private static String resource;
+
+                @Test
+                void testMethod() {
+                    assertNotNull(resource);
+                }
+            }
+
+            static final class WithReader {
+
+                @TestResource("lorem.txt")
+                @LoadWith("com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders#toString")
+                private static byte[] resource;
+
+                @Test
+                void testMethod() {
+                    assertNotNull(resource);
+                }
+            }
+        }
+
+        static final class VoidReturnType {
+
+            static final class WithInputStream {
+
+                @TestResource("lorem.txt")
+                @LoadWith("load")
+                private static byte[] resource;
+
+                @Test
+                void testMethod() {
+                    assertNotNull(resource);
+                }
+
+                static void load(InputStream inputStream) {
+                    assertNotNull(inputStream);
+                }
+            }
+
+            static final class WithReader {
+
+                @TestResource("lorem.txt")
+                @LoadWith("load")
+                private static String resource;
+
+                @Test
+                void testMethod() {
+                    assertNotNull(resource);
+                }
+
+                static void load(Reader reader) {
+                    assertNotNull(reader);
+                }
+            }
+        }
+
+        static final class FactoryThrowsException {
+
+            static final class WithInputStream {
+
+                @TestResource("lorem.txt")
+                @LoadWith("load")
+                private static byte[] resource;
+
+                @Test
+                void testMethod() {
+                    assertNotNull(resource);
+                }
+
+                static byte[] load(InputStream inputStream) throws IOException {
+                    assertNotNull(inputStream);
+                    throw new IOException("error");
+                }
+            }
+
+            static final class WithReader {
+
+                @TestResource("lorem.txt")
+                @LoadWith("load")
+                private static String resource;
+
+                @Test
+                void testMethod() {
+                    assertNotNull(resource);
+                }
+
+                static String load(Reader reader) throws IOException {
+                    assertNotNull(reader);
+                    throw new IOException("error");
+                }
+            }
+        }
+
+        static final class FactoryNotStatic {
+
+            static final class ConstructorInjection {
+
+                static final class WithInputStream {
+
+                    private final byte[] resource;
+
+                    WithInputStream(@TestResource("lorem.txt") @LoadWith("load") byte[] resource) {
+                        this.resource = resource;
+                    }
+
+                    @Test
+                    void testMethod() {
+                        assertNotNull(resource);
+                    }
+
+                    byte[] load(InputStream inputStream) throws IOException {
+                        return TestResourceLoaders.toBytes(inputStream);
+                    }
+                }
+
+                static final class WithReader {
+
+                    private final String resource;
+
+                    WithReader(@TestResource("lorem.txt") @LoadWith("load") String resource) {
+                        this.resource = resource;
+                    }
+
+                    @Test
+                    void testMethod() {
+                        assertNotNull(resource);
+                    }
+
+                    String load(Reader reader) throws IOException {
+                        return TestResourceLoaders.toString(reader);
+                    }
+                }
+            }
+
+            static final class StaticFieldInjection {
+
+                static final class WithInputStream {
+
+                    @TestResource("lorem.txt")
+                    @LoadWith("load")
+                    private static byte[] resource;
+
+                    @Test
+                    void testMethod() {
+                        assertNotNull(resource);
+                    }
+
+                    byte[] load(InputStream inputStream) throws IOException {
+                        return TestResourceLoaders.toBytes(inputStream);
+                    }
+                }
+
+                static final class WithReader {
+
+                    @TestResource("lorem.txt")
+                    @LoadWith("load")
+                    private static String resource;
+
+                    @Test
+                    void testMethod() {
+                        assertNotNull(resource);
+                    }
+
+                    String load(Reader reader) throws IOException {
+                        return TestResourceLoaders.toString(reader);
+                    }
+                }
+            }
+
+            static final class DifferentClass {
+
+                private static final String PACKAGE_NAME = "com.github.robtimus.junit.support.extension.testresource";
+                private static final String CLASS_NAME = PACKAGE_NAME + ".TestResourceTest$LoadWithErrors$FactoryNotStatic$DifferentClass";
+
+                private static final String LOAD_WITH_INPUT_STREAM = CLASS_NAME + "#load(InputStream)";
+                private static final String LOAD_WITH_READER = CLASS_NAME + "#load(Reader)";
+
+                byte[] load(InputStream inputStream) throws IOException {
+                    return TestResourceLoaders.toBytes(inputStream);
+                }
+
+                String load(Reader reader) throws IOException {
+                    return TestResourceLoaders.toString(reader);
+                }
+
+                static final class ConstructorInjection {
+
+                    static final class WithInputStream {
+
+                        private final byte[] resource;
+
+                        WithInputStream(@TestResource("lorem.txt") @LoadWith(LOAD_WITH_INPUT_STREAM) byte[] resource) {
+                            this.resource = resource;
+                        }
+
+                        @Test
+                        void testMethod() {
+                            assertNotNull(resource);
+                        }
+                    }
+
+                    static final class WithReader {
+
+                        private final String resource;
+
+                        WithReader(@TestResource("lorem.txt") @LoadWith(LOAD_WITH_READER) String resource) {
+                            this.resource = resource;
+                        }
+
+                        @Test
+                        void testMethod() {
+                            assertNotNull(resource);
+                        }
+                    }
+                }
+
+                static final class InstanceFieldInjection {
+
+                    static final class WithInputStream {
+
+                        @TestResource("lorem.txt")
+                        @LoadWith(LOAD_WITH_INPUT_STREAM)
+                        private byte[] resource;
+
+                        @Test
+                        void testMethod() {
+                            assertNotNull(resource);
+                        }
+                    }
+
+                    static final class WithReader {
+
+                        @TestResource("lorem.txt")
+                        @LoadWith(LOAD_WITH_READER)
+                        private String resource;
+
+                        @Test
+                        void testMethod() {
+                            assertNotNull(resource);
+                        }
+                    }
+                }
+
+                static final class StaticFieldInjection {
+
+                    static final class WithInputStream {
+
+                        @TestResource("lorem.txt")
+                        @LoadWith(LOAD_WITH_INPUT_STREAM)
+                        private static byte[] resource;
+
+                        @Test
+                        void testMethod() {
+                            assertNotNull(resource);
+                        }
+                    }
+
+                    static final class WithReader {
+
+                        @TestResource("lorem.txt")
+                        @LoadWith(LOAD_WITH_READER)
+                        private static String resource;
+
+                        @Test
+                        void testMethod() {
+                            assertNotNull(resource);
+                        }
+                    }
+                }
+
+                static final class MethodInjection {
+
+                    static final class WithInputStream {
+
+                        @Test
+                        void testMethod(@TestResource("lorem.txt") @LoadWith(LOAD_WITH_INPUT_STREAM) byte[] resource) {
+                            assertNotNull(resource);
+                        }
+                    }
+
+                    static final class WithReader {
+
+                        @Test
+                        void testMethod(@TestResource("lorem.txt") @LoadWith(LOAD_WITH_READER) String resource) {
+                            assertNotNull(resource);
+                        }
+                    }
+                }
             }
         }
     }

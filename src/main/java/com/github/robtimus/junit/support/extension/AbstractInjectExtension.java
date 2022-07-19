@@ -28,7 +28,6 @@ import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
-import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.platform.commons.JUnitException;
 import org.junit.platform.commons.util.ExceptionUtils;
@@ -102,7 +101,7 @@ public abstract class AbstractInjectExtension<A extends Annotation> implements B
     }
 
     @Override
-    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
         A annotation = parameterContext.findAnnotation(annotationType).orElse(null);
         if (annotation == null) {
             return false;
@@ -124,7 +123,7 @@ public abstract class AbstractInjectExtension<A extends Annotation> implements B
     protected abstract Optional<JUnitException> validateTarget(InjectionTarget target, A annotation, ExtensionContext context);
 
     @Override
-    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
         A annotation = parameterContext.findAnnotation(annotationType).orElseThrow(IllegalStateException::new);
         InjectionTarget target = InjectionTarget.forParameter(parameterContext);
 

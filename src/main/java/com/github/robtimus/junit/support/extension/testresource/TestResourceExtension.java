@@ -17,11 +17,11 @@
 
 package com.github.robtimus.junit.support.extension.testresource;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,10 +31,14 @@ import java.util.Set;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
 import org.junit.platform.commons.JUnitException;
+import org.junit.platform.commons.PreconditionViolationException;
+import org.junit.platform.commons.util.ExceptionUtils;
+import org.junit.platform.commons.util.ReflectionUtils;
 import com.github.robtimus.io.function.IOBiFunction;
 import com.github.robtimus.junit.support.extension.AbstractInjectExtension;
 import com.github.robtimus.junit.support.extension.InjectionTarget;
 
+@SuppressWarnings("nls")
 class TestResourceExtension extends AbstractInjectExtension<TestResource> {
 
     private static final Map<Class<?>, IOBiFunction<InputStream, String, ?>> RESOURCE_CONVERTERS;
@@ -61,14 +65,27 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
 
     @Override
     protected Optional<JUnitException> validateTarget(InjectionTarget target, TestResource resource, ExtensionContext context) {
+        if (target.isAnnotated(LoadWith.class)) {
+            // don't validate the factory method yet
+            return Optional.empty();
+        }
+
         Class<?> targetType = target.type();
         return RESOURCE_CONVERTERS.containsKey(targetType)
                 ? Optional.empty()
-                : Optional.of(target.createException("Target type not supported: " + targetType)); //$NON-NLS-1$
+                : Optional.of(target.createException("Target type not supported: " + targetType));
     }
 
     @Override
     protected Object resolveValue(TestResource resource, InjectionTarget target, ExtensionContext context) {
+        LoadWith loadWith = target.findAnnotation(LoadWith.class).orElse(null);
+        if (loadWith != null) {
+            String methodName = loadWith.value();
+            return methodName.contains("#")
+                    ? resolveValue(resource, null, methodName, target, context)
+                    : resolveValue(resource, context.getRequiredTestClass(), methodName, target, context);
+        }
+
         Class<?> targetType = target.type();
         if (CACHEABLE_RESOURCE_TYPES.contains(targetType)) {
             Namespace namespace = NAMESPACE.append(target.declaringClass(), resource.value());
@@ -77,46 +94,112 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
         return resolveValue(resource, target);
     }
 
+    private Object resolveValue(TestResource resource, Class<?> factoryClass, String methodName, InjectionTarget target,
+            ExtensionContext context) {
+
+        String fullyQualifiedMethodName = factoryClass == null || methodName.isEmpty() ? methodName : factoryClass.getName() + "#" + methodName;
+
+        String[] methodParts = ReflectionUtils.parseFullyQualifiedMethodName(fullyQualifiedMethodName);
+
+        methodName = methodParts[1];
+        String methodParameters = methodParts[2];
+
+        if (factoryClass == null) {
+            factoryClass = loadRequiredClass(methodParts[0]);
+        }
+
+        Method factoryMethod;
+
+        switch (methodParameters) {
+            case "":
+                return resolveValueFromReaderOrInputStream(resource, factoryClass, methodName, target, context);
+            case "InputStream":
+                factoryMethod = ReflectionUtils.getRequiredMethod(factoryClass, methodName, InputStream.class);
+                return resolveValueFromInputStream(resource, factoryMethod, target, context);
+            case "Reader":
+                factoryMethod = ReflectionUtils.getRequiredMethod(factoryClass, methodName, Reader.class);
+                return resolveValueFromReader(resource, factoryMethod, target, context);
+            default:
+                throw new PreconditionViolationException(
+                        String.format("factory method [%s] has unsupported formal parameters", fullyQualifiedMethodName));
+        }
+    }
+
+    private Object resolveValueFromReaderOrInputStream(TestResource resource, Class<?> factoryClass, String methodName, InjectionTarget target,
+            ExtensionContext context) {
+
+        Method factoryMethod = ReflectionUtils.findMethod(factoryClass, methodName, Reader.class).orElse(null);
+        if (factoryMethod != null) {
+            return resolveValueFromReader(resource, factoryMethod, target, context);
+        }
+        factoryMethod = ReflectionUtils.getRequiredMethod(factoryClass, methodName, InputStream.class);
+        return resolveValueFromInputStream(resource, factoryMethod, target, context);
+    }
+
+    private Object resolveValueFromInputStream(TestResource resource, Method factoryMethod, InjectionTarget target, ExtensionContext context) {
+        try (InputStream inputStream = target.declaringClass().getResourceAsStream(resource.value())) {
+            validateResource(resource, target, inputStream);
+
+            Object testInstance = context.getTestInstance().orElse(null);
+            return ReflectionUtils.invokeMethod(factoryMethod, testInstance, inputStream);
+        } catch (IOException e) {
+            ExceptionUtils.throwAsUncheckedException(e);
+            return null;
+        }
+    }
+
+    private Object resolveValueFromReader(TestResource resource, Method factoryMethod, InjectionTarget target, ExtensionContext context) {
+        try (InputStream inputStream = target.declaringClass().getResourceAsStream(resource.value())) {
+            validateResource(resource, target, inputStream);
+
+            try (Reader reader = new InputStreamReader(inputStream, resource.charset())) {
+                Object testInstance = context.getTestInstance().orElse(null);
+                return ReflectionUtils.invokeMethod(factoryMethod, testInstance, reader);
+            }
+        } catch (IOException e) {
+            ExceptionUtils.throwAsUncheckedException(e);
+            return null;
+        }
+    }
+
+    private Class<?> loadRequiredClass(String className) {
+        return ReflectionUtils.tryToLoadClass(className)
+                .getOrThrow(cause -> new JUnitException(String.format("Could not load class [%s]", className), cause));
+    }
+
     private Object resolveValue(TestResource resource, InjectionTarget target) {
         Class<?> targetType = target.type();
         try (InputStream inputStream = target.declaringClass().getResourceAsStream(resource.value())) {
-            if (inputStream == null) {
-                throw target.createException("Resource not found: " + resource.value()); //$NON-NLS-1$
-            }
+            validateResource(resource, target, inputStream);
 
             IOBiFunction<InputStream, String, ?> resourceConverter = RESOURCE_CONVERTERS.get(targetType);
 
             return resourceConverter.apply(inputStream, resource.charset());
         } catch (IOException e) {
-            throw target.createException("Could not convert resource to " + targetType, e); //$NON-NLS-1$
+            ExceptionUtils.throwAsUncheckedException(e);
+            return null;
+        }
+    }
+
+    private void validateResource(TestResource resource, InjectionTarget target, InputStream inputStream) {
+        if (inputStream == null) {
+            throw target.createException("Resource not found: " + resource.value());
         }
     }
 
     private static String readContentAsString(InputStream inputStream, String charset) throws IOException {
-        return readContentAsStringBuilder(inputStream, charset).toString();
+        try (Reader reader = new InputStreamReader(inputStream, charset)) {
+            return TestResourceLoaders.toString(reader);
+        }
     }
 
     private static StringBuilder readContentAsStringBuilder(InputStream inputStream, String charset) throws IOException {
         try (Reader reader = new InputStreamReader(inputStream, charset)) {
-            StringBuilder sb = new StringBuilder();
-
-            char[] buffer = new char[1024];
-            int len;
-            while ((len = reader.read(buffer)) != -1) {
-                sb.append(buffer, 0, len);
-            }
-            return sb;
+            return TestResourceLoaders.toStringBuilder(reader);
         }
     }
 
     private static byte[] readContentAsBytes(InputStream inputStream) throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-        byte[] buffer = new byte[1024];
-        int len;
-        while ((len = inputStream.read(buffer)) != -1) {
-            outputStream.write(buffer, 0, len);
-        }
-        return outputStream.toByteArray();
+        return TestResourceLoaders.toBytes(inputStream);
     }
 }

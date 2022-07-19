@@ -17,6 +17,7 @@
 
 package com.github.robtimus.junit.support.extension.testresource;
 
+import java.io.InputStream;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -25,15 +26,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * {@code TestResource} can be used to annotate a field or a parameter in a lifecycle method or test method that should be resolved into the contents
- * of a (test) resource. The resource will be loaded relative to the class where the method is defined.
+ * of a (test) resource. The resource will be loaded relative to the class where the field, constructor or method is defined.
  *
- * The following parameter types are supported:
+ * The following parameter types are supported by default:
  * <ul>
  * <li>{@code String}</li>
  * <li>{@code CharSequence}</li>
  * <li>{@code StringBuilder}</li>
  * <li>{@code byte[]}</li>
  * </ul>
+ * In addition, {@link LoadWith} can be used to specify a method that is used to load the contents of the resource into an object.
  *
  * @author Rob Spoor
  * @since 2.0
@@ -49,7 +51,8 @@ public @interface TestResource {
     String value();
 
     /**
-     * The charset to use. Ignored for parameters of type {@code byte[]}.
+     * The charset to use. Ignored for parameters of type {@code byte[]}, and when {@link LoadWith} is used with a factory method that takes an
+     * {@link InputStream}.
      */
     String charset() default "UTF-8";
 }
