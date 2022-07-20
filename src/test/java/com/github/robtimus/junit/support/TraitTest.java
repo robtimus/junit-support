@@ -61,30 +61,23 @@ class TraitTest {
     private static Map<Class<?>, Set<String>> getAllowedMethodNames() {
         Map<Class<?>, Set<String>> result = new HashMap<>();
 
-        Set<String> allowedNames = new HashSet<>();
+        addAllowedMethodNames(result, EnumerationTests.IterationTests.class, "testNextElementWithoutHasMoreElements");
 
-        allowedNames.add("testNextElementWithoutHasMoreElements");
+        addAllowedMethodNames(result, IteratorTests.IterationTests.class, "testNextWithoutHasNext");
 
-        result.put(EnumerationTests.IterationTests.class, new HashSet<>(allowedNames));
+        addAllowedMethodNames(result, ListIteratorTests.IterationTests.class, "testNextWithoutHasNext", "testPreviousWithoutHasPrevious");
 
-        allowedNames.clear();
-        allowedNames.add("testNextWithoutHasNext");
+        addAllowedMethodNames(result, InputStreamTests.MarkResetTests.class, "testMarkSupported", "testMarkAndReset", "testResetWithoutMark");
+        addAllowedMethodNames(result, ReaderTests.MarkResetTests.class, "testMarkSupported", "testMarkAndReset", "testResetWithoutMark");
 
-        result.put(IteratorTests.IterationTests.class, new HashSet<>(allowedNames));
-
-        allowedNames.add("testPreviousWithoutHasPrevious");
-
-        result.put(ListIteratorTests.IterationTests.class, new HashSet<>(allowedNames));
-
-        allowedNames.clear();
-        allowedNames.add("testMarkSupported");
-        allowedNames.add("testMarkAndReset");
-        allowedNames.add("testResetWithoutMark");
-
-        result.put(InputStreamTests.MarkResetTests.class, new HashSet<>(allowedNames));
-        result.put(ReaderTests.MarkResetTests.class, new HashSet<>(allowedNames));
+        addAllowedMethodNames(result, EqualsAndHashCodeTests.class, "testReflexiveEquals", "testEqual", "testUnequal", "testUnequalToOtherTypes",
+                "testUnEqualToNull", "testHashCodeConsistent", "testHashCodeOfEqualObject", "testHashCodeOfUnequalObject");
 
         return Collections.unmodifiableMap(result);
+    }
+
+    private static void addAllowedMethodNames(Map<Class<?>, Set<String>> result, Class<?> testClass, String... allowedNames) {
+        result.put(testClass, new HashSet<>(Arrays.asList(allowedNames)));
     }
 
     @TestFactory

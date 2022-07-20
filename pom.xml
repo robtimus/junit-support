@@ -171,6 +171,7 @@
         <configuration>
           <links>
             <link>https://commons.apache.org/proper/commons-io/javadocs/api-release/</link>
+            <link>https://junit.org/junit5/docs/current/api/</link>
           </links>
         </configuration>
       </plugin>
