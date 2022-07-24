@@ -70,9 +70,6 @@ class TraitTest {
         addAllowedMethodNames(result, InputStreamTests.MarkResetTests.class, "testMarkSupported", "testMarkAndReset", "testResetWithoutMark");
         addAllowedMethodNames(result, ReaderTests.MarkResetTests.class, "testMarkSupported", "testMarkAndReset", "testResetWithoutMark");
 
-        addAllowedMethodNames(result, EqualsAndHashCodeTests.class, "testReflexiveEquals", "testEqual", "testUnequal", "testUnequalToOtherTypes",
-                "testUnEqualToNull", "testHashCodeConsistent", "testHashCodeOfEqualObject", "testHashCodeOfUnequalObject");
-
         return Collections.unmodifiableMap(result);
     }
 

@@ -11,10 +11,6 @@ This library mainly contains interfaces that each test one small aspect of a cla
 
 To add tests to a class, simply implement the appropriate interface. All tests in the interface will then be added to the test class.
 
-### equals and hashCode tests
-
-[EqualsAndHashCodeTests](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/EqualsAndHashCodeTests.html) makes it relatively easy to test that objects implement `equals` and `hashCode` correctly.
-
 ### Collection tests
 
 Package [com.github.robtimus.junit.support.collections](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/collections/package-summary.html) contains tests for the following interfaces in the Collections Framework:
