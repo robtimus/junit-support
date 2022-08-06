@@ -32,6 +32,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
 import org.junit.platform.commons.JUnitException;
 import org.junit.platform.commons.PreconditionViolationException;
+import org.junit.platform.commons.support.ReflectionSupport;
 import org.junit.platform.commons.util.ExceptionUtils;
 import org.junit.platform.commons.util.ReflectionUtils;
 import com.github.robtimus.io.function.IOBiFunction;
@@ -128,7 +129,7 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
     private Object resolveValueFromReaderOrInputStream(TestResource resource, Class<?> factoryClass, String methodName, InjectionTarget target,
             ExtensionContext context) {
 
-        Method factoryMethod = ReflectionUtils.findMethod(factoryClass, methodName, Reader.class).orElse(null);
+        Method factoryMethod = ReflectionSupport.findMethod(factoryClass, methodName, Reader.class).orElse(null);
         if (factoryMethod != null) {
             return resolveValueFromReader(resource, factoryMethod, target, context);
         }
@@ -141,7 +142,7 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
             validateResource(resource, target, inputStream);
 
             Object testInstance = context.getTestInstance().orElse(null);
-            return ReflectionUtils.invokeMethod(factoryMethod, testInstance, inputStream);
+            return ReflectionSupport.invokeMethod(factoryMethod, testInstance, inputStream);
         } catch (IOException e) {
             ExceptionUtils.throwAsUncheckedException(e);
             return null;
@@ -154,7 +155,7 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
 
             try (Reader reader = new InputStreamReader(inputStream, resource.charset())) {
                 Object testInstance = context.getTestInstance().orElse(null);
-                return ReflectionUtils.invokeMethod(factoryMethod, testInstance, reader);
+                return ReflectionSupport.invokeMethod(factoryMethod, testInstance, reader);
             }
         } catch (IOException e) {
             ExceptionUtils.throwAsUncheckedException(e);
@@ -163,7 +164,7 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
     }
 
     private Class<?> loadRequiredClass(String className) {
-        return ReflectionUtils.tryToLoadClass(className)
+        return ReflectionSupport.tryToLoadClass(className)
                 .getOrThrow(cause -> new JUnitException(String.format("Could not load class [%s]", className), cause));
     }
 

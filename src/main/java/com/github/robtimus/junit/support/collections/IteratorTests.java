@@ -204,6 +204,16 @@ public interface IteratorTests<T> {
     @DisplayName("forEachRemaining(Consumer)")
     interface ForEachRemainingTests<T> extends IteratorTests<T> {
 
+        /**
+         * Returns whether or not {@link Iterator#forEachRemaining(Consumer)} has a fail-fast {@code null} check.
+         * This default implementation returns {@code true}.
+         *
+         * @return {@code true} if {@link Iterator#forEachRemaining(Consumer)} has a fail-fast {@code null} check, or {@code false} otherwise.
+         */
+        default boolean hasFailFastNullCheck() {
+            return true;
+        }
+
         @Test
         @DisplayName("forEachRemaining(Consumer)")
         default void testForEachRemaining() {
@@ -231,7 +241,7 @@ public interface IteratorTests<T> {
             Iterable<T> iterable = iterable();
             Iterator<T> iterator = iterable.iterator();
 
-            assertThrows(NullPointerException.class, () -> iterator.forEachRemaining(null));
+            boolean hasFailFastNullCheck = hasFailFastNullCheck();
 
             Collection<T> expectedElements = expectedElements();
             List<T> elements = new ArrayList<>(expectedElements.size());
@@ -242,7 +252,22 @@ public interface IteratorTests<T> {
                 T element = iterator.next();
                 elements.add(element);
 
-                assertThrows(NullPointerException.class, () -> iterator.forEachRemaining(null));
+                // If there is no fail-fast null check, this call may succeed if there are no more elements
+                if (iterator.hasNext() || hasFailFastNullCheck) {
+                    assertThrows(NullPointerException.class, () -> iterator.forEachRemaining(null));
+                }
+            }
+
+            if (!hasFailFastNullCheck) {
+                // The first element, third element, etc. have been consumed by iterator.forEachRemaining(null)
+                expectedElements = new ArrayList<>();
+                boolean skip = true;
+                for (T element : iterable) {
+                    if (!skip) {
+                        expectedElements.add(element);
+                    }
+                    skip = !skip;
+                }
             }
 
             assertHasElements(elements, expectedElements, fixedOrder());

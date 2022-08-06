@@ -30,7 +30,7 @@ import org.junit.jupiter.api.extension.ExtensionConfigurationException;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.platform.commons.JUnitException;
-import org.junit.platform.commons.util.AnnotationUtils;
+import org.junit.platform.commons.support.AnnotationSupport;
 
 /**
  * A representation of an injection target. This can be a field or a parameter.
@@ -166,8 +166,8 @@ public final class InjectionTarget {
 
     static InjectionTarget forField(Field field) {
         return new InjectionTarget(field.getDeclaringClass(), field.getType(), field.getGenericType(),
-                type -> AnnotationUtils.findAnnotation(field, type),
-                type -> AnnotationUtils.findRepeatableAnnotations(field, type),
+                type -> AnnotationSupport.findAnnotation(field, type),
+                type -> AnnotationSupport.findRepeatableAnnotations(field, type),
                 ExtensionConfigurationException::new,
                 ExtensionConfigurationException::new);
     }

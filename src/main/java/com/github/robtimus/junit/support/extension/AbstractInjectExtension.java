@@ -17,8 +17,6 @@
 
 package com.github.robtimus.junit.support.extension;
 
-import static org.junit.platform.commons.util.AnnotationUtils.findAnnotatedFields;
-import static org.junit.platform.commons.util.ReflectionUtils.makeAccessible;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.Objects;
@@ -30,8 +28,10 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.platform.commons.JUnitException;
+import org.junit.platform.commons.support.AnnotationSupport;
+import org.junit.platform.commons.support.HierarchyTraversalMode;
+import org.junit.platform.commons.support.ModifierSupport;
 import org.junit.platform.commons.util.ExceptionUtils;
-import org.junit.platform.commons.util.ReflectionUtils;
 
 /**
  * An abstract base class for <a href="http://junit.org/">JUnit</a> extensions that can inject values in fields and/or parameters,
@@ -66,18 +66,18 @@ public abstract class AbstractInjectExtension<A extends Annotation> implements B
 
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
-        injectFields(null, context.getRequiredTestClass(), ReflectionUtils::isStatic, context);
+        injectFields(null, context.getRequiredTestClass(), ModifierSupport::isStatic, context);
     }
 
     @Override
     public void beforeEach(ExtensionContext context) throws Exception {
         for (Object testInstance : context.getRequiredTestInstances().getAllInstances()) {
-            injectFields(testInstance, testInstance.getClass(), ReflectionUtils::isNotStatic, context);
+            injectFields(testInstance, testInstance.getClass(), ModifierSupport::isNotStatic, context);
         }
     }
 
     private void injectFields(Object testInstance, Class<?> testClass, Predicate<Field> predicate, ExtensionContext context) {
-        for (Field field : findAnnotatedFields(testClass, annotationType, predicate)) {
+        for (Field field : AnnotationSupport.findAnnotatedFields(testClass, annotationType, predicate, HierarchyTraversalMode.TOP_DOWN)) {
             setValue(field, testInstance, context);
         }
     }
@@ -94,7 +94,10 @@ public abstract class AbstractInjectExtension<A extends Annotation> implements B
         Object value = resolveValue(annotation, target, context);
 
         try {
-            makeAccessible(field).set(testInstance, value);
+            if (!field.isAccessible()) {
+                field.setAccessible(true);
+            }
+            field.set(testInstance, value);
         } catch (Exception e) {
             ExceptionUtils.throwAsUncheckedException(e);
         }

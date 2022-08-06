@@ -159,6 +159,12 @@ class MethodOverrideTest {
                             // Ignore IteratorTests.RemoveTests tests, as UnmodifiableTests.RemoveTests should be used
                             IteratorTests.RemoveTests.class);
                 }
+
+                @Override
+                boolean ignoreMethod(Class<?> subInterface, Method method) {
+                    return subInterface == UnmodifiableMapTests.EntrySetTests.IteratorTests.ForEachRemainingTests.class
+                            && "hasFailFastNullCheck".equals(method.getName());
+                }
             }
         }
     }
@@ -181,8 +187,15 @@ class MethodOverrideTest {
             return testInterfaces(base, sub);
         }
 
+        @SuppressWarnings("unused")
+        boolean ignoreMethod(Class<?> subInterface, Method method) {
+            return false;
+        }
+
         private Stream<DynamicNode> testInterfaces(Class<?> baseInterface, Class<?> subInterface) {
-            boolean hasAnyMethods = subInterface.getDeclaredMethods().length > 0;
+            boolean hasAnyMethods = Arrays.stream(subInterface.getDeclaredMethods())
+                    .filter(method -> !ignoreMethod(subInterface, method))
+                    .count() > 0;
 
             Stream<DynamicTest> methodTests = hasAnyMethods
                     ? Arrays.stream(baseInterface.getMethods())

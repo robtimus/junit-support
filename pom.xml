@@ -22,7 +22,7 @@
   <parent>
     <groupId>com.github.robtimus</groupId>
     <artifactId>robtimus-parent</artifactId>
-    <version>1.4.2</version>
+    <version>1.4.3</version>
     <relativePath />
   </parent>
 
@@ -38,7 +38,7 @@
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
     </license>
   </licenses>
 
@@ -64,8 +64,8 @@
   <properties>
     <version.commons-io>2.11.0</version.commons-io>
     <version.io-functions>2.0</version.io-functions>
-    <version.junit-testkit>1.8.2</version.junit-testkit>
-    <version.memory-fs>2.0.1</version.memory-fs>
+    <version.junit-testkit>1.9.0</version.junit-testkit>
+    <version.memory-fs>2.0.2</version.memory-fs>
     <version.reflections>0.10.2</version.reflections>
   </properties>
 
@@ -243,4 +243,50 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>min-versions</id>
+      <properties>
+        <version.junit>5.8.2</version.junit>
+        <version.junit-testkit>1.8.2</version.junit-testkit>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>native-module</id>
+      <properties>
+        <version.java>11</version.java>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.moditect</groupId>
+            <artifactId>moditect-maven-plugin</artifactId>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>generate-sources</phase>
+                <goals>
+                  <goal>add-source</goal>
+                </goals>
+                <configuration>
+                  <sources>
+                    <source>${project.basedir}/src/moditect</source>
+                  </sources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
