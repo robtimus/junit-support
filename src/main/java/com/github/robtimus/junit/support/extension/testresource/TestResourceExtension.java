@@ -17,6 +17,7 @@
 
 package com.github.robtimus.junit.support.extension.testresource;
 
+import static org.junit.platform.commons.util.ReflectionUtils.parseFullyQualifiedMethodName;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -33,8 +34,6 @@ import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
 import org.junit.platform.commons.JUnitException;
 import org.junit.platform.commons.PreconditionViolationException;
 import org.junit.platform.commons.support.ReflectionSupport;
-import org.junit.platform.commons.util.ExceptionUtils;
-import org.junit.platform.commons.util.ReflectionUtils;
 import com.github.robtimus.io.function.IOBiFunction;
 import com.github.robtimus.junit.support.extension.AbstractInjectExtension;
 import com.github.robtimus.junit.support.extension.InjectionTarget;
@@ -100,7 +99,7 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
 
         String fullyQualifiedMethodName = factoryClass == null || methodName.isEmpty() ? methodName : factoryClass.getName() + "#" + methodName;
 
-        String[] methodParts = ReflectionUtils.parseFullyQualifiedMethodName(fullyQualifiedMethodName);
+        String[] methodParts = parseFullyQualifiedMethodName(fullyQualifiedMethodName);
 
         methodName = methodParts[1];
         String methodParameters = methodParts[2];
@@ -115,10 +114,10 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
             case "":
                 return resolveValueFromReaderOrInputStream(resource, factoryClass, methodName, target, context);
             case "InputStream":
-                factoryMethod = ReflectionUtils.getRequiredMethod(factoryClass, methodName, InputStream.class);
+                factoryMethod = getRequiredMethod(factoryClass, methodName, InputStream.class);
                 return resolveValueFromInputStream(resource, factoryMethod, target, context);
             case "Reader":
-                factoryMethod = ReflectionUtils.getRequiredMethod(factoryClass, methodName, Reader.class);
+                factoryMethod = getRequiredMethod(factoryClass, methodName, Reader.class);
                 return resolveValueFromReader(resource, factoryMethod, target, context);
             default:
                 throw new PreconditionViolationException(
@@ -133,7 +132,7 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
         if (factoryMethod != null) {
             return resolveValueFromReader(resource, factoryMethod, target, context);
         }
-        factoryMethod = ReflectionUtils.getRequiredMethod(factoryClass, methodName, InputStream.class);
+        factoryMethod = getRequiredMethod(factoryClass, methodName, InputStream.class);
         return resolveValueFromInputStream(resource, factoryMethod, target, context);
     }
 
@@ -144,7 +143,7 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
             Object testInstance = context.getTestInstance().orElse(null);
             return ReflectionSupport.invokeMethod(factoryMethod, testInstance, inputStream);
         } catch (IOException e) {
-            ExceptionUtils.throwAsUncheckedException(e);
+            throwAsUncheckedException(e);
             return null;
         }
     }
@@ -158,7 +157,7 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
                 return ReflectionSupport.invokeMethod(factoryMethod, testInstance, reader);
             }
         } catch (IOException e) {
-            ExceptionUtils.throwAsUncheckedException(e);
+            throwAsUncheckedException(e);
             return null;
         }
     }
@@ -177,7 +176,7 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
 
             return resourceConverter.apply(inputStream, resource.charset());
         } catch (IOException e) {
-            ExceptionUtils.throwAsUncheckedException(e);
+            throwAsUncheckedException(e);
             return null;
         }
     }
@@ -202,5 +201,15 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
 
     private static byte[] readContentAsBytes(InputStream inputStream) throws IOException {
         return TestResourceLoaders.toBytes(inputStream);
+    }
+
+    private static Method getRequiredMethod(Class<?> clazz, String methodName, Class<?>... parameterTypes) {
+        return ReflectionSupport.findMethod(clazz, methodName, parameterTypes)
+                .orElseThrow(() -> new JUnitException(String.format("Could not find method [%s] in class [%s]", methodName, clazz.getName())));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends Throwable> void throwAsUncheckedException(Throwable t) throws T {
+        throw (T) t;
     }
 }

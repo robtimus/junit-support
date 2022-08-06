@@ -32,8 +32,6 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.api.function.ThrowingSupplier;
-import org.junit.platform.commons.util.StringUtils;
-import org.junit.platform.commons.util.UnrecoverableExceptions;
 import org.opentest4j.AssertionFailedError;
 
 /**
@@ -403,7 +401,7 @@ public final class AdditionalAssertions {
             if (expectedType.isInstance(actualException)) {
                 return Optional.of(expectedType.cast(actualException));
             }
-            UnrecoverableExceptions.rethrowIfUnrecoverable(actualException);
+            rethrowIfUnrecoverable(actualException);
 
             String message = String.format("%s%sexpected: %s but was: %s",
                     buildPrefix(nullSafeGet(messageOrSupplier)),
@@ -485,7 +483,7 @@ public final class AdditionalAssertions {
             if (expectedType.equals(actualException.getClass())) {
                 return Optional.of(expectedType.cast(actualException));
             }
-            UnrecoverableExceptions.rethrowIfUnrecoverable(actualException);
+            rethrowIfUnrecoverable(actualException);
 
             String message = String.format("%s%sexpected: %s but was: %s",
                     buildPrefix(nullSafeGet(messageOrSupplier)),
@@ -796,7 +794,7 @@ public final class AdditionalAssertions {
                     return Optional.of(expectedType.cast(actualException));
                 }
             }
-            UnrecoverableExceptions.rethrowIfUnrecoverable(actualException);
+            rethrowIfUnrecoverable(actualException);
 
             String message = String.format("%s%sexpected: one of %s but was: %s",
                     buildPrefix(nullSafeGet(messageOrSupplier)),
@@ -1089,7 +1087,7 @@ public final class AdditionalAssertions {
                     return Optional.of(expectedType.cast(actualException));
                 }
             }
-            UnrecoverableExceptions.rethrowIfUnrecoverable(actualException);
+            rethrowIfUnrecoverable(actualException);
 
             String message = String.format("%s%sexpected: one of %s but was: %s",
                     buildPrefix(nullSafeGet(messageOrSupplier)),
@@ -1257,6 +1255,16 @@ public final class AdditionalAssertions {
     }
 
     private static String buildPrefix(String message) {
-        return StringUtils.isNotBlank(message) ? message + " ==> " : "";
+        return isNotBlank(message) ? message + " ==> " : "";
+    }
+
+    private static boolean isNotBlank(String message) {
+        return message != null && message.chars().anyMatch(c -> !Character.isWhitespace(c));
+    }
+
+    private static void rethrowIfUnrecoverable(Throwable exception) {
+        if (exception instanceof OutOfMemoryError) {
+            throw (OutOfMemoryError) exception;
+        }
     }
 }

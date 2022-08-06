@@ -31,7 +31,6 @@ import org.junit.platform.commons.JUnitException;
 import org.junit.platform.commons.support.AnnotationSupport;
 import org.junit.platform.commons.support.HierarchyTraversalMode;
 import org.junit.platform.commons.support.ModifierSupport;
-import org.junit.platform.commons.util.ExceptionUtils;
 
 /**
  * An abstract base class for <a href="http://junit.org/">JUnit</a> extensions that can inject values in fields and/or parameters,
@@ -99,8 +98,13 @@ public abstract class AbstractInjectExtension<A extends Annotation> implements B
             }
             field.set(testInstance, value);
         } catch (Exception e) {
-            ExceptionUtils.throwAsUncheckedException(e);
+            throwAsUncheckedException(e);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends Throwable> void throwAsUncheckedException(Throwable t) throws T {
+        throw (T) t;
     }
 
     @Override
