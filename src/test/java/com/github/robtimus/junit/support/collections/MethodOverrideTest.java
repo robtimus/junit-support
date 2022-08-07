@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicContainer;
@@ -156,14 +157,10 @@ class MethodOverrideTest {
 
                 IteratorTestsTest() {
                     super(UnmodifiableIteratorTests.class, UnmodifiableMapTests.EntrySetTests.IteratorTests.class,
+                            method -> "hasFailFastNullCheck".equals(method.getName())
+                                    && method.getDeclaringClass() == UnmodifiableMapTests.EntrySetTests.IteratorTests.ForEachRemainingTests.class,
                             // Ignore IteratorTests.RemoveTests tests, as UnmodifiableTests.RemoveTests should be used
                             IteratorTests.RemoveTests.class);
-                }
-
-                @Override
-                boolean ignoreMethod(Class<?> subInterface, Method method) {
-                    return subInterface == UnmodifiableMapTests.EntrySetTests.IteratorTests.ForEachRemainingTests.class
-                            && "hasFailFastNullCheck".equals(method.getName());
                 }
             }
         }
@@ -173,11 +170,19 @@ class MethodOverrideTest {
 
         private final Class<?> base;
         private final Class<?> sub;
+        private final Predicate<Method> methodsToIgnore;
         private final Set<Class<?>> interfacesToIgnore;
 
         private AbstractMethodOverrideTest(Class<?> baseInterface, Class<?> subInterface, Class<?>... interfacesToIgnore) {
+            this(baseInterface, subInterface, m -> false, interfacesToIgnore);
+        }
+
+        private AbstractMethodOverrideTest(Class<?> baseInterface, Class<?> subInterface, Predicate<Method> methodsToIgnore,
+                Class<?>... interfacesToIgnore) {
+
             this.base = baseInterface;
             this.sub = subInterface;
+            this.methodsToIgnore = methodsToIgnore;
             this.interfacesToIgnore = new HashSet<>(Arrays.asList(interfacesToIgnore));
         }
 
@@ -187,14 +192,9 @@ class MethodOverrideTest {
             return testInterfaces(base, sub);
         }
 
-        @SuppressWarnings("unused")
-        boolean ignoreMethod(Class<?> subInterface, Method method) {
-            return false;
-        }
-
         private Stream<DynamicNode> testInterfaces(Class<?> baseInterface, Class<?> subInterface) {
             boolean hasAnyMethods = Arrays.stream(subInterface.getDeclaredMethods())
-                    .filter(method -> !ignoreMethod(subInterface, method))
+                    .filter(methodsToIgnore.negate())
                     .count() > 0;
 
             Stream<DynamicTest> methodTests = hasAnyMethods
