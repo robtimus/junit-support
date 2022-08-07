@@ -101,3 +101,7 @@ A specialized version of `@LoadWith` is provided for `Properties` objects, [AsPr
     private static Properties testProperties;
 
 Note that the resource name is relative to the class that defines the method. Use a leading `/` to start from the root of the class path.
+
+## Utility methods for working with @TempDir
+
+JUnit 4's [TemporaryFolder](https://junit.org/junit4/javadoc/4.13/org/junit/rules/TemporaryFolder.html) had some utility methods to create files and folders inside the temporary folder. JUnit 5's [TempDir](https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/io/TempDir.html) injects a `Path` or `File`, and is therefore missing all of these utility methods. Class [TempDirUtils](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/extension/tempdir/TempDirUtils.html) adds most of these methods as static methods.
