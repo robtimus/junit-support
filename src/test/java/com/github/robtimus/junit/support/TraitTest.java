@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
@@ -40,6 +41,7 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.platform.commons.support.ReflectionSupport;
 import com.github.robtimus.junit.support.collections.EnumerationTests;
 import com.github.robtimus.junit.support.collections.IteratorTests;
 import com.github.robtimus.junit.support.collections.ListIteratorTests;
@@ -80,10 +82,9 @@ class TraitTest {
     @TestFactory
     @DisplayName("Traits are implemented correctly")
     Stream<DynamicNode> testTraits() {
-        return ClassUtils.findClassesInPackage(getClass())
-                .filter(Class::isInterface)
-                .filter(c -> !c.isAnnotation())
-                .filter(c -> !IGNORED_CLASSES.contains(c))
+        Predicate<Class<?>> classFilter = c -> c.isInterface() && !c.isAnnotation() && !IGNORED_CLASSES.contains(c);
+
+        return ReflectionSupport.findAllClassesInPackage(getClass().getPackage().getName(), classFilter, n -> true).stream()
                 .sorted(Comparator.comparing(Class::getName))
                 .map(this::testTrait);
     }

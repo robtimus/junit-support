@@ -101,20 +101,3 @@ A specialized version of `@LoadWith` is provided for `Properties` objects, [AsPr
     private static Properties testProperties;
 
 Note that the resource name is relative to the class that defines the method. Use a leading `/` to start from the root of the class path.
-
-## Dynamically testing all implementations
-
-If you want to test all implementations of a class or interface, you can use [ClassUtils](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/ClassUtils.html) to find all classes in your application. For instance, from [TraitTest](https://github.com/robtimus/junit-support/tree/master/src/test/java/com/github/robtimus/junit/support/TraitTest.java):
-
-    @TestFactory
-    @DisplayName("Traits are implemented correctly")
-    Stream<DynamicNode> testTraits() {
-        return ClassUtils.findClassesInPackage(getClass())
-                .filter(Class::isInterface)
-                .filter(c -> !c.isAnnotation())
-                .filter(c -> !IGNORED_CLASSES.contains(c))
-                .sorted(Comparator.comparing(Class::getName))
-                .map(this::testTrait);
-    }
-
-Since `TraitTest` is in the root package of this project, this finds all classes in this project itself, performs some filtering and sorting, and creates a test for each filtered class.
