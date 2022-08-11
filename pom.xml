@@ -262,6 +262,32 @@
       <build>
         <plugins>
           <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <!-- Allow JUnit to fully access the test classes -->
+              <argLine>
+                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support=org.junit.platform.commons
+                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.collections=org.junit.platform.commons
+                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension=org.junit.platform.commons
+                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.tempdir=org.junit.platform.commons
+                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testresource=org.junit.platform.commons
+                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.io=org.junit.platform.commons
+                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.matchers.nio.file=org.junit.platform.commons
+                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.params=org.junit.platform.commons
+
+                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.examples.collection=org.junit.platform.commons
+                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.examples.covariantreturn=org.junit.platform.commons
+                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.examples.delegation=org.junit.platform.commons
+                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.examples.io=org.junit.platform.commons
+
+                --add-opens org.junit.platform.commons/org.junit.platform.commons.logging=ALL-UNNAMED
+                --add-opens org.junit.platform.commons/org.junit.platform.commons.util=ALL-UNNAMED
+              </argLine>
+            </configuration>
+          </plugin>
+
+          <plugin>
             <groupId>org.moditect</groupId>
             <artifactId>moditect-maven-plugin</artifactId>
             <configuration>

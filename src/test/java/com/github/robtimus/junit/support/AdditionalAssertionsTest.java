@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -428,10 +428,10 @@ class AdditionalAssertionsTest {
                 Exception intermediate = new UncheckedIOException(root);
                 Exception exception = new IllegalStateException(intermediate);
 
-                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwException(exception, SQLException.class));
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwException(exception, ParseException.class));
 
                 String expectedMessage = String.format("expected caused by <%s> but was: [<%s>, <%s>]",
-                        SQLException.class.getName(), intermediate, root);
+                        ParseException.class.getName(), intermediate, root);
                 assertEquals(expectedMessage, error.getMessage());
             }
 
@@ -475,11 +475,10 @@ class AdditionalAssertionsTest {
                 Exception exception = new IllegalStateException(intermediate);
 
                 String message = "Not caused by IOException";
-                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwException(exception, SQLException.class, message));
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwException(exception, ParseException.class, message));
 
                 String expectedMessage = String.format("%s ==> expected caused by <%s> but was: [<%s>, <%s>]",
-                        message,
-                        SQLException.class.getName(), intermediate, root);
+                        message, ParseException.class.getName(), intermediate, root);
                 assertEquals(expectedMessage, error.getMessage());
             }
 
@@ -492,8 +491,7 @@ class AdditionalAssertionsTest {
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwException(exception, IOException.class, message));
 
                 String expectedMessage = String.format("%s ==> expected caused by <%s> but was: []",
-                        message,
-                        IOException.class.getName());
+                        message, IOException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
             }
 
@@ -525,11 +523,10 @@ class AdditionalAssertionsTest {
                 Exception exception = new IllegalStateException(intermediate);
 
                 String message = "Not caused by IOException";
-                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwException(exception, SQLException.class, message));
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwException(exception, ParseException.class, message));
 
                 String expectedMessage = String.format("%s ==> expected caused by <%s> but was: [<%s>, <%s>]",
-                        message,
-                        SQLException.class.getName(), intermediate, root);
+                        message, ParseException.class.getName(), intermediate, root);
                 assertEquals(expectedMessage, error.getMessage());
             }
 

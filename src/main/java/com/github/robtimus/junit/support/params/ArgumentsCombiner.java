@@ -30,7 +30,6 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.junit.platform.commons.util.ExceptionUtils;
 
 /**
  * A class that can combine multiple arguments. Instances of this class can be used in {@link ArgumentsProvider} implementations or provider methods
@@ -245,7 +244,7 @@ public final class ArgumentsCombiner {
      * Creates an arguments combiner with an initial set of arguments.
      * <p>
      * Note that if the arguments provider throws an exception from its {@link ArgumentsProvider#provideArguments(ExtensionContext)} method,
-     * that exception will be re-thrown <em>as is</em> but {@link ExceptionUtils#throwAsUncheckedException masked} as an unchecked exception.
+     * that exception will be re-thrown <em>as is</em> but as an unchecked exception.
      *
      * @param argumentsProvider The provider initial set of arguments.
      * @param context The current extension context.
@@ -449,7 +448,7 @@ public final class ArgumentsCombiner {
      * Adds a set of arguments. The resulting arguments will be a cross join or Cartesian product of the current arguments and the given arguments.
      * <p>
      * Note that if the arguments provider throws an exception from its {@link ArgumentsProvider#provideArguments(ExtensionContext)} method,
-     * that exception will be re-thrown <em>as is</em> but {@link ExceptionUtils#throwAsUncheckedException masked} as an unchecked exception.
+     * that exception will be re-thrown <em>as is</em> but as an unchecked exception.
      *
      * @param argumentsProvider The provider for the arguments to add.
      * @param context The current extension context.

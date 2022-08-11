@@ -49,7 +49,6 @@ jobs:
 
   native-module:
     runs-on: ubuntu-latest
-    if: ${{false}} # disabled until a fix for the use of package org.junit.platform.commons.util has been found
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK 11
