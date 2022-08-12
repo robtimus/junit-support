@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -49,11 +48,11 @@ public final class MethodLookup {
     static final Pattern METHOD_REFERENCE_PATTERN = createMethodReferencePattern();
 
     private final List<Class<?>[]> parameterTypeCombinations;
-    private final StringJoiner combinationRepresentations;
+    private final List<String> combinationRepresentations;
 
     private MethodLookup() {
         parameterTypeCombinations = new ArrayList<>();
-        combinationRepresentations = new StringJoiner(", ", "[", "]");
+        combinationRepresentations = new ArrayList<>();
     }
 
     /**
@@ -153,6 +152,10 @@ public final class MethodLookup {
         }
 
         // No match
+        if (parameterTypeCombinations.size() == 1) {
+            throw new PreconditionViolationException(String.format("Could not find method [%s] in class [%s] with parameter combination %s",
+                    methodName, factoryClass.getName(), combinationRepresentations.get(0)));
+        }
         throw new PreconditionViolationException(String.format("Could not find method [%s] in class [%s] with a parameter combination in %s",
                 methodName, factoryClass.getName(), combinationRepresentations));
     }
@@ -173,6 +176,10 @@ public final class MethodLookup {
         }
 
         // Although the method exists, it is not supported
+        if (parameterTypeCombinations.size() == 1) {
+            throw new PreconditionViolationException(String.format("Method [%s(%s)] in class [%s] does not have parameter combination %s",
+                    methodName, methodArguments, factoryClass.getName(), combinationRepresentations.get(0)));
+        }
         throw new PreconditionViolationException(String.format("Method [%s(%s)] in class [%s] does not have a parameter combination in %s",
                 methodName, methodArguments, factoryClass.getName(), combinationRepresentations));
     }

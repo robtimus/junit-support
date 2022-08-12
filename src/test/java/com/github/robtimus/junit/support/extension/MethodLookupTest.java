@@ -266,19 +266,38 @@ final class MethodLookupTest {
                 assertEquals(0, result.index());
             }
 
-            @Test
+            @Nested
             @DisplayName("method not found")
-            void testMethodNotFound() {
-                MethodLookup lookup = MethodLookup.withParameterTypes(String.class, int.class)
-                        .orParameterTypes(int.class);
+            class MethodNotFound {
 
-                ExtensionContext context = mock(ExtensionContext.class);
-                doReturn(getClass()).when(context).getRequiredTestClass();
+                @Test
+                @DisplayName("for single parameter combination")
+                void testSingleParameterCombination() {
+                    MethodLookup lookup = MethodLookup.withParameterTypes(String.class, int.class);
 
-                PreconditionViolationException exception = assertThrows(PreconditionViolationException.class, () -> lookup.find("echo", context));
-                assertEquals(String.format("Could not find method [echo] in class [%s] with a parameter combination in [%s]",
-                        getClass().getName(), "(java.lang.String, int), (int)"),
-                        exception.getMessage());
+                    ExtensionContext context = mock(ExtensionContext.class);
+                    doReturn(getClass()).when(context).getRequiredTestClass();
+
+                    PreconditionViolationException exception = assertThrows(PreconditionViolationException.class, () -> lookup.find("echo", context));
+                    assertEquals(String.format("Could not find method [echo] in class [%s] with parameter combination (java.lang.String, int)",
+                            getClass().getName()),
+                            exception.getMessage());
+                }
+
+                @Test
+                @DisplayName("for multple parameter combinations")
+                void testMultpleParameterCombinations() {
+                    MethodLookup lookup = MethodLookup.withParameterTypes(String.class, int.class)
+                            .orParameterTypes(int.class);
+
+                    ExtensionContext context = mock(ExtensionContext.class);
+                    doReturn(getClass()).when(context).getRequiredTestClass();
+
+                    PreconditionViolationException exception = assertThrows(PreconditionViolationException.class, () -> lookup.find("echo", context));
+                    assertEquals(String.format("Could not find method [echo] in class [%s] with a parameter combination in [%s]",
+                            getClass().getName(), "(java.lang.String, int), (int)"),
+                            exception.getMessage());
+                }
             }
 
             String echo(String value) {
@@ -341,21 +360,46 @@ final class MethodLookupTest {
                 assertEquals(String.format("Could not find method [echo(int)] in class [%s]", getClass().getName()), exception.getMessage());
             }
 
-            @Test
+            @Nested
             @DisplayName("method mismatch")
-            void testMethodMismatch() {
-                MethodLookup lookup = MethodLookup.withParameterTypes(String.class, int.class)
-                        .orParameterTypes(int.class);
+            class MethodMismatch {
 
-                ExtensionContext context = mock(ExtensionContext.class);
-                doReturn(getClass()).when(context).getRequiredTestClass();
+                @Test
+                @DisplayName("for single parameter combinations")
+                void testSingleParameterCombinations() {
+                    MethodLookup lookup = MethodLookup.withParameterTypes(String.class, int.class);
 
-                PreconditionViolationException exception = assertThrows(PreconditionViolationException.class,
-                        () -> lookup.find("echo(java.lang.String)", context));
-                assertEquals(String.format(
-                        "Method [echo(java.lang.String)] in class [%s] does not have a parameter combination in [(java.lang.String, int), (int)]",
-                        getClass().getName()),
-                        exception.getMessage());
+                    ExtensionContext context = mock(ExtensionContext.class);
+                    doReturn(getClass()).when(context).getRequiredTestClass();
+
+                    PreconditionViolationException exception = assertThrows(PreconditionViolationException.class,
+                            () -> lookup.find("echo(java.lang.String)", context));
+                    assertEquals(String.format(
+                            "Method [echo(java.lang.String)] in class [%s] does not have parameter combination (java.lang.String, int)",
+                            getClass().getName()),
+                            exception.getMessage());
+                }
+
+                @Test
+                @DisplayName("for multple parameter combinations")
+                void testMultpleParameterCombinations() {
+                    MethodLookup lookup = MethodLookup.withParameterTypes(String.class, int.class)
+                            .orParameterTypes(int.class);
+
+                    ExtensionContext context = mock(ExtensionContext.class);
+                    doReturn(getClass()).when(context).getRequiredTestClass();
+
+                    PreconditionViolationException exception = assertThrows(PreconditionViolationException.class,
+                            () -> lookup.find("echo(java.lang.String)", context));
+                    assertEquals(String.format(
+                            "Method [echo(java.lang.String)] in class [%s] does not have a parameter combination in [(java.lang.String, int), (int)]",
+                            getClass().getName()),
+                            exception.getMessage());
+                }
+
+                String echo(String value) {
+                    return value;
+                }
             }
 
             @Test
@@ -416,20 +460,40 @@ final class MethodLookupTest {
                 assertEquals(0, result.index());
             }
 
-            @Test
+            @Nested
             @DisplayName("method not found")
-            void testMethodNotFound() {
-                MethodLookup lookup = MethodLookup.withParameterTypes(String.class, int.class)
-                        .orParameterTypes(int.class);
+            class MethodNotFound {
 
-                ExtensionContext context = mock(ExtensionContext.class);
-                doReturn(getClass()).when(context).getRequiredTestClass();
+                @Test
+                @DisplayName("for single parameter combination")
+                void testSingleParameterCombination() {
+                    MethodLookup lookup = MethodLookup.withParameterTypes(String.class, int.class);
 
-                PreconditionViolationException exception = assertThrows(PreconditionViolationException.class,
-                        () -> lookup.find(className + "#echo", context));
-                assertEquals(String.format("Could not find method [echo] in class [%s] with a parameter combination in [%s]",
-                        declaringClass.getName(), "(java.lang.String, int), (int)"),
-                        exception.getMessage());
+                    ExtensionContext context = mock(ExtensionContext.class);
+                    doReturn(getClass()).when(context).getRequiredTestClass();
+
+                    PreconditionViolationException exception = assertThrows(PreconditionViolationException.class,
+                            () -> lookup.find(className + "#echo", context));
+                    assertEquals(String.format("Could not find method [echo] in class [%s] with parameter combination (java.lang.String, int)",
+                            declaringClass.getName()),
+                            exception.getMessage());
+                }
+
+                @Test
+                @DisplayName("for multple parameter combinations")
+                void testMultpleParameterCombinations() {
+                    MethodLookup lookup = MethodLookup.withParameterTypes(String.class, int.class)
+                            .orParameterTypes(int.class);
+
+                    ExtensionContext context = mock(ExtensionContext.class);
+                    doReturn(getClass()).when(context).getRequiredTestClass();
+
+                    PreconditionViolationException exception = assertThrows(PreconditionViolationException.class,
+                            () -> lookup.find(className + "#echo", context));
+                    assertEquals(String.format("Could not find method [echo] in class [%s] with a parameter combination in [%s]",
+                            declaringClass.getName(), "(java.lang.String, int), (int)"),
+                            exception.getMessage());
+                }
             }
 
             @Test
@@ -492,21 +556,42 @@ final class MethodLookupTest {
                 assertEquals(String.format("Could not find method [echo(int)] in class [%s]", declaringClass.getName()), exception.getMessage());
             }
 
-            @Test
+            @Nested
             @DisplayName("method mismatch")
-            void testMethodMismatch() {
-                MethodLookup lookup = MethodLookup.withParameterTypes(String.class, int.class)
-                        .orParameterTypes(int.class);
+            class MethodMismatch {
 
-                ExtensionContext context = mock(ExtensionContext.class);
-                doReturn(getClass()).when(context).getRequiredTestClass();
+                @Test
+                @DisplayName("for single parameter combinations")
+                void testSingleParameterCombinations() {
+                    MethodLookup lookup = MethodLookup.withParameterTypes(String.class, int.class);
 
-                PreconditionViolationException exception = assertThrows(PreconditionViolationException.class,
-                        () -> lookup.find(className + "#echo(java.lang.String)", context));
-                assertEquals(String.format(
-                        "Method [echo(java.lang.String)] in class [%s] does not have a parameter combination in [(java.lang.String, int), (int)]",
-                        declaringClass.getName()),
-                        exception.getMessage());
+                    ExtensionContext context = mock(ExtensionContext.class);
+                    doReturn(getClass()).when(context).getRequiredTestClass();
+
+                    PreconditionViolationException exception = assertThrows(PreconditionViolationException.class,
+                            () -> lookup.find(className + "#echo(java.lang.String)", context));
+                    assertEquals(String.format(
+                            "Method [echo(java.lang.String)] in class [%s] does not have parameter combination (java.lang.String, int)",
+                            declaringClass.getName()),
+                            exception.getMessage());
+                }
+
+                @Test
+                @DisplayName("for multple parameter combinations")
+                void testMultpleParameterCombinations() {
+                    MethodLookup lookup = MethodLookup.withParameterTypes(String.class, int.class)
+                            .orParameterTypes(int.class);
+
+                    ExtensionContext context = mock(ExtensionContext.class);
+                    doReturn(getClass()).when(context).getRequiredTestClass();
+
+                    PreconditionViolationException exception = assertThrows(PreconditionViolationException.class,
+                            () -> lookup.find(className + "#echo(java.lang.String)", context));
+                    assertEquals(String.format(
+                            "Method [echo(java.lang.String)] in class [%s] does not have a parameter combination in [(java.lang.String, int), (int)]",
+                            declaringClass.getName()),
+                            exception.getMessage());
+                }
             }
 
             @Test
