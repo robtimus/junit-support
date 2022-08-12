@@ -31,7 +31,7 @@ import java.lang.annotation.Target;
  */
 @Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
-@LoadWith("com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders#toProperties(Reader)")
+@LoadWith("com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders#toProperties(java.io.Reader)")
 public @interface AsProperties {
     // no content
 }

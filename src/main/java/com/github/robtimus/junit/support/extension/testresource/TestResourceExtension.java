@@ -17,46 +17,57 @@
 
 package com.github.robtimus.junit.support.extension.testresource;
 
-import static org.junit.platform.commons.util.ReflectionUtils.parseFullyQualifiedMethodName;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Method;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
+import java.util.function.Supplier;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
 import org.junit.platform.commons.JUnitException;
 import org.junit.platform.commons.PreconditionViolationException;
 import org.junit.platform.commons.support.ReflectionSupport;
-import com.github.robtimus.io.function.IOBiFunction;
 import com.github.robtimus.junit.support.extension.AbstractInjectExtension;
 import com.github.robtimus.junit.support.extension.InjectionTarget;
+import com.github.robtimus.junit.support.extension.MethodLookup;
 
 @SuppressWarnings("nls")
 class TestResourceExtension extends AbstractInjectExtension<TestResource> {
 
-    private static final Map<Class<?>, IOBiFunction<InputStream, String, ?>> RESOURCE_CONVERTERS;
-    private static final Set<Class<?>> CACHEABLE_RESOURCE_TYPES;
+    private static final Map<Class<?>, ResourceConverter> RESOURCE_CONVERTERS;
+    private static final Map<String, String> EOL_VALUES;
+    private static final Map<String, Supplier<String>> ENCODING_LOOKUPS;
 
-    private static final Namespace NAMESPACE = Namespace.create(TestResourceExtension.class);
+    private static final MethodLookup LOAD_AS_LOOKUP = MethodLookup.withParameterTypes(Reader.class)
+            .orParameterTypes(InputStream.class);
 
     static {
-        Map<Class<?>, IOBiFunction<InputStream, String, ?>> resourceConverters = new HashMap<>();
+        Map<Class<?>, ResourceConverter> resourceConverters = new HashMap<>();
         resourceConverters.put(String.class, TestResourceExtension::readContentAsString);
-        resourceConverters.put(CharSequence.class, TestResourceExtension::readContentAsStringBuilder);
+        resourceConverters.put(CharSequence.class, TestResourceExtension::readContentAsCharSequence);
         resourceConverters.put(StringBuilder.class, TestResourceExtension::readContentAsStringBuilder);
-        resourceConverters.put(byte[].class, (inputStream, charset) -> readContentAsBytes(inputStream));
+        resourceConverters.put(byte[].class, (inputStream, target, context) -> readContentAsBytes(inputStream, target));
         RESOURCE_CONVERTERS = Collections.unmodifiableMap(resourceConverters);
 
-        Set<Class<?>> cacheResourceTypes = new HashSet<>();
-        cacheResourceTypes.add(String.class);
-        CACHEABLE_RESOURCE_TYPES = Collections.unmodifiableSet(cacheResourceTypes);
+        Map<String, String> eolValues = new HashMap<>();
+        eolValues.put("LF", EOL.LF);
+        eolValues.put("CR", EOL.CR);
+        eolValues.put("CRLF", EOL.CRLF);
+        eolValues.put("SYSTEM", System.lineSeparator());
+        eolValues.put("ORIGINAL", EOL.ORIGINAL);
+        eolValues.put("NONE", EOL.NONE);
+        EOL_VALUES = Collections.unmodifiableMap(eolValues);
+
+        Map<String, Supplier<String>> encodingLookups = new HashMap<>();
+        encodingLookups.put("DEFAULT", () -> Charset.defaultCharset().name());
+        encodingLookups.put("SYSTEM", TestResourceExtension::lookupSystemEncoding);
+        encodingLookups.put("NATIVE", TestResourceExtension::lookupNativeEncoding);
+        ENCODING_LOOKUPS = Collections.unmodifiableMap(encodingLookups);
     }
 
     TestResourceExtension() {
@@ -80,65 +91,22 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
     protected Object resolveValue(TestResource resource, InjectionTarget target, ExtensionContext context) {
         LoadWith loadWith = target.findAnnotation(LoadWith.class).orElse(null);
         if (loadWith != null) {
-            String methodName = loadWith.value();
-            return methodName.contains("#")
-                    ? resolveValue(resource, null, methodName, target, context)
-                    : resolveValue(resource, context.getRequiredTestClass(), methodName, target, context);
+            validateNoEOL(target, "@EOL not allowed in combination with @LoadWith");
+
+            MethodLookup.Result lookupResult = LOAD_AS_LOOKUP.find(loadWith.value(), context);
+            return lookupResult.index() == 0
+                    ? resolveValueFromReader(resource, lookupResult.method(), target, context)
+                    : resolveValueFromInputStream(resource, lookupResult.method(), target, context);
         }
 
-        Class<?> targetType = target.type();
-        if (CACHEABLE_RESOURCE_TYPES.contains(targetType)) {
-            Namespace namespace = NAMESPACE.append(target.declaringClass(), resource.value());
-            return context.getStore(namespace).getOrComputeIfAbsent(resource.charset(), k -> resolveValue(resource, target));
-        }
-        return resolveValue(resource, target);
-    }
-
-    private Object resolveValue(TestResource resource, Class<?> factoryClass, String methodName, InjectionTarget target,
-            ExtensionContext context) {
-
-        String fullyQualifiedMethodName = factoryClass == null || methodName.isEmpty() ? methodName : factoryClass.getName() + "#" + methodName;
-
-        String[] methodParts = parseFullyQualifiedMethodName(fullyQualifiedMethodName);
-
-        methodName = methodParts[1];
-        String methodParameters = methodParts[2];
-
-        if (factoryClass == null) {
-            factoryClass = loadRequiredClass(methodParts[0]);
-        }
-
-        Method factoryMethod;
-
-        switch (methodParameters) {
-            case "":
-                return resolveValueFromReaderOrInputStream(resource, factoryClass, methodName, target, context);
-            case "InputStream":
-                factoryMethod = getRequiredMethod(factoryClass, methodName, InputStream.class);
-                return resolveValueFromInputStream(resource, factoryMethod, target, context);
-            case "Reader":
-                factoryMethod = getRequiredMethod(factoryClass, methodName, Reader.class);
-                return resolveValueFromReader(resource, factoryMethod, target, context);
-            default:
-                throw new PreconditionViolationException(
-                        String.format("factory method [%s] has unsupported formal parameters", fullyQualifiedMethodName));
-        }
-    }
-
-    private Object resolveValueFromReaderOrInputStream(TestResource resource, Class<?> factoryClass, String methodName, InjectionTarget target,
-            ExtensionContext context) {
-
-        Method factoryMethod = ReflectionSupport.findMethod(factoryClass, methodName, Reader.class).orElse(null);
-        if (factoryMethod != null) {
-            return resolveValueFromReader(resource, factoryMethod, target, context);
-        }
-        factoryMethod = getRequiredMethod(factoryClass, methodName, InputStream.class);
-        return resolveValueFromInputStream(resource, factoryMethod, target, context);
+        return resolveValueFromInputStream(resource, target, context);
     }
 
     private Object resolveValueFromInputStream(TestResource resource, Method factoryMethod, InjectionTarget target, ExtensionContext context) {
         try (InputStream inputStream = target.declaringClass().getResourceAsStream(resource.value())) {
             validateResource(resource, target, inputStream);
+
+            validateNoEncoding(target, "@Encoding not allowed when using InputStream");
 
             Object testInstance = context.getTestInstance().orElse(null);
             return ReflectionSupport.invokeMethod(factoryMethod, testInstance, inputStream);
@@ -152,7 +120,8 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
         try (InputStream inputStream = target.declaringClass().getResourceAsStream(resource.value())) {
             validateResource(resource, target, inputStream);
 
-            try (Reader reader = new InputStreamReader(inputStream, resource.charset())) {
+            String encoding = lookupEncoding(target, context);
+            try (Reader reader = new InputStreamReader(inputStream, encoding)) {
                 Object testInstance = context.getTestInstance().orElse(null);
                 return ReflectionSupport.invokeMethod(factoryMethod, testInstance, reader);
             }
@@ -162,19 +131,14 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
         }
     }
 
-    private Class<?> loadRequiredClass(String className) {
-        return ReflectionSupport.tryToLoadClass(className)
-                .getOrThrow(cause -> new JUnitException(String.format("Could not load class [%s]", className), cause));
-    }
-
-    private Object resolveValue(TestResource resource, InjectionTarget target) {
+    private Object resolveValueFromInputStream(TestResource resource, InjectionTarget target, ExtensionContext context) {
         Class<?> targetType = target.type();
         try (InputStream inputStream = target.declaringClass().getResourceAsStream(resource.value())) {
             validateResource(resource, target, inputStream);
 
-            IOBiFunction<InputStream, String, ?> resourceConverter = RESOURCE_CONVERTERS.get(targetType);
+            ResourceConverter resourceConverter = RESOURCE_CONVERTERS.get(targetType);
 
-            return resourceConverter.apply(inputStream, resource.charset());
+            return resourceConverter.convert(inputStream, target, context);
         } catch (IOException e) {
             throwAsUncheckedException(e);
             return null;
@@ -187,29 +151,126 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
         }
     }
 
-    private static String readContentAsString(InputStream inputStream, String charset) throws IOException {
-        try (Reader reader = new InputStreamReader(inputStream, charset)) {
-            return TestResourceLoaders.toString(reader);
+    private static String readContentAsString(InputStream inputStream, InjectionTarget target, ExtensionContext context) throws IOException {
+
+        String lineSeparator = lookupLineSeparator(target, context);
+
+        String encoding = lookupEncoding(target, context);
+        try (Reader reader = new InputStreamReader(inputStream, encoding)) {
+            return EOL.ORIGINAL.equals(lineSeparator)
+                    ? TestResourceLoaders.toString(reader)
+                    : TestResourceLoaders.toString(reader, lineSeparator);
         }
     }
 
-    private static StringBuilder readContentAsStringBuilder(InputStream inputStream, String charset) throws IOException {
-        try (Reader reader = new InputStreamReader(inputStream, charset)) {
-            return TestResourceLoaders.toStringBuilder(reader);
+    private static CharSequence readContentAsCharSequence(InputStream inputStream, InjectionTarget target, ExtensionContext context)
+            throws IOException {
+
+        String lineSeparator = lookupLineSeparator(target, context);
+
+        String encoding = lookupEncoding(target, context);
+        try (Reader reader = new InputStreamReader(inputStream, encoding)) {
+            return EOL.ORIGINAL.equals(lineSeparator)
+                    ? TestResourceLoaders.toCharSequence(reader)
+                    : TestResourceLoaders.toCharSequence(reader, lineSeparator);
         }
     }
 
-    private static byte[] readContentAsBytes(InputStream inputStream) throws IOException {
+    private static StringBuilder readContentAsStringBuilder(InputStream inputStream, InjectionTarget target, ExtensionContext context)
+            throws IOException {
+
+        String lineSeparator = lookupLineSeparator(target, context);
+
+        String encoding = lookupEncoding(target, context);
+        try (Reader reader = new InputStreamReader(inputStream, encoding)) {
+            return EOL.ORIGINAL.equals(lineSeparator)
+                    ? TestResourceLoaders.toStringBuilder(reader)
+                    : TestResourceLoaders.toStringBuilder(reader, lineSeparator);
+        }
+    }
+
+    private static byte[] readContentAsBytes(InputStream inputStream, InjectionTarget target) throws IOException {
+        validateNoEOL(target, "@EOL not allowed for byte[]");
+        validateNoEncoding(target, "@Encoding not allowed for byte[]");
+
         return TestResourceLoaders.toBytes(inputStream);
     }
 
-    private static Method getRequiredMethod(Class<?> clazz, String methodName, Class<?>... parameterTypes) {
-        return ReflectionSupport.findMethod(clazz, methodName, parameterTypes)
-                .orElseThrow(() -> new JUnitException(String.format("Could not find method [%s] in class [%s]", methodName, clazz.getName())));
+    static String lookupLineSeparator(InjectionTarget target, ExtensionContext context) {
+        EOL eol = target.findAnnotation(EOL.class, true).orElse(null);
+        if (eol == null) {
+            return lookupDefaultLineSeparator(context);
+        }
+        // Return LF, CR, CRLF, NONE and ORIGINAL as-is
+        return EOL.SYSTEM.equals(eol.value()) ? System.lineSeparator() : eol.value();
+    }
+
+    private static String lookupDefaultLineSeparator(ExtensionContext context) {
+        String eolParameter = context.getConfigurationParameter(EOL.DEFAULT_EOL_PROPERTY_NAME).orElse("ORIGINAL");
+        return EOL_VALUES.getOrDefault(eolParameter, eolParameter);
+    }
+
+    static String lookupEncoding(InjectionTarget target, ExtensionContext context) {
+        Encoding encoding = target.findAnnotation(Encoding.class, true).orElse(null);
+        if (encoding == null) {
+            return lookupDefaultEncoding(context);
+        }
+        String encodingValue = encoding.value();
+        switch (encodingValue) {
+            case Encoding.DEFAULT:
+                return Charset.defaultCharset().name();
+            case Encoding.SYSTEM:
+                return lookupSystemEncoding();
+            case Encoding.NATIVE:
+                return lookupNativeEncoding();
+            default:
+                return encodingValue;
+        }
+    }
+
+    private static String lookupDefaultEncoding(ExtensionContext context) {
+        String encodingParameter = context.getConfigurationParameter(Encoding.DEFAULT_ENCODING_PROPERTY_NAME).orElse("UTF-8");
+        Supplier<String> encodingLookup = ENCODING_LOOKUPS.get(encodingParameter);
+        return encodingLookup != null ? encodingLookup.get() : encodingParameter;
+    }
+
+    private static String lookupSystemEncoding() {
+        String encoding = System.getProperty("file.encoding");
+        if (encoding == null) {
+            throw new PreconditionViolationException("System property [file.encoding] not available");
+        }
+        return encoding;
+    }
+
+    private static String lookupNativeEncoding() {
+        String encoding = System.getProperty("native.encoding");
+        if (encoding == null) {
+            throw new PreconditionViolationException("System property [native.encoding] not available");
+        }
+        return encoding;
+    }
+
+    private static void validateNoEOL(InjectionTarget target, String message) {
+        EOL eol = target.findAnnotation(EOL.class).orElse(null);
+        if (eol != null) {
+            throw new PreconditionViolationException(message);
+        }
+    }
+
+    private static void validateNoEncoding(InjectionTarget target, String message) {
+        Encoding encoding = target.findAnnotation(Encoding.class).orElse(null);
+        if (encoding != null) {
+            throw new PreconditionViolationException(message);
+        }
     }
 
     @SuppressWarnings("unchecked")
     private static <T extends Throwable> void throwAsUncheckedException(Throwable t) throws T {
         throw (T) t;
+    }
+
+    private interface ResourceConverter {
+
+        Object convert(InputStream inputStream, InjectionTarget target, ExtensionContext context) throws IOException;
     }
 }

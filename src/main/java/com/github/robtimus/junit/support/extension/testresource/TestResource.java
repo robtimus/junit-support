@@ -28,14 +28,23 @@ import org.junit.jupiter.api.extension.ExtendWith;
  * {@code TestResource} can be used to annotate a field or a parameter in a lifecycle method or test method that should be resolved into the contents
  * of a (test) resource. The resource will be loaded relative to the class where the field, constructor or method is defined.
  *
- * The following parameter types are supported by default:
+ * The following field / parameter types are supported by default:
  * <ul>
  * <li>{@code String}</li>
  * <li>{@code CharSequence}</li>
  * <li>{@code StringBuilder}</li>
  * <li>{@code byte[]}</li>
  * </ul>
- * In addition, {@link LoadWith} can be used to specify a method that is used to load the contents of the resource into an object.
+ * When the type is not {@code byte[]}, {@link Encoding} can be used to change the encoding to use (defaults to UTF-8).
+ * <p>
+ * In addition, {@link LoadWith} can be used to specify a method that is used to load the contents of the resource into an object, or {@link EOL}
+ * can be used to define the line separator to use for {@code String}, {@code CharSequence} and {@code StringBuilder}. This can be useful to create
+ * tests that work on different operating systems. It is illegal to:
+ * <ul>
+ * <li>use both {@link LoadWith} and {@link EOL}</li>
+ * <li>use {@link Encoding} in combination with {@link LoadWith} when {@link LoadWith} defines a method that uses an {@link InputStream}</li>
+ * <li>use {@link Encoding} for automatic loading to {@code byte[]}</li>
+ * </ul>
  *
  * @author Rob Spoor
  * @since 2.0
@@ -49,10 +58,4 @@ public @interface TestResource {
      * The resource to load.
      */
     String value();
-
-    /**
-     * The charset to use. Ignored for parameters of type {@code byte[]}, and when {@link LoadWith} is used with a factory method that takes an
-     * {@link InputStream}.
-     */
-    String charset() default "UTF-8";
 }

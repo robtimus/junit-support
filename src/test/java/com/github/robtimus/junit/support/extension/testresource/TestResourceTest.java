@@ -26,7 +26,6 @@ import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -63,6 +62,15 @@ final class TestResourceTest {
     @TestResource("test.properties")
     @AsProperties
     private static Properties resourceAsProperties;
+    @TestResource("test.properties")
+    @EOL(EOL.NONE)
+    private static String resourceAsStringWithCustomEOL;
+    @TestResource("test.properties")
+    @EOL(EOL.NONE)
+    private static CharSequence resourceAsCharSequenceWithCustomEOL;
+    @TestResource("test.properties")
+    @EOL(EOL.NONE)
+    private static StringBuilder resourceAsStringBuilderWithCustomEOL;
 
     private TestResourceTest() {
     }
@@ -76,19 +84,28 @@ final class TestResourceTest {
         private final StringBuilder resourceAsStringBuilder;
         private final byte[] resourceAsBytes;
         private final Properties resourceAsProperties;
+        private final String resourceAsStringWithCustomEOL;
+        private final CharSequence resourceAsCharSequenceWithCustomEOL;
+        private final StringBuilder resourceAsStringBuilderWithCustomEOL;
 
         ConstructorInjection(
                 @TestResource("lorem.txt") String resourceAsString,
                 @TestResource("lorem.txt") CharSequence resourceAsCharSequence,
                 @TestResource("lorem.txt") StringBuilder resourceAsStringBuilder,
                 @TestResource("lorem.txt") byte[] resourceAsBytes,
-                @TestResource("test.properties") @AsProperties Properties resourceAsProperties) {
+                @TestResource("test.properties") @AsProperties Properties resourceAsProperties,
+                @TestResource("test.properties") @EOL(EOL.NONE) String resourceAsStringWithCustomEOL,
+                @TestResource("test.properties") @EOL(EOL.NONE) CharSequence resourceAsCharSequenceWithCustomEOL,
+                @TestResource("test.properties") @EOL(EOL.NONE) StringBuilder resourceAsStringBuilderWithCustomEOL) {
 
             this.resourceAsString = resourceAsString;
             this.resourceAsCharSequence = resourceAsCharSequence;
             this.resourceAsStringBuilder = resourceAsStringBuilder;
             this.resourceAsBytes = resourceAsBytes;
             this.resourceAsProperties = resourceAsProperties;
+            this.resourceAsStringWithCustomEOL = resourceAsStringWithCustomEOL;
+            this.resourceAsCharSequenceWithCustomEOL = resourceAsCharSequenceWithCustomEOL;
+            this.resourceAsStringBuilderWithCustomEOL = resourceAsStringBuilderWithCustomEOL;
         }
 
         @Test
@@ -100,7 +117,7 @@ final class TestResourceTest {
         @Test
         @DisplayName("as CharSequence")
         void testAsCharSequence() {
-            assertNotEquals(String.class, resourceAsCharSequence.getClass());
+            assertEquals(StringBuilder.class, resourceAsCharSequence.getClass());
             assertEquals(new String(readResource("lorem.txt")), resourceAsCharSequence.toString());
         }
 
@@ -123,6 +140,25 @@ final class TestResourceTest {
             expected.setProperty("key1", "value1");
             expected.setProperty("key2", "value2");
             assertEquals(expected, resourceAsProperties);
+        }
+
+        @Test
+        @DisplayName("as String with custom EOL")
+        void testAsStringWithCustomEOL() {
+            assertEquals(new String(readResource("test.properties")).replaceAll("[\r\n]", ""), resourceAsStringWithCustomEOL);
+        }
+
+        @Test
+        @DisplayName("as CharSequence custom EOL")
+        void testAsCharSequenceWithCustomEOL() {
+            assertEquals(String.class, resourceAsCharSequenceWithCustomEOL.getClass());
+            assertEquals(new String(readResource("test.properties")).replaceAll("[\r\n]", ""), resourceAsCharSequenceWithCustomEOL.toString());
+        }
+
+        @Test
+        @DisplayName("as StringBuilder custom EOL")
+        void testAsStringBuilderWithCustomEOL() {
+            assertEquals(new String(readResource("test.properties")).replaceAll("[\r\n]", ""), resourceAsStringBuilderWithCustomEOL.toString());
         }
     }
 
@@ -141,6 +177,15 @@ final class TestResourceTest {
         @TestResource("test.properties")
         @AsProperties
         private Properties resourceAsProperties;
+        @TestResource("test.properties")
+        @EOL(EOL.NONE)
+        private String resourceAsStringWithCustomEOL;
+        @TestResource("test.properties")
+        @EOL(EOL.NONE)
+        private CharSequence resourceAsCharSequenceWithCustomEOL;
+        @TestResource("test.properties")
+        @EOL(EOL.NONE)
+        private StringBuilder resourceAsStringBuilderWithCustomEOL;
 
         @Test
         @DisplayName("as String")
@@ -151,7 +196,7 @@ final class TestResourceTest {
         @Test
         @DisplayName("as CharSequence")
         void testAsCharSequence() {
-            assertNotEquals(String.class, resourceAsCharSequence.getClass());
+            assertEquals(StringBuilder.class, resourceAsCharSequence.getClass());
             assertEquals(new String(readResource("lorem.txt")), resourceAsCharSequence.toString());
         }
 
@@ -174,6 +219,25 @@ final class TestResourceTest {
             expected.setProperty("key1", "value1");
             expected.setProperty("key2", "value2");
             assertEquals(expected, resourceAsProperties);
+        }
+
+        @Test
+        @DisplayName("as String with custom EOL")
+        void testAsStringWithCustomEOL() {
+            assertEquals(new String(readResource("test.properties")).replaceAll("[\r\n]", ""), resourceAsStringWithCustomEOL);
+        }
+
+        @Test
+        @DisplayName("as CharSequence custom EOL")
+        void testAsCharSequenceWithCustomEOL() {
+            assertEquals(String.class, resourceAsCharSequenceWithCustomEOL.getClass());
+            assertEquals(new String(readResource("test.properties")).replaceAll("[\r\n]", ""), resourceAsCharSequenceWithCustomEOL.toString());
+        }
+
+        @Test
+        @DisplayName("as StringBuilder custom EOL")
+        void testAsStringBuilderWithCustomEOL() {
+            assertEquals(new String(readResource("test.properties")).replaceAll("[\r\n]", ""), resourceAsStringBuilderWithCustomEOL.toString());
         }
     }
 
@@ -190,7 +254,7 @@ final class TestResourceTest {
         @Test
         @DisplayName("as CharSequence")
         void testAsCharSequence() {
-            assertNotEquals(String.class, resourceAsCharSequence.getClass());
+            assertEquals(StringBuilder.class, resourceAsCharSequence.getClass());
             assertEquals(new String(readResource("lorem.txt")), resourceAsCharSequence.toString());
         }
 
@@ -214,6 +278,25 @@ final class TestResourceTest {
             expected.setProperty("key2", "value2");
             assertEquals(expected, resourceAsProperties);
         }
+
+        @Test
+        @DisplayName("as String with custom EOL")
+        void testAsStringWithCustomEOL() {
+            assertEquals(new String(readResource("test.properties")).replaceAll("[\r\n]", ""), resourceAsStringWithCustomEOL);
+        }
+
+        @Test
+        @DisplayName("as CharSequence custom EOL")
+        void testAsCharSequenceWithCustomEOL() {
+            assertEquals(String.class, resourceAsCharSequenceWithCustomEOL.getClass());
+            assertEquals(new String(readResource("test.properties")).replaceAll("[\r\n]", ""), resourceAsCharSequenceWithCustomEOL.toString());
+        }
+
+        @Test
+        @DisplayName("as StringBuilder custom EOL")
+        void testAsStringBuilderWithCustomEOL() {
+            assertEquals(new String(readResource("test.properties")).replaceAll("[\r\n]", ""), resourceAsStringBuilderWithCustomEOL.toString());
+        }
     }
 
     @Nested
@@ -229,7 +312,7 @@ final class TestResourceTest {
         @Test
         @DisplayName("as CharSequence")
         void testAsCharSequence(@TestResource("lorem.txt") CharSequence resource) {
-            assertNotEquals(String.class, resource.getClass());
+            assertEquals(StringBuilder.class, resource.getClass());
             assertEquals(new String(readResource("lorem.txt")), resource.toString());
         }
 
@@ -252,6 +335,25 @@ final class TestResourceTest {
             expected.setProperty("key1", "value1");
             expected.setProperty("key2", "value2");
             assertEquals(expected, resource);
+        }
+
+        @Test
+        @DisplayName("as String with custom EOL")
+        void testAsStringWithCustomEOL(@TestResource("test.properties") @EOL(EOL.NONE) String resource) {
+            assertEquals(new String(readResource("test.properties")).replaceAll("[\r\n]", ""), resource);
+        }
+
+        @Test
+        @DisplayName("as CharSequence custom EOL")
+        void testAsCharSequenceWithCustomEOL(@TestResource("test.properties") @EOL(EOL.NONE) CharSequence resource) {
+            assertEquals(String.class, resourceAsCharSequenceWithCustomEOL.getClass());
+            assertEquals(new String(readResource("test.properties")).replaceAll("[\r\n]", ""), resource.toString());
+        }
+
+        @Test
+        @DisplayName("as StringBuilder custom EOL")
+        void testAsStringBuilderWithCustomEOL(@TestResource("test.properties") @EOL(EOL.NONE) StringBuilder resource) {
+            assertEquals(new String(readResource("test.properties")).replaceAll("[\r\n]", ""), resource.toString());
         }
     }
 
@@ -296,13 +398,13 @@ final class TestResourceTest {
 
                 @Test
                 @DisplayName("uses InputStream")
-                void testUsesInputStream(@TestResource("lorem.txt") @LoadWith("loadResource(InputStream)") byte[] resource) {
+                void testUsesInputStream(@TestResource("lorem.txt") @LoadWith("loadResource(java.io.InputStream)") byte[] resource) {
                     assertArrayEquals(readResource("lorem.txt"), resource);
                 }
 
                 @Test
                 @DisplayName("uses Reader")
-                void testUsesReader(@TestResource("lorem.txt") @LoadWith("loadResource(Reader)") String resource) {
+                void testUsesReader(@TestResource("lorem.txt") @LoadWith("loadResource(java.io.Reader)") String resource) {
                     assertEquals(new String(readResource("lorem.txt")), resource);
                 }
 
@@ -504,6 +606,42 @@ final class TestResourceTest {
         }
 
         @Nested
+        @DisplayName("invalid annotation combinations")
+        class InvalidAnnotationCombinations {
+
+            @Test
+            @DisplayName("@EOL used with byte[]")
+            void testEOLWithBytes() {
+                assertSingleContainerFailure(TestResourceTest.InvalidAnnotationCombinations.EOLWithBytes.class, PreconditionViolationException.class,
+                        equalTo("@EOL not allowed for byte[]"));
+            }
+
+            @Test
+            @DisplayName("@Encoding used with byte[]")
+            void testEncodingWithBytes() {
+                assertSingleContainerFailure(TestResourceTest.InvalidAnnotationCombinations.EncodingWithBytes.class,
+                        PreconditionViolationException.class,
+                        equalTo("@Encoding not allowed for byte[]"));
+            }
+
+            @Test
+            @DisplayName("@LoadWith combined with @EOL")
+            void testLoadWithCombinedWithEOL() {
+                assertSingleContainerFailure(TestResourceTest.InvalidAnnotationCombinations.LoadWithCombinedWithEOL.class,
+                        PreconditionViolationException.class,
+                        equalTo("@EOL not allowed in combination with @LoadWith"));
+            }
+
+            @Test
+            @DisplayName("@LoadWith using InputStream combined with @Encoding")
+            void testLoadWithInputStreamCombinedWithEOL() {
+                assertSingleContainerFailure(TestResourceTest.InvalidAnnotationCombinations.LoadWithInputStreamCombinedWithEncoding.class,
+                        PreconditionViolationException.class,
+                        equalTo("@Encoding not allowed when using InputStream"));
+            }
+        }
+
+        @Nested
         @DisplayName("@LoadWith errors")
         class LoadWithErrors {
 
@@ -511,14 +649,16 @@ final class TestResourceTest {
             @DisplayName("blank method")
             void testBlankMethod() {
                 assertSingleContainerFailure(TestResourceTest.LoadWithErrors.BlankMethod.class, PreconditionViolationException.class,
-                        equalTo("fullyQualifiedMethodName must not be null or blank"));
+                        equalTo("methodReference must not be null or blank"));
             }
 
             @Test
             @DisplayName("invalid method syntax")
             void testInvalidMethodSyntax() {
                 assertSingleContainerFailure(TestResourceTest.LoadWithErrors.InvalidMethodSyntax.class, PreconditionViolationException.class,
-                        startsWith(String.format("[%s] is not a valid fully qualified method name",
+                        equalTo(String.format("[%s] is not a valid method reference: "
+                                + "it must be the method name, optionally preceded by a fully qualified class name followed by a '#', "
+                                + "and optionally followed by a parameter list enclosed in parentheses.",
                                 "com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders#")));
             }
 
@@ -536,25 +676,38 @@ final class TestResourceTest {
                 @Test
                 @DisplayName("without parameters")
                 void testWithoutParameters() {
-                    assertSingleContainerFailure(TestResourceTest.LoadWithErrors.MethodNotFound.WithoutParameters.class, JUnitException.class,
-                            equalTo(String.format("Could not find method [%s] in class [%s]",
-                                    "nonExisting", "com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders")));
+                    assertSingleContainerFailure(TestResourceTest.LoadWithErrors.MethodNotFound.WithoutParameters.class,
+                            PreconditionViolationException.class,
+                            equalTo(String.format("Could not find method [%s] in class [%s] with a parameter combination in [%s]",
+                                    "nonExisting", "com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders",
+                                    "(java.io.Reader), (java.io.InputStream)")));
                 }
 
                 @Test
                 @DisplayName("with InputStream parameters")
                 void testWithInputStreamParameters() {
-                    assertSingleContainerFailure(TestResourceTest.LoadWithErrors.MethodNotFound.WithInputStreamParameter.class, JUnitException.class,
+                    assertSingleContainerFailure(TestResourceTest.LoadWithErrors.MethodNotFound.WithInputStreamParameter.class,
+                            PreconditionViolationException.class,
                             equalTo(String.format("Could not find method [%s] in class [%s]",
-                                    "toString", "com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders")));
+                                    "toString(java.io.InputStream)",
+                                    "com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders")));
                 }
 
                 @Test
                 @DisplayName("with Reader parameters")
                 void testWithReaderParameter() {
-                    assertSingleContainerFailure(TestResourceTest.LoadWithErrors.MethodNotFound.WithReaderParameter.class, JUnitException.class,
+                    assertSingleContainerFailure(TestResourceTest.LoadWithErrors.MethodNotFound.WithReaderParameter.class,
+                            PreconditionViolationException.class,
                             equalTo(String.format("Could not find method [%s] in class [%s]",
-                                    "toBytes", "com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders")));
+                                    "toBytes(java.io.Reader)", "com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders")));
+                }
+
+                @Test
+                @DisplayName("with simple parameter names")
+                void testWithSimpleParameterName() {
+                    assertSingleContainerFailure(TestResourceTest.LoadWithErrors.MethodNotFound.WithSimpleParameterName.class, JUnitException.class,
+                            equalTo(String.format("Failed to load parameter type [%s] for method [%s] in class [%s].",
+                                    "InputStream", "toBytes", "com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders")));
                 }
             }
 
@@ -562,8 +715,9 @@ final class TestResourceTest {
             @DisplayName("invalid parameters")
             void testInvalidParameters() {
                 assertSingleContainerFailure(TestResourceTest.LoadWithErrors.InvalidParameters.class, PreconditionViolationException.class,
-                        equalTo(String.format("factory method [%s] has unsupported formal parameters",
-                                "com.github.robtimus.junit.support.extension.testresource.TestResourceTest#readResource(String)")));
+                        equalTo(String.format("Method [readResource(java.lang.String)] in class [%s] does not have a parameter combination in [%s]",
+                                "com.github.robtimus.junit.support.extension.testresource.TestResourceTest",
+                                "(java.io.Reader), (java.io.InputStream)")));
             }
 
             @Nested
@@ -962,6 +1116,59 @@ final class TestResourceTest {
         }
     }
 
+    static final class InvalidAnnotationCombinations {
+
+        static class EOLWithBytes {
+
+            @TestResource("lorem.txt")
+            @EOL(EOL.ORIGINAL)
+            private static byte[] resource;
+
+            @Test
+            void testMethod() {
+                assertNotNull(resource);
+            }
+        }
+
+        static class EncodingWithBytes {
+
+            @TestResource("lorem.txt")
+            @Encoding("UTF-8")
+            private static byte[] resource;
+
+            @Test
+            void testMethod() {
+                assertNotNull(resource);
+            }
+        }
+
+        static class LoadWithCombinedWithEOL {
+
+            @TestResource("lorem.txt")
+            @EOL(EOL.ORIGINAL)
+            @LoadWith("com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders#toBytes(java.io.InputStream)")
+            private static String resource;
+
+            @Test
+            void testMethod() {
+                assertNotNull(resource);
+            }
+        }
+
+        static class LoadWithInputStreamCombinedWithEncoding {
+
+            @TestResource("lorem.txt")
+            @Encoding("UTF-8")
+            @LoadWith("com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders#toBytes(java.io.InputStream)")
+            private static byte[] resource;
+
+            @Test
+            void testMethod() {
+                assertNotNull(resource);
+            }
+        }
+    }
+
     static final class LoadWithErrors {
 
         static final class BlankMethod {
@@ -1017,7 +1224,7 @@ final class TestResourceTest {
             static final class WithInputStreamParameter {
 
                 @TestResource("lorem.txt")
-                @LoadWith("com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders#toString(InputStream)")
+                @LoadWith("com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders#toString(java.io.InputStream)")
                 private static byte[] resource;
 
                 @Test
@@ -1029,7 +1236,19 @@ final class TestResourceTest {
             static final class WithReaderParameter {
 
                 @TestResource("lorem.txt")
-                @LoadWith("com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders#toBytes(Reader)")
+                @LoadWith("com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders#toBytes(java.io.Reader)")
+                private static byte[] resource;
+
+                @Test
+                void testMethod() {
+                    assertNotNull(resource);
+                }
+            }
+
+            static final class WithSimpleParameterName {
+
+                @TestResource("lorem.txt")
+                @LoadWith("com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders#toBytes(InputStream)")
                 private static byte[] resource;
 
                 @Test
@@ -1042,7 +1261,7 @@ final class TestResourceTest {
         static final class InvalidParameters {
 
             @TestResource("lorem.txt")
-            @LoadWith("com.github.robtimus.junit.support.extension.testresource.TestResourceTest#readResource(String)")
+            @LoadWith("com.github.robtimus.junit.support.extension.testresource.TestResourceTest#readResource(java.lang.String)")
             private static byte[] resource;
 
             @Test
@@ -1231,8 +1450,8 @@ final class TestResourceTest {
                 private static final String PACKAGE_NAME = "com.github.robtimus.junit.support.extension.testresource";
                 private static final String CLASS_NAME = PACKAGE_NAME + ".TestResourceTest$LoadWithErrors$FactoryNotStatic$DifferentClass";
 
-                private static final String LOAD_WITH_INPUT_STREAM = CLASS_NAME + "#load(InputStream)";
-                private static final String LOAD_WITH_READER = CLASS_NAME + "#load(Reader)";
+                private static final String LOAD_WITH_INPUT_STREAM = CLASS_NAME + "#load(java.io.InputStream)";
+                private static final String LOAD_WITH_READER = CLASS_NAME + "#load(java.io.Reader)";
 
                 byte[] load(InputStream inputStream) throws IOException {
                     return TestResourceLoaders.toBytes(inputStream);

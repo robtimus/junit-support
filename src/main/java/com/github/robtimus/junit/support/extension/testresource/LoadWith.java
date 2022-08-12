@@ -47,14 +47,14 @@ public @interface LoadWith {
      * <p>
      * Examples:
      * <ul>
-     * <li>{@code loadResource} for a method in the test class; the same as {@code loadResource(Reader)} if it exists, otherwise
-     *     {@code loadResource(InputStream)}</li>
-     * <li>{@code loadResource(Reader)} for a method in the test class that takes a single {@link Reader} argument</li>
-     * <li>{@code loadResource(InputStream)} for a method in the test class that takes a single {@link Reader} argument</li>
-     * <li>{@code com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders#toString(Reader)} for a method in an external class
-     *     that takes a single {@link Reader} class</li>
-     * <li>{@code com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders#toBytes(InputStream)} for a method in an external class
-     *     that takes a single {@link InputStream} class</li>
+     * <li>{@code loadResource} for a method in the test class; the same as {@code loadResource(java.io.Reader)} if it exists, otherwise
+     *     {@code loadResource(java.io.InputStream)}</li>
+     * <li>{@code loadResource(java.io.Reader)} for a method in the test class that takes a single {@link Reader} argument</li>
+     * <li>{@code loadResource(java.io.InputStream)} for a method in the test class that takes a single {@link Reader} argument</li>
+     * <li>{@code com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders#toString(java.io.Reader)} for a method in an external
+     *     class that takes a single {@link Reader} class</li>
+     * <li>{@code com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders#toBytes(java.io.InputStream)} for a method in an
+     *     external class that takes a single {@link InputStream} class</li>
      * </ul>
      */
     String value();

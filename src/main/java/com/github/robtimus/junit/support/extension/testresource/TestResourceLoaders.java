@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -29,6 +30,7 @@ import java.util.Properties;
  * @author Rob Spoor
  * @since 2.0
  */
+@SuppressWarnings("nls")
 public final class TestResourceLoaders {
 
     private TestResourceLoaders() {
@@ -39,6 +41,7 @@ public final class TestResourceLoaders {
      *
      * @param reader A {@link Reader} containing the contents of the resource.
      * @return The content of the resource as a string.
+     * @throws NullPointerException If the given reader is {@code null}.
      * @throws IOException If an error occurred when loading the resource.
      */
     public static String toString(Reader reader) throws IOException {
@@ -46,10 +49,32 @@ public final class TestResourceLoaders {
     }
 
     /**
+     * Loads a resource into a string. Any existing line separator will be replaced by the given line separator.
+     *
+     * @param reader A {@link Reader} containing the contents of the resource.
+     * @param lineSeparator The line separator to use.
+     * @return The content of the resource as a string.
+     * @throws NullPointerException If the given reader or line separator is {@code null}.
+     * @throws IOException If an error occurred when loading the resource.
+     */
+    public static String toString(Reader reader, String lineSeparator) throws IOException {
+        Objects.requireNonNull(lineSeparator);
+
+        return toString(reader)
+                // first replace any \r\n with \n
+                .replace("\r\n", "\n")
+                // replace any remaining \r, which was not followed by \r, with \n
+                .replace("\r", "\n")
+                // now every line separator has been replaced with \n, replace that
+                .replace("\n", lineSeparator);
+    }
+
+    /**
      * Loads a resource into a {@link StringBuilder}.
      *
      * @param reader A {@link Reader} containing the contents of the resource.
      * @return A {@link StringBuilder} containing the contents of the resource.
+     * @throws NullPointerException If the given reader is {@code null}.
      * @throws IOException If an error occurred when loading the resource.
      */
     public static StringBuilder toStringBuilder(Reader reader) throws IOException {
@@ -64,10 +89,49 @@ public final class TestResourceLoaders {
     }
 
     /**
+     * Loads a resource into a {@link StringBuilder}. Any existing line separator will be replaced by the given line separator.
+     *
+     * @param reader A {@link Reader} containing the contents of the resource.
+     * @param lineSeparator The line separator to use.
+     * @return A {@link StringBuilder} containing the contents of the resource.
+     * @throws NullPointerException If the given reader or line separator is {@code null}.
+     * @throws IOException If an error occurred when loading the resource.
+     */
+    public static StringBuilder toStringBuilder(Reader reader, String lineSeparator) throws IOException {
+        return new StringBuilder(toString(reader, lineSeparator));
+    }
+
+    /**
+     * Loads a resource into a {@link CharSequence}.
+     *
+     * @param reader A {@link Reader} containing the contents of the resource.
+     * @return The content of the resource as a {@link CharSequence}.
+     * @throws NullPointerException If the given reader is {@code null}.
+     * @throws IOException If an error occurred when loading the resource.
+     */
+    public static CharSequence toCharSequence(Reader reader) throws IOException {
+        return toStringBuilder(reader);
+    }
+
+    /**
+     * Loads a resource into a {@link CharSequence}. Any existing line separator will be replaced by the given line separator.
+     *
+     * @param reader A {@link Reader} containing the contents of the resource.
+     * @param lineSeparator The line separator to use.
+     * @return The content of the resource as a {@link CharSequence}.
+     * @throws NullPointerException If the given reader or line separator is {@code null}.
+     * @throws IOException If an error occurred when loading the resource.
+     */
+    public static CharSequence toCharSequence(Reader reader, String lineSeparator) throws IOException {
+        return toString(reader, lineSeparator);
+    }
+
+    /**
      * Loads a resource into a byte array.
      *
      * @param inputStream An {@link InputStream} containing the contents of the resource.
      * @return The content of the resource as a byte array.
+     * @throws NullPointerException If the given input stream is {@code null}.
      * @throws IOException If an error occurred when loading the resource.
      */
     public static byte[] toBytes(InputStream inputStream) throws IOException {
@@ -86,6 +150,7 @@ public final class TestResourceLoaders {
      *
      * @param reader A {@link Reader} containing the contents of the resource.
      * @return A {@link Properties} object containing the properties from the resource.
+     * @throws NullPointerException If the given reader is {@code null}.
      * @throws IOException If an error occurred when loading the resource.
      * @see Properties#load(Reader)
      */

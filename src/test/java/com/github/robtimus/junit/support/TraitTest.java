@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.DynamicContainer.dynamicContainer;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collections;
@@ -82,7 +83,11 @@ class TraitTest {
     @TestFactory
     @DisplayName("Traits are implemented correctly")
     Stream<DynamicNode> testTraits() {
-        Predicate<Class<?>> classFilter = c -> c.isInterface() && !c.isAnnotation() && !IGNORED_CLASSES.contains(c);
+        Predicate<Class<?>> classFilter = c ->
+                c.isInterface()
+                && !c.isAnnotation()
+                && !Modifier.isPrivate(c.getModifiers())
+                && !IGNORED_CLASSES.contains(c);
 
         return ReflectionSupport.findAllClassesInPackage(getClass().getPackage().getName(), classFilter, n -> true).stream()
                 .sorted(Comparator.comparing(Class::getName))
