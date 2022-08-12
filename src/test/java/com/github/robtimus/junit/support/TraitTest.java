@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -41,6 +42,7 @@ import org.junit.jupiter.api.DynamicNode;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
+import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.platform.commons.support.ReflectionSupport;
 import com.github.robtimus.junit.support.collections.EnumerationTests;
@@ -83,15 +85,38 @@ class TraitTest {
     @TestFactory
     @DisplayName("Traits are implemented correctly")
     Stream<DynamicNode> testTraits() {
+        return findAllClasses()
+                .stream()
+                .sorted(Comparator.comparing(Class::getName))
+                .map(this::testTrait);
+    }
+
+    @SuppressWarnings("nls")
+    private List<Class<?>> findAllClasses() {
         Predicate<Class<?>> classFilter = c ->
                 c.isInterface()
                 && !c.isAnnotation()
                 && !Modifier.isPrivate(c.getModifiers())
                 && !IGNORED_CLASSES.contains(c);
+        Predicate<String> nameFilter = n -> !n.endsWith(".package-info");
 
-        return ReflectionSupport.findAllClassesInPackage(getClass().getPackage().getName(), classFilter, n -> true).stream()
-                .sorted(Comparator.comparing(Class::getName))
-                .map(this::testTrait);
+        if (JRE.currentVersion().compareTo(JRE.JAVA_8) > 0) {
+            // Java 9 or up; use the module name if available
+            try {
+                Method method = Class.class.getMethod("getModule");
+                Object module = method.invoke(getClass());
+                String moduleName = (String) module.getClass().getMethod("getName").invoke(module);
+                if (moduleName != null) {
+                    return ReflectionSupport.findAllClassesInModule(moduleName, classFilter, nameFilter);
+                }
+            } catch (ReflectiveOperationException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+
+        // Either Java 8, or an unnamed module
+        String packageName = getClass().getPackage().getName();
+        return ReflectionSupport.findAllClassesInPackage(packageName, classFilter, nameFilter);
     }
 
     private DynamicNode testTrait(Class<?> traitInterface) {
