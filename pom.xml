@@ -249,8 +249,8 @@
     <profile>
       <id>min-versions</id>
       <properties>
-        <version.junit>5.8.2</version.junit>
-        <version.junit-testkit>1.8.2</version.junit-testkit>
+        <version.junit>5.9.0</version.junit>
+        <version.junit-testkit>1.9.0</version.junit-testkit>
       </properties>
     </profile>
 
