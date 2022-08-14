@@ -599,6 +599,14 @@ class AdditionalAssertionsTest {
             }
 
             @Test
+            @DisplayName("unrecoverable error is thrown")
+            void testUnrecoverableErrorIsThrown() {
+                OutOfMemoryError error = assertThrows(OutOfMemoryError.class, this::throwOutOfMemoryError);
+
+                assertEquals("error", error.getMessage());
+            }
+
+            @Test
             @DisplayName("nothing is thrown")
             void testNothingThrown() {
                 Optional<IllegalArgumentException> thrown = throwNothing();
@@ -609,6 +617,12 @@ class AdditionalAssertionsTest {
                 IllegalStateException exception = new IllegalStateException("other");
 
                 assertOptionallyThrows(IllegalArgumentException.class, () -> throwException(exception));
+            }
+
+            private void throwOutOfMemoryError() {
+                OutOfMemoryError error = new OutOfMemoryError("error");
+
+                assertOptionallyThrows(IllegalAccessError.class, () -> throwError(error));
             }
 
             private Optional<IllegalArgumentException> throwNothing() {
@@ -647,6 +661,15 @@ class AdditionalAssertionsTest {
             }
 
             @Test
+            @DisplayName("unrecoverable error is thrown")
+            void testUnrecoverableErrorIsThrown() {
+                String message = "Wrong type of exception thrown";
+                OutOfMemoryError error = assertThrows(OutOfMemoryError.class, () -> throwOutOfMemoryError(message));
+
+                assertEquals("error", error.getMessage());
+            }
+
+            @Test
             @DisplayName("nothing is thrown")
             void testNothingThrown() {
                 Optional<IllegalArgumentException> thrown = throwNothing("Wrong type of exception thrown");
@@ -657,6 +680,12 @@ class AdditionalAssertionsTest {
                 IllegalStateException exception = new IllegalStateException("other");
 
                 assertOptionallyThrows(IllegalArgumentException.class, () -> throwException(exception), message);
+            }
+
+            private void throwOutOfMemoryError(String message) {
+                OutOfMemoryError error = new OutOfMemoryError("error");
+
+                assertOptionallyThrows(IllegalAccessError.class, () -> throwError(error), message);
             }
 
             private Optional<IllegalArgumentException> throwNothing(String message) {
@@ -695,6 +724,15 @@ class AdditionalAssertionsTest {
             }
 
             @Test
+            @DisplayName("unrecoverable error is thrown")
+            void testUnrecoverableErrorIsThrown() {
+                String message = "Wrong type of exception thrown";
+                OutOfMemoryError error = assertThrows(OutOfMemoryError.class, () -> throwOutOfMemoryError(message));
+
+                assertEquals("error", error.getMessage());
+            }
+
+            @Test
             @DisplayName("nothing is thrown")
             void testNothingThrown() {
                 Optional<IllegalArgumentException> thrown = throwNothing("Wrong type of exception thrown");
@@ -705,6 +743,12 @@ class AdditionalAssertionsTest {
                 IllegalStateException exception = new IllegalStateException("other");
 
                 assertOptionallyThrows(IllegalArgumentException.class, () -> throwException(exception), () -> message);
+            }
+
+            private void throwOutOfMemoryError(String message) {
+                OutOfMemoryError error = new OutOfMemoryError("error");
+
+                assertOptionallyThrows(IllegalAccessError.class, () -> throwError(error), () -> message);
             }
 
             private Optional<IllegalArgumentException> throwNothing(String message) {
@@ -747,6 +791,14 @@ class AdditionalAssertionsTest {
             }
 
             @Test
+            @DisplayName("unrecoverable error is thrown")
+            void testUnrecoverableErrorIsThrown() {
+                OutOfMemoryError error = assertThrows(OutOfMemoryError.class, this::throwOutOfMemoryError);
+
+                assertEquals("error", error.getMessage());
+            }
+
+            @Test
             @DisplayName("nothing is thrown")
             void testNothingThrown() {
                 Optional<IllegalArgumentException> thrown = throwNothing();
@@ -757,6 +809,12 @@ class AdditionalAssertionsTest {
                 NumberFormatException exception = new NumberFormatException("other");
 
                 assertOptionallyThrowsExactly(IllegalArgumentException.class, () -> throwException(exception));
+            }
+
+            private void throwOutOfMemoryError() {
+                OutOfMemoryError error = new OutOfMemoryError("error");
+
+                assertOptionallyThrowsExactly(IllegalAccessError.class, () -> throwError(error));
             }
 
             private Optional<IllegalArgumentException> throwNothing() {
@@ -796,6 +854,15 @@ class AdditionalAssertionsTest {
             }
 
             @Test
+            @DisplayName("unrecoverable error is thrown")
+            void testUnrecoverableErrorIsThrown() {
+                String message = "Wrong type of exception thrown";
+                OutOfMemoryError error = assertThrows(OutOfMemoryError.class, () -> throwOutOfMemoryError(message));
+
+                assertEquals("error", error.getMessage());
+            }
+
+            @Test
             @DisplayName("nothing is thrown")
             void testNothingThrown() {
                 Optional<IllegalArgumentException> thrown = throwNothing("Wrong type of exception thrown");
@@ -806,6 +873,12 @@ class AdditionalAssertionsTest {
                 NumberFormatException exception = new NumberFormatException("other");
 
                 assertOptionallyThrowsExactly(IllegalArgumentException.class, () -> throwException(exception), message);
+            }
+
+            private void throwOutOfMemoryError(String message) {
+                OutOfMemoryError error = new OutOfMemoryError("error");
+
+                assertOptionallyThrowsExactly(IllegalAccessError.class, () -> throwError(error), message);
             }
 
             private Optional<IllegalArgumentException> throwNothing(String message) {
@@ -845,6 +918,15 @@ class AdditionalAssertionsTest {
             }
 
             @Test
+            @DisplayName("unrecoverable error is thrown")
+            void testUnrecoverableErrorIsThrown() {
+                String message = "Wrong type of exception thrown";
+                OutOfMemoryError error = assertThrows(OutOfMemoryError.class, () -> throwOutOfMemoryError(message));
+
+                assertEquals("error", error.getMessage());
+            }
+
+            @Test
             @DisplayName("nothing is thrown")
             void testNothingThrown() {
                 Optional<IllegalArgumentException> thrown = throwNothing("Wrong type of exception thrown");
@@ -855,6 +937,12 @@ class AdditionalAssertionsTest {
                 NumberFormatException exception = new NumberFormatException("other");
 
                 assertOptionallyThrowsExactly(IllegalArgumentException.class, () -> throwException(exception), () -> message);
+            }
+
+            private void throwOutOfMemoryError(String message) {
+                OutOfMemoryError error = new OutOfMemoryError("error");
+
+                assertOptionallyThrowsExactly(IllegalAccessError.class, () -> throwError(error), () -> message);
             }
 
             private Optional<IllegalArgumentException> throwNothing(String message) {
@@ -908,6 +996,14 @@ class AdditionalAssertionsTest {
             }
 
             @Test
+            @DisplayName("unrecoverable error is thrown")
+            void testUnrecoverableErrorIsThrown() {
+                OutOfMemoryError error = assertThrows(OutOfMemoryError.class, this::throwOutOfMemoryError);
+
+                assertEquals("error", error.getMessage());
+            }
+
+            @Test
             @DisplayName("nothing is thrown")
             void testNothingThrown() {
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, this::throwNothing);
@@ -922,6 +1018,12 @@ class AdditionalAssertionsTest {
                 NumberFormatException exception = new NumberFormatException("other");
 
                 assertThrowsExactlyOneOf(IllegalArgumentException.class, NullPointerException.class, () -> throwException(exception));
+            }
+
+            private void throwOutOfMemoryError() {
+                OutOfMemoryError error = new OutOfMemoryError("error");
+
+                assertThrowsExactlyOneOf(IllegalAccessError.class, NullPointerException.class, () -> throwError(error));
             }
 
             private void throwNothing() {
@@ -974,6 +1076,15 @@ class AdditionalAssertionsTest {
             }
 
             @Test
+            @DisplayName("unrecoverable error is thrown")
+            void testUnrecoverableErrorIsThrown() {
+                String message = "Wrong type of exception thrown";
+                OutOfMemoryError error = assertThrows(OutOfMemoryError.class, () -> throwOutOfMemoryError(message));
+
+                assertEquals("error", error.getMessage());
+            }
+
+            @Test
             @DisplayName("nothing is thrown")
             void testNothingThrown() {
                 String message = "Wrong type of exception thrown";
@@ -990,6 +1101,12 @@ class AdditionalAssertionsTest {
                 NumberFormatException exception = new NumberFormatException("other");
 
                 assertThrowsExactlyOneOf(IllegalArgumentException.class, NullPointerException.class, () -> throwException(exception), message);
+            }
+
+            private void throwOutOfMemoryError(String message) {
+                OutOfMemoryError error = new OutOfMemoryError("error");
+
+                assertThrowsExactlyOneOf(IllegalAccessError.class, NullPointerException.class, () -> throwError(error), message);
             }
 
             private void throwNothing(String message) {
@@ -1042,6 +1159,15 @@ class AdditionalAssertionsTest {
             }
 
             @Test
+            @DisplayName("unrecoverable error is thrown")
+            void testUnrecoverableErrorIsThrown() {
+                String message = "Wrong type of exception thrown";
+                OutOfMemoryError error = assertThrows(OutOfMemoryError.class, () -> throwOutOfMemoryError(message));
+
+                assertEquals("error", error.getMessage());
+            }
+
+            @Test
             @DisplayName("nothing is thrown")
             void testNothingThrown() {
                 String message = "Wrong type of exception thrown";
@@ -1058,6 +1184,12 @@ class AdditionalAssertionsTest {
                 NumberFormatException exception = new NumberFormatException("other");
 
                 assertThrowsExactlyOneOf(IllegalArgumentException.class, NullPointerException.class, () -> throwException(exception), () -> message);
+            }
+
+            private void throwOutOfMemoryError(String message) {
+                OutOfMemoryError error = new OutOfMemoryError("error");
+
+                assertThrowsExactlyOneOf(IllegalAccessError.class, NullPointerException.class, () -> throwError(error), () -> message);
             }
 
             private void throwNothing(String message) {
@@ -1111,6 +1243,14 @@ class AdditionalAssertionsTest {
             }
 
             @Test
+            @DisplayName("unrecoverable error is thrown")
+            void testUnrecoverableErrorIsThrown() {
+                OutOfMemoryError error = assertThrows(OutOfMemoryError.class, this::throwOutOfMemoryError);
+
+                assertEquals("error", error.getMessage());
+            }
+
+            @Test
             @DisplayName("nothing is thrown")
             void testNothingThrown() {
                 Optional<RuntimeException> thrown = throwNothing();
@@ -1121,6 +1261,12 @@ class AdditionalAssertionsTest {
                 NumberFormatException exception = new NumberFormatException("other");
 
                 assertOptionallyThrowsExactlyOneOf(IllegalArgumentException.class, NullPointerException.class, () -> throwException(exception));
+            }
+
+            private void throwOutOfMemoryError() {
+                OutOfMemoryError error = new OutOfMemoryError("error");
+
+                assertOptionallyThrowsExactlyOneOf(IllegalAccessError.class, NullPointerException.class, () -> throwError(error));
             }
 
             private Optional<RuntimeException> throwNothing() {
@@ -1173,6 +1319,15 @@ class AdditionalAssertionsTest {
             }
 
             @Test
+            @DisplayName("unrecoverable error is thrown")
+            void testUnrecoverableErrorIsThrown() {
+                String message = "Wrong type of exception thrown";
+                OutOfMemoryError error = assertThrows(OutOfMemoryError.class, () -> throwOutOfMemoryError(message));
+
+                assertEquals("error", error.getMessage());
+            }
+
+            @Test
             @DisplayName("nothing is thrown")
             void testNothingThrown() {
                 Optional<RuntimeException> thrown = throwNothing("Wrong type of exception thrown");
@@ -1184,6 +1339,12 @@ class AdditionalAssertionsTest {
 
                 assertOptionallyThrowsExactlyOneOf(IllegalArgumentException.class, NullPointerException.class, () -> throwException(exception),
                         message);
+            }
+
+            private void throwOutOfMemoryError(String message) {
+                OutOfMemoryError error = new OutOfMemoryError("error");
+
+                assertOptionallyThrowsExactlyOneOf(IllegalAccessError.class, NullPointerException.class, () -> throwError(error), message);
             }
 
             private Optional<RuntimeException> throwNothing(String message) {
@@ -1236,6 +1397,15 @@ class AdditionalAssertionsTest {
             }
 
             @Test
+            @DisplayName("unrecoverable error is thrown")
+            void testUnrecoverableErrorIsThrown() {
+                String message = "Wrong type of exception thrown";
+                OutOfMemoryError error = assertThrows(OutOfMemoryError.class, () -> throwOutOfMemoryError(message));
+
+                assertEquals("error", error.getMessage());
+            }
+
+            @Test
             @DisplayName("nothing is thrown")
             void testNothingThrown() {
                 Optional<RuntimeException> thrown = throwNothing("Wrong type of exception thrown");
@@ -1247,6 +1417,12 @@ class AdditionalAssertionsTest {
 
                 assertOptionallyThrowsExactlyOneOf(IllegalArgumentException.class, NullPointerException.class, () -> throwException(exception),
                         () -> message);
+            }
+
+            private void throwOutOfMemoryError(String message) {
+                OutOfMemoryError error = new OutOfMemoryError("error");
+
+                assertOptionallyThrowsExactlyOneOf(IllegalAccessError.class, NullPointerException.class, () -> throwError(error), () -> message);
             }
 
             private Optional<RuntimeException> throwNothing(String message) {
@@ -1300,6 +1476,14 @@ class AdditionalAssertionsTest {
             }
 
             @Test
+            @DisplayName("unrecoverable error is thrown")
+            void testUnrecoverableErrorIsThrown() {
+                OutOfMemoryError error = assertThrows(OutOfMemoryError.class, this::throwOutOfMemoryError);
+
+                assertEquals("error", error.getMessage());
+            }
+
+            @Test
             @DisplayName("nothing is thrown")
             void testNothingThrown() {
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, this::throwNothing);
@@ -1314,6 +1498,12 @@ class AdditionalAssertionsTest {
                 IllegalStateException exception = new IllegalStateException("other");
 
                 assertThrowsOneOf(IllegalArgumentException.class, NullPointerException.class, () -> throwException(exception));
+            }
+
+            private void throwOutOfMemoryError() {
+                OutOfMemoryError error = new OutOfMemoryError("error");
+
+                assertThrowsOneOf(IllegalAccessError.class, NullPointerException.class, () -> throwError(error));
             }
 
             private void throwNothing() {
@@ -1366,6 +1556,15 @@ class AdditionalAssertionsTest {
             }
 
             @Test
+            @DisplayName("unrecoverable error is thrown")
+            void testUnrecoverableErrorIsThrown() {
+                String message = "Wrong type of exception thrown";
+                OutOfMemoryError error = assertThrows(OutOfMemoryError.class, () -> throwOutOfMemoryError(message));
+
+                assertEquals("error", error.getMessage());
+            }
+
+            @Test
             @DisplayName("nothing is thrown")
             void testNothingThrown() {
                 String message = "Wrong type of exception thrown";
@@ -1382,6 +1581,12 @@ class AdditionalAssertionsTest {
                 IllegalStateException exception = new IllegalStateException("other");
 
                 assertThrowsOneOf(IllegalArgumentException.class, NullPointerException.class, () -> throwException(exception), message);
+            }
+
+            private void throwOutOfMemoryError(String message) {
+                OutOfMemoryError error = new OutOfMemoryError("error");
+
+                assertThrowsOneOf(IllegalAccessError.class, NullPointerException.class, () -> throwError(error), message);
             }
 
             private void throwNothing(String message) {
@@ -1434,6 +1639,15 @@ class AdditionalAssertionsTest {
             }
 
             @Test
+            @DisplayName("unrecoverable error is thrown")
+            void testUnrecoverableErrorIsThrown() {
+                String message = "Wrong type of exception thrown";
+                OutOfMemoryError error = assertThrows(OutOfMemoryError.class, () -> throwOutOfMemoryError(message));
+
+                assertEquals("error", error.getMessage());
+            }
+
+            @Test
             @DisplayName("nothing is thrown")
             void testNothingThrown() {
                 String message = "Wrong type of exception thrown";
@@ -1450,6 +1664,12 @@ class AdditionalAssertionsTest {
                 IllegalStateException exception = new IllegalStateException("other");
 
                 assertThrowsOneOf(IllegalArgumentException.class, NullPointerException.class, () -> throwException(exception), () -> message);
+            }
+
+            private void throwOutOfMemoryError(String message) {
+                OutOfMemoryError error = new OutOfMemoryError("error");
+
+                assertThrowsOneOf(IllegalAccessError.class, NullPointerException.class, () -> throwError(error), () -> message);
             }
 
             private void throwNothing(String message) {
@@ -1503,6 +1723,14 @@ class AdditionalAssertionsTest {
             }
 
             @Test
+            @DisplayName("unrecoverable error is thrown")
+            void testUnrecoverableErrorIsThrown() {
+                OutOfMemoryError error = assertThrows(OutOfMemoryError.class, this::throwOutOfMemoryError);
+
+                assertEquals("error", error.getMessage());
+            }
+
+            @Test
             @DisplayName("nothing is thrown")
             void testNothingThrown() {
                 Optional<RuntimeException> thrown = throwNothing();
@@ -1512,7 +1740,13 @@ class AdditionalAssertionsTest {
             private void throwOtherException() {
                 IllegalStateException exception = new IllegalStateException("other");
 
-                assertThrowsOneOf(IllegalArgumentException.class, NullPointerException.class, () -> throwException(exception));
+                assertOptionallyThrowsOneOf(IllegalArgumentException.class, NullPointerException.class, () -> throwException(exception));
+            }
+
+            private void throwOutOfMemoryError() {
+                OutOfMemoryError error = new OutOfMemoryError("error");
+
+                assertOptionallyThrowsOneOf(IllegalAccessError.class, NullPointerException.class, () -> throwError(error));
             }
 
             private Optional<RuntimeException> throwNothing() {
@@ -1565,6 +1799,15 @@ class AdditionalAssertionsTest {
             }
 
             @Test
+            @DisplayName("unrecoverable error is thrown")
+            void testUnrecoverableErrorIsThrown() {
+                String message = "Wrong type of exception thrown";
+                OutOfMemoryError error = assertThrows(OutOfMemoryError.class, () -> throwOutOfMemoryError(message));
+
+                assertEquals("error", error.getMessage());
+            }
+
+            @Test
             @DisplayName("nothing is thrown")
             void testNothingThrown() {
                 Optional<RuntimeException> thrown = throwNothing("Wrong type of exception thrown");
@@ -1575,6 +1818,12 @@ class AdditionalAssertionsTest {
                 IllegalStateException exception = new IllegalStateException("other");
 
                 assertOptionallyThrowsOneOf(IllegalArgumentException.class, NullPointerException.class, () -> throwException(exception), message);
+            }
+
+            private void throwOutOfMemoryError(String message) {
+                OutOfMemoryError error = new OutOfMemoryError("error");
+
+                assertOptionallyThrowsOneOf(IllegalAccessError.class, NullPointerException.class, () -> throwError(error), message);
             }
 
             private Optional<RuntimeException> throwNothing(String message) {
@@ -1627,6 +1876,15 @@ class AdditionalAssertionsTest {
             }
 
             @Test
+            @DisplayName("unrecoverable error is thrown")
+            void testUnrecoverableErrorIsThrown() {
+                String message = "Wrong type of exception thrown";
+                OutOfMemoryError error = assertThrows(OutOfMemoryError.class, () -> throwOutOfMemoryError(message));
+
+                assertEquals("error", error.getMessage());
+            }
+
+            @Test
             @DisplayName("nothing is thrown")
             void testNothingThrown() {
                 Optional<RuntimeException> thrown = throwNothing("Wrong type of exception thrown");
@@ -1638,6 +1896,12 @@ class AdditionalAssertionsTest {
 
                 assertOptionallyThrowsOneOf(IllegalArgumentException.class, NullPointerException.class, () -> throwException(exception),
                         () -> message);
+            }
+
+            private void throwOutOfMemoryError(String message) {
+                OutOfMemoryError error = new OutOfMemoryError("error");
+
+                assertOptionallyThrowsOneOf(IllegalAccessError.class, NullPointerException.class, () -> throwError(error), () -> message);
             }
 
             private Optional<RuntimeException> throwNothing(String message) {
@@ -1867,5 +2131,9 @@ class AdditionalAssertionsTest {
 
     private void throwException(Exception exception) throws Exception {
         throw exception;
+    }
+
+    private void throwError(Error error) {
+        throw error;
     }
 }
