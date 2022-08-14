@@ -30,6 +30,8 @@ import static com.github.robtimus.junit.support.AdditionalAssertions.assertThrow
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.io.IOException;
@@ -278,7 +280,7 @@ class AdditionalAssertionsTest {
 
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwException(exception, IOException.class));
 
-                String expectedMessage = String.format("expected caused by <%s> but was: <%s>",
+                String expectedMessage = String.format("expected: caused by <%s> but was: <%s>",
                         IOException.class.getName(), intermediate);
                 assertEquals(expectedMessage, error.getMessage());
             }
@@ -290,7 +292,7 @@ class AdditionalAssertionsTest {
 
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwException(exception, IOException.class));
 
-                String expectedMessage = String.format("expected caused by <%s> but was: <null>",
+                String expectedMessage = String.format("expected: caused by <%s> but was: <null>",
                         IOException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
             }
@@ -325,7 +327,7 @@ class AdditionalAssertionsTest {
                 String message = "Not caused by IOException";
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwException(exception, IOException.class, message));
 
-                String expectedMessage = String.format("%s ==> expected caused by <%s> but was: <%s>",
+                String expectedMessage = String.format("%s ==> expected: caused by <%s> but was: <%s>",
                         message,
                         IOException.class.getName(), intermediate, root);
                 assertEquals(expectedMessage, error.getMessage());
@@ -339,7 +341,7 @@ class AdditionalAssertionsTest {
                 String message = "Not caused by IOException";
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwException(exception, IOException.class, message));
 
-                String expectedMessage = String.format("%s ==> expected caused by <%s> but was: <null>",
+                String expectedMessage = String.format("%s ==> expected: caused by <%s> but was: <null>",
                         message,
                         IOException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
@@ -376,7 +378,7 @@ class AdditionalAssertionsTest {
                 String message = "Not caused by IOException";
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwException(exception, IOException.class, message));
 
-                String expectedMessage = String.format("%s ==> expected caused by <%s> but was: <%s>",
+                String expectedMessage = String.format("%s ==> expected: caused by <%s> but was: <%s>",
                         message,
                         IOException.class.getName(), intermediate, root);
                 assertEquals(expectedMessage, error.getMessage());
@@ -390,7 +392,7 @@ class AdditionalAssertionsTest {
                 String message = "Not caused by IOException";
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwException(exception, IOException.class, message));
 
-                String expectedMessage = String.format("%s ==> expected caused by <%s> but was: <null>",
+                String expectedMessage = String.format("%s ==> expected: caused by <%s> but was: <null>",
                         message,
                         IOException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
@@ -430,7 +432,7 @@ class AdditionalAssertionsTest {
 
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwException(exception, ParseException.class));
 
-                String expectedMessage = String.format("expected caused by <%s> but was: [<%s>, <%s>]",
+                String expectedMessage = String.format("expected: caused by <%s> but was: caused by <%s>, <%s>",
                         ParseException.class.getName(), intermediate, root);
                 assertEquals(expectedMessage, error.getMessage());
             }
@@ -442,7 +444,7 @@ class AdditionalAssertionsTest {
 
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwException(exception, IOException.class));
 
-                String expectedMessage = String.format("expected caused by <%s> but was: []",
+                String expectedMessage = String.format("expected: caused by <%s> but was: caused by <null>",
                         IOException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
             }
@@ -477,7 +479,7 @@ class AdditionalAssertionsTest {
                 String message = "Not caused by IOException";
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwException(exception, ParseException.class, message));
 
-                String expectedMessage = String.format("%s ==> expected caused by <%s> but was: [<%s>, <%s>]",
+                String expectedMessage = String.format("%s ==> expected: caused by <%s> but was: caused by <%s>, <%s>",
                         message, ParseException.class.getName(), intermediate, root);
                 assertEquals(expectedMessage, error.getMessage());
             }
@@ -490,7 +492,7 @@ class AdditionalAssertionsTest {
                 String message = "Not caused by IOException";
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwException(exception, IOException.class, message));
 
-                String expectedMessage = String.format("%s ==> expected caused by <%s> but was: []",
+                String expectedMessage = String.format("%s ==> expected: caused by <%s> but was: caused by <null>",
                         message, IOException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
             }
@@ -525,7 +527,7 @@ class AdditionalAssertionsTest {
                 String message = "Not caused by IOException";
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwException(exception, ParseException.class, message));
 
-                String expectedMessage = String.format("%s ==> expected caused by <%s> but was: [<%s>, <%s>]",
+                String expectedMessage = String.format("%s ==> expected: caused by <%s> but was: caused by <%s>, <%s>",
                         message, ParseException.class.getName(), intermediate, root);
                 assertEquals(expectedMessage, error.getMessage());
             }
@@ -538,7 +540,7 @@ class AdditionalAssertionsTest {
                 String message = "Not caused by IOException";
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwException(exception, IOException.class, message));
 
-                String expectedMessage = String.format("%s ==> expected caused by <%s> but was: []",
+                String expectedMessage = String.format("%s ==> expected: caused by <%s> but was: caused by <null>",
                         message,
                         IOException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
@@ -589,9 +591,11 @@ class AdditionalAssertionsTest {
             void testDifferentThrown() {
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, this::throwOtherException);
 
-                String expectedMessage = String.format("Unexpected exception type thrown ==> expected: <%s> but was: <%s>",
+                String expectedMessage = String.format("Unexpected exception type thrown, expected: <%s> but was: <%s>",
                         IllegalArgumentException.class.getName(), IllegalStateException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
+                assertInstanceOf(IllegalStateException.class, error.getCause());
+                assertEquals("other", error.getCause().getMessage());
             }
 
             @Test
@@ -635,9 +639,11 @@ class AdditionalAssertionsTest {
                 String message = "Wrong type of exception thrown";
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwOtherException(message));
 
-                String expectedMessage = String.format("%s ==> Unexpected exception type thrown ==> expected: <%s> but was: <%s>",
+                String expectedMessage = String.format("%s ==> Unexpected exception type thrown, expected: <%s> but was: <%s>",
                         message, IllegalArgumentException.class.getName(), IllegalStateException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
+                assertInstanceOf(IllegalStateException.class, error.getCause());
+                assertEquals("other", error.getCause().getMessage());
             }
 
             @Test
@@ -681,9 +687,11 @@ class AdditionalAssertionsTest {
                 String message = "Wrong type of exception thrown";
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwOtherException(message));
 
-                String expectedMessage = String.format("%s ==> Unexpected exception type thrown ==> expected: <%s> but was: <%s>",
+                String expectedMessage = String.format("%s ==> Unexpected exception type thrown, expected: <%s> but was: <%s>",
                         message, IllegalArgumentException.class.getName(), IllegalStateException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
+                assertInstanceOf(IllegalStateException.class, error.getCause());
+                assertEquals("other", error.getCause().getMessage());
             }
 
             @Test
@@ -731,9 +739,11 @@ class AdditionalAssertionsTest {
             void testDifferentThrown() {
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, this::throwOtherException);
 
-                String expectedMessage = String.format("Unexpected exception type thrown ==> expected: <%s> but was: <%s>",
+                String expectedMessage = String.format("Unexpected exception type thrown, expected: <%s> but was: <%s>",
                         IllegalArgumentException.class.getName(), NumberFormatException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
+                assertInstanceOf(NumberFormatException.class, error.getCause());
+                assertEquals("other", error.getCause().getMessage());
             }
 
             @Test
@@ -778,9 +788,11 @@ class AdditionalAssertionsTest {
                 String message = "Wrong type of exception thrown";
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwOtherException(message));
 
-                String expectedMessage = String.format("%s ==> Unexpected exception type thrown ==> expected: <%s> but was: <%s>",
+                String expectedMessage = String.format("%s ==> Unexpected exception type thrown, expected: <%s> but was: <%s>",
                         message, IllegalArgumentException.class.getName(), NumberFormatException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
+                assertInstanceOf(NumberFormatException.class, error.getCause());
+                assertEquals("other", error.getCause().getMessage());
             }
 
             @Test
@@ -825,9 +837,11 @@ class AdditionalAssertionsTest {
                 String message = "Wrong type of exception thrown";
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwOtherException(message));
 
-                String expectedMessage = String.format("%s ==> Unexpected exception type thrown ==> expected: <%s> but was: <%s>",
+                String expectedMessage = String.format("%s ==> Unexpected exception type thrown, expected: <%s> but was: <%s>",
                         message, IllegalArgumentException.class.getName(), NumberFormatException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
+                assertInstanceOf(NumberFormatException.class, error.getCause());
+                assertEquals("other", error.getCause().getMessage());
             }
 
             @Test
@@ -886,9 +900,11 @@ class AdditionalAssertionsTest {
             void testDifferentThrown() {
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, this::throwOtherException);
 
-                String expectedMessage = String.format("Unexpected exception type thrown ==> expected: one of <%s>, <%s> but was: <%s>",
+                String expectedMessage = String.format("Unexpected exception type thrown, expected: one of <%s>, <%s> but was: <%s>",
                         IllegalArgumentException.class.getName(), NullPointerException.class.getName(), NumberFormatException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
+                assertInstanceOf(NumberFormatException.class, error.getCause());
+                assertEquals("other", error.getCause().getMessage());
             }
 
             @Test
@@ -899,6 +915,7 @@ class AdditionalAssertionsTest {
                 String expectedMessage = String.format("Expected one of <%s>, <%s> to be thrown, but nothing was thrown.",
                         IllegalArgumentException.class.getName(), NullPointerException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
+                assertNull(error.getCause());
             }
 
             private void throwOtherException() {
@@ -948,10 +965,12 @@ class AdditionalAssertionsTest {
                 String message = "Wrong type of exception thrown";
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwOtherException(message));
 
-                String expectedMessage = String.format("%s ==> Unexpected exception type thrown ==> expected: one of <%s>, <%s> but was: <%s>",
+                String expectedMessage = String.format("%s ==> Unexpected exception type thrown, expected: one of <%s>, <%s> but was: <%s>",
                         message,
                         IllegalArgumentException.class.getName(), NullPointerException.class.getName(), NumberFormatException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
+                assertInstanceOf(NumberFormatException.class, error.getCause());
+                assertEquals("other", error.getCause().getMessage());
             }
 
             @Test
@@ -964,6 +983,7 @@ class AdditionalAssertionsTest {
                         message,
                         IllegalArgumentException.class.getName(), NullPointerException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
+                assertNull(error.getCause());
             }
 
             private void throwOtherException(String message) {
@@ -1013,10 +1033,12 @@ class AdditionalAssertionsTest {
                 String message = "Wrong type of exception thrown";
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwOtherException(message));
 
-                String expectedMessage = String.format("%s ==> Unexpected exception type thrown ==> expected: one of <%s>, <%s> but was: <%s>",
+                String expectedMessage = String.format("%s ==> Unexpected exception type thrown, expected: one of <%s>, <%s> but was: <%s>",
                         message,
                         IllegalArgumentException.class.getName(), NullPointerException.class.getName(), NumberFormatException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
+                assertInstanceOf(NumberFormatException.class, error.getCause());
+                assertEquals("other", error.getCause().getMessage());
             }
 
             @Test
@@ -1029,6 +1051,7 @@ class AdditionalAssertionsTest {
                         message,
                         IllegalArgumentException.class.getName(), NullPointerException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
+                assertNull(error.getCause());
             }
 
             private void throwOtherException(String message) {
@@ -1080,9 +1103,11 @@ class AdditionalAssertionsTest {
             void testDifferentThrown() {
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, this::throwOtherException);
 
-                String expectedMessage = String.format("Unexpected exception type thrown ==> expected: one of <%s>, <%s> but was: <%s>",
+                String expectedMessage = String.format("Unexpected exception type thrown, expected: one of <%s>, <%s> but was: <%s>",
                         IllegalArgumentException.class.getName(), NullPointerException.class.getName(), NumberFormatException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
+                assertInstanceOf(NumberFormatException.class, error.getCause());
+                assertEquals("other", error.getCause().getMessage());
             }
 
             @Test
@@ -1139,10 +1164,12 @@ class AdditionalAssertionsTest {
                 String message = "Wrong type of exception thrown";
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwOtherException(message));
 
-                String expectedMessage = String.format("%s ==> Unexpected exception type thrown ==> expected: one of <%s>, <%s> but was: <%s>",
+                String expectedMessage = String.format("%s ==> Unexpected exception type thrown, expected: one of <%s>, <%s> but was: <%s>",
                         message,
                         IllegalArgumentException.class.getName(), NullPointerException.class.getName(), NumberFormatException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
+                assertInstanceOf(NumberFormatException.class, error.getCause());
+                assertEquals("other", error.getCause().getMessage());
             }
 
             @Test
@@ -1200,10 +1227,12 @@ class AdditionalAssertionsTest {
                 String message = "Wrong type of exception thrown";
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwOtherException(message));
 
-                String expectedMessage = String.format("%s ==> Unexpected exception type thrown ==> expected: one of <%s>, <%s> but was: <%s>",
+                String expectedMessage = String.format("%s ==> Unexpected exception type thrown, expected: one of <%s>, <%s> but was: <%s>",
                         message,
                         IllegalArgumentException.class.getName(), NullPointerException.class.getName(), NumberFormatException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
+                assertInstanceOf(NumberFormatException.class, error.getCause());
+                assertEquals("other", error.getCause().getMessage());
             }
 
             @Test
@@ -1263,9 +1292,11 @@ class AdditionalAssertionsTest {
             void testDifferentThrown() {
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, this::throwOtherException);
 
-                String expectedMessage = String.format("Unexpected exception type thrown ==> expected: one of <%s>, <%s> but was: <%s>",
+                String expectedMessage = String.format("Unexpected exception type thrown, expected: one of <%s>, <%s> but was: <%s>",
                         IllegalArgumentException.class.getName(), NullPointerException.class.getName(), IllegalStateException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
+                assertInstanceOf(IllegalStateException.class, error.getCause());
+                assertEquals("other", error.getCause().getMessage());
             }
 
             @Test
@@ -1276,6 +1307,7 @@ class AdditionalAssertionsTest {
                 String expectedMessage = String.format("Expected one of <%s>, <%s> to be thrown, but nothing was thrown.",
                         IllegalArgumentException.class.getName(), NullPointerException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
+                assertNull(error.getCause());
             }
 
             private void throwOtherException() {
@@ -1325,10 +1357,12 @@ class AdditionalAssertionsTest {
                 String message = "Wrong type of exception thrown";
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwOtherException(message));
 
-                String expectedMessage = String.format("%s ==> Unexpected exception type thrown ==> expected: one of <%s>, <%s> but was: <%s>",
+                String expectedMessage = String.format("%s ==> Unexpected exception type thrown, expected: one of <%s>, <%s> but was: <%s>",
                         message,
                         IllegalArgumentException.class.getName(), NullPointerException.class.getName(), IllegalStateException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
+                assertInstanceOf(IllegalStateException.class, error.getCause());
+                assertEquals("other", error.getCause().getMessage());
             }
 
             @Test
@@ -1341,6 +1375,7 @@ class AdditionalAssertionsTest {
                         message,
                         IllegalArgumentException.class.getName(), NullPointerException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
+                assertNull(error.getCause());
             }
 
             private void throwOtherException(String message) {
@@ -1390,10 +1425,12 @@ class AdditionalAssertionsTest {
                 String message = "Wrong type of exception thrown";
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwOtherException(message));
 
-                String expectedMessage = String.format("%s ==> Unexpected exception type thrown ==> expected: one of <%s>, <%s> but was: <%s>",
+                String expectedMessage = String.format("%s ==> Unexpected exception type thrown, expected: one of <%s>, <%s> but was: <%s>",
                         message,
                         IllegalArgumentException.class.getName(), NullPointerException.class.getName(), IllegalStateException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
+                assertInstanceOf(IllegalStateException.class, error.getCause());
+                assertEquals("other", error.getCause().getMessage());
             }
 
             @Test
@@ -1406,6 +1443,7 @@ class AdditionalAssertionsTest {
                         message,
                         IllegalArgumentException.class.getName(), NullPointerException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
+                assertNull(error.getCause());
             }
 
             private void throwOtherException(String message) {
@@ -1457,9 +1495,11 @@ class AdditionalAssertionsTest {
             void testDifferentThrown() {
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, this::throwOtherException);
 
-                String expectedMessage = String.format("Unexpected exception type thrown ==> expected: one of <%s>, <%s> but was: <%s>",
+                String expectedMessage = String.format("Unexpected exception type thrown, expected: one of <%s>, <%s> but was: <%s>",
                         IllegalArgumentException.class.getName(), NullPointerException.class.getName(), IllegalStateException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
+                assertInstanceOf(IllegalStateException.class, error.getCause());
+                assertEquals("other", error.getCause().getMessage());
             }
 
             @Test
@@ -1516,10 +1556,12 @@ class AdditionalAssertionsTest {
                 String message = "Wrong type of exception thrown";
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwOtherException(message));
 
-                String expectedMessage = String.format("%s ==> Unexpected exception type thrown ==> expected: one of <%s>, <%s> but was: <%s>",
+                String expectedMessage = String.format("%s ==> Unexpected exception type thrown, expected: one of <%s>, <%s> but was: <%s>",
                         message,
                         IllegalArgumentException.class.getName(), NullPointerException.class.getName(), IllegalStateException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
+                assertInstanceOf(IllegalStateException.class, error.getCause());
+                assertEquals("other", error.getCause().getMessage());
             }
 
             @Test
@@ -1576,10 +1618,12 @@ class AdditionalAssertionsTest {
                 String message = "Wrong type of exception thrown";
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> throwOtherException(message));
 
-                String expectedMessage = String.format("%s ==> Unexpected exception type thrown ==> expected: one of <%s>, <%s> but was: <%s>",
+                String expectedMessage = String.format("%s ==> Unexpected exception type thrown, expected: one of <%s>, <%s> but was: <%s>",
                         message,
                         IllegalArgumentException.class.getName(), NullPointerException.class.getName(), IllegalStateException.class.getName());
                 assertEquals(expectedMessage, error.getMessage());
+                assertInstanceOf(IllegalStateException.class, error.getCause());
+                assertEquals("other", error.getCause().getMessage());
             }
 
             @Test
@@ -1647,6 +1691,7 @@ class AdditionalAssertionsTest {
                 };
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertDoesNotThrowCheckedException(executable));
                 assertThat(error.getMessage(), startsWith("Unexpected exception thrown: " + IOException.class.getName()));
+                assertInstanceOf(IOException.class, error.getCause());
             }
 
             @Test
@@ -1657,6 +1702,7 @@ class AdditionalAssertionsTest {
                 };
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertDoesNotThrowCheckedException(executable, "error"));
                 assertThat(error.getMessage(), startsWith("error ==> Unexpected exception thrown: " + IOException.class.getName()));
+                assertInstanceOf(IOException.class, error.getCause());
             }
 
             @Test
@@ -1669,6 +1715,7 @@ class AdditionalAssertionsTest {
                 AssertionFailedError error = assertThrows(AssertionFailedError.class,
                         () -> assertDoesNotThrowCheckedException(executable, messageSupplier));
                 assertThat(error.getMessage(), startsWith("error ==> Unexpected exception thrown: " + IOException.class.getName()));
+                assertInstanceOf(IOException.class, error.getCause());
             }
         }
 
@@ -1750,6 +1797,7 @@ class AdditionalAssertionsTest {
                 };
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertDoesNotThrowCheckedException(supplier));
                 assertThat(error.getMessage(), startsWith("Unexpected exception thrown: " + IOException.class.getName()));
+                assertInstanceOf(IOException.class, error.getCause());
             }
 
             @Test
@@ -1760,6 +1808,7 @@ class AdditionalAssertionsTest {
                 };
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertDoesNotThrowCheckedException(supplier, "error"));
                 assertThat(error.getMessage(), startsWith("error ==> Unexpected exception thrown: " + IOException.class.getName()));
+                assertInstanceOf(IOException.class, error.getCause());
             }
 
             @Test
@@ -1772,6 +1821,7 @@ class AdditionalAssertionsTest {
                 AssertionFailedError error = assertThrows(AssertionFailedError.class,
                         () -> assertDoesNotThrowCheckedException(supplier, messageSupplier));
                 assertThat(error.getMessage(), startsWith("error ==> Unexpected exception thrown: " + IOException.class.getName()));
+                assertInstanceOf(IOException.class, error.getCause());
             }
         }
 

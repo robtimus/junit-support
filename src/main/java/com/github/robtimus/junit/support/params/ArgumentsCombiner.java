@@ -519,13 +519,12 @@ public final class ArgumentsCombiner {
         try {
             return argumentsProvider.provideArguments(context);
         } catch (Exception e) {
-            throwAsUncheckedException(e);
-            return null;
+            return throwAsUncheckedException(e);
         }
     }
 
     @SuppressWarnings("unchecked")
-    private static <T extends Throwable> void throwAsUncheckedException(Throwable t) throws T {
+    private static <T extends Throwable, R> R throwAsUncheckedException(Throwable t) throws T {
         throw (T) t;
     }
 

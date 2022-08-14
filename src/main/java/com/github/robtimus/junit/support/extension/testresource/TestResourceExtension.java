@@ -111,8 +111,7 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
             Object testInstance = context.getTestInstance().orElse(null);
             return ReflectionSupport.invokeMethod(factoryMethod, testInstance, inputStream);
         } catch (IOException e) {
-            throwAsUncheckedException(e);
-            return null;
+            return throwAsUncheckedException(e);
         }
     }
 
@@ -126,8 +125,7 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
                 return ReflectionSupport.invokeMethod(factoryMethod, testInstance, reader);
             }
         } catch (IOException e) {
-            throwAsUncheckedException(e);
-            return null;
+            return throwAsUncheckedException(e);
         }
     }
 
@@ -140,8 +138,7 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
 
             return resourceConverter.convert(inputStream, target, context);
         } catch (IOException e) {
-            throwAsUncheckedException(e);
-            return null;
+            return throwAsUncheckedException(e);
         }
     }
 
@@ -265,7 +262,7 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T extends Throwable> void throwAsUncheckedException(Throwable t) throws T {
+    private static <T extends Throwable, R> R throwAsUncheckedException(Throwable t) throws T {
         throw (T) t;
     }
 

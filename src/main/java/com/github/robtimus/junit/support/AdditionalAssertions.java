@@ -17,6 +17,7 @@
 
 package com.github.robtimus.junit.support;
 
+import static com.github.robtimus.junit.support.AssertionFailedErrorBuilder.assertionFailure;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import java.util.ArrayList;
@@ -28,11 +29,9 @@ import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.api.function.ThrowingSupplier;
-import org.opentest4j.AssertionFailedError;
 
 /**
  * A collection of utility methods that support asserting conditions in tests, in addition to what is already provided by {@link Assertions}.
@@ -41,6 +40,8 @@ import org.opentest4j.AssertionFailedError;
  */
 @SuppressWarnings("nls")
 public final class AdditionalAssertions {
+
+    private static final String CAUSED_BY = "caused by";
 
     private AdditionalAssertions() {
     }
@@ -256,11 +257,11 @@ public final class AdditionalAssertions {
             return expectedType.cast(cause);
         }
 
-        String message = String.format("%sexpected caused by %s but was: <%s>",
-                buildPrefix(nullSafeGet(messageOrSupplier)),
-                formatClass(expectedType),
-                cause);
-        throw new AssertionFailedError(message);
+        throw assertionFailure()
+                .message(messageOrSupplier)
+                .prefixed(CAUSED_BY).expected(expectedType)
+                .actual(cause)
+                .build();
     }
 
     /**
@@ -314,22 +315,24 @@ public final class AdditionalAssertions {
     }
 
     private static <T extends Throwable> T assertHasCause(Class<T> expectedType, Throwable throwable, Object messageOrSupplier) {
-        List<String> causes = new ArrayList<>();
+        List<Throwable> causes = new ArrayList<>();
 
         Throwable cause = throwable.getCause();
         while (cause != null) {
             if (expectedType.isInstance(cause)) {
                 return expectedType.cast(cause);
             }
-            causes.add("<" + cause + ">");
+            causes.add(cause);
             cause = cause.getCause();
         }
 
-        String message = String.format("%sexpected caused by %s but was: %s",
-                buildPrefix(nullSafeGet(messageOrSupplier)),
-                formatClass(expectedType),
-                causes);
-        throw new AssertionFailedError(message);
+        AssertionFailedErrorBuilder builder = assertionFailure()
+                .message(messageOrSupplier)
+                .prefixed(CAUSED_BY).expected(expectedType);
+
+        throw causes.isEmpty()
+                ? builder.prefixed(CAUSED_BY).actual(null).build()
+                : builder.prefixed(CAUSED_BY).actualValues(causes).build();
     }
 
     /**
@@ -403,12 +406,12 @@ public final class AdditionalAssertions {
             }
             rethrowIfUnrecoverable(actualException);
 
-            String message = String.format("%s%sexpected: %s but was: %s",
-                    buildPrefix(nullSafeGet(messageOrSupplier)),
-                    buildPrefix("Unexpected exception type thrown"),
-                    formatClass(expectedType),
-                    formatClass(actualException.getClass()));
-            throw new AssertionFailedError(message, actualException);
+            throw unexpectedExceptionTypeThrown()
+                    .message(messageOrSupplier)
+                    .expected(expectedType)
+                    .actual(actualException.getClass())
+                    .cause(actualException)
+                    .build();
         }
     }
 
@@ -485,12 +488,12 @@ public final class AdditionalAssertions {
             }
             rethrowIfUnrecoverable(actualException);
 
-            String message = String.format("%s%sexpected: %s but was: %s",
-                    buildPrefix(nullSafeGet(messageOrSupplier)),
-                    buildPrefix("Unexpected exception type thrown"),
-                    formatClass(expectedType),
-                    formatClass(actualException.getClass()));
-            throw new AssertionFailedError(message, actualException);
+            throw unexpectedExceptionTypeThrown()
+                    .message(messageOrSupplier)
+                    .expected(expectedType)
+                    .actual(actualException.getClass())
+                    .cause(actualException)
+                    .build();
         }
     }
 
@@ -626,12 +629,12 @@ public final class AdditionalAssertions {
             Object messageOrSupplier) {
 
         return assertOptionallyThrowsExactlyOneOf(expectedTypes, executable, messageOrSupplier)
-                .orElseThrow(() -> {
-                    String message = String.format("%sExpected one of %s to be thrown, but nothing was thrown.",
-                            buildPrefix(nullSafeGet(messageOrSupplier)),
-                            formatClasses(expectedTypes));
-                    return new AssertionFailedError(message);
-                });
+                .orElseThrow(() -> assertionFailure()
+                        .message(messageOrSupplier)
+                        .reasonPattern("Expected one of %s to be thrown, but nothing was thrown.")
+                                .withValues(expectedTypes)
+                                .format()
+                        .build());
     }
 
     /**
@@ -796,12 +799,12 @@ public final class AdditionalAssertions {
             }
             rethrowIfUnrecoverable(actualException);
 
-            String message = String.format("%s%sexpected: one of %s but was: %s",
-                    buildPrefix(nullSafeGet(messageOrSupplier)),
-                    buildPrefix("Unexpected exception type thrown"),
-                    formatClasses(expectedTypes),
-                    formatClass(actualException.getClass()));
-            throw new AssertionFailedError(message, actualException);
+            throw unexpectedExceptionTypeThrown()
+                    .message(messageOrSupplier)
+                    .expectedOneOf(expectedTypes)
+                    .actual(actualException.getClass())
+                    .cause(actualException)
+                    .build();
         }
     }
 
@@ -931,12 +934,12 @@ public final class AdditionalAssertions {
             Object messageOrSupplier) {
 
         return assertOptionallyThrowsOneOf(expectedTypes, executable, messageOrSupplier)
-                .orElseThrow(() -> {
-                    String message = String.format("%sExpected one of %s to be thrown, but nothing was thrown.",
-                            buildPrefix(nullSafeGet(messageOrSupplier)),
-                            formatClasses(expectedTypes));
-                    return new AssertionFailedError(message);
-                });
+                .orElseThrow(() -> assertionFailure()
+                        .message(messageOrSupplier)
+                        .reasonPattern("Expected one of %s to be thrown, but nothing was thrown.")
+                                .withValues(expectedTypes)
+                                .format()
+                        .build());
     }
 
     /**
@@ -1089,12 +1092,12 @@ public final class AdditionalAssertions {
             }
             rethrowIfUnrecoverable(actualException);
 
-            String message = String.format("%s%sexpected: one of %s but was: %s",
-                    buildPrefix(nullSafeGet(messageOrSupplier)),
-                    buildPrefix("Unexpected exception type thrown"),
-                    formatClasses(expectedTypes),
-                    formatClass(actualException.getClass()));
-            throw new AssertionFailedError(message, actualException);
+            throw unexpectedExceptionTypeThrown()
+                    .message(messageOrSupplier)
+                    .expectedOneOf(expectedTypes)
+                    .actual(actualException.getClass())
+                    .cause(actualException)
+                    .build();
         }
     }
 
@@ -1228,38 +1231,8 @@ public final class AdditionalAssertions {
         }
     }
 
-    private static String formatClasses(Collection<? extends Class<?>> classes) {
-        return classes.stream()
-                .map(AdditionalAssertions::formatClass)
-                .collect(Collectors.joining(", "));
-    }
-
-    private static String formatClass(Class<?> clazz) {
-        String canonicalName = clazz.getCanonicalName();
-        return "<" + (canonicalName != null ? canonicalName : clazz.getName()) + ">";
-    }
-
-    // Copy of JUnit's own methods
-
-    private static String nullSafeGet(Object messageOrSupplier) {
-        if (messageOrSupplier instanceof String) {
-            return (String) messageOrSupplier;
-        }
-        if (messageOrSupplier instanceof Supplier<?>) {
-            Object message = ((Supplier<?>) messageOrSupplier).get();
-            if (message != null) {
-                return message.toString();
-            }
-        }
-        return null;
-    }
-
-    private static String buildPrefix(String message) {
-        return isNotBlank(message) ? message + " ==> " : "";
-    }
-
-    private static boolean isNotBlank(String message) {
-        return message != null && message.chars().anyMatch(c -> !Character.isWhitespace(c));
+    private static AssertionFailedErrorBuilder unexpectedExceptionTypeThrown() {
+        return assertionFailure().reason("Unexpected exception type thrown");
     }
 
     private static void rethrowIfUnrecoverable(Throwable exception) {
