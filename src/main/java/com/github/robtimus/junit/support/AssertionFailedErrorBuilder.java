@@ -43,6 +43,7 @@ import org.opentest4j.AssertionFailedError;
  * Any method argument may be {@code null} unless specified otherwise.
  *
  * @author Rob Spoor
+ * @since 2.0
  */
 @SuppressWarnings("nls")
 public final class AssertionFailedErrorBuilder {
@@ -222,8 +223,8 @@ public final class AssertionFailedErrorBuilder {
      * @param prefix The prefix to add before the expected or actual value in the generated failure message.
      * @return An object that can be used to set expected or actual values with a prefix.
      */
-    public PrefixValues prefixed(String prefix) {
-        return new PrefixValues(this, prefix);
+    public PrefixedValues prefixed(String prefix) {
+        return new PrefixedValues(this, prefix);
     }
 
     /**
@@ -366,6 +367,7 @@ public final class AssertionFailedErrorBuilder {
      * A builder for the reason why the assertion failed.
      *
      * @author Rob Spoor
+     * @since 2.0
      */
     public static final class ReasonBuilder {
 
@@ -435,13 +437,14 @@ public final class AssertionFailedErrorBuilder {
      * An object that can set the allowed expected value or actual value of an assertion with a prefix.
      *
      * @author Rob Spoor
+     * @since 2.0
      */
-    public static final class PrefixValues {
+    public static final class PrefixedValues {
 
         private final AssertionFailedErrorBuilder builder;
         private final String prefix;
 
-        private PrefixValues(AssertionFailedErrorBuilder builder, String prefix) {
+        private PrefixedValues(AssertionFailedErrorBuilder builder, String prefix) {
             this.builder = builder;
             this.prefix = prefix;
         }

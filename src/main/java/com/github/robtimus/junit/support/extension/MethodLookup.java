@@ -41,6 +41,7 @@ import org.junit.platform.commons.support.ReflectionSupport;
  * safe to call {@link #find(String, ExtensionContext)} from different threads concurrently.
  *
  * @author Rob Spoor
+ * @since 2.0
  */
 @SuppressWarnings("nls")
 public final class MethodLookup {
@@ -286,6 +287,7 @@ public final class MethodLookup {
      * and supports invoking the method.
      *
      * @author Rob Spoor
+     * @since 2.0
      */
     public static final class Result {
 
