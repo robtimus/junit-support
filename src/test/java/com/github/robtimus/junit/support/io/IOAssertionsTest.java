@@ -21,9 +21,11 @@ import static com.github.robtimus.junit.support.io.IOAssertions.assertContainsCo
 import static com.github.robtimus.junit.support.io.IOAssertions.assertNotSerializable;
 import static com.github.robtimus.junit.support.io.IOAssertions.assertSerializable;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -31,10 +33,13 @@ import java.io.InputStream;
 import java.io.NotSerializableException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.function.Supplier;
 import org.apache.commons.io.input.BrokenInputStream;
 import org.apache.commons.io.input.BrokenReader;
+import org.hamcrest.Matcher;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -75,6 +80,15 @@ class IOAssertionsTest {
                 Supplier<String> messageSupplier = () -> "error";
                 assertContainsContent(reader, content, messageSupplier);
             }
+
+            @Test
+            @DisplayName("with matcher")
+            void testWithMatcher() {
+                String content = "foobar";
+                StringReader reader = new StringReader(content);
+                Matcher<String> matcher = startsWith("foo");
+                assertContainsContent(reader, matcher);
+            }
         }
 
         @Nested
@@ -108,6 +122,17 @@ class IOAssertionsTest {
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertContainsContent(reader, content, messageSupplier));
                 assertThat(error.getMessage(), startsWith("error ==> expected: <foo>"));
             }
+
+            @Test
+            @DisplayName("with matcher")
+            void testWithMatcher() {
+                String content = "foobar";
+                StringReader reader = new StringReader(content);
+                Matcher<String> matcher = startsWith("bar");
+                AssertionError error = assertThrows(AssertionError.class, () -> assertContainsContent(reader, matcher));
+                assertThat(error.getMessage(), containsString("Expected: a string starting with \"bar\""));
+                assertThat(error.getMessage(), containsString("but: was \"foobar\""));
+            }
         }
 
         @Nested
@@ -140,6 +165,16 @@ class IOAssertionsTest {
                 Supplier<String> messageSupplier = () -> "error";
                 AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertContainsContent(reader, "foo", messageSupplier));
                 assertThat(error.getMessage(), startsWith("error ==> Unexpected exception thrown: " + IOException.class.getName()));
+            }
+
+            @Test
+            @DisplayName("with matcher")
+            void testWithMatcher() {
+                @SuppressWarnings("resource")
+                Reader reader = new BrokenReader();
+                Matcher<String> matcher = startsWith("foo");
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertContainsContent(reader, matcher));
+                assertThat(error.getMessage(), startsWith("Unexpected exception thrown: " + IOException.class.getName()));
             }
         }
 
@@ -243,6 +278,150 @@ class IOAssertionsTest {
                 assertThat(error.getMessage(), startsWith("error ==> Unexpected exception thrown: " + IOException.class.getName()));
             }
         }
+
+        @Nested
+        @DisplayName("InputStream contains string content")
+        class InputStreamContainsStringContent {
+
+            @Test
+            @DisplayName("without message or message supplier")
+            void testWithoutMessageOrMessageSupplier() {
+                String content = "foo";
+                Charset charset = StandardCharsets.UTF_8;
+                ByteArrayInputStream inputStream = new ByteArrayInputStream(content.getBytes(charset));
+                assertContainsContent(inputStream, charset, content);
+            }
+
+            @Test
+            @DisplayName("with message")
+            void testWithMessage() {
+                String content = "foo";
+                Charset charset = StandardCharsets.UTF_8;
+                ByteArrayInputStream inputStream = new ByteArrayInputStream(content.getBytes(charset));
+                assertContainsContent(inputStream, charset, content, "error");
+            }
+
+            @Test
+            @DisplayName("with message supplier")
+            void testWithMessageSupplier() {
+                String content = "foo";
+                Charset charset = StandardCharsets.UTF_8;
+                ByteArrayInputStream inputStream = new ByteArrayInputStream(content.getBytes(charset));
+                Supplier<String> messageSupplier = () -> "error";
+                assertContainsContent(inputStream, charset, content, messageSupplier);
+            }
+
+            @Test
+            @DisplayName("with matcher")
+            void testWithMatcher() {
+                String content = "foobar";
+                Charset charset = StandardCharsets.UTF_8;
+                ByteArrayInputStream inputStream = new ByteArrayInputStream(content.getBytes(charset));
+                Matcher<String> matcher = startsWith("foo");
+                assertContainsContent(inputStream, charset, matcher);
+            }
+        }
+
+        @Nested
+        @DisplayName("InputStream does not contain string content")
+        class InputStreamDoesNotContainStringContent {
+
+            @Test
+            @DisplayName("without message or message supplier")
+            void testWithoutMessageOrMessageSupplier() {
+                String content = "foo";
+                Charset charset = StandardCharsets.UTF_8;
+                ByteArrayInputStream inputStream = new ByteArrayInputStream("bar".getBytes(charset));
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertContainsContent(inputStream, charset, content));
+                assertThat(error.getMessage(), startsWith("expected: <foo> but was: <bar>"));
+            }
+
+            @Test
+            @DisplayName("with message")
+            void testWithMessage() {
+                String content = "foo";
+                Charset charset = StandardCharsets.UTF_8;
+                ByteArrayInputStream inputStream = new ByteArrayInputStream("bar".getBytes(charset));
+                AssertionFailedError error = assertThrows(AssertionFailedError.class,
+                        () -> assertContainsContent(inputStream, charset, content, "error"));
+                assertThat(error.getMessage(), startsWith("error ==> expected: <foo> but was: <bar>"));
+            }
+
+            @Test
+            @DisplayName("with message supplier")
+            void testWithMessageSupplier() {
+                String content = "foo";
+                Charset charset = StandardCharsets.UTF_8;
+                ByteArrayInputStream inputStream = new ByteArrayInputStream("bar".getBytes(charset));
+                Supplier<String> messageSupplier = () -> "error";
+                AssertionFailedError error = assertThrows(AssertionFailedError.class,
+                        () -> assertContainsContent(inputStream, charset, content, messageSupplier));
+                assertThat(error.getMessage(), startsWith("error ==> expected: <foo> but was: <bar>"));
+            }
+
+            @Test
+            @DisplayName("with matcher")
+            void testWithMatcher() {
+                Charset charset = StandardCharsets.UTF_8;
+                ByteArrayInputStream inputStream = new ByteArrayInputStream("foobar".getBytes(charset));
+                Matcher<String> matcher = startsWith("bar");
+                AssertionError error = assertThrows(AssertionError.class, () -> assertContainsContent(inputStream, charset, matcher));
+                assertThat(error.getMessage(), containsString("Expected: a string starting with \"bar\""));
+                assertThat(error.getMessage(), containsString("but: was \"foobar\""));
+            }
+        }
+
+        @Nested
+        @DisplayName("InputStream throws exception for string")
+        class InputStreamThrowsExceptionForString {
+
+            @Test
+            @DisplayName("without message or message supplier")
+            void testWithoutMessageOrMessageSupplier() {
+                String content = "foo";
+                Charset charset = StandardCharsets.UTF_8;
+                @SuppressWarnings("resource")
+                InputStream inputStream = new BrokenInputStream();
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertContainsContent(inputStream, charset, content));
+                assertThat(error.getMessage(), startsWith("Unexpected exception thrown: " + IOException.class.getName()));
+            }
+
+            @Test
+            @DisplayName("with message")
+            void testWithMessage() {
+                String content = "foo";
+                Charset charset = StandardCharsets.UTF_8;
+                @SuppressWarnings("resource")
+                InputStream inputStream = new BrokenInputStream();
+                AssertionFailedError error = assertThrows(AssertionFailedError.class,
+                        () -> assertContainsContent(inputStream, charset, content, "error"));
+                assertThat(error.getMessage(), startsWith("error ==> Unexpected exception thrown: " + IOException.class.getName()));
+            }
+
+            @Test
+            @DisplayName("with message supplier")
+            void testWithMessageSupplier() {
+                String content = "foo";
+                Charset charset = StandardCharsets.UTF_8;
+                @SuppressWarnings("resource")
+                InputStream inputStream = new BrokenInputStream();
+                Supplier<String> messageSupplier = () -> "error";
+                AssertionFailedError error = assertThrows(AssertionFailedError.class,
+                        () -> assertContainsContent(inputStream, charset, content, messageSupplier));
+                assertThat(error.getMessage(), startsWith("error ==> Unexpected exception thrown: " + IOException.class.getName()));
+            }
+
+            @Test
+            @DisplayName("with matcher")
+            void testWithMatcher() {
+                Charset charset = StandardCharsets.UTF_8;
+                @SuppressWarnings("resource")
+                InputStream inputStream = new BrokenInputStream();
+                Matcher<String> matcher = startsWith("foo");
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertContainsContent(inputStream, charset, matcher));
+                assertThat(error.getMessage(), startsWith("Unexpected exception thrown: " + IOException.class.getName()));
+            }
+        }
     }
 
     @Nested
@@ -311,6 +490,30 @@ class IOAssertionsTest {
                 assertThat(error.getMessage(), startsWith("error ==> Unexpected exception thrown: " + NotSerializableException.class.getName()));
             }
         }
+
+        @Nested
+        @DisplayName("with null")
+        class WithNull {
+
+            @Test
+            @DisplayName("without message or message supplier")
+            void testWithoutMessageOrMessageSupplier() {
+                assertNull(assertSerializable(null));
+            }
+
+            @Test
+            @DisplayName("with message")
+            void testWithMessage() {
+                assertNull(assertSerializable(null, "error"));
+            }
+
+            @Test
+            @DisplayName("with message supplier")
+            void testWithMessageSupplier() {
+                Supplier<String> messageSupplier = () -> "error";
+                assertNull(assertSerializable(null, messageSupplier));
+            }
+        }
     }
 
     @Nested
@@ -371,6 +574,33 @@ class IOAssertionsTest {
                 Object input = new Object();
                 Supplier<String> messageSupplier = () -> "error";
                 assertNotSerializable(input, messageSupplier);
+            }
+        }
+
+        @Nested
+        @DisplayName("with null")
+        class WithNull {
+
+            @Test
+            @DisplayName("without message or message supplier")
+            void testWithoutMessageOrMessageSupplier() {
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertNotSerializable(null));
+                assertThat(error.getMessage(), startsWith("Expected " + NotSerializableException.class.getName() + " to be thrown"));
+            }
+
+            @Test
+            @DisplayName("with message")
+            void testWithMessage() {
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertNotSerializable(null, "error"));
+                assertThat(error.getMessage(), startsWith("error ==> Expected " + NotSerializableException.class.getName() + " to be thrown"));
+            }
+
+            @Test
+            @DisplayName("with message supplier")
+            void testWithMessageSupplier() {
+                Supplier<String> messageSupplier = () -> "error";
+                AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertNotSerializable(null, messageSupplier));
+                assertThat(error.getMessage(), startsWith("error ==> Expected " + NotSerializableException.class.getName() + " to be thrown"));
             }
         }
     }

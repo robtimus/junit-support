@@ -28,11 +28,14 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.function.Supplier;
+import org.hamcrest.Matcher;
 
 /**
  * A collection of utility methods that support asserting conditions related to I/O.
@@ -49,6 +52,7 @@ public final class IOAssertions {
      *
      * @param reader The reader to read from. It will be exhausted at the end of this method call.
      * @param expectedContent The expected content.
+     * @throws NullPointerException If the given reader is null.
      */
     public static void assertContainsContent(Reader reader, String expectedContent) {
         String content = assertDoesNotThrow(() -> readContent(reader, expectedContent));
@@ -61,6 +65,7 @@ public final class IOAssertions {
      * @param reader The reader to read from. It will be exhausted at the end of this method call.
      * @param expectedContent The expected content.
      * @param message The failure message to fail with.
+     * @throws NullPointerException If the given reader is null.
      * @since 2.0
      */
     public static void assertContainsContent(Reader reader, String expectedContent, String message) {
@@ -74,6 +79,7 @@ public final class IOAssertions {
      * @param reader The reader to read from. It will be exhausted at the end of this method call.
      * @param expectedContent The expected content.
      * @param messageSupplier The supplier for the failure message to fail with.
+     * @throws NullPointerException If the given reader is null.
      * @since 2.0
      */
     public static void assertContainsContent(Reader reader, String expectedContent, Supplier<String> messageSupplier) {
@@ -81,14 +87,37 @@ public final class IOAssertions {
         assertEquals(expectedContent, content, messageSupplier);
     }
 
+    /**
+     * Asserts that a {@link Reader} contains specific content.
+     *
+     * @param reader The reader to read from. It will be exhausted at the end of this method call.
+     * @param matcher The matcher for the content.
+     * @throws NullPointerException If the given reader or matcher is null.
+     * @since 2.0
+     */
+    public static void assertContainsContent(Reader reader, Matcher<? super String> matcher) {
+        String content = assertDoesNotThrow(() -> readContent(reader));
+        assertThat(content, matcher);
+    }
+
     private static String readContent(Reader reader, String expectedContent) throws IOException {
         StringBuilder sb = new StringBuilder(expectedContent.length());
+        copyContent(reader, sb);
+        return sb.toString();
+    }
+
+    private static String readContent(Reader reader) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        copyContent(reader, sb);
+        return sb.toString();
+    }
+
+    private static void copyContent(Reader reader, StringBuilder sb) throws IOException {
         char[] buffer = new char[1024];
         int len;
         while ((len = reader.read(buffer)) != -1) {
             sb.append(buffer, 0, len);
         }
-        return sb.toString();
     }
 
     /**
@@ -96,6 +125,7 @@ public final class IOAssertions {
      *
      * @param inputStream The input stream to read from. It will be exhausted at the end of this method call.
      * @param expectedContent The expected content.
+     * @throws NullPointerException If the given input stream is null.
      */
     public static void assertContainsContent(InputStream inputStream, byte[] expectedContent) {
         byte[] content = assertDoesNotThrow(() -> readContent(inputStream, expectedContent.length));
@@ -108,6 +138,7 @@ public final class IOAssertions {
      * @param inputStream The input stream to read from. It will be exhausted at the end of this method call.
      * @param expectedContent The expected content.
      * @param message The failure message to fail with.
+     * @throws NullPointerException If the given input stream is null.
      * @since 2.0
      */
     public static void assertContainsContent(InputStream inputStream, byte[] expectedContent, String message) {
@@ -121,6 +152,7 @@ public final class IOAssertions {
      * @param inputStream The input stream to read from. It will be exhausted at the end of this method call.
      * @param expectedContent The expected content.
      * @param messageSupplier The supplier for the failure message to fail with.
+     * @throws NullPointerException If the given input stream is null.
      * @since 2.0
      */
     public static void assertContainsContent(InputStream inputStream, byte[] expectedContent, Supplier<String> messageSupplier) {
@@ -136,6 +168,64 @@ public final class IOAssertions {
             baos.write(buffer, 0, len);
         }
         return baos.toByteArray();
+    }
+
+    /**
+     * Asserts that an {@link InputStream} contains specific content.
+     *
+     * @param inputStream The input stream to read from. It will be exhausted at the end of this method call.
+     * @param charset The charset to use.
+     * @param expectedContent The expected content.
+     * @throws NullPointerException If the given input stream or charset is null.
+     * @since 2.0
+     */
+    public static void assertContainsContent(InputStream inputStream, Charset charset, String expectedContent) {
+        Reader reader = new InputStreamReader(inputStream, charset);
+        assertContainsContent(reader, expectedContent);
+    }
+
+    /**
+     * Asserts that an {@link InputStream} contains specific content.
+     *
+     * @param inputStream The input stream to read from. It will be exhausted at the end of this method call.
+     * @param charset The charset to use.
+     * @param expectedContent The expected content.
+     * @param message The failure message to fail with.
+     * @throws NullPointerException If the given input stream or charset is null.
+     * @since 2.0
+     */
+    public static void assertContainsContent(InputStream inputStream, Charset charset, String expectedContent, String message) {
+        Reader reader = new InputStreamReader(inputStream, charset);
+        assertContainsContent(reader, expectedContent, message);
+    }
+
+    /**
+     * Asserts that an {@link InputStream} contains specific content.
+     *
+     * @param inputStream The input stream to read from. It will be exhausted at the end of this method call.
+     * @param charset The charset to use.
+     * @param expectedContent The expected content.
+     * @param messageSupplier The supplier for the failure message to fail with.
+     * @throws NullPointerException If the given input stream or charset is null.
+     * @since 2.0
+     */
+    public static void assertContainsContent(InputStream inputStream, Charset charset, String expectedContent, Supplier<String> messageSupplier) {
+        Reader reader = new InputStreamReader(inputStream, charset);
+        assertContainsContent(reader, expectedContent, messageSupplier);
+    }
+
+    /**
+     * Asserts that an {@link InputStream} contains specific content.
+     *
+     * @param inputStream The input stream to read from. It will be exhausted at the end of this method call.
+     * @param charset The charset to use.
+     * @param matcher The matcher for the content.
+     * @throws NullPointerException If the given reader, charset or matcher is null.
+     * @since 2.0
+     */
+    public static void assertContainsContent(InputStream inputStream, Charset charset, Matcher<? super String> matcher) {
+        Reader reader = new InputStreamReader(inputStream, charset);
+        assertContainsContent(reader, matcher);
     }
 
     static void assertNegativeSkip(Reader reader, boolean allowNegativeSkip) throws IOException {
