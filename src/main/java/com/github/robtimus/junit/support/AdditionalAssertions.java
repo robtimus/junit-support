@@ -1231,11 +1231,11 @@ public final class AdditionalAssertions {
         }
     }
 
-    private static AssertionFailedErrorBuilder unexpectedExceptionTypeThrown() {
+    static AssertionFailedErrorBuilder unexpectedExceptionTypeThrown() {
         return assertionFailure().reason("Unexpected exception type thrown");
     }
 
-    private static void rethrowIfUnrecoverable(Throwable exception) {
+    static void rethrowIfUnrecoverable(Throwable exception) {
         if (exception instanceof OutOfMemoryError) {
             throw (OutOfMemoryError) exception;
         }
