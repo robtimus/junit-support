@@ -29,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -44,7 +43,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.junit.jupiter.api.condition.JRE;
 import com.github.robtimus.junit.support.collections.annotation.ContainsIncompatibleNotSupported;
 import com.github.robtimus.junit.support.collections.annotation.ContainsNullNotSupported;
 import com.github.robtimus.junit.support.collections.annotation.RemoveIncompatibleNotSupported;
@@ -1011,13 +1009,7 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
             @DisplayName("forEachRemaining(Consumer)")
             interface ForEachRemainingTests<K, V> extends IteratorTests<K, V>,
                     com.github.robtimus.junit.support.collections.IteratorTests.ForEachRemainingTests<Map.Entry<K, V>> {
-
-                @Override
-                default boolean hasFailFastNullCheck() {
-                    // Since Java 11, iterator.forEachRemaining does not perform a null check.
-                    // JRE.OTHER is larger than any other JRE; when the null check is added and released, the upper bound should be fixed
-                    return !EnumSet.range(JRE.JAVA_11, JRE.OTHER).contains(JRE.currentVersion());
-                }
+                // no new tests needed
             }
         }
 

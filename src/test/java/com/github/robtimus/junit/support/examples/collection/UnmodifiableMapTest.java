@@ -19,6 +19,7 @@ package com.github.robtimus.junit.support.examples.collection;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -29,9 +30,8 @@ import java.util.function.UnaryOperator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.condition.JRE;
 import com.github.robtimus.junit.support.collections.MapEntryTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableMapEntryTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableMapTests;
 import com.github.robtimus.junit.support.collections.MapTests.ContainsKeyTests;
 import com.github.robtimus.junit.support.collections.MapTests.ContainsValueTests;
 import com.github.robtimus.junit.support.collections.MapTests.EqualsTests;
@@ -39,6 +39,8 @@ import com.github.robtimus.junit.support.collections.MapTests.ForEachTests;
 import com.github.robtimus.junit.support.collections.MapTests.GetOrDefaultTests;
 import com.github.robtimus.junit.support.collections.MapTests.GetTests;
 import com.github.robtimus.junit.support.collections.MapTests.HashCodeTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableMapEntryTests;
+import com.github.robtimus.junit.support.collections.UnmodifiableMapTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.ClearTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.ComputeIfAbsentTests;
 import com.github.robtimus.junit.support.collections.UnmodifiableMapTests.ComputeIfPresentTests;
@@ -304,7 +306,13 @@ class UnmodifiableMapTest {
 
             @Nested
             class ForEachRemainingTest extends EntrySetTestBase implements EntrySetTests.IteratorTests.ForEachRemainingTests<Integer, String> {
-                // no additional tests
+
+                @Override
+                public boolean hasFailFastNullCheck() {
+                    // Since Java 11, iterator.forEachRemaining does not perform a null check.
+                    // JRE.OTHER is larger than any other JRE; when the null check is added and released, the upper bound should be fixed
+                    return !EnumSet.range(JRE.JAVA_11, JRE.OTHER).contains(JRE.currentVersion());
+                }
             }
         }
 
