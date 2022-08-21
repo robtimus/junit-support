@@ -17,7 +17,7 @@
 
 package com.github.robtimus.junit.support;
 
-import static com.github.robtimus.junit.support.AssertionFailedErrorBuilder.assertionFailure;
+import static com.github.robtimus.junit.support.AssertionFailedErrorBuilder.assertionFailedError;
 import static com.github.robtimus.junit.support.AssertionFailedErrorBuilder.formatClassAndValue;
 import static com.github.robtimus.junit.support.AssertionFailedErrorBuilder.isNotBlank;
 import static com.github.robtimus.junit.support.AssertionFailedErrorBuilder.nullSafeGet;
@@ -57,7 +57,7 @@ class AssertionFailedErrorBuilderTest {
             @Test
             @DisplayName("without reason, message or cause")
             void testWithoutReasonOrMessageOrCause() {
-                AssertionFailedErrorBuilder builder = assertionFailure();
+                AssertionFailedErrorBuilder builder = assertionFailedError();
 
                 AssertionFailedError error = builder
                         .build();
@@ -82,7 +82,7 @@ class AssertionFailedErrorBuilderTest {
             void testWithCauseWithoutReasonOrMessage() {
                 IOException cause = new IOException();
 
-                AssertionFailedErrorBuilder builder = assertionFailure()
+                AssertionFailedErrorBuilder builder = assertionFailedError()
                         .cause(cause);
 
                 AssertionFailedError error = builder.build();
@@ -106,7 +106,7 @@ class AssertionFailedErrorBuilderTest {
             @Test
             @DisplayName("with message, without reason or cause")
             void testWithMessageWithoutReasonOrCause() {
-                AssertionFailedErrorBuilder builder = assertionFailure()
+                AssertionFailedErrorBuilder builder = assertionFailedError()
                         .message("some message");
 
                 AssertionFailedError error = builder.build();
@@ -132,7 +132,7 @@ class AssertionFailedErrorBuilderTest {
             void testWithMessageAndCauseWithoutReason() {
                 IOException cause = new IOException();
 
-                AssertionFailedErrorBuilder builder = assertionFailure()
+                AssertionFailedErrorBuilder builder = assertionFailedError()
                         .message("some message")
                         .cause(cause);
 
@@ -158,7 +158,7 @@ class AssertionFailedErrorBuilderTest {
             @Test
             @DisplayName("with reason, without message or cause")
             void testWithReasonWithoutMessageOrCause() {
-                AssertionFailedErrorBuilder builder = assertionFailure()
+                AssertionFailedErrorBuilder builder = assertionFailedError()
                         .reason("some reason");
 
                 AssertionFailedError error = builder.build();
@@ -184,7 +184,7 @@ class AssertionFailedErrorBuilderTest {
             void testWithReasonAndCauseWithoutMessage() {
                 IOException cause = new IOException();
 
-                AssertionFailedErrorBuilder builder = assertionFailure()
+                AssertionFailedErrorBuilder builder = assertionFailedError()
                         .reason("some reason")
                         .cause(cause);
 
@@ -210,7 +210,7 @@ class AssertionFailedErrorBuilderTest {
             @Test
             @DisplayName("with reason and message, without cause")
             void testWithReasonWithoutMessageOrExpectedOrActualOrCause() {
-                AssertionFailedErrorBuilder builder = assertionFailure()
+                AssertionFailedErrorBuilder builder = assertionFailedError()
                         .message("some message")
                         .reason("some reason");
 
@@ -238,7 +238,7 @@ class AssertionFailedErrorBuilderTest {
             void testWithReasonAndCauseWithoutMessageOrExpectedOrActual() {
                 IOException cause = new IOException();
 
-                AssertionFailedErrorBuilder builder = assertionFailure()
+                AssertionFailedErrorBuilder builder = assertionFailedError()
                         .message("some message")
                         .reason("some reason")
                         .cause(cause);
@@ -275,7 +275,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("without reason, message or cause")
                 void testWithoutReasonOrMessageOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .expected("expected value")
                             .build();
 
@@ -296,7 +296,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithCauseWithoutReasonOrMessage() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .expected("expected value")
                             .cause(cause)
                             .build();
@@ -317,7 +317,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("with message, without reason or cause")
                 void testWithMessageWithoutReasonOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .expected("expected value")
                             .build();
@@ -340,7 +340,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithMessageAndCauseWithoutReason() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .expected("expected value")
                             .cause(cause)
@@ -363,7 +363,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("with reason, without message or cause")
                 void testWithReasonWithoutMessageOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .reason("some reason")
                             .expected("expected value")
                             .build();
@@ -386,7 +386,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithReasonAndCauseWithoutMessage() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .reason("some reason")
                             .expected("expected value")
                             .cause(cause)
@@ -409,7 +409,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("with reason and message, without cause")
                 void testWithReasonWithoutMessageOrExpectedOrActualOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .reason("some reason")
                             .expected("expected value")
@@ -434,7 +434,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithReasonAndCauseWithoutMessageOrExpectedOrActual() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .reason("some reason")
                             .expected("expected value")
@@ -464,7 +464,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("without reason, message or cause")
                 void testWithoutReasonOrMessageOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .prefixed("like").expected("expected value")
                             .build();
 
@@ -481,7 +481,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithCauseWithoutReasonOrMessage() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .prefixed("like").expected("expected value")
                             .cause(cause)
                             .build();
@@ -497,7 +497,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("with message, without reason or cause")
                 void testWithMessageWithoutReasonOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .prefixed("like").expected("expected value")
                             .build();
@@ -515,7 +515,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithMessageAndCauseWithoutReason() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .prefixed("like").expected("expected value")
                             .cause(cause)
@@ -532,7 +532,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("with reason, without message or cause")
                 void testWithReasonWithoutMessageOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .reason("some reason")
                             .prefixed("like").expected("expected value")
                             .build();
@@ -550,7 +550,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithReasonAndCauseWithoutMessage() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .reason("some reason")
                             .prefixed("like").expected("expected value")
                             .cause(cause)
@@ -567,7 +567,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("with reason and message, without cause")
                 void testWithReasonWithoutMessageOrExpectedOrActualOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .reason("some reason")
                             .prefixed("like").expected("expected value")
@@ -586,7 +586,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithReasonAndCauseWithoutMessageOrExpectedOrActual() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .reason("some reason")
                             .prefixed("like").expected("expected value")
@@ -609,7 +609,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("without reason, message or cause")
                 void testWithoutReasonOrMessageOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .prefixed("").expectedOneOf(1, 2, 3)
                             .build();
 
@@ -626,7 +626,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithCauseWithoutReasonOrMessage() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .prefixed("").expectedOneOf(1, 2, 3)
                             .cause(cause)
                             .build();
@@ -642,7 +642,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("with message, without reason or cause")
                 void testWithMessageWithoutReasonOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .prefixed("").expectedOneOf(1, 2, 3)
                             .build();
@@ -660,7 +660,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithMessageAndCauseWithoutReason() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .prefixed("").expectedOneOf(1, 2, 3)
                             .cause(cause)
@@ -677,7 +677,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("with reason, without message or cause")
                 void testWithReasonWithoutMessageOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .reason("some reason")
                             .prefixed("").expectedOneOf(1, 2, 3)
                             .build();
@@ -695,7 +695,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithReasonAndCauseWithoutMessage() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .reason("some reason")
                             .prefixed("").expectedOneOf(1, 2, 3)
                             .cause(cause)
@@ -712,7 +712,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("with reason and message, without cause")
                 void testWithReasonWithoutMessageOrExpectedOrActualOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .reason("some reason")
                             .prefixed("").expectedOneOf(1, 2, 3)
@@ -731,7 +731,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithReasonAndCauseWithoutMessageOrExpectedOrActual() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .reason("some reason")
                             .prefixed("").expectedOneOf(1, 2, 3)
@@ -756,7 +756,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("without reason, message or cause")
                 void testWithoutReasonOrMessageOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .expectedOneOf(1, 2, 3)
                             .build();
 
@@ -773,7 +773,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithCauseWithoutReasonOrMessage() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .expectedOneOf(1, 2, 3)
                             .cause(cause)
                             .build();
@@ -789,7 +789,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("with message, without reason or cause")
                 void testWithMessageWithoutReasonOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .expectedOneOf(1, 2, 3)
                             .build();
@@ -807,7 +807,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithMessageAndCauseWithoutReason() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .expectedOneOf(1, 2, 3)
                             .cause(cause)
@@ -824,7 +824,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("with reason, without message or cause")
                 void testWithReasonWithoutMessageOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .reason("some reason")
                             .expectedOneOf(1, 2, 3)
                             .build();
@@ -842,7 +842,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithReasonAndCauseWithoutMessage() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .reason("some reason")
                             .expectedOneOf(1, 2, 3)
                             .cause(cause)
@@ -859,7 +859,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("with reason and message, without cause")
                 void testWithReasonWithoutMessageOrExpectedOrActualOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .reason("some reason")
                             .expectedOneOf(1, 2, 3)
@@ -878,7 +878,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithReasonAndCauseWithoutMessageOrExpectedOrActual() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .reason("some reason")
                             .expectedOneOf(1, 2, 3)
@@ -906,7 +906,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("without reason, message or cause")
                 void testWithoutReasonOrMessageOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .actual("actual value")
                             .build();
 
@@ -927,7 +927,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithCauseWithoutReasonOrMessage() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .actual("actual value")
                             .cause(cause)
                             .build();
@@ -948,7 +948,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("with message, without reason or cause")
                 void testWithMessageWithoutReasonOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .actual("actual value")
                             .build();
@@ -971,7 +971,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithMessageAndCauseWithoutReason() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .actual("actual value")
                             .cause(cause)
@@ -994,7 +994,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("with reason, without message or cause")
                 void testWithReasonWithoutMessageOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .reason("some reason")
                             .actual("actual value")
                             .build();
@@ -1017,7 +1017,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithReasonAndCauseWithoutMessage() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .reason("some reason")
                             .actual("actual value")
                             .cause(cause)
@@ -1040,7 +1040,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("with reason and message, without cause")
                 void testWithReasonWithoutMessageOrExpectedOrActualOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .reason("some reason")
                             .actual("actual value")
@@ -1065,7 +1065,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithReasonAndCauseWithoutMessageOrExpectedOrActual() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .reason("some reason")
                             .actual("actual value")
@@ -1095,7 +1095,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("without reason, message or cause")
                 void testWithoutReasonOrMessageOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .prefixed("like").actual("actual value")
                             .build();
 
@@ -1112,7 +1112,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithCauseWithoutReasonOrMessage() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .prefixed("like").actual("actual value")
                             .cause(cause)
                             .build();
@@ -1128,7 +1128,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("with message, without reason or cause")
                 void testWithMessageWithoutReasonOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .prefixed("like").actual("actual value")
                             .build();
@@ -1146,7 +1146,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithMessageAndCauseWithoutReason() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .prefixed("like").actual("actual value")
                             .cause(cause)
@@ -1163,7 +1163,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("with reason, without message or cause")
                 void testWithReasonWithoutMessageOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .reason("some reason")
                             .prefixed("like").actual("actual value")
                             .build();
@@ -1181,7 +1181,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithReasonAndCauseWithoutMessage() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .reason("some reason")
                             .prefixed("like").actual("actual value")
                             .cause(cause)
@@ -1198,7 +1198,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("with reason and message, without cause")
                 void testWithReasonWithoutMessageOrExpectedOrActualOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .reason("some reason")
                             .prefixed("like").actual("actual value")
@@ -1217,7 +1217,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithReasonAndCauseWithoutMessageOrExpectedOrActual() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .reason("some reason")
                             .prefixed("like").actual("actual value")
@@ -1240,7 +1240,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("without reason, message or cause")
                 void testWithoutReasonOrMessageOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .actualValues(1, 2, 3)
                             .build();
 
@@ -1257,7 +1257,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithCauseWithoutReasonOrMessage() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .actualValues(1, 2, 3)
                             .cause(cause)
                             .build();
@@ -1273,7 +1273,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("with message, without reason or cause")
                 void testWithMessageWithoutReasonOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .actualValues(1, 2, 3)
                             .build();
@@ -1291,7 +1291,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithMessageAndCauseWithoutReason() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .actualValues(1, 2, 3)
                             .cause(cause)
@@ -1308,7 +1308,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("with reason, without message or cause")
                 void testWithReasonWithoutMessageOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .reason("some reason")
                             .actualValues(1, 2, 3)
                             .build();
@@ -1326,7 +1326,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithReasonAndCauseWithoutMessage() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .reason("some reason")
                             .actualValues(1, 2, 3)
                             .cause(cause)
@@ -1343,7 +1343,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("with reason and message, without cause")
                 void testWithReasonWithoutMessageOrExpectedOrActualOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .reason("some reason")
                             .actualValues(1, 2, 3)
@@ -1362,7 +1362,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithReasonAndCauseWithoutMessageOrExpectedOrActual() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .reason("some reason")
                             .actualValues(1, 2, 3)
@@ -1385,7 +1385,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("without reason, message or cause")
                 void testWithoutReasonOrMessageOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .prefixed("in order").actualValues(1, 2, 3)
                             .build();
 
@@ -1402,7 +1402,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithCauseWithoutReasonOrMessage() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .prefixed("in order").actualValues(1, 2, 3)
                             .cause(cause)
                             .build();
@@ -1418,7 +1418,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("with message, without reason or cause")
                 void testWithMessageWithoutReasonOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .prefixed("in order").actualValues(1, 2, 3)
                             .build();
@@ -1436,7 +1436,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithMessageAndCauseWithoutReason() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .prefixed("in order").actualValues(1, 2, 3)
                             .cause(cause)
@@ -1453,7 +1453,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("with reason, without message or cause")
                 void testWithReasonWithoutMessageOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .reason("some reason")
                             .prefixed("in order").actualValues(1, 2, 3)
                             .build();
@@ -1471,7 +1471,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithReasonAndCauseWithoutMessage() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .reason("some reason")
                             .prefixed("in order").actualValues(1, 2, 3)
                             .cause(cause)
@@ -1488,7 +1488,7 @@ class AssertionFailedErrorBuilderTest {
                 @Test
                 @DisplayName("with reason and message, without cause")
                 void testWithReasonWithoutMessageOrExpectedOrActualOrCause() {
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .reason("some reason")
                             .prefixed("in order").actualValues(1, 2, 3)
@@ -1507,7 +1507,7 @@ class AssertionFailedErrorBuilderTest {
                 void testWithReasonAndCauseWithoutMessageOrExpectedOrActual() {
                     IOException cause = new IOException();
 
-                    AssertionFailedError error = assertionFailure()
+                    AssertionFailedError error = assertionFailedError()
                             .message("some message")
                             .reason("some reason")
                             .prefixed("in order").actualValues(1, 2, 3)
@@ -1533,7 +1533,7 @@ class AssertionFailedErrorBuilderTest {
             @Test
             @DisplayName("without reason, message or cause")
             void testWithoutReasonOrMessageOrCause() {
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .expected("expected value")
                         .actual("actual value")
                         .build();
@@ -1556,7 +1556,7 @@ class AssertionFailedErrorBuilderTest {
             void testWithCauseWithoutReasonOrMessage() {
                 IOException cause = new IOException();
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .expected("expected value")
                         .actual("actual value")
                         .cause(cause)
@@ -1579,7 +1579,7 @@ class AssertionFailedErrorBuilderTest {
             @Test
             @DisplayName("with message, without reason or cause")
             void testWithMessageWithoutReasonOrCause() {
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .message("some message")
                         .expected("expected value")
                         .actual("actual value")
@@ -1604,7 +1604,7 @@ class AssertionFailedErrorBuilderTest {
             void testWithMessageAndCauseWithoutReason() {
                 IOException cause = new IOException();
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .message("some message")
                         .expected("expected value")
                         .actual("actual value")
@@ -1629,7 +1629,7 @@ class AssertionFailedErrorBuilderTest {
             @Test
             @DisplayName("with reason, without message or cause")
             void testWithReasonWithoutMessageOrCause() {
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .reason("some reason")
                         .expected("expected value")
                         .actual("actual value")
@@ -1654,7 +1654,7 @@ class AssertionFailedErrorBuilderTest {
             void testWithReasonAndCauseWithoutMessage() {
                 IOException cause = new IOException();
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .reason("some reason")
                         .expected("expected value")
                         .actual("actual value")
@@ -1679,7 +1679,7 @@ class AssertionFailedErrorBuilderTest {
             @Test
             @DisplayName("with reason and message, without cause")
             void testWithReasonWithoutMessageOrExpectedOrActualOrCause() {
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .message("some message")
                         .reason("some reason")
                         .expected("expected value")
@@ -1706,7 +1706,7 @@ class AssertionFailedErrorBuilderTest {
             void testWithReasonAndCauseWithoutMessageOrExpectedOrActual() {
                 IOException cause = new IOException();
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .message("some message")
                         .reason("some reason")
                         .expected("expected value")
@@ -1740,7 +1740,7 @@ class AssertionFailedErrorBuilderTest {
             @Test
             @DisplayName("without reason, message or cause")
             void testWithoutReasonOrMessageOrCause() {
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .expected("expected value")
                         .actual("actual value")
                         .includeValuesInMessage(false)
@@ -1765,7 +1765,7 @@ class AssertionFailedErrorBuilderTest {
             void testWithCauseWithoutReasonOrMessage() {
                 IOException cause = new IOException();
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .expected("expected value")
                         .actual("actual value")
                         .includeValuesInMessage(false)
@@ -1790,7 +1790,7 @@ class AssertionFailedErrorBuilderTest {
             @Test
             @DisplayName("with message, without reason or cause")
             void testWithMessageWithoutReasonOrCause() {
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .message("some message")
                         .expected("expected value")
                         .actual("actual value")
@@ -1817,7 +1817,7 @@ class AssertionFailedErrorBuilderTest {
             void testWithMessageAndCauseWithoutReason() {
                 IOException cause = new IOException();
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .message("some message")
                         .expected("expected value")
                         .actual("actual value")
@@ -1844,7 +1844,7 @@ class AssertionFailedErrorBuilderTest {
             @Test
             @DisplayName("with reason, without message or cause")
             void testWithReasonWithoutMessageOrCause() {
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .reason("some reason")
                         .expected("expected value")
                         .actual("actual value")
@@ -1871,7 +1871,7 @@ class AssertionFailedErrorBuilderTest {
             void testWithReasonAndCauseWithoutMessage() {
                 IOException cause = new IOException();
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .reason("some reason")
                         .expected("expected value")
                         .actual("actual value")
@@ -1898,7 +1898,7 @@ class AssertionFailedErrorBuilderTest {
             @Test
             @DisplayName("with reason and message, without cause")
             void testWithReasonWithoutMessageOrExpectedOrActualOrCause() {
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .message("some message")
                         .reason("some reason")
                         .expected("expected value")
@@ -1927,7 +1927,7 @@ class AssertionFailedErrorBuilderTest {
             void testWithReasonAndCauseWithoutMessageOrExpectedOrActual() {
                 IOException cause = new IOException();
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .message("some message")
                         .reason("some reason")
                         .expected("expected value")
@@ -1964,7 +1964,7 @@ class AssertionFailedErrorBuilderTest {
                 String expected = "2020-01-01";
                 LocalDate actual = LocalDate.of(2020, 1, 1);
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .expected(expected)
                         .actual(actual)
                         .build();
@@ -1991,7 +1991,7 @@ class AssertionFailedErrorBuilderTest {
                 LocalDate actual = LocalDate.of(2020, 1, 1);
                 IOException cause = new IOException();
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .expected(expected)
                         .actual(actual)
                         .cause(cause)
@@ -2019,7 +2019,7 @@ class AssertionFailedErrorBuilderTest {
                 String expected = "2020-01-01";
                 LocalDate actual = LocalDate.of(2020, 1, 1);
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .message("some message")
                         .expected(expected)
                         .actual(actual)
@@ -2048,7 +2048,7 @@ class AssertionFailedErrorBuilderTest {
                 LocalDate actual = LocalDate.of(2020, 1, 1);
                 IOException cause = new IOException();
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .message("some message")
                         .expected(expected)
                         .actual(actual)
@@ -2078,7 +2078,7 @@ class AssertionFailedErrorBuilderTest {
                 String expected = "2020-01-01";
                 LocalDate actual = LocalDate.of(2020, 1, 1);
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .reason("some reason")
                         .expected(expected)
                         .actual(actual)
@@ -2107,7 +2107,7 @@ class AssertionFailedErrorBuilderTest {
                 LocalDate actual = LocalDate.of(2020, 1, 1);
                 IOException cause = new IOException();
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .reason("some reason")
                         .expected(expected)
                         .actual(actual)
@@ -2137,7 +2137,7 @@ class AssertionFailedErrorBuilderTest {
                 String expected = "2020-01-01";
                 LocalDate actual = LocalDate.of(2020, 1, 1);
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .message("some message")
                         .reason("some reason")
                         .expected(expected)
@@ -2169,7 +2169,7 @@ class AssertionFailedErrorBuilderTest {
                 LocalDate actual = LocalDate.of(2020, 1, 1);
                 IOException cause = new IOException();
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .message("some message")
                         .reason("some reason")
                         .expected(expected)
@@ -2207,7 +2207,7 @@ class AssertionFailedErrorBuilderTest {
                 String expected = "2020-01-01";
                 LocalDate actual = LocalDate.of(2020, 1, 1);
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .expectedOneOf(expected)
                         .actual(actual)
                         .build();
@@ -2229,7 +2229,7 @@ class AssertionFailedErrorBuilderTest {
                 LocalDate actual = LocalDate.of(2020, 1, 1);
                 IOException cause = new IOException();
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .expectedOneOf(expected)
                         .actual(actual)
                         .cause(cause)
@@ -2251,7 +2251,7 @@ class AssertionFailedErrorBuilderTest {
                 String expected = "2020-01-01";
                 LocalDate actual = LocalDate.of(2020, 1, 1);
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .message("some message")
                         .expectedOneOf(expected)
                         .actual(actual)
@@ -2275,7 +2275,7 @@ class AssertionFailedErrorBuilderTest {
                 LocalDate actual = LocalDate.of(2020, 1, 1);
                 IOException cause = new IOException();
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .message("some message")
                         .expectedOneOf(expected)
                         .actual(actual)
@@ -2299,7 +2299,7 @@ class AssertionFailedErrorBuilderTest {
                 String expected = "2020-01-01";
                 LocalDate actual = LocalDate.of(2020, 1, 1);
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .reason("some reason")
                         .expectedOneOf(expected)
                         .actual(actual)
@@ -2323,7 +2323,7 @@ class AssertionFailedErrorBuilderTest {
                 LocalDate actual = LocalDate.of(2020, 1, 1);
                 IOException cause = new IOException();
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .reason("some reason")
                         .expectedOneOf(expected)
                         .actual(actual)
@@ -2347,7 +2347,7 @@ class AssertionFailedErrorBuilderTest {
                 String expected = "2020-01-01";
                 LocalDate actual = LocalDate.of(2020, 1, 1);
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .message("some message")
                         .reason("some reason")
                         .expectedOneOf(expected)
@@ -2372,7 +2372,7 @@ class AssertionFailedErrorBuilderTest {
                 LocalDate actual = LocalDate.of(2020, 1, 1);
                 IOException cause = new IOException();
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .message("some message")
                         .reason("some reason")
                         .expectedOneOf(expected)
@@ -2404,7 +2404,7 @@ class AssertionFailedErrorBuilderTest {
                 LocalDate actual1 = LocalDate.of(2020, 1, 1);
                 LocalDate actual2 = LocalDate.of(2020, 2, 1);
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .expectedOneOf(expected1, expected2)
                         .actualValues(actual1, actual2)
                         .build();
@@ -2430,7 +2430,7 @@ class AssertionFailedErrorBuilderTest {
                 LocalDate actual2 = LocalDate.of(2020, 2, 1);
                 IOException cause = new IOException();
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .expectedOneOf(expected1, expected2)
                         .actualValues(actual1, actual2)
                         .cause(cause)
@@ -2456,7 +2456,7 @@ class AssertionFailedErrorBuilderTest {
                 LocalDate actual1 = LocalDate.of(2020, 1, 1);
                 LocalDate actual2 = LocalDate.of(2020, 2, 1);
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .message("some message")
                         .expectedOneOf(expected1, expected2)
                         .actualValues(actual1, actual2)
@@ -2483,7 +2483,7 @@ class AssertionFailedErrorBuilderTest {
                 LocalDate actual2 = LocalDate.of(2020, 2, 1);
                 IOException cause = new IOException();
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .message("some message")
                         .expectedOneOf(expected1, expected2)
                         .actualValues(actual1, actual2)
@@ -2510,7 +2510,7 @@ class AssertionFailedErrorBuilderTest {
                 LocalDate actual1 = LocalDate.of(2020, 1, 1);
                 LocalDate actual2 = LocalDate.of(2020, 2, 1);
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .reason("some reason")
                         .expectedOneOf(expected1, expected2)
                         .actualValues(actual1, actual2)
@@ -2537,7 +2537,7 @@ class AssertionFailedErrorBuilderTest {
                 LocalDate actual2 = LocalDate.of(2020, 2, 1);
                 IOException cause = new IOException();
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .reason("some reason")
                         .expectedOneOf(expected1, expected2)
                         .actualValues(actual1, actual2)
@@ -2564,7 +2564,7 @@ class AssertionFailedErrorBuilderTest {
                 LocalDate actual1 = LocalDate.of(2020, 1, 1);
                 LocalDate actual2 = LocalDate.of(2020, 2, 1);
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .message("some message")
                         .reason("some reason")
                         .expectedOneOf(expected1, expected2)
@@ -2593,7 +2593,7 @@ class AssertionFailedErrorBuilderTest {
                 LocalDate actual2 = LocalDate.of(2020, 2, 1);
                 IOException cause = new IOException();
 
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .message("some message")
                         .reason("some reason")
                         .expectedOneOf(expected1, expected2)
@@ -2622,7 +2622,7 @@ class AssertionFailedErrorBuilderTest {
             @Test
             @DisplayName("null pattern")
             void testNullPattern() {
-                AssertionFailedErrorBuilder builder = assertionFailure();
+                AssertionFailedErrorBuilder builder = assertionFailedError();
 
                 assertThrows(NullPointerException.class, () -> builder.reasonPattern(null));
             }
@@ -2630,12 +2630,12 @@ class AssertionFailedErrorBuilderTest {
             @Test
             @DisplayName("pattern and value mismatch")
             void testPatternAndValueMismatch() {
-                ReasonBuilder builder = assertionFailure()
+                ReasonBuilder builder = assertionFailedError()
                         .reasonPattern("some text and %s");
 
                 assertThrows(IllegalFormatException.class, builder::format);
 
-                builder = assertionFailure()
+                builder = assertionFailedError()
                         .reasonPattern("some text and %d")
                         .withValue(1);
 
@@ -2645,7 +2645,7 @@ class AssertionFailedErrorBuilderTest {
             @Test
             @DisplayName("format")
             void testFormat() {
-                AssertionFailedError error = assertionFailure()
+                AssertionFailedError error = assertionFailedError()
                         .reasonPattern("some text and single %s and multiple %s values")
                                 .withValue("foo")
                                 .withValues(1, 2, 3)

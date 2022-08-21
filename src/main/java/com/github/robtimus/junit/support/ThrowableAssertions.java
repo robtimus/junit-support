@@ -17,7 +17,7 @@
 
 package com.github.robtimus.junit.support;
 
-import static com.github.robtimus.junit.support.AssertionFailedErrorBuilder.assertionFailure;
+import static com.github.robtimus.junit.support.AssertionFailedErrorBuilder.assertionFailedError;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -100,7 +100,7 @@ public final class ThrowableAssertions {
             return expectedType.cast(cause);
         }
 
-        throw assertionFailure()
+        throw assertionFailedError()
                 .message(messageOrSupplier)
                 .prefixed(CAUSED_BY).expected(expectedType)
                 .actual(cause)
@@ -169,7 +169,7 @@ public final class ThrowableAssertions {
             cause = cause.getCause();
         }
 
-        AssertionFailedErrorBuilder builder = assertionFailure()
+        AssertionFailedErrorBuilder builder = assertionFailedError()
                 .message(messageOrSupplier)
                 .prefixed(CAUSED_BY).expected(expectedType);
 
@@ -466,7 +466,7 @@ public final class ThrowableAssertions {
             Object messageOrSupplier) {
 
         return assertOptionallyThrowsExactlyOneOf(expectedTypes, executable, messageOrSupplier)
-                .orElseThrow(() -> assertionFailure()
+                .orElseThrow(() -> assertionFailedError()
                         .message(messageOrSupplier)
                         .reasonPattern("Expected one of %s to be thrown, but nothing was thrown.")
                                 .withValues(expectedTypes)
@@ -765,7 +765,7 @@ public final class ThrowableAssertions {
             Object messageOrSupplier) {
 
         return assertOptionallyThrowsOneOf(expectedTypes, executable, messageOrSupplier)
-                .orElseThrow(() -> assertionFailure()
+                .orElseThrow(() -> assertionFailedError()
                         .message(messageOrSupplier)
                         .reasonPattern("Expected one of %s to be thrown, but nothing was thrown.")
                                 .withValues(expectedTypes)
@@ -1051,7 +1051,7 @@ public final class ThrowableAssertions {
     }
 
     static AssertionFailedErrorBuilder unexpectedExceptionTypeThrown() {
-        return assertionFailure().reason("Unexpected exception type thrown");
+        return assertionFailedError().reason("Unexpected exception type thrown");
     }
 
     static void rethrowIfUnrecoverable(Throwable exception) {

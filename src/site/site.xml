@@ -26,5 +26,30 @@
       <item name="Releases" href="https://github.com/robtimus/junit-support/releases" />
       <item name="JavaDocs" href="apidocs/index.html" />
     </menu>
+    <menu name="Extensions">
+      <item name="@TestResource" href="extension/test-resource.html" />
+    </menu>
+    <menu name="Extension Support">
+      <item name="MethodLookup" href="extension/method-lookup.html" />
+      <item name="AbstractInjectExtension" href="extension/abstract-inject-extension.html" />
+    </menu>
+    <menu name="Pre-defined tests">
+      <item name="Introduction" href="test/introduction.html" />
+      <item name="Collections framework" href="test/collections.html" />
+      <item name="I/O" href="test/io.html" />
+      <item name="Method delegation" href="test/delegation.html" />
+      <item name="Covariant return types" href="test/covariant-return.html" />
+      <item name="Disabling tests" href="test/disabling.html" />
+    </menu>
+    <menu name="Assertions">
+      <item name="AssertionFailedErrorBuilder" href="assertion-failed-error-builder.html" />
+      <item name="Additional assertions" href="additional-assertions.html" />
+    </menu>
+    <menu name="Parameterized tests">
+      <item name="ArgumentsCombiner" href="params/arguments-combiner.html" />
+    </menu>
+    <menu name="Hamcrest">
+      <item name="PathMatchers" href="matchers/path-matchers.html" />
+    </menu>
   </body>
 </project>

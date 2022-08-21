@@ -1,5 +1,5 @@
 /*
- * TreeSetTest.java
+ * HashSetTest.java
  * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.examples.collection;
+package com.github.robtimus.junit.support.examples.collections;
 
-import static com.github.robtimus.junit.support.examples.collection.CollectionFactory.createCollection;
+import static com.github.robtimus.junit.support.examples.collections.CollectionFactory.createCollection;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -45,13 +44,8 @@ import com.github.robtimus.junit.support.test.collections.SetTests.AddAllTests;
 import com.github.robtimus.junit.support.test.collections.SetTests.AddTests;
 import com.github.robtimus.junit.support.test.collections.SetTests.EqualsTests;
 import com.github.robtimus.junit.support.test.collections.SetTests.HashCodeTests;
-import com.github.robtimus.junit.support.test.collections.annotation.ContainsIncompatibleNotSupported;
-import com.github.robtimus.junit.support.test.collections.annotation.ContainsNullNotSupported;
-import com.github.robtimus.junit.support.test.collections.annotation.RemoveIncompatibleNotSupported;
-import com.github.robtimus.junit.support.test.collections.annotation.RemoveNullNotSupported;
-import com.github.robtimus.junit.support.test.collections.annotation.StoreNullNotSupported;
 
-class TreeSetTest {
+class HashSetTest {
 
     @Nested
     @DisplayName("iterator()")
@@ -79,8 +73,6 @@ class TreeSetTest {
     }
 
     @Nested
-    @ContainsNullNotSupported
-    @ContainsIncompatibleNotSupported(expected = ClassCastException.class)
     class ContainsTest extends SetTestBase implements ContainsTests<String> {
         // no additional tests
     }
@@ -96,44 +88,26 @@ class TreeSetTest {
     }
 
     @Nested
-    @StoreNullNotSupported
     class AddTest extends SetTestBase implements AddTests<String> {
-
-        @Override
-        public void addElementToExpected(List<String> expected, String element) {
-            AddTests.super.addElementToExpected(expected, element);
-            expected.sort(null);
-        }
+        // no additional tests
     }
 
     @Nested
-    @RemoveNullNotSupported
-    @RemoveIncompatibleNotSupported(expected = ClassCastException.class)
     class RemoveTest extends SetTestBase implements RemoveTests<String> {
         // no additional tests
     }
 
     @Nested
-    @ContainsNullNotSupported
-    @ContainsIncompatibleNotSupported(expected = ClassCastException.class)
     class ContainsAllTest extends SetTestBase implements ContainsAllTests<String> {
         // no additional tests
     }
 
     @Nested
-    @StoreNullNotSupported
     class AddAllTest extends SetTestBase implements AddAllTests<String> {
-
-        @Override
-        public void addElementsToExpected(List<String> expected, Collection<? extends String> elements) {
-            AddAllTests.super.addElementsToExpected(expected, elements);
-            expected.sort(null);
-        }
+        // no additional tests
     }
 
     @Nested
-    @RemoveNullNotSupported
-    @RemoveIncompatibleNotSupported(expected = ClassCastException.class)
     class RemoveAllTest extends SetTestBase implements RemoveAllTests<String> {
         // no additional tests
     }
@@ -144,7 +118,6 @@ class TreeSetTest {
     }
 
     @Nested
-    // TreeSet.retainAll uses c.contains, so it does support nulls and incompatible objects
     class RetainAllTest extends SetTestBase implements RetainAllTests<String> {
         // no additional tests
     }
@@ -193,7 +166,7 @@ class TreeSetTest {
         @Override
         public Set<String> iterable() {
             assertTrue(methodsCalled.add("iterable"), "iterable called multiple times");
-            return createCollection(TreeSet::new, 0, 10);
+            return createCollection(HashSet::new, 0, 10);
         }
 
         @Override
@@ -210,7 +183,7 @@ class TreeSetTest {
 
         @Override
         public boolean fixedOrder() {
-            return true;
+            return false;
         }
     }
 

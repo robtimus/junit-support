@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.examples.collection;
+package com.github.robtimus.junit.support.examples.collections;
 
-import static com.github.robtimus.junit.support.examples.collection.CollectionFactory.createCollection;
+import static com.github.robtimus.junit.support.examples.collections.CollectionFactory.createCollection;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.Collection;

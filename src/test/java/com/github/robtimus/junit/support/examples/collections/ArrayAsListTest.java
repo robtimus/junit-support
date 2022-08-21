@@ -1,5 +1,5 @@
 /*
- * LinkedListTest.java
+ * ArrayAsListTest.java
  * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.examples.collection;
+package com.github.robtimus.junit.support.examples.collections;
 
-import static com.github.robtimus.junit.support.examples.collection.CollectionFactory.createCollection;
+import static com.github.robtimus.junit.support.examples.collections.CollectionFactory.createCollection;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.UnaryOperator;
@@ -33,32 +33,34 @@ import org.junit.jupiter.api.Nested;
 import com.github.robtimus.junit.support.test.collections.IteratorTests;
 import com.github.robtimus.junit.support.test.collections.ListIteratorTests;
 import com.github.robtimus.junit.support.test.collections.ListTests;
-import com.github.robtimus.junit.support.test.collections.CollectionTests.ClearTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableIteratorTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableListIteratorTests;
 import com.github.robtimus.junit.support.test.collections.CollectionTests.ContainsAllTests;
 import com.github.robtimus.junit.support.test.collections.CollectionTests.ContainsTests;
-import com.github.robtimus.junit.support.test.collections.CollectionTests.RemoveAllTests;
-import com.github.robtimus.junit.support.test.collections.CollectionTests.RemoveIfTests;
-import com.github.robtimus.junit.support.test.collections.CollectionTests.RemoveTests;
-import com.github.robtimus.junit.support.test.collections.CollectionTests.RetainAllTests;
 import com.github.robtimus.junit.support.test.collections.CollectionTests.ToArrayTests;
 import com.github.robtimus.junit.support.test.collections.CollectionTests.ToObjectArrayTests;
 import com.github.robtimus.junit.support.test.collections.IterableTests.ForEachTests;
-import com.github.robtimus.junit.support.test.collections.ListTests.AddAllIndexedTests;
-import com.github.robtimus.junit.support.test.collections.ListTests.AddAllTests;
-import com.github.robtimus.junit.support.test.collections.ListTests.AddIndexedTests;
-import com.github.robtimus.junit.support.test.collections.ListTests.AddTests;
 import com.github.robtimus.junit.support.test.collections.ListTests.EqualsTests;
 import com.github.robtimus.junit.support.test.collections.ListTests.GetTests;
 import com.github.robtimus.junit.support.test.collections.ListTests.HashCodeTests;
 import com.github.robtimus.junit.support.test.collections.ListTests.IndexOfTests;
 import com.github.robtimus.junit.support.test.collections.ListTests.LastIndexOfTests;
 import com.github.robtimus.junit.support.test.collections.ListTests.ListIteratorIndexedTests;
-import com.github.robtimus.junit.support.test.collections.ListTests.RemoveIndexedTests;
 import com.github.robtimus.junit.support.test.collections.ListTests.ReplaceAllTests;
 import com.github.robtimus.junit.support.test.collections.ListTests.SetTests;
 import com.github.robtimus.junit.support.test.collections.ListTests.SubListTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableCollectionTests.AddAllTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableCollectionTests.AddTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableCollectionTests.ClearTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableCollectionTests.RemoveAllTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableCollectionTests.RemoveIfTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableCollectionTests.RemoveTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableCollectionTests.RetainAllTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableListTests.AddAllIndexedTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableListTests.AddIndexedTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableListTests.RemoveIndexedTests;
 
-class LinkedListTest {
+class ArrayAsListTest {
 
     @Nested
     @DisplayName("iterator()")
@@ -70,7 +72,7 @@ class LinkedListTest {
         }
 
         @Nested
-        class RemoveTest extends IteratorTestBase implements IteratorTests.RemoveTests<String> {
+        class RemoveTest extends IteratorTestBase implements UnmodifiableIteratorTests.RemoveTests<String> {
             // no additional tests
         }
 
@@ -208,7 +210,7 @@ class LinkedListTest {
         }
 
         @Nested
-        class RemoveTest extends ListIteratorTestBase implements ListIteratorTests.RemoveTests<String> {
+        class RemoveTest extends ListIteratorTestBase implements UnmodifiableListIteratorTests.RemoveTests<String> {
             // no additional tests
         }
 
@@ -227,7 +229,7 @@ class LinkedListTest {
         }
 
         @Nested
-        class AddTest extends ListIteratorTestBase implements ListIteratorTests.AddTests<String> {
+        class AddTest extends ListIteratorTestBase implements UnmodifiableListIteratorTests.AddTests<String> {
 
             @Override
             public String newElement() {
@@ -244,7 +246,7 @@ class LinkedListTest {
 
             @Override
             public Collection<String> iterable() {
-                List<String> list = createCollection(LinkedList::new, 0, 10);
+                List<String> list = createCollection(ArrayList::new, 0, 10);
                 return list.subList(3, 7);
             }
 
@@ -294,7 +296,9 @@ class LinkedListTest {
         @Override
         public List<String> iterable() {
             assertTrue(methodsCalled.add("iterable"), "iterable called multiple times");
-            return createCollection(LinkedList::new, 0, 10);
+            List<String> list = createCollection(ArrayList::new, 0, 10);
+            String[] array = list.toArray(new String[0]);
+            return Arrays.asList(array);
         }
 
         @Override

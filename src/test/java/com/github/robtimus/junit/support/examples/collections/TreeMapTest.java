@@ -1,5 +1,5 @@
 /*
- * EmptyMapTest.java
+ * TreeMapTest.java
  * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.examples.collection;
+package com.github.robtimus.junit.support.examples.collections;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Collections;
@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.UnaryOperator;
@@ -32,6 +33,9 @@ import org.junit.jupiter.api.Nested;
 import com.github.robtimus.junit.support.test.collections.MapEntryTests;
 import com.github.robtimus.junit.support.test.collections.MapTests;
 import com.github.robtimus.junit.support.test.collections.MapTests.ClearTests;
+import com.github.robtimus.junit.support.test.collections.MapTests.ComputeIfAbsentTests;
+import com.github.robtimus.junit.support.test.collections.MapTests.ComputeIfPresentTests;
+import com.github.robtimus.junit.support.test.collections.MapTests.ComputeTests;
 import com.github.robtimus.junit.support.test.collections.MapTests.ContainsKeyTests;
 import com.github.robtimus.junit.support.test.collections.MapTests.ContainsValueTests;
 import com.github.robtimus.junit.support.test.collections.MapTests.EntrySetTests;
@@ -41,23 +45,31 @@ import com.github.robtimus.junit.support.test.collections.MapTests.GetOrDefaultT
 import com.github.robtimus.junit.support.test.collections.MapTests.GetTests;
 import com.github.robtimus.junit.support.test.collections.MapTests.HashCodeTests;
 import com.github.robtimus.junit.support.test.collections.MapTests.KeySetTests;
+import com.github.robtimus.junit.support.test.collections.MapTests.MergeTests;
+import com.github.robtimus.junit.support.test.collections.MapTests.PutAllTests;
+import com.github.robtimus.junit.support.test.collections.MapTests.PutIfAbsentTests;
+import com.github.robtimus.junit.support.test.collections.MapTests.PutTests;
+import com.github.robtimus.junit.support.test.collections.MapTests.RemoveExactValueTests;
 import com.github.robtimus.junit.support.test.collections.MapTests.RemoveTests;
 import com.github.robtimus.junit.support.test.collections.MapTests.ReplaceAllTests;
+import com.github.robtimus.junit.support.test.collections.MapTests.ReplaceExactValueTests;
+import com.github.robtimus.junit.support.test.collections.MapTests.ReplaceTests;
 import com.github.robtimus.junit.support.test.collections.MapTests.ValuesTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableMapTests.ComputeIfAbsentTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableMapTests.ComputeIfPresentTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableMapTests.ComputeTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableMapTests.MergeTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableMapTests.PutAllTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableMapTests.PutIfAbsentTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableMapTests.PutTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableMapTests.RemoveExactValueTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableMapTests.ReplaceExactValueTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableMapTests.ReplaceTests;
+import com.github.robtimus.junit.support.test.collections.annotation.ContainsIncompatibleKeyNotSupported;
+import com.github.robtimus.junit.support.test.collections.annotation.ContainsIncompatibleNotSupported;
+import com.github.robtimus.junit.support.test.collections.annotation.ContainsNullKeyNotSupported;
+import com.github.robtimus.junit.support.test.collections.annotation.ContainsNullNotSupported;
+import com.github.robtimus.junit.support.test.collections.annotation.RemoveIncompatibleKeyNotSupported;
+import com.github.robtimus.junit.support.test.collections.annotation.RemoveIncompatibleNotSupported;
+import com.github.robtimus.junit.support.test.collections.annotation.RemoveNullKeyNotSupported;
+import com.github.robtimus.junit.support.test.collections.annotation.RemoveNullNotSupported;
+import com.github.robtimus.junit.support.test.collections.annotation.StoreNullKeyNotSupported;
 
-class EmptyMapTest {
+class TreeMapTest {
 
     @Nested
+    @ContainsNullKeyNotSupported
+    @ContainsIncompatibleKeyNotSupported(expected = ClassCastException.class)
     class ContainsKeyTest extends MapTestBase implements ContainsKeyTests<Integer, String> {
         // no additional tests
     }
@@ -68,11 +80,14 @@ class EmptyMapTest {
     }
 
     @Nested
+    @ContainsNullKeyNotSupported
+    @ContainsIncompatibleKeyNotSupported(expected = ClassCastException.class)
     class GetTest extends MapTestBase implements GetTests<Integer, String> {
         // no additional tests
     }
 
     @Nested
+    @StoreNullKeyNotSupported
     class PutTest extends MapTestBase implements PutTests<Integer, String> {
 
         @Override
@@ -82,11 +97,14 @@ class EmptyMapTest {
     }
 
     @Nested
+    @RemoveNullKeyNotSupported
+    @RemoveIncompatibleKeyNotSupported(expected = ClassCastException.class)
     class RemoveTest extends MapTestBase implements RemoveTests<Integer, String> {
         // no additional tests
     }
 
     @Nested
+    @StoreNullKeyNotSupported
     class PutAllTest extends MapTestBase implements PutAllTests<Integer, String> {
 
         @Override
@@ -130,6 +148,8 @@ class EmptyMapTest {
         }
 
         @Nested
+        @ContainsNullNotSupported
+        @ContainsIncompatibleNotSupported(expected = ClassCastException.class)
         class ContainsTest extends KeySetTestBase implements KeySetTests.ContainsTests<Integer, String> {
             // no additional tests
         }
@@ -141,12 +161,7 @@ class EmptyMapTest {
 
         @Nested
         class ToArrayTest extends KeySetTestBase implements KeySetTests.ToArrayTests<Integer, String> {
-
-            // smaller length is not possible; override to disable the test
-            @Override
-            public void testToArrayWithSmallerLength() {
-                throw new UnsupportedOperationException();
-            }
+            // no additional tests
         }
 
         @Nested
@@ -155,11 +170,15 @@ class EmptyMapTest {
         }
 
         @Nested
+        @RemoveNullNotSupported
+        @RemoveIncompatibleNotSupported(expected = ClassCastException.class)
         class RemoveTest extends KeySetTestBase implements KeySetTests.RemoveTests<Integer, String> {
             // no additional tests
         }
 
         @Nested
+        @ContainsNullNotSupported
+        @ContainsIncompatibleNotSupported(expected = ClassCastException.class)
         class ContainsAllTest extends KeySetTestBase implements KeySetTests.ContainsAllTests<Integer, String> {
             // no additional tests
         }
@@ -170,6 +189,8 @@ class EmptyMapTest {
         }
 
         @Nested
+        @RemoveNullNotSupported
+        @RemoveIncompatibleNotSupported(expected = ClassCastException.class)
         class RemoveAllTest extends KeySetTestBase implements KeySetTests.RemoveAllTests<Integer, String> {
             // no additional tests
         }
@@ -199,7 +220,10 @@ class EmptyMapTest {
             // no additional tests
         }
 
-        // Collections.emptyMap().keySet().spliterator() incorrectly does not report DISTINCT, so SpliteratorsTest cannot be added here
+        @Nested
+        class SpliteratorTest extends KeySetTestBase implements KeySetTests.SpliteratorTests<Integer, String> {
+            // no additional tests
+        }
     }
 
     @Nested
@@ -243,12 +267,7 @@ class EmptyMapTest {
 
         @Nested
         class ToArrayTest extends ValuesTestBase implements ValuesTests.ToArrayTests<Integer, String> {
-
-            // smaller length is not possible; override to disable the test
-            @Override
-            public void testToArrayWithSmallerLength() {
-                throw new UnsupportedOperationException();
-            }
+            // no additional tests
         }
 
         @Nested
@@ -333,12 +352,7 @@ class EmptyMapTest {
 
         @Nested
         class ToArrayTest extends EntrySetTestBase implements EntrySetTests.ToArrayTests<Integer, String> {
-
-            // smaller length is not possible; override to disable the test
-            @Override
-            public void testToArrayWithSmallerLength() {
-                throw new UnsupportedOperationException();
-            }
+            // no additional tests
         }
 
         @Nested
@@ -391,7 +405,10 @@ class EmptyMapTest {
             // no additional tests
         }
 
-        // Collections.emptyMap().entrySet().spliterator() incorrectly does not report DISTINCT, so SpliteratorsTest cannot be added here
+        @Nested
+        class SpliteratorTest extends EntrySetTestBase implements EntrySetTests.SpliteratorTests<Integer, String> {
+            // no additional tests
+        }
     }
 
     @Nested
@@ -405,6 +422,8 @@ class EmptyMapTest {
     }
 
     @Nested
+    @ContainsNullKeyNotSupported
+    @ContainsIncompatibleKeyNotSupported(expected = ClassCastException.class)
     class GetOrDefaultTest extends MapTestBase implements GetOrDefaultTests<Integer, String> {
         // no additional tests
     }
@@ -429,16 +448,20 @@ class EmptyMapTest {
     }
 
     @Nested
+    @RemoveNullKeyNotSupported
+    @RemoveIncompatibleKeyNotSupported(expected = ClassCastException.class)
     class RemoveExactValueTest extends MapTestBase implements RemoveExactValueTests<Integer, String> {
         // no additional tests
     }
 
     @Nested
+    @StoreNullKeyNotSupported
     class ReplaceExactValueTest extends MapTestBase implements ReplaceExactValueTests<Integer, String> {
         // no additional tests
     }
 
     @Nested
+    @StoreNullKeyNotSupported
     class ReplaceTest extends MapTestBase implements ReplaceTests<Integer, String> {
         // no additional tests
     }
@@ -455,11 +478,7 @@ class EmptyMapTest {
 
     @Nested
     class ComputeTest extends MapTestBase implements ComputeTests<Integer, String> {
-
-        @Override
-        public UnaryOperator<String> replaceValueOperator() {
-            return s -> s + s;
-        }
+        // no additional tests
     }
 
     @Nested
@@ -513,17 +532,18 @@ class EmptyMapTest {
         @Override
         public Map<Integer, String> map() {
             assertTrue(methodsCalled.add("map"), "map called multiple times");
-            return Collections.emptyMap();
+            return CollectionFactory.createMap(TreeMap::new, 0, 10);
         }
 
         @Override
         public Map<Integer, String> expectedEntries() {
-            return Collections.unmodifiableMap(new HashMap<>());
+            Map<Integer, String> map = CollectionFactory.createMap(HashMap::new, 0, 10);
+            return Collections.unmodifiableMap(map);
         }
 
         @Override
         public Map<Integer, String> nonContainedEntries() {
-            Map<Integer, String> map = CollectionFactory.createMap(HashMap::new, 0, 10);
+            Map<Integer, String> map = CollectionFactory.createMap(HashMap::new, 10, 20);
             return Collections.unmodifiableMap(map);
         }
     }
@@ -532,7 +552,7 @@ class EmptyMapTest {
 
         @Override
         public boolean fixedOrder() {
-            return false;
+            return true;
         }
     }
 
@@ -540,7 +560,7 @@ class EmptyMapTest {
 
         @Override
         public boolean fixedOrder() {
-            return false;
+            return true;
         }
     }
 
@@ -548,7 +568,7 @@ class EmptyMapTest {
 
         @Override
         public boolean fixedOrder() {
-            return false;
+            return true;
         }
     }
 }

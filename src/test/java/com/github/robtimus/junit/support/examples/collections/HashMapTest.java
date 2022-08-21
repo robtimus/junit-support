@@ -1,5 +1,5 @@
 /*
- * UnmodifiableMapTest.java
+ * HashMapTest.java
  * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,11 +15,10 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.examples.collection;
+package com.github.robtimus.junit.support.examples.collections;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -30,33 +29,33 @@ import java.util.function.UnaryOperator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.condition.JRE;
 import com.github.robtimus.junit.support.test.collections.MapEntryTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableMapEntryTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableMapTests;
+import com.github.robtimus.junit.support.test.collections.MapTests;
+import com.github.robtimus.junit.support.test.collections.MapTests.ClearTests;
+import com.github.robtimus.junit.support.test.collections.MapTests.ComputeIfAbsentTests;
+import com.github.robtimus.junit.support.test.collections.MapTests.ComputeIfPresentTests;
+import com.github.robtimus.junit.support.test.collections.MapTests.ComputeTests;
 import com.github.robtimus.junit.support.test.collections.MapTests.ContainsKeyTests;
 import com.github.robtimus.junit.support.test.collections.MapTests.ContainsValueTests;
+import com.github.robtimus.junit.support.test.collections.MapTests.EntrySetTests;
 import com.github.robtimus.junit.support.test.collections.MapTests.EqualsTests;
 import com.github.robtimus.junit.support.test.collections.MapTests.ForEachTests;
 import com.github.robtimus.junit.support.test.collections.MapTests.GetOrDefaultTests;
 import com.github.robtimus.junit.support.test.collections.MapTests.GetTests;
 import com.github.robtimus.junit.support.test.collections.MapTests.HashCodeTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableMapTests.ClearTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableMapTests.ComputeIfAbsentTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableMapTests.ComputeIfPresentTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableMapTests.ComputeTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableMapTests.KeySetTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableMapTests.MergeTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableMapTests.PutAllTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableMapTests.PutIfAbsentTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableMapTests.PutTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableMapTests.RemoveExactValueTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableMapTests.RemoveTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableMapTests.ReplaceAllTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableMapTests.ReplaceExactValueTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableMapTests.ReplaceTests;
+import com.github.robtimus.junit.support.test.collections.MapTests.KeySetTests;
+import com.github.robtimus.junit.support.test.collections.MapTests.MergeTests;
+import com.github.robtimus.junit.support.test.collections.MapTests.PutAllTests;
+import com.github.robtimus.junit.support.test.collections.MapTests.PutIfAbsentTests;
+import com.github.robtimus.junit.support.test.collections.MapTests.PutTests;
+import com.github.robtimus.junit.support.test.collections.MapTests.RemoveExactValueTests;
+import com.github.robtimus.junit.support.test.collections.MapTests.RemoveTests;
+import com.github.robtimus.junit.support.test.collections.MapTests.ReplaceAllTests;
+import com.github.robtimus.junit.support.test.collections.MapTests.ReplaceExactValueTests;
+import com.github.robtimus.junit.support.test.collections.MapTests.ReplaceTests;
+import com.github.robtimus.junit.support.test.collections.MapTests.ValuesTests;
 
-class UnmodifiableMapTest {
+class HashMapTest {
 
     @Nested
     class ContainsKeyTest extends MapTestBase implements ContainsKeyTests<Integer, String> {
@@ -226,7 +225,7 @@ class UnmodifiableMapTest {
         }
 
         @Nested
-        class ForEachTest extends ValuesTestBase implements UnmodifiableMapTests.ValuesTests.ForEachTests<Integer, String> {
+        class ForEachTest extends ValuesTestBase implements ValuesTests.ForEachTests<Integer, String> {
             // no additional tests
         }
 
@@ -306,13 +305,7 @@ class UnmodifiableMapTest {
 
             @Nested
             class ForEachRemainingTest extends EntrySetTestBase implements EntrySetTests.IteratorTests.ForEachRemainingTests<Integer, String> {
-
-                @Override
-                public boolean hasFailFastNullCheck() {
-                    // Since Java 11, iterator.forEachRemaining does not perform a null check.
-                    // JRE.OTHER is larger than any other JRE; when the null check is added and released, the upper bound should be fixed
-                    return !EnumSet.range(JRE.JAVA_11, JRE.OTHER).contains(JRE.currentVersion());
-                }
+                // no additional tests
             }
         }
 
@@ -453,11 +446,7 @@ class UnmodifiableMapTest {
 
     @Nested
     class ComputeTest extends MapTestBase implements ComputeTests<Integer, String> {
-
-        @Override
-        public UnaryOperator<String> replaceValueOperator() {
-            return s -> s + s;
-        }
+        // no additional tests
     }
 
     @Nested
@@ -479,7 +468,7 @@ class UnmodifiableMapTest {
         }
 
         @Nested
-        class SetValueTest extends MapTestBase implements UnmodifiableMapEntryTests.SetValueTests<Integer, String> {
+        class SetValueTest extends MapTestBase implements MapEntryTests.SetValueTests<Integer, String> {
 
             @Override
             public UnaryOperator<String> replaceValueOperator() {
@@ -499,7 +488,7 @@ class UnmodifiableMapTest {
     }
 
     @SuppressWarnings("nls")
-    abstract static class MapTestBase implements UnmodifiableMapTests<Integer, String> {
+    abstract static class MapTestBase implements MapTests<Integer, String> {
 
         private Set<String> methodsCalled;
 
@@ -511,8 +500,7 @@ class UnmodifiableMapTest {
         @Override
         public Map<Integer, String> map() {
             assertTrue(methodsCalled.add("map"), "map called multiple times");
-            Map<Integer, String> map = CollectionFactory.createMap(HashMap::new, 0, 10);
-            return Collections.unmodifiableMap(map);
+            return CollectionFactory.createMap(HashMap::new, 0, 10);
         }
 
         @Override
@@ -536,7 +524,7 @@ class UnmodifiableMapTest {
         }
     }
 
-    abstract static class ValuesTestBase extends MapTestBase implements UnmodifiableMapTests.ValuesTests<Integer, String> {
+    abstract static class ValuesTestBase extends MapTestBase implements ValuesTests<Integer, String> {
 
         @Override
         public boolean fixedOrder() {
@@ -544,7 +532,7 @@ class UnmodifiableMapTest {
         }
     }
 
-    abstract static class EntrySetTestBase extends MapTestBase implements UnmodifiableMapTests.EntrySetTests<Integer, String> {
+    abstract static class EntrySetTestBase extends MapTestBase implements EntrySetTests<Integer, String> {
 
         @Override
         public boolean fixedOrder() {

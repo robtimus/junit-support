@@ -1,5 +1,5 @@
 /*
- * HashSetTest.java
+ * EmptySetTest.java
  * Copyright 2020 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.examples.collection;
+package com.github.robtimus.junit.support.examples.collections;
 
-import static com.github.robtimus.junit.support.examples.collection.CollectionFactory.createCollection;
+import static com.github.robtimus.junit.support.examples.collections.CollectionFactory.createCollection;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,12 +40,12 @@ import com.github.robtimus.junit.support.test.collections.CollectionTests.Retain
 import com.github.robtimus.junit.support.test.collections.CollectionTests.ToArrayTests;
 import com.github.robtimus.junit.support.test.collections.CollectionTests.ToObjectArrayTests;
 import com.github.robtimus.junit.support.test.collections.IterableTests.ForEachTests;
-import com.github.robtimus.junit.support.test.collections.SetTests.AddAllTests;
-import com.github.robtimus.junit.support.test.collections.SetTests.AddTests;
 import com.github.robtimus.junit.support.test.collections.SetTests.EqualsTests;
 import com.github.robtimus.junit.support.test.collections.SetTests.HashCodeTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableCollectionTests.AddAllTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableCollectionTests.AddTests;
 
-class HashSetTest {
+class EmptySetTest {
 
     @Nested
     @DisplayName("iterator()")
@@ -84,6 +84,16 @@ class HashSetTest {
 
     @Nested
     class ToArrayTest extends SetTestBase implements ToArrayTests<String> {
+
+        // smaller length is not possible; override to disable the test
+        @Override
+        public void testToArrayWithSmallerLength() {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    @Nested
+    class ContainsAllTest extends SetTestBase implements ContainsAllTests<String> {
         // no additional tests
     }
 
@@ -94,11 +104,6 @@ class HashSetTest {
 
     @Nested
     class RemoveTest extends SetTestBase implements RemoveTests<String> {
-        // no additional tests
-    }
-
-    @Nested
-    class ContainsAllTest extends SetTestBase implements ContainsAllTests<String> {
         // no additional tests
     }
 
@@ -140,6 +145,12 @@ class HashSetTest {
     @Nested
     class SpliteratorTest extends SetTestBase implements SetTests.SpliteratorTests<String> {
 
+        // Collections.emptySet().spliterator() incorrectly does not report DISTINCT, so disable this test
+        @Override
+        public void testSpliteratorHasDistinctCharacteristic() {
+            throw new UnsupportedOperationException();
+        }
+
         @Nested
         class TryAdvanceTest extends SpliteratorTestBase
                 implements com.github.robtimus.junit.support.test.collections.SpliteratorTests.TryAdvanceTests<String> {
@@ -166,18 +177,17 @@ class HashSetTest {
         @Override
         public Set<String> iterable() {
             assertTrue(methodsCalled.add("iterable"), "iterable called multiple times");
-            return createCollection(HashSet::new, 0, 10);
+            return Collections.emptySet();
         }
 
         @Override
         public Collection<String> expectedElements() {
-            List<String> list = createCollection(ArrayList::new, 0, 10);
-            return Collections.unmodifiableList(list);
+            return Collections.unmodifiableList(new ArrayList<>());
         }
 
         @Override
         public Collection<String> nonContainedElements() {
-            List<String> list = createCollection(ArrayList::new, 10, 20);
+            List<String> list = createCollection(ArrayList::new, 0, 10);
             return Collections.unmodifiableList(list);
         }
 

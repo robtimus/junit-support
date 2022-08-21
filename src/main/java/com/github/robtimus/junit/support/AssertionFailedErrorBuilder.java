@@ -67,7 +67,7 @@ public final class AssertionFailedErrorBuilder {
      *
      * @return The created {@code AssertionFailedErrorBuilder}.
      */
-    public static AssertionFailedErrorBuilder assertionFailure() {
+    public static AssertionFailedErrorBuilder assertionFailedError() {
         return new AssertionFailedErrorBuilder();
     }
 

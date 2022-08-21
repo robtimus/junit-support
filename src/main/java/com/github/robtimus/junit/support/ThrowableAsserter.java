@@ -17,7 +17,7 @@
 
 package com.github.robtimus.junit.support;
 
-import static com.github.robtimus.junit.support.AssertionFailedErrorBuilder.assertionFailure;
+import static com.github.robtimus.junit.support.AssertionFailedErrorBuilder.assertionFailedError;
 import static com.github.robtimus.junit.support.ThrowableAssertions.rethrowIfUnrecoverable;
 import static com.github.robtimus.junit.support.ThrowableAssertions.unexpectedExceptionTypeThrown;
 import java.util.HashMap;
@@ -254,7 +254,7 @@ public final class ThrowableAsserter {
             return;
         }
 
-        throw assertionFailure()
+        throw assertionFailedError()
                 .message(messageOrSupplier)
                 .reasonPattern("Expected one of %s to be thrown, but nothing was thrown.")
                         .withValues(expectedErrorTypes)
