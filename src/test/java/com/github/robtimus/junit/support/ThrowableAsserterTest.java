@@ -960,8 +960,12 @@ class ThrowableAsserterTest {
                     verifyNoMoreInteractions(consumer, runnable);
 
                     assertIsEmpty(asserted.andReturnIfThrown());
+                    assertIsEmpty(asserted.andReturnIfThrownAs(Exception.class));
 
                     IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturn);
+                    assertEquals("Nothing was thrown", exception.getMessage());
+
+                    exception = assertThrows(IllegalStateException.class, () -> asserted.andReturnAs(Exception.class));
                     assertEquals("Nothing was thrown", exception.getMessage());
                 }
 
@@ -979,8 +983,12 @@ class ThrowableAsserterTest {
                     verifyNoMoreInteractions(consumer);
 
                     assertIsEmpty(asserted.andReturnIfThrown());
+                    assertIsEmpty(asserted.andReturnIfThrownAs(Exception.class));
 
                     IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturn);
+                    assertEquals("Nothing was thrown", exception.getMessage());
+
+                    exception = assertThrows(IllegalStateException.class, () -> asserted.andReturnAs(Exception.class));
                     assertEquals("Nothing was thrown", exception.getMessage());
                 }
             }
@@ -1004,7 +1012,12 @@ class ThrowableAsserterTest {
                 verifyNoMoreInteractions(consumer1, consumer2, runnable);
 
                 assertSame(error, asserted.andReturn());
+                assertSame(error, asserted.andReturnAs(Exception.class));
                 assertSame(error, assertIsPresent(asserted.andReturnIfThrown()));
+                assertSame(error, assertIsPresent(asserted.andReturnIfThrownAs(Exception.class)));
+
+                assertThrows(ClassCastException.class, () -> asserted.andReturnAs(IllegalArgumentException.class));
+                assertThrows(ClassCastException.class, () -> asserted.andReturnIfThrownAs(IllegalArgumentException.class));
             }
 
             @Test
@@ -1026,7 +1039,12 @@ class ThrowableAsserterTest {
                 verifyNoMoreInteractions(consumer1, consumer2, runnable);
 
                 assertSame(error, asserted.andReturn());
+                assertSame(error, asserted.andReturnAs(Exception.class));
                 assertSame(error, assertIsPresent(asserted.andReturnIfThrown()));
+                assertSame(error, assertIsPresent(asserted.andReturnIfThrownAs(Exception.class)));
+
+                assertThrows(ClassCastException.class, () -> asserted.andReturnAs(IllegalArgumentException.class));
+                assertThrows(ClassCastException.class, () -> asserted.andReturnIfThrownAs(IllegalArgumentException.class));
             }
 
             @Test
@@ -1094,8 +1112,12 @@ class ThrowableAsserterTest {
                     verifyNoMoreInteractions(consumer, runnable);
 
                     assertIsEmpty(asserted.andReturnIfThrown());
+                    assertIsEmpty(asserted.andReturnIfThrownAs(Exception.class));
 
                     IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturn);
+                    assertEquals("Nothing was thrown", exception.getMessage());
+
+                    exception = assertThrows(IllegalStateException.class, () -> asserted.andReturnAs(Exception.class));
                     assertEquals("Nothing was thrown", exception.getMessage());
                 }
 
@@ -1113,8 +1135,12 @@ class ThrowableAsserterTest {
                     verifyNoMoreInteractions(consumer);
 
                     assertIsEmpty(asserted.andReturnIfThrown());
+                    assertIsEmpty(asserted.andReturnIfThrownAs(Exception.class));
 
                     IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturn);
+                    assertEquals("Nothing was thrown", exception.getMessage());
+
+                    exception = assertThrows(IllegalStateException.class, () -> asserted.andReturnAs(Exception.class));
                     assertEquals("Nothing was thrown", exception.getMessage());
                 }
             }
@@ -1138,7 +1164,12 @@ class ThrowableAsserterTest {
                 verifyNoMoreInteractions(consumer1, consumer2, runnable);
 
                 assertSame(error, asserted.andReturn());
+                assertSame(error, asserted.andReturnAs(Exception.class));
                 assertSame(error, assertIsPresent(asserted.andReturnIfThrown()));
+                assertSame(error, assertIsPresent(asserted.andReturnIfThrownAs(Exception.class)));
+
+                assertThrows(ClassCastException.class, () -> asserted.andReturnAs(IllegalArgumentException.class));
+                assertThrows(ClassCastException.class, () -> asserted.andReturnIfThrownAs(IllegalArgumentException.class));
             }
 
             @Test
@@ -1160,7 +1191,12 @@ class ThrowableAsserterTest {
                 verifyNoMoreInteractions(consumer1, consumer2, runnable);
 
                 assertSame(error, asserted.andReturn());
+                assertSame(error, asserted.andReturnAs(Exception.class));
                 assertSame(error, assertIsPresent(asserted.andReturnIfThrown()));
+                assertSame(error, assertIsPresent(asserted.andReturnIfThrownAs(Exception.class)));
+
+                assertThrows(ClassCastException.class, () -> asserted.andReturnAs(IllegalArgumentException.class));
+                assertThrows(ClassCastException.class, () -> asserted.andReturnIfThrownAs(IllegalArgumentException.class));
             }
 
             @Test
@@ -1228,8 +1264,12 @@ class ThrowableAsserterTest {
                     verifyNoMoreInteractions(consumer, runnable);
 
                     assertIsEmpty(asserted.andReturnIfThrown());
+                    assertIsEmpty(asserted.andReturnIfThrownAs(Exception.class));
 
                     IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturn);
+                    assertEquals("Nothing was thrown", exception.getMessage());
+
+                    exception = assertThrows(IllegalStateException.class, () -> asserted.andReturnAs(Exception.class));
                     assertEquals("Nothing was thrown", exception.getMessage());
                 }
 
@@ -1247,8 +1287,12 @@ class ThrowableAsserterTest {
                     verifyNoMoreInteractions(consumer);
 
                     assertIsEmpty(asserted.andReturnIfThrown());
+                    assertIsEmpty(asserted.andReturnIfThrownAs(Exception.class));
 
                     IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturn);
+                    assertEquals("Nothing was thrown", exception.getMessage());
+
+                    exception = assertThrows(IllegalStateException.class, () -> asserted.andReturnAs(Exception.class));
                     assertEquals("Nothing was thrown", exception.getMessage());
                 }
             }
@@ -1272,7 +1316,12 @@ class ThrowableAsserterTest {
                 verifyNoMoreInteractions(consumer1, consumer2, runnable);
 
                 assertSame(error, asserted.andReturn());
+                assertSame(error, asserted.andReturnAs(Exception.class));
                 assertSame(error, assertIsPresent(asserted.andReturnIfThrown()));
+                assertSame(error, assertIsPresent(asserted.andReturnIfThrownAs(Exception.class)));
+
+                assertThrows(ClassCastException.class, () -> asserted.andReturnAs(IllegalArgumentException.class));
+                assertThrows(ClassCastException.class, () -> asserted.andReturnIfThrownAs(IllegalArgumentException.class));
             }
 
             @Test
@@ -1294,7 +1343,12 @@ class ThrowableAsserterTest {
                 verifyNoMoreInteractions(consumer1, consumer2, runnable);
 
                 assertSame(error, asserted.andReturn());
+                assertSame(error, asserted.andReturnAs(Exception.class));
                 assertSame(error, assertIsPresent(asserted.andReturnIfThrown()));
+                assertSame(error, assertIsPresent(asserted.andReturnIfThrownAs(Exception.class)));
+
+                assertThrows(ClassCastException.class, () -> asserted.andReturnAs(IllegalArgumentException.class));
+                assertThrows(ClassCastException.class, () -> asserted.andReturnIfThrownAs(IllegalArgumentException.class));
             }
 
             @Test

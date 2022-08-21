@@ -48,7 +48,8 @@ import org.opentest4j.AssertionFailedError;
  *     cannot call {@link #whenThrows(Class)} twice with the same type, or call {@link #whenThrowsExactly(Class)} twice with the same type, or call
  *     {@link #whenThrowsNothing()} twice.</li>
  * <li>Call {@link #runAssertions()}.</li>
- * <li>Optionally, call {@link Asserted#andReturn()} or {@link Asserted#andReturnIfThrown()} to retrieve the error that was thrown.</li>
+ * <li>Optionally, call {@link Asserted#andReturn()}, {@link Asserted#andReturnAs(Class)}, {@link Asserted#andReturnIfThrown()} or
+ *     {@link Asserted#andReturnIfThrownAs(Class)} to retrieve the error that was thrown.</li>
  * </ol>
  * <p>
  * An example:
@@ -423,34 +424,56 @@ public final class ThrowableAsserter {
 
         /**
          * Returns the error that was thrown.
-         * <p>
-         * Note that the generic type used for the return value should be a common super type of all configured error types.
-         * If not, a {@link ClassCastException} will most likely be thrown when trying to use the return value.
          *
-         * @param <T> The expected type of error.
          * @return The error that was thrown.
          * @throws IllegalStateException If no error was thrown.
          */
-        @SuppressWarnings("unchecked")
-        public <T extends Throwable> T andReturn() {
+        public Throwable andReturn() {
             if (thrown == null) {
                 throw new IllegalStateException("Nothing was thrown");
             }
-            return (T) thrown;
+            return thrown;
         }
 
         /**
          * Returns the error that was thrown.
-         * <p>
-         * Note that the generic type used for the return value should be a common super type of all configured error types. If not, a
-         * {@link ClassCastException} will most likely be thrown when trying to use the return value.
          *
          * @param <T> The expected type of error.
+         * @param errorType The expected type of error.
+         *                      This should be a common super type of all configured error types to prevent any {@link ClassCastException}s.
+         * @return The error that was thrown.
+         * @throws IllegalStateException If no error was thrown.
+         * @throws ClassCastException If the error that was thrown is not an instance of the given error type.
+         */
+        public <T extends Throwable> T andReturnAs(Class<T> errorType) {
+            if (thrown == null) {
+                throw new IllegalStateException("Nothing was thrown");
+            }
+            return errorType.cast(thrown);
+        }
+
+        /**
+         * Returns the error that was thrown.
+         *
          * @return An {@link Optional} describing the error that was thrown, or {@link Optional#empty()} if no error was thrown.
          */
-        @SuppressWarnings("unchecked")
-        public <T extends Throwable> Optional<T> andReturnIfThrown() {
-            return Optional.ofNullable((T) thrown);
+        public Optional<Throwable> andReturnIfThrown() {
+            return Optional.ofNullable(thrown);
+        }
+
+        /**
+         * Returns the error that was thrown.
+         *
+         * @param <T> The expected type of error.
+         * @param errorType The expected type of error.
+         *                      This should be a common super type of all configured error types to prevent any {@link ClassCastException}s.
+         * @return An {@link Optional} describing the error that was thrown, or {@link Optional#empty()} if no error was thrown.
+         * @throws ClassCastException If an error was thrown that is not an instance of the given error type.
+         */
+        public <T extends Throwable> Optional<T> andReturnIfThrownAs(Class<T> errorType) {
+            return thrown == null
+                    ? Optional.empty()
+                    : Optional.of(errorType.cast(thrown));
         }
     }
 
