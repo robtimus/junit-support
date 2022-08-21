@@ -17,7 +17,8 @@
 
 package com.github.robtimus.junit.support;
 
-import static com.github.robtimus.junit.support.AdditionalAssertions.assertIsPresent;
+import static com.github.robtimus.junit.support.OptionalAssertions.assertIsEmpty;
+import static com.github.robtimus.junit.support.OptionalAssertions.assertIsPresent;
 import static com.github.robtimus.junit.support.ThrowableAsserter.executing;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -34,7 +35,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import java.io.IOException;
 import java.nio.file.InvalidPathException;
 import java.nio.file.NoSuchFileException;
-import java.util.Optional;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -959,7 +959,7 @@ class ThrowableAsserterTest {
                     verify(runnable).run();
                     verifyNoMoreInteractions(consumer, runnable);
 
-                    assertEquals(Optional.empty(), asserted.andReturnIfThrown());
+                    assertIsEmpty(asserted.andReturnIfThrown());
 
                     IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturn);
                     assertEquals("Nothing was thrown", exception.getMessage());
@@ -978,7 +978,7 @@ class ThrowableAsserterTest {
 
                     verifyNoMoreInteractions(consumer);
 
-                    assertEquals(Optional.empty(), asserted.andReturnIfThrown());
+                    assertIsEmpty(asserted.andReturnIfThrown());
 
                     IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturn);
                     assertEquals("Nothing was thrown", exception.getMessage());
@@ -1093,7 +1093,7 @@ class ThrowableAsserterTest {
                     verify(runnable).run();
                     verifyNoMoreInteractions(consumer, runnable);
 
-                    assertEquals(Optional.empty(), asserted.andReturnIfThrown());
+                    assertIsEmpty(asserted.andReturnIfThrown());
 
                     IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturn);
                     assertEquals("Nothing was thrown", exception.getMessage());
@@ -1112,7 +1112,7 @@ class ThrowableAsserterTest {
 
                     verifyNoMoreInteractions(consumer);
 
-                    assertEquals(Optional.empty(), asserted.andReturnIfThrown());
+                    assertIsEmpty(asserted.andReturnIfThrown());
 
                     IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturn);
                     assertEquals("Nothing was thrown", exception.getMessage());
@@ -1227,7 +1227,7 @@ class ThrowableAsserterTest {
                     verify(runnable).run();
                     verifyNoMoreInteractions(consumer, runnable);
 
-                    assertEquals(Optional.empty(), asserted.andReturnIfThrown());
+                    assertIsEmpty(asserted.andReturnIfThrown());
 
                     IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturn);
                     assertEquals("Nothing was thrown", exception.getMessage());
@@ -1246,7 +1246,7 @@ class ThrowableAsserterTest {
 
                     verifyNoMoreInteractions(consumer);
 
-                    assertEquals(Optional.empty(), asserted.andReturnIfThrown());
+                    assertIsEmpty(asserted.andReturnIfThrown());
 
                     IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturn);
                     assertEquals("Nothing was thrown", exception.getMessage());

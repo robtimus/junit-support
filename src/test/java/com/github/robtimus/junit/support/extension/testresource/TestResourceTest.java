@@ -17,7 +17,7 @@
 
 package com.github.robtimus.junit.support.extension.testresource;
 
-import static com.github.robtimus.junit.support.AdditionalAssertions.assertIsPresent;
+import static com.github.robtimus.junit.support.OptionalAssertions.assertIsPresent;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;

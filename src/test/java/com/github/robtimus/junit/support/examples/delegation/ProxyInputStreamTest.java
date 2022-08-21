@@ -20,7 +20,7 @@ package com.github.robtimus.junit.support.examples.delegation;
 import java.io.InputStream;
 import java.util.stream.Stream;
 import org.apache.commons.io.input.ProxyInputStream;
-import com.github.robtimus.junit.support.DelegateTests;
+import com.github.robtimus.junit.support.test.DelegateTests;
 
 class ProxyInputStreamTest implements DelegateTests<InputStream> {
 

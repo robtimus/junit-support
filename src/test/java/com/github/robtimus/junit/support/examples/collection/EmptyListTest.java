@@ -29,34 +29,34 @@ import java.util.function.UnaryOperator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
-import com.github.robtimus.junit.support.collections.IteratorTests;
-import com.github.robtimus.junit.support.collections.ListIteratorTests;
-import com.github.robtimus.junit.support.collections.ListTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableListIteratorTests;
-import com.github.robtimus.junit.support.collections.CollectionTests.ClearTests;
-import com.github.robtimus.junit.support.collections.CollectionTests.ContainsAllTests;
-import com.github.robtimus.junit.support.collections.CollectionTests.ContainsTests;
-import com.github.robtimus.junit.support.collections.CollectionTests.RemoveAllTests;
-import com.github.robtimus.junit.support.collections.CollectionTests.RemoveIfTests;
-import com.github.robtimus.junit.support.collections.CollectionTests.RemoveTests;
-import com.github.robtimus.junit.support.collections.CollectionTests.RetainAllTests;
-import com.github.robtimus.junit.support.collections.CollectionTests.ToArrayTests;
-import com.github.robtimus.junit.support.collections.CollectionTests.ToObjectArrayTests;
-import com.github.robtimus.junit.support.collections.IterableTests.ForEachTests;
-import com.github.robtimus.junit.support.collections.ListTests.EqualsTests;
-import com.github.robtimus.junit.support.collections.ListTests.GetTests;
-import com.github.robtimus.junit.support.collections.ListTests.HashCodeTests;
-import com.github.robtimus.junit.support.collections.ListTests.IndexOfTests;
-import com.github.robtimus.junit.support.collections.ListTests.LastIndexOfTests;
-import com.github.robtimus.junit.support.collections.ListTests.ListIteratorIndexedTests;
-import com.github.robtimus.junit.support.collections.ListTests.SubListTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.AddAllTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.AddTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableListTests.AddAllIndexedTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableListTests.AddIndexedTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableListTests.RemoveIndexedTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableListTests.ReplaceAllTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableListTests.SetTests;
+import com.github.robtimus.junit.support.test.collections.IteratorTests;
+import com.github.robtimus.junit.support.test.collections.ListIteratorTests;
+import com.github.robtimus.junit.support.test.collections.ListTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableListIteratorTests;
+import com.github.robtimus.junit.support.test.collections.CollectionTests.ClearTests;
+import com.github.robtimus.junit.support.test.collections.CollectionTests.ContainsAllTests;
+import com.github.robtimus.junit.support.test.collections.CollectionTests.ContainsTests;
+import com.github.robtimus.junit.support.test.collections.CollectionTests.RemoveAllTests;
+import com.github.robtimus.junit.support.test.collections.CollectionTests.RemoveIfTests;
+import com.github.robtimus.junit.support.test.collections.CollectionTests.RemoveTests;
+import com.github.robtimus.junit.support.test.collections.CollectionTests.RetainAllTests;
+import com.github.robtimus.junit.support.test.collections.CollectionTests.ToArrayTests;
+import com.github.robtimus.junit.support.test.collections.CollectionTests.ToObjectArrayTests;
+import com.github.robtimus.junit.support.test.collections.IterableTests.ForEachTests;
+import com.github.robtimus.junit.support.test.collections.ListTests.EqualsTests;
+import com.github.robtimus.junit.support.test.collections.ListTests.GetTests;
+import com.github.robtimus.junit.support.test.collections.ListTests.HashCodeTests;
+import com.github.robtimus.junit.support.test.collections.ListTests.IndexOfTests;
+import com.github.robtimus.junit.support.test.collections.ListTests.LastIndexOfTests;
+import com.github.robtimus.junit.support.test.collections.ListTests.ListIteratorIndexedTests;
+import com.github.robtimus.junit.support.test.collections.ListTests.SubListTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableCollectionTests.AddAllTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableCollectionTests.AddTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableListTests.AddAllIndexedTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableListTests.AddIndexedTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableListTests.RemoveIndexedTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableListTests.ReplaceAllTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableListTests.SetTests;
 
 class EmptyListTest {
 
@@ -273,13 +273,13 @@ class EmptyListTest {
 
         @Nested
         class TryAdvanceTest extends SpliteratorTestBase
-                implements com.github.robtimus.junit.support.collections.SpliteratorTests.TryAdvanceTests<String> {
+                implements com.github.robtimus.junit.support.test.collections.SpliteratorTests.TryAdvanceTests<String> {
             // no additional tests
         }
 
         @Nested
         class ForEachRemainingTest extends SpliteratorTestBase
-                implements com.github.robtimus.junit.support.collections.SpliteratorTests.ForEachRemainingTests<String> {
+                implements com.github.robtimus.junit.support.test.collections.SpliteratorTests.ForEachRemainingTests<String> {
             // no additional tests
         }
     }
@@ -329,7 +329,7 @@ class EmptyListTest {
     }
 
     abstract static class SpliteratorTestBase extends ListTestBase
-            implements com.github.robtimus.junit.support.collections.SpliteratorTests<String> {
+            implements com.github.robtimus.junit.support.test.collections.SpliteratorTests<String> {
 
         @Override
         public boolean fixedOrder() {

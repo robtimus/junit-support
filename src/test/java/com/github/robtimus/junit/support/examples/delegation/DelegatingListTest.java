@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
-import com.github.robtimus.junit.support.DelegateTests;
+import com.github.robtimus.junit.support.test.DelegateTests;
 
 class DelegatingListTest implements DelegateTests<List<String>> {
 

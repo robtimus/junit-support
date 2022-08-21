@@ -29,7 +29,7 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
-import com.github.robtimus.junit.support.collections.EnumerationTests.IterationTests;
+import com.github.robtimus.junit.support.test.collections.EnumerationTests.IterationTests;
 
 @SuppressWarnings("nls")
 class EnumerationTestsTest {

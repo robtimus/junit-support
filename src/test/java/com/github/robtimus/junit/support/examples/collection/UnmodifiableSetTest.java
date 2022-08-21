@@ -28,23 +28,23 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
-import com.github.robtimus.junit.support.collections.SetTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableIteratorTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableSetTests;
-import com.github.robtimus.junit.support.collections.CollectionTests.ContainsAllTests;
-import com.github.robtimus.junit.support.collections.CollectionTests.ContainsTests;
-import com.github.robtimus.junit.support.collections.CollectionTests.ToArrayTests;
-import com.github.robtimus.junit.support.collections.CollectionTests.ToObjectArrayTests;
-import com.github.robtimus.junit.support.collections.IterableTests.ForEachTests;
-import com.github.robtimus.junit.support.collections.SetTests.EqualsTests;
-import com.github.robtimus.junit.support.collections.SetTests.HashCodeTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.AddAllTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.AddTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.ClearTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.RemoveAllTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.RemoveIfTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.RemoveTests;
-import com.github.robtimus.junit.support.collections.UnmodifiableCollectionTests.RetainAllTests;
+import com.github.robtimus.junit.support.test.collections.SetTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableIteratorTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableSetTests;
+import com.github.robtimus.junit.support.test.collections.CollectionTests.ContainsAllTests;
+import com.github.robtimus.junit.support.test.collections.CollectionTests.ContainsTests;
+import com.github.robtimus.junit.support.test.collections.CollectionTests.ToArrayTests;
+import com.github.robtimus.junit.support.test.collections.CollectionTests.ToObjectArrayTests;
+import com.github.robtimus.junit.support.test.collections.IterableTests.ForEachTests;
+import com.github.robtimus.junit.support.test.collections.SetTests.EqualsTests;
+import com.github.robtimus.junit.support.test.collections.SetTests.HashCodeTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableCollectionTests.AddAllTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableCollectionTests.AddTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableCollectionTests.ClearTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableCollectionTests.RemoveAllTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableCollectionTests.RemoveIfTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableCollectionTests.RemoveTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableCollectionTests.RetainAllTests;
 
 class UnmodifiableSetTest {
 
@@ -143,13 +143,13 @@ class UnmodifiableSetTest {
 
         @Nested
         class TryAdvanceTest extends SpliteratorTestBase
-                implements com.github.robtimus.junit.support.collections.SpliteratorTests.TryAdvanceTests<String> {
+                implements com.github.robtimus.junit.support.test.collections.SpliteratorTests.TryAdvanceTests<String> {
             // no additional tests
         }
 
         @Nested
         class ForEachRemainingTest extends SpliteratorTestBase
-                implements com.github.robtimus.junit.support.collections.SpliteratorTests.ForEachRemainingTests<String> {
+                implements com.github.robtimus.junit.support.test.collections.SpliteratorTests.ForEachRemainingTests<String> {
             // no additional tests
         }
     }
@@ -194,7 +194,7 @@ class UnmodifiableSetTest {
     }
 
     abstract static class SpliteratorTestBase extends SetTestBase
-            implements com.github.robtimus.junit.support.collections.SpliteratorTests<String> {
+            implements com.github.robtimus.junit.support.test.collections.SpliteratorTests<String> {
         // no additional methods needed at this time
     }
 }

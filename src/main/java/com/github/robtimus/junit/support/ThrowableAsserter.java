@@ -17,9 +17,9 @@
 
 package com.github.robtimus.junit.support;
 
-import static com.github.robtimus.junit.support.AdditionalAssertions.rethrowIfUnrecoverable;
-import static com.github.robtimus.junit.support.AdditionalAssertions.unexpectedExceptionTypeThrown;
 import static com.github.robtimus.junit.support.AssertionFailedErrorBuilder.assertionFailure;
+import static com.github.robtimus.junit.support.ThrowableAssertions.rethrowIfUnrecoverable;
+import static com.github.robtimus.junit.support.ThrowableAssertions.unexpectedExceptionTypeThrown;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -35,7 +35,7 @@ import org.opentest4j.AssertionFailedError;
 /**
  * An object that asserts that execution of an {@link Executable} throws an error.
  * <p>
- * This class is like several of the throwing assertions of {@link AdditionalAssertions}, especially the "one-of" assertions, but it provides more
+ * This class is like several of the throwing assertions of {@link ThrowableAssertions}, especially the "one-of" assertions, but it provides more
  * flexibility. It also removes the need for checking the return type of the returned error in case of the "one-of" assertions; instead, a set of
  * assertions can be configured per expected error type (or none to just specify that the error type is one of the expected error types).
  * <p>
@@ -62,6 +62,7 @@ import org.opentest4j.AssertionFailedError;
  * All methods throw a {@link NullPointerException} when provided with {@code null} arguments.<br>
  *
  * @author Rob Spoor
+ * @since 2.0
  */
 @SuppressWarnings("nls")
 public final class ThrowableAsserter {

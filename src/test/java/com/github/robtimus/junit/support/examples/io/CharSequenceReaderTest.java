@@ -24,14 +24,14 @@ import java.util.Set;
 import org.apache.commons.io.input.CharSequenceReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
-import com.github.robtimus.junit.support.io.ReaderTests;
-import com.github.robtimus.junit.support.io.ReaderTests.MarkResetTests;
-import com.github.robtimus.junit.support.io.ReaderTests.ReadCharTests;
-import com.github.robtimus.junit.support.io.ReaderTests.ReadIntoCharArrayPortionTests;
-import com.github.robtimus.junit.support.io.ReaderTests.ReadIntoCharArrayTests;
-import com.github.robtimus.junit.support.io.ReaderTests.ReadIntoCharBufferTests;
-import com.github.robtimus.junit.support.io.ReaderTests.ReadyTests;
-import com.github.robtimus.junit.support.io.ReaderTests.SkipTests;
+import com.github.robtimus.junit.support.test.io.ReaderTests;
+import com.github.robtimus.junit.support.test.io.ReaderTests.MarkResetTests;
+import com.github.robtimus.junit.support.test.io.ReaderTests.ReadCharTests;
+import com.github.robtimus.junit.support.test.io.ReaderTests.ReadIntoCharArrayPortionTests;
+import com.github.robtimus.junit.support.test.io.ReaderTests.ReadIntoCharArrayTests;
+import com.github.robtimus.junit.support.test.io.ReaderTests.ReadIntoCharBufferTests;
+import com.github.robtimus.junit.support.test.io.ReaderTests.ReadyTests;
+import com.github.robtimus.junit.support.test.io.ReaderTests.SkipTests;
 
 @SuppressWarnings("nls")
 class CharSequenceReaderTest {

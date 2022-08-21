@@ -28,22 +28,22 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
-import com.github.robtimus.junit.support.collections.IteratorTests;
-import com.github.robtimus.junit.support.collections.SetTests;
-import com.github.robtimus.junit.support.collections.CollectionTests.ClearTests;
-import com.github.robtimus.junit.support.collections.CollectionTests.ContainsAllTests;
-import com.github.robtimus.junit.support.collections.CollectionTests.ContainsTests;
-import com.github.robtimus.junit.support.collections.CollectionTests.RemoveAllTests;
-import com.github.robtimus.junit.support.collections.CollectionTests.RemoveIfTests;
-import com.github.robtimus.junit.support.collections.CollectionTests.RemoveTests;
-import com.github.robtimus.junit.support.collections.CollectionTests.RetainAllTests;
-import com.github.robtimus.junit.support.collections.CollectionTests.ToArrayTests;
-import com.github.robtimus.junit.support.collections.CollectionTests.ToObjectArrayTests;
-import com.github.robtimus.junit.support.collections.IterableTests.ForEachTests;
-import com.github.robtimus.junit.support.collections.SetTests.AddAllTests;
-import com.github.robtimus.junit.support.collections.SetTests.AddTests;
-import com.github.robtimus.junit.support.collections.SetTests.EqualsTests;
-import com.github.robtimus.junit.support.collections.SetTests.HashCodeTests;
+import com.github.robtimus.junit.support.test.collections.IteratorTests;
+import com.github.robtimus.junit.support.test.collections.SetTests;
+import com.github.robtimus.junit.support.test.collections.CollectionTests.ClearTests;
+import com.github.robtimus.junit.support.test.collections.CollectionTests.ContainsAllTests;
+import com.github.robtimus.junit.support.test.collections.CollectionTests.ContainsTests;
+import com.github.robtimus.junit.support.test.collections.CollectionTests.RemoveAllTests;
+import com.github.robtimus.junit.support.test.collections.CollectionTests.RemoveIfTests;
+import com.github.robtimus.junit.support.test.collections.CollectionTests.RemoveTests;
+import com.github.robtimus.junit.support.test.collections.CollectionTests.RetainAllTests;
+import com.github.robtimus.junit.support.test.collections.CollectionTests.ToArrayTests;
+import com.github.robtimus.junit.support.test.collections.CollectionTests.ToObjectArrayTests;
+import com.github.robtimus.junit.support.test.collections.IterableTests.ForEachTests;
+import com.github.robtimus.junit.support.test.collections.SetTests.AddAllTests;
+import com.github.robtimus.junit.support.test.collections.SetTests.AddTests;
+import com.github.robtimus.junit.support.test.collections.SetTests.EqualsTests;
+import com.github.robtimus.junit.support.test.collections.SetTests.HashCodeTests;
 
 class HashSetTest {
 
@@ -142,13 +142,13 @@ class HashSetTest {
 
         @Nested
         class TryAdvanceTest extends SpliteratorTestBase
-                implements com.github.robtimus.junit.support.collections.SpliteratorTests.TryAdvanceTests<String> {
+                implements com.github.robtimus.junit.support.test.collections.SpliteratorTests.TryAdvanceTests<String> {
             // no additional tests
         }
 
         @Nested
         class ForEachRemainingTest extends SpliteratorTestBase
-                implements com.github.robtimus.junit.support.collections.SpliteratorTests.ForEachRemainingTests<String> {
+                implements com.github.robtimus.junit.support.test.collections.SpliteratorTests.ForEachRemainingTests<String> {
             // no additional tests
         }
     }
@@ -192,7 +192,7 @@ class HashSetTest {
     }
 
     abstract static class SpliteratorTestBase extends SetTestBase
-            implements com.github.robtimus.junit.support.collections.SpliteratorTests<String> {
+            implements com.github.robtimus.junit.support.test.collections.SpliteratorTests<String> {
         // no additional methods needed at this time
     }
 }

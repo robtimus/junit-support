@@ -22,7 +22,7 @@ import java.lang.reflect.Modifier;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
-import com.github.robtimus.junit.support.CovariantReturnTests;
+import com.github.robtimus.junit.support.test.CovariantReturnTests;
 
 class SubClassTest {
 

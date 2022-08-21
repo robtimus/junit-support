@@ -7,11 +7,13 @@ module com.github.robtimus.junit.support {
     requires org.mockito;
 
     exports com.github.robtimus.junit.support;
-    exports com.github.robtimus.junit.support.collections;
-    exports com.github.robtimus.junit.support.collections.annotation;
     exports com.github.robtimus.junit.support.extension;
     exports com.github.robtimus.junit.support.extension.testresource;
-    exports com.github.robtimus.junit.support.io;
     exports com.github.robtimus.junit.support.matchers.nio.file;
     exports com.github.robtimus.junit.support.params;
+    exports com.github.robtimus.junit.support.test;
+    exports com.github.robtimus.junit.support.test.collections;
+    exports com.github.robtimus.junit.support.test.collections.annotation;
+    exports com.github.robtimus.junit.support.test.io;
+    exports com.github.robtimus.junit.support.util;
 }

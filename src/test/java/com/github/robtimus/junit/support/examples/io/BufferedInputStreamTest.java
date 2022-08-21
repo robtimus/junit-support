@@ -25,15 +25,15 @@ import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
-import com.github.robtimus.junit.support.io.InputStreamDelegateTests;
-import com.github.robtimus.junit.support.io.InputStreamTests;
-import com.github.robtimus.junit.support.io.InputStreamDelegateTests.CloseTests;
-import com.github.robtimus.junit.support.io.InputStreamTests.AvailableTests;
-import com.github.robtimus.junit.support.io.InputStreamTests.MarkResetTests;
-import com.github.robtimus.junit.support.io.InputStreamTests.ReadByteTests;
-import com.github.robtimus.junit.support.io.InputStreamTests.ReadIntoByteArrayPortionTests;
-import com.github.robtimus.junit.support.io.InputStreamTests.ReadIntoByteArrayTests;
-import com.github.robtimus.junit.support.io.InputStreamTests.SkipTests;
+import com.github.robtimus.junit.support.test.io.InputStreamDelegateTests;
+import com.github.robtimus.junit.support.test.io.InputStreamTests;
+import com.github.robtimus.junit.support.test.io.InputStreamDelegateTests.CloseTests;
+import com.github.robtimus.junit.support.test.io.InputStreamTests.AvailableTests;
+import com.github.robtimus.junit.support.test.io.InputStreamTests.MarkResetTests;
+import com.github.robtimus.junit.support.test.io.InputStreamTests.ReadByteTests;
+import com.github.robtimus.junit.support.test.io.InputStreamTests.ReadIntoByteArrayPortionTests;
+import com.github.robtimus.junit.support.test.io.InputStreamTests.ReadIntoByteArrayTests;
+import com.github.robtimus.junit.support.test.io.InputStreamTests.SkipTests;
 
 @SuppressWarnings("nls")
 class BufferedInputStreamTest {

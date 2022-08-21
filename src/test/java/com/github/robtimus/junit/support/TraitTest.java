@@ -45,11 +45,11 @@ import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.platform.commons.support.ReflectionSupport;
-import com.github.robtimus.junit.support.collections.EnumerationTests;
-import com.github.robtimus.junit.support.collections.IteratorTests;
-import com.github.robtimus.junit.support.collections.ListIteratorTests;
-import com.github.robtimus.junit.support.io.InputStreamTests;
-import com.github.robtimus.junit.support.io.ReaderTests;
+import com.github.robtimus.junit.support.test.collections.EnumerationTests;
+import com.github.robtimus.junit.support.test.collections.IteratorTests;
+import com.github.robtimus.junit.support.test.collections.ListIteratorTests;
+import com.github.robtimus.junit.support.test.io.InputStreamTests;
+import com.github.robtimus.junit.support.test.io.ReaderTests;
 
 class TraitTest {
 

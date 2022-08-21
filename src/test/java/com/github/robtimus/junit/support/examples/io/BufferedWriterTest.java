@@ -25,17 +25,17 @@ import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
-import com.github.robtimus.junit.support.io.WriterDelegateTests;
-import com.github.robtimus.junit.support.io.WriterDelegateTests.AppendCharSequencePortionTests;
-import com.github.robtimus.junit.support.io.WriterDelegateTests.AppendCharSequenceTests;
-import com.github.robtimus.junit.support.io.WriterDelegateTests.AppendCharTests;
-import com.github.robtimus.junit.support.io.WriterDelegateTests.CloseTests;
-import com.github.robtimus.junit.support.io.WriterDelegateTests.FlushTests;
-import com.github.robtimus.junit.support.io.WriterDelegateTests.WriteCharArrayPortionTests;
-import com.github.robtimus.junit.support.io.WriterDelegateTests.WriteCharArrayTests;
-import com.github.robtimus.junit.support.io.WriterDelegateTests.WriteCharTests;
-import com.github.robtimus.junit.support.io.WriterDelegateTests.WriteStringPortionTests;
-import com.github.robtimus.junit.support.io.WriterDelegateTests.WriteStringTests;
+import com.github.robtimus.junit.support.test.io.WriterDelegateTests;
+import com.github.robtimus.junit.support.test.io.WriterDelegateTests.AppendCharSequencePortionTests;
+import com.github.robtimus.junit.support.test.io.WriterDelegateTests.AppendCharSequenceTests;
+import com.github.robtimus.junit.support.test.io.WriterDelegateTests.AppendCharTests;
+import com.github.robtimus.junit.support.test.io.WriterDelegateTests.CloseTests;
+import com.github.robtimus.junit.support.test.io.WriterDelegateTests.FlushTests;
+import com.github.robtimus.junit.support.test.io.WriterDelegateTests.WriteCharArrayPortionTests;
+import com.github.robtimus.junit.support.test.io.WriterDelegateTests.WriteCharArrayTests;
+import com.github.robtimus.junit.support.test.io.WriterDelegateTests.WriteCharTests;
+import com.github.robtimus.junit.support.test.io.WriterDelegateTests.WriteStringPortionTests;
+import com.github.robtimus.junit.support.test.io.WriterDelegateTests.WriteStringTests;
 
 class BufferedWriterTest {
 

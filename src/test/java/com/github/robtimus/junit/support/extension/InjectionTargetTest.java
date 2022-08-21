@@ -17,7 +17,8 @@
 
 package com.github.robtimus.junit.support.extension;
 
-import static com.github.robtimus.junit.support.AdditionalAssertions.assertIsPresent;
+import static com.github.robtimus.junit.support.OptionalAssertions.assertIsEmpty;
+import static com.github.robtimus.junit.support.OptionalAssertions.assertIsPresent;
 import static com.github.robtimus.junit.support.extension.InjectionTarget.forField;
 import static com.github.robtimus.junit.support.extension.InjectionTarget.forParameter;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -42,7 +43,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.ToIntFunction;
 import org.junit.jupiter.api.BeforeEach;
@@ -136,14 +136,14 @@ class InjectionTargetTest {
         @Test
         @DisplayName("findAnnotation(Class)")
         void testFindAnnotation() {
-            assertEquals(Optional.empty(), target.findAnnotation(Annotation0.class));
-            assertEquals(Optional.empty(), target.findAnnotation(Annotation1.class));
-            assertEquals(Optional.empty(), target.findAnnotation(Annotation2.class));
-            assertEquals(Optional.empty(), target.findAnnotation(Annotation3.class));
+            assertIsEmpty(target.findAnnotation(Annotation0.class));
+            assertIsEmpty(target.findAnnotation(Annotation1.class));
+            assertIsEmpty(target.findAnnotation(Annotation2.class));
+            assertIsEmpty(target.findAnnotation(Annotation3.class));
 
             assertIsPresent(target.findAnnotation(Annotation4.class));
 
-            assertEquals(Optional.empty(), target.findAnnotation(ExtendWith.class));
+            assertIsEmpty(target.findAnnotation(ExtendWith.class));
         }
 
         @ParameterizedTest(name = "includeDeclaringElements: {0}")
@@ -156,14 +156,14 @@ class InjectionTargetTest {
                 assertIsPresent(target.findAnnotation(Annotation2.class, includeDeclaringElements));
                 assertIsPresent(target.findAnnotation(Annotation3.class, includeDeclaringElements));
             } else {
-                assertEquals(Optional.empty(), target.findAnnotation(Annotation0.class, includeDeclaringElements));
-                assertEquals(Optional.empty(), target.findAnnotation(Annotation1.class, includeDeclaringElements));
-                assertEquals(Optional.empty(), target.findAnnotation(Annotation2.class, includeDeclaringElements));
-                assertEquals(Optional.empty(), target.findAnnotation(Annotation3.class, includeDeclaringElements));
+                assertIsEmpty(target.findAnnotation(Annotation0.class, includeDeclaringElements));
+                assertIsEmpty(target.findAnnotation(Annotation1.class, includeDeclaringElements));
+                assertIsEmpty(target.findAnnotation(Annotation2.class, includeDeclaringElements));
+                assertIsEmpty(target.findAnnotation(Annotation3.class, includeDeclaringElements));
             }
             assertIsPresent(target.findAnnotation(Annotation4.class, includeDeclaringElements));
 
-            assertEquals(Optional.empty(), target.findAnnotation(ExtendWith.class, includeDeclaringElements));
+            assertIsEmpty(target.findAnnotation(ExtendWith.class, includeDeclaringElements));
         }
 
         @Test
@@ -291,15 +291,15 @@ class InjectionTargetTest {
         @Test
         @DisplayName("findAnnotation(Class)")
         void testFindAnnotation() {
-            assertEquals(Optional.empty(), target.findAnnotation(Annotation0.class));
-            assertEquals(Optional.empty(), target.findAnnotation(Annotation1.class));
-            assertEquals(Optional.empty(), target.findAnnotation(Annotation2.class));
+            assertIsEmpty(target.findAnnotation(Annotation0.class));
+            assertIsEmpty(target.findAnnotation(Annotation1.class));
+            assertIsEmpty(target.findAnnotation(Annotation2.class));
 
             assertIsPresent(target.findAnnotation(Annotation3.class));
 
-            assertEquals(Optional.empty(), target.findAnnotation(Annotation4.class));
+            assertIsEmpty(target.findAnnotation(Annotation4.class));
 
-            assertEquals(Optional.empty(), target.findAnnotation(ExtendWith.class));
+            assertIsEmpty(target.findAnnotation(ExtendWith.class));
         }
 
         @ParameterizedTest(name = "includeDeclaringElements: {0}")
@@ -311,15 +311,15 @@ class InjectionTargetTest {
                 assertIsPresent(target.findAnnotation(Annotation1.class, includeDeclaringElements));
                 assertIsPresent(target.findAnnotation(Annotation2.class, includeDeclaringElements));
             } else {
-                assertEquals(Optional.empty(), target.findAnnotation(Annotation0.class, includeDeclaringElements));
-                assertEquals(Optional.empty(), target.findAnnotation(Annotation1.class, includeDeclaringElements));
-                assertEquals(Optional.empty(), target.findAnnotation(Annotation2.class, includeDeclaringElements));
+                assertIsEmpty(target.findAnnotation(Annotation0.class, includeDeclaringElements));
+                assertIsEmpty(target.findAnnotation(Annotation1.class, includeDeclaringElements));
+                assertIsEmpty(target.findAnnotation(Annotation2.class, includeDeclaringElements));
             }
             assertIsPresent(target.findAnnotation(Annotation3.class, includeDeclaringElements));
 
-            assertEquals(Optional.empty(), target.findAnnotation(Annotation4.class, includeDeclaringElements));
+            assertIsEmpty(target.findAnnotation(Annotation4.class, includeDeclaringElements));
 
-            assertEquals(Optional.empty(), target.findAnnotation(ExtendWith.class, includeDeclaringElements));
+            assertIsEmpty(target.findAnnotation(ExtendWith.class, includeDeclaringElements));
         }
 
         @Test

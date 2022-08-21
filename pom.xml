@@ -268,12 +268,13 @@
               <!-- Allow JUnit to fully access the test classes -->
               <argLine>
                 --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support=org.junit.platform.commons
-                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.collections=org.junit.platform.commons
                 --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension=org.junit.platform.commons
                 --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testresource=org.junit.platform.commons
-                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.io=org.junit.platform.commons
                 --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.matchers.nio.file=org.junit.platform.commons
                 --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.params=org.junit.platform.commons
+                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.test=org.junit.platform.commons
+                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.test.collections=org.junit.platform.commons
+                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.test.io=org.junit.platform.commons
 
                 --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.examples.collection=org.junit.platform.commons
                 --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.examples.covariantreturn=org.junit.platform.commons

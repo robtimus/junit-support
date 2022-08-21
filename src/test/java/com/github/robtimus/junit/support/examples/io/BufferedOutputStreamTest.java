@@ -24,12 +24,12 @@ import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
-import com.github.robtimus.junit.support.io.OutputStreamDelegateTests;
-import com.github.robtimus.junit.support.io.OutputStreamDelegateTests.CloseTests;
-import com.github.robtimus.junit.support.io.OutputStreamDelegateTests.FlushTests;
-import com.github.robtimus.junit.support.io.OutputStreamDelegateTests.WriteByteArrayPortionTests;
-import com.github.robtimus.junit.support.io.OutputStreamDelegateTests.WriteByteArrayTests;
-import com.github.robtimus.junit.support.io.OutputStreamDelegateTests.WriteByteTests;
+import com.github.robtimus.junit.support.test.io.OutputStreamDelegateTests;
+import com.github.robtimus.junit.support.test.io.OutputStreamDelegateTests.CloseTests;
+import com.github.robtimus.junit.support.test.io.OutputStreamDelegateTests.FlushTests;
+import com.github.robtimus.junit.support.test.io.OutputStreamDelegateTests.WriteByteArrayPortionTests;
+import com.github.robtimus.junit.support.test.io.OutputStreamDelegateTests.WriteByteArrayTests;
+import com.github.robtimus.junit.support.test.io.OutputStreamDelegateTests.WriteByteTests;
 
 class BufferedOutputStreamTest {
 
