@@ -23,12 +23,12 @@ import static com.github.robtimus.junit.support.ThrowableAsserter.executing;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -750,18 +750,18 @@ class ThrowableAsserterTest {
         void testUniqueErrorType() {
             ThrowableAsserter asserter = executing(() -> new NullPointerException());
 
-            assertNull(asserter.findAsserter(NullPointerException.class));
-            assertNull(asserter.findAsserter(IOException.class));
+            assertFalse(asserter.runAllAssertions(new NullPointerException()));
+            assertFalse(asserter.runAllAssertions(new IOException()));
 
             asserter.whenThrows(NullPointerException.class).thenAssertNothing();
 
-            assertNotNull(asserter.findAsserter(NullPointerException.class));
-            assertNull(asserter.findAsserter(IOException.class));
+            assertTrue(asserter.runAllAssertions(new NullPointerException()));
+            assertFalse(asserter.runAllAssertions(new IOException()));
 
             asserter.whenThrows(IOException.class).thenAssertNothing();
 
-            assertNotNull(asserter.findAsserter(NullPointerException.class));
-            assertNotNull(asserter.findAsserter(IOException.class));
+            assertTrue(asserter.runAllAssertions(new NullPointerException()));
+            assertTrue(asserter.runAllAssertions(new IOException()));
         }
 
         @Test
@@ -769,13 +769,20 @@ class ThrowableAsserterTest {
         void testDuplicateErrorType() {
             ThrowableAsserter asserter = executing(() -> new NullPointerException());
 
-            Consumer<NullPointerException> consumer = NullPointerException::getMessage;
+            Consumer<NullPointerException> consumer = mockedConsumer();
 
-            assertNull(asserter.findAsserter(NullPointerException.class));
+            assertFalse(asserter.runAllAssertions(new NullPointerException()));
+
+            verifyNoInteractions(consumer);
 
             asserter.whenThrows(NullPointerException.class).thenAssert(consumer);
 
-            assertSame(consumer, asserter.findAsserter(NullPointerException.class));
+            NullPointerException error = new NullPointerException();
+
+            assertTrue(asserter.runAllAssertions(error));
+
+            verify(consumer).accept(error);
+            verifyNoMoreInteractions(consumer);
 
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> asserter.whenThrows(NullPointerException.class));
             assertEquals("class java.lang.NullPointerException already configured", exception.getMessage());
@@ -786,21 +793,37 @@ class ThrowableAsserterTest {
         void testErrorTypeConfiguredExactly() {
             ThrowableAsserter asserter = executing(() -> new NullPointerException());
 
-            Consumer<IllegalArgumentException> consumer1 = IllegalArgumentException::getMessage;
-            Consumer<IllegalArgumentException> consumer2 = IllegalArgumentException::getLocalizedMessage;
-            assertNotSame(consumer1, consumer2);
+            Consumer<IllegalArgumentException> consumer1 = mockedConsumer();
+            Consumer<IllegalArgumentException> consumer2 = mockedConsumer();
 
-            assertNull(asserter.findAsserter(IllegalAccessError.class));
+            IllegalArgumentException error1 = new IllegalArgumentException();
+            NumberFormatException error2 = new NumberFormatException();
+
+            assertFalse(asserter.runAllAssertions(error1));
+            assertFalse(asserter.runAllAssertions(error2));
+
+            verifyNoInteractions(consumer1, consumer2);
 
             asserter.whenThrowsExactly(IllegalArgumentException.class).thenAssert(consumer1);
 
-            assertSame(consumer1, asserter.findAsserter(IllegalArgumentException.class));
-            assertNull(asserter.findAsserter(NumberFormatException.class));
+            assertTrue(asserter.runAllAssertions(error1));
+            assertFalse(asserter.runAllAssertions(error2));
+
+            verify(consumer1).accept(error1);
+            verifyNoMoreInteractions(consumer1, consumer2);
 
             asserter.whenThrows(IllegalArgumentException.class).thenAssert(consumer2);
 
-            assertSame(consumer1, asserter.findAsserter(IllegalArgumentException.class));
-            assertSame(consumer2, asserter.findAsserter(NumberFormatException.class));
+            assertTrue(asserter.runAllAssertions(error1));
+            assertTrue(asserter.runAllAssertions(error2));
+
+            // consumer1.accept(error1) has occurred twice, because asserter.runAllAssertions(error1) has run it twice
+            // consumer1 is not used for error2 because it was configured exactly
+            verify(consumer1, times(2)).accept(error1);
+            // consumer2 is used for both errors
+            verify(consumer2).accept(error1);
+            verify(consumer2).accept(error2);
+            verifyNoMoreInteractions(consumer1, consumer2);
         }
     }
 
@@ -813,18 +836,18 @@ class ThrowableAsserterTest {
         void testUniqueErrorType() {
             ThrowableAsserter asserter = executing(() -> new NullPointerException());
 
-            assertNull(asserter.findAsserter(NullPointerException.class));
-            assertNull(asserter.findAsserter(IOException.class));
+            assertFalse(asserter.runAllAssertions(new NullPointerException()));
+            assertFalse(asserter.runAllAssertions(new IOException()));
 
             asserter.whenThrowsExactly(NullPointerException.class).thenAssertNothing();
 
-            assertNotNull(asserter.findAsserter(NullPointerException.class));
-            assertNull(asserter.findAsserter(IOException.class));
+            assertTrue(asserter.runAllAssertions(new NullPointerException()));
+            assertFalse(asserter.runAllAssertions(new IOException()));
 
             asserter.whenThrowsExactly(IOException.class).thenAssertNothing();
 
-            assertNotNull(asserter.findAsserter(NullPointerException.class));
-            assertNotNull(asserter.findAsserter(IOException.class));
+            assertTrue(asserter.runAllAssertions(new NullPointerException()));
+            assertTrue(asserter.runAllAssertions(new IOException()));
         }
 
         @Test
@@ -832,13 +855,20 @@ class ThrowableAsserterTest {
         void testDuplicateErrorType() {
             ThrowableAsserter asserter = executing(() -> new NullPointerException());
 
-            Consumer<NullPointerException> consumer = NullPointerException::getMessage;
+            Consumer<NullPointerException> consumer = mockedConsumer();
 
-            assertNull(asserter.findAsserter(NullPointerException.class));
+            assertFalse(asserter.runAllAssertions(new NullPointerException()));
+
+            verifyNoInteractions(consumer);
 
             asserter.whenThrowsExactly(NullPointerException.class).thenAssert(consumer);
 
-            assertSame(consumer, asserter.findAsserter(NullPointerException.class));
+            NullPointerException error = new NullPointerException();
+
+            assertTrue(asserter.runAllAssertions(error));
+
+            verify(consumer).accept(error);
+            verifyNoMoreInteractions(consumer);
 
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                     () -> asserter.whenThrowsExactly(NullPointerException.class));
@@ -850,68 +880,105 @@ class ThrowableAsserterTest {
         void testErrorTypeConfiguredNotExactly() {
             ThrowableAsserter asserter = executing(() -> new NullPointerException());
 
-            Consumer<IllegalArgumentException> consumer1 = IllegalArgumentException::getMessage;
-            Consumer<IllegalArgumentException> consumer2 = IllegalArgumentException::getLocalizedMessage;
-            assertNotSame(consumer1, consumer2);
+            Consumer<IllegalArgumentException> consumer1 = mockedConsumer();
+            Consumer<IllegalArgumentException> consumer2 = mockedConsumer();
 
-            assertNull(asserter.findAsserter(IllegalAccessError.class));
+            IllegalArgumentException error1 = new IllegalArgumentException();
+            NumberFormatException error2 = new NumberFormatException();
+
+            assertFalse(asserter.runAllAssertions(error1));
+
+            verifyNoInteractions(consumer1, consumer2);
 
             asserter.whenThrows(IllegalArgumentException.class).thenAssert(consumer1);
 
-            assertSame(consumer1, asserter.findAsserter(IllegalArgumentException.class));
-            assertSame(consumer1, asserter.findAsserter(NumberFormatException.class));
+            assertTrue(asserter.runAllAssertions(error1));
+            assertTrue(asserter.runAllAssertions(error2));
+
+            verify(consumer1).accept(error1);
+            verify(consumer1).accept(error2);
+            verifyNoMoreInteractions(consumer1, consumer2);
 
             asserter.whenThrowsExactly(IllegalArgumentException.class).thenAssert(consumer2);
 
-            assertSame(consumer2, asserter.findAsserter(IllegalArgumentException.class));
-            assertSame(consumer1, asserter.findAsserter(NumberFormatException.class));
+            assertTrue(asserter.runAllAssertions(error1));
+            assertTrue(asserter.runAllAssertions(error2));
+
+            // consumer1.accept(error1) has occurred twice, because asserter.runAllAssertions(error1) has run it twice
+            verify(consumer1, times(2)).accept(error1);
+            // consumer1.accept(error2) has occurred twice, because asserter.runAllAssertions(error2) has run it twice
+            verify(consumer1, times(2)).accept(error2);
+            // consumer2 is not used for error2 because it was configured exactly
+            verify(consumer2).accept(error1);
+            verifyNoMoreInteractions(consumer1, consumer2);
         }
     }
 
     @Nested
-    @DisplayName("findAsserter")
-    class FindAsserter {
+    @DisplayName("runAllAssertions")
+    class RunAllAssertions {
 
         @Test
         @DisplayName("find configured exactly")
         void testFindConfiguredExactly() {
-            Consumer<Throwable> consumer1 = Throwable::printStackTrace;
-            Consumer<Throwable> consumer2 = Throwable::getMessage;
+            Consumer<Throwable> consumer1 = mockedConsumer();
+            Consumer<Throwable> consumer2 = mockedConsumer();
 
             ThrowableAsserter asserter = executing(Object::new)
                     .whenThrows(IllegalArgumentException.class).thenAssert(consumer1)
                     .whenThrowsExactly(IllegalArgumentException.class).thenAssert(consumer2);
 
-            assertSame(consumer2, asserter.findAsserter(IllegalArgumentException.class));
+            IllegalArgumentException error = new IllegalArgumentException();
+
+            assertTrue(asserter.runAllAssertions(error));
+
+            verify(consumer1).accept(error);
+            verify(consumer2).accept(error);
+            verifyNoMoreInteractions(consumer1, consumer2);
         }
 
         @Test
         @DisplayName("find configured non-exactly")
         void testFindConfiguredNonExactly() {
-            Consumer<Throwable> consumer1 = Throwable::printStackTrace;
-            Consumer<Throwable> consumer2 = Throwable::getMessage;
+            Consumer<Throwable> consumer1 = mockedConsumer();
+            Consumer<Throwable> consumer2 = mockedConsumer();
 
             ThrowableAsserter asserter = executing(Object::new)
                     .whenThrows(IllegalArgumentException.class).thenAssert(consumer1)
                     .whenThrows(NumberFormatException.class).thenAssert(consumer2);
 
-            assertSame(consumer1, asserter.findAsserter(IllegalArgumentException.class));
-            assertSame(consumer1, asserter.findAsserter(InvalidPathException.class));
-            assertSame(consumer2, asserter.findAsserter(NumberFormatException.class));
+            IllegalArgumentException error1 = new IllegalArgumentException();
+            InvalidPathException error2 = new InvalidPathException("path", "error");
+            NumberFormatException error3 = new NumberFormatException();
+
+            assertTrue(asserter.runAllAssertions(error1));
+            assertTrue(asserter.runAllAssertions(error2));
+            assertTrue(asserter.runAllAssertions(error3));
+
+            verify(consumer1).accept(error1);
+            verify(consumer1).accept(error2);
+            verify(consumer1).accept(error3);
+            verify(consumer2).accept(error3);
+            verifyNoMoreInteractions(consumer1, consumer2);
         }
 
         @Test
         @DisplayName("find non-configured non-exactly")
         void testFindNonConfigured() {
-            Consumer<Throwable> consumer1 = Throwable::printStackTrace;
-            Consumer<Throwable> consumer2 = Throwable::getMessage;
+            Consumer<Throwable> consumer1 = mockedConsumer();
+            Consumer<Throwable> consumer2 = mockedConsumer();
 
             ThrowableAsserter asserter = executing(Object::new)
                     .whenThrows(IllegalArgumentException.class).thenAssert(consumer1)
                     .whenThrows(NumberFormatException.class).thenAssert(consumer2);
 
-            assertNull(asserter.findAsserter(IOException.class));
-            assertNull(asserter.findAsserter(NoSuchFileException.class));
+            IOException error1 = new IOException();
+            NoSuchFileException error2 = new NoSuchFileException("file");
+
+            assertFalse(asserter.runAllAssertions(error1));
+            assertFalse(asserter.runAllAssertions(error2));
+
+            verifyNoInteractions(consumer1, consumer2);
         }
     }
 
@@ -1375,15 +1442,15 @@ class ThrowableAsserterTest {
             }
         }
 
-        @SuppressWarnings("unchecked")
-        private <T extends Throwable> Consumer<T> mockedConsumer() {
-            return mock(Consumer.class);
-        }
-
         private Executable throwing(Throwable error) {
             return () -> {
                 throw error;
             };
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends Throwable> Consumer<T> mockedConsumer() {
+        return mock(Consumer.class);
     }
 }

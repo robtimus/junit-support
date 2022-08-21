@@ -263,9 +263,8 @@ public final class ThrowableAsserter {
     }
 
     private void runAssertionsForError(Throwable actualError) throws AssertionFailedError {
-        Consumer<? super Throwable> asserter = findAsserter(actualError.getClass());
-        if (asserter != null) {
-            asserter.accept(actualError);
+        boolean hasRunAssertions = runAllAssertions(actualError);
+        if (hasRunAssertions) {
             return;
         }
 
@@ -279,22 +278,27 @@ public final class ThrowableAsserter {
                 .build();
     }
 
-    Consumer<? super Throwable> findAsserter(Class<? extends Throwable> errorType) {
+    boolean runAllAssertions(Throwable actualError) {
+        Class<? extends Throwable> errorType = actualError.getClass();
+        boolean hasRunAssertions = false;
+
         Consumer<? super Throwable> asserter = exactErrors.get(errorType);
         if (asserter != null) {
-            return asserter;
+            asserter.accept(actualError);
+            hasRunAssertions = true;
         }
 
         Class<?> iterator = errorType;
         while (iterator != Object.class) {
             asserter = errors.get(iterator);
             if (asserter != null) {
-                return asserter;
+                asserter.accept(actualError);
+                hasRunAssertions = true;
             }
             iterator = iterator.getSuperclass();
         }
 
-        return null;
+        return hasRunAssertions;
     }
 
     /**
