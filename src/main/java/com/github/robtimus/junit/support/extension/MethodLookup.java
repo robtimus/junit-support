@@ -256,8 +256,6 @@ public final class MethodLookup {
     }
 
     private static Pattern createMethodReferencePattern() {
-        // Let's be a bit lazy in the pattern; actual method lookup will trigger errors if parts are incorrectly formatted
-
         String javaIdentifier = "\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*";
         String javaType = String.format("%s(?:\\.%s)*", javaIdentifier, javaIdentifier);
 

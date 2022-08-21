@@ -78,14 +78,14 @@ A lot of people have one or more utility methods like this:
 Instead of having to write this boilerplate code for every project (and sometimes for each test), annotate fields, constructor arguments or method arguments with [TestResource](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/extension/testresource/TestResource.html) to inject a Java resource into the field, constructor argument or method argument, as `String`, `CharSequence`, `StringBuilder` or `byte[]`:
 
     @Test
-    void testWithResource(@Resource("input.json") String json) {
+    void testWithResource(@TestResource("input.json") String json) {
         // use json as needed
     }
 
 Combine `TestResource` with [LoadWith](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/extension/testresource/LoadWith.html) to provide your own resource-to-object conversion:
 
     @Test
-    void testWithResource(@Resource("person.json") @LoadWith("jsonToPerson") Person person) {
+    void testWithResource(@TestResource("person.json") @LoadWith("jsonToPerson") Person person) {
         // use person as needed
     }
 
