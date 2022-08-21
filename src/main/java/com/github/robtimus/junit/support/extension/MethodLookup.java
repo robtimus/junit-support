@@ -259,7 +259,7 @@ public final class MethodLookup {
         String javaIdentifier = "\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*";
         String javaType = String.format("%s(?:\\.%s)*", javaIdentifier, javaIdentifier);
 
-        String classNamePart = String.format("(?<className>%s(?:\\.%s)*)", javaIdentifier, javaIdentifier);
+        String classNamePart = String.format("(?<className>%s)", javaType);
         String methodNamePart = String.format("(?<methodName>%s)", javaIdentifier);
         String methodArgumentsPart = String.format("(?<methodArguments>(?:%s(?:,\\s*%s)*)?)", javaType, javaType);
 
