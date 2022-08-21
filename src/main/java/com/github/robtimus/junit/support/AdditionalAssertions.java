@@ -19,6 +19,7 @@ package com.github.robtimus.junit.support;
 
 import static com.github.robtimus.junit.support.AssertionFailedErrorBuilder.assertionFailure;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -199,6 +200,134 @@ public final class AdditionalAssertions {
     public static double assertIsPresent(OptionalDouble optional, Supplier<String> messageSupplier) {
         assertNotEquals(OptionalDouble.empty(), optional, messageSupplier);
         return optional.getAsDouble();
+    }
+
+    /**
+     * Asserts that the supplied optional is empty.
+     *
+     * @param optional The optional to check.
+     * @since 2.0
+     */
+    public static void assertIsEmpty(Optional<?> optional) {
+        assertEquals(Optional.empty(), optional);
+    }
+
+    /**
+     * Asserts that the supplied optional is empty.
+     *
+     * @param optional The optional to check.
+     * @param message The failure message to fail with.
+     * @since 2.0
+     */
+    public static void assertIsEmpty(Optional<?> optional, String message) {
+        assertEquals(Optional.empty(), optional, message);
+    }
+
+    /**
+     * Asserts that the supplied optional is empty.
+     *
+     * @param optional The optional to check.
+     * @param messageSupplier The supplier for the failure message to fail with.
+     * @since 2.0
+     */
+    public static void assertIsEmpty(Optional<?> optional, Supplier<String> messageSupplier) {
+        assertEquals(Optional.empty(), optional, messageSupplier);
+    }
+
+    /**
+     * Asserts that the supplied optional is empty.
+     *
+     * @param optional The optional to check.
+     * @since 2.0
+     */
+    public static void assertIsEmpty(OptionalInt optional) {
+        assertEquals(OptionalInt.empty(), optional);
+    }
+
+    /**
+     * Asserts that the supplied optional is empty.
+     *
+     * @param optional The optional to check.
+     * @param message The failure message to fail with.
+     * @since 2.0
+     */
+    public static void assertIsEmpty(OptionalInt optional, String message) {
+        assertEquals(OptionalInt.empty(), optional, message);
+    }
+
+    /**
+     * Asserts that the supplied optional is empty.
+     *
+     * @param optional The optional to check.
+     * @param messageSupplier The supplier for the failure message to fail with.
+     * @since 2.0
+     */
+    public static void assertIsEmpty(OptionalInt optional, Supplier<String> messageSupplier) {
+        assertEquals(OptionalInt.empty(), optional, messageSupplier);
+    }
+
+    /**
+     * Asserts that the supplied optional is empty.
+     *
+     * @param optional The optional to check.
+     * @since 2.0
+     */
+    public static void assertIsEmpty(OptionalLong optional) {
+        assertEquals(OptionalLong.empty(), optional);
+    }
+
+    /**
+     * Asserts that the supplied optional is empty.
+     *
+     * @param optional The optional to check.
+     * @param message The failure message to fail with.
+     * @since 2.0
+     */
+    public static void assertIsEmpty(OptionalLong optional, String message) {
+        assertEquals(OptionalLong.empty(), optional, message);
+    }
+
+    /**
+     * Asserts that the supplied optional is empty.
+     *
+     * @param optional The optional to check.
+     * @param messageSupplier The supplier for the failure message to fail with.
+     * @since 2.0
+     */
+    public static void assertIsEmpty(OptionalLong optional, Supplier<String> messageSupplier) {
+        assertEquals(OptionalLong.empty(), optional, messageSupplier);
+    }
+
+    /**
+     * Asserts that the supplied optional is empty.
+     *
+     * @param optional The optional to check.
+     * @since 2.0
+     */
+    public static void assertIsEmpty(OptionalDouble optional) {
+        assertEquals(OptionalDouble.empty(), optional);
+    }
+
+    /**
+     * Asserts that the supplied optional is empty.
+     *
+     * @param optional The optional to check.
+     * @param message The failure message to fail with.
+     * @since 2.0
+     */
+    public static void assertIsEmpty(OptionalDouble optional, String message) {
+        assertEquals(OptionalDouble.empty(), optional, message);
+    }
+
+    /**
+     * Asserts that the supplied optional is empty.
+     *
+     * @param optional The optional to check.
+     * @param messageSupplier The supplier for the failure message to fail with.
+     * @since 2.0
+     */
+    public static void assertIsEmpty(OptionalDouble optional, Supplier<String> messageSupplier) {
+        assertEquals(OptionalDouble.empty(), optional, messageSupplier);
     }
 
     /**
