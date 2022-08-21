@@ -43,7 +43,9 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
     private static final Map<String, String> EOL_VALUES;
     private static final Map<String, Supplier<String>> ENCODING_LOOKUPS;
 
-    private static final MethodLookup LOAD_AS_LOOKUP = MethodLookup.withParameterTypes(Reader.class)
+    private static final MethodLookup LOAD_AS_LOOKUP = MethodLookup.withParameterTypes(Reader.class, InjectionTarget.class)
+            .orParameterTypes(Reader.class)
+            .orParameterTypes(InputStream.class, InjectionTarget.class)
             .orParameterTypes(InputStream.class);
 
     static {
@@ -94,9 +96,13 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
             validateNoEOL(target, "@EOL not allowed in combination with @LoadWith");
 
             MethodLookup.Result lookupResult = LOAD_AS_LOOKUP.find(loadWith.value(), context);
-            return lookupResult.index() == 0
-                    ? resolveValueFromReader(resource, lookupResult.method(), target, context)
-                    : resolveValueFromInputStream(resource, lookupResult.method(), target, context);
+            switch (lookupResult.index()) {
+                case 0: // Reader + InjectionTarget
+                case 1: // Reader
+                    return resolveValueFromReader(resource, lookupResult.method(), target, context);
+                default: // InputStream + InjectionTarget, InputStream
+                    return resolveValueFromInputStream(resource, lookupResult.method(), target, context);
+            }
         }
 
         return resolveValueFromInputStream(resource, target, context);
@@ -109,7 +115,9 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
             validateNoEncoding(target, "@Encoding not allowed when using InputStream");
 
             Object testInstance = context.getTestInstance().orElse(null);
-            return ReflectionSupport.invokeMethod(factoryMethod, testInstance, inputStream);
+            return factoryMethod.getParameterCount() == 1
+                    ? ReflectionSupport.invokeMethod(factoryMethod, testInstance, inputStream)
+                    : ReflectionSupport.invokeMethod(factoryMethod, testInstance, inputStream, target);
         } catch (IOException e) {
             return throwAsUncheckedException(e);
         }
@@ -122,7 +130,9 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
             String encoding = lookupEncoding(target, context);
             try (Reader reader = new InputStreamReader(inputStream, encoding)) {
                 Object testInstance = context.getTestInstance().orElse(null);
-                return ReflectionSupport.invokeMethod(factoryMethod, testInstance, reader);
+                return factoryMethod.getParameterCount() == 1
+                        ? ReflectionSupport.invokeMethod(factoryMethod, testInstance, reader)
+                        : ReflectionSupport.invokeMethod(factoryMethod, testInstance, reader, target);
             }
         } catch (IOException e) {
             return throwAsUncheckedException(e);

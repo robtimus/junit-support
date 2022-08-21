@@ -23,6 +23,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import com.github.robtimus.junit.support.extension.InjectionTarget;
 
 /**
  * {@code LoadWith} can be used in combination with {@link TestResource} to specify a factory method to load the contents of a resource into an
@@ -37,8 +38,10 @@ public @interface LoadWith {
 
     /**
      * The name of the factory method within the test class or in an external class to use to load the contents of the resource into an object.
-     * The method must take a single {@link InputStream} or {@link Reader} argument. If no arguments are specified in the factory method name,
-     * a method with a {@link Reader} parameter is tried first, then a method with an {@link InputStream} parameter.
+     * The method must take a single {@link InputStream} or {@link Reader} argument, and an optional {@link InjectionTarget} argument.
+     * If no arguments are specified in the factory method name, a method with {@link Reader} and {@link InjectionTarget} parameters is tried first,
+     * then a method with a {@link Reader} parameter, then a method with {@link InputStream} and {@link InjectionTarget} parameters, and finally a
+     * method with an {@link InputStream} parameter.
      * <p>
      * A factory method within the test class must be static when used for static field or constructor parameter injection. It may be non-static when
      * used for instance field or method parameter injection.
@@ -47,8 +50,13 @@ public @interface LoadWith {
      * <p>
      * Examples:
      * <ul>
-     * <li>{@code loadResource} for a method in the test class; the same as {@code loadResource(java.io.Reader)} if it exists, otherwise
+     * <li>{@code loadResource} for a method in the test class; the same as
+     *     {@code loadResource(java.io.Reader, com.github.robtimus.junit.support.extension.InjectionTarget)} if it exists, otherwise
+     *     {@code loadResource(java.io.Reader)} if it exists, otherwise
+     *     {@code loadResource(java.io.InputStream, com.github.robtimus.junit.support.extension.InjectionTarget)} if it exists, otherwise
      *     {@code loadResource(java.io.InputStream)}</li>
+     * <li>{@code loadResource(java.io.Reader, com.github.robtimus.junit.support.extension.InjectionTarget)} for a method in the test class that takes
+     *     {@link Reader} and {@link InjectionTarget} arguments</li>
      * <li>{@code loadResource(java.io.Reader)} for a method in the test class that takes a single {@link Reader} argument</li>
      * <li>{@code loadResource(java.io.InputStream)} for a method in the test class that takes a single {@link Reader} argument</li>
      * <li>{@code com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders#toString(java.io.Reader)} for a method in an external

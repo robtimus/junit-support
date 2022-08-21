@@ -32,7 +32,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Properties;
+import java.util.stream.Collectors;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -47,6 +49,7 @@ import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.testkit.engine.EngineExecutionResults;
 import org.junit.platform.testkit.engine.EngineTestKit;
 import org.opentest4j.AssertionFailedError;
+import com.github.robtimus.junit.support.extension.InjectionTarget;
 
 @SuppressWarnings("nls")
 final class TestResourceTest {
@@ -403,8 +406,24 @@ final class TestResourceTest {
                 }
 
                 @Test
+                @DisplayName("uses InputStream and target")
+                void testUsesInputStreamAndTarget(
+                        @TestResource("lorem.txt")
+                        @LoadWith("loadResource(java.io.InputStream, com.github.robtimus.junit.support.extension.InjectionTarget)") byte[] resource) {
+                    assertArrayEquals(readResource("lorem.txt"), resource);
+                }
+
+                @Test
                 @DisplayName("uses Reader")
                 void testUsesReader(@TestResource("lorem.txt") @LoadWith("loadResource(java.io.Reader)") String resource) {
+                    assertEquals(new String(readResource("lorem.txt")), resource);
+                }
+
+                @Test
+                @DisplayName("uses Reader and target")
+                void testUsesReaderAndTarget(
+                        @TestResource("lorem.txt")
+                        @LoadWith("loadResource(java.io.Reader, com.github.robtimus.junit.support.extension.InjectionTarget)") String resource) {
                     assertEquals(new String(readResource("lorem.txt")), resource);
                 }
 
@@ -414,7 +433,17 @@ final class TestResourceTest {
                 }
 
                 @SuppressWarnings("unused")
+                private byte[] loadResource(InputStream inputStream, InjectionTarget target) throws IOException {
+                    return TestResourceLoaders.toBytes(inputStream);
+                }
+
+                @SuppressWarnings("unused")
                 private String loadResource(Reader reader) throws IOException {
+                    return TestResourceLoaders.toString(reader);
+                }
+
+                @SuppressWarnings("unused")
+                private String loadResource(Reader reader, InjectionTarget target) throws IOException {
                     return TestResourceLoaders.toString(reader);
                 }
             }
@@ -676,11 +705,19 @@ final class TestResourceTest {
                 @Test
                 @DisplayName("without parameters")
                 void testWithoutParameters() {
+                    String parameterTargetTypes = Arrays.asList(
+                            "(java.io.Reader, com.github.robtimus.junit.support.extension.InjectionTarget)",
+                            "(java.io.Reader)",
+                            "(java.io.InputStream, com.github.robtimus.junit.support.extension.InjectionTarget)",
+                            "(java.io.InputStream)")
+                            .stream()
+                            .collect(Collectors.joining(", "));
+
                     assertSingleContainerFailure(TestResourceTest.LoadWithErrors.MethodNotFound.WithoutParameters.class,
                             PreconditionViolationException.class,
                             equalTo(String.format("Could not find method [%s] in class [%s] with a parameter combination in [%s]",
                                     "nonExisting", "com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders",
-                                    "(java.io.Reader), (java.io.InputStream)")));
+                                    parameterTargetTypes)));
                 }
 
                 @Test
@@ -714,10 +751,18 @@ final class TestResourceTest {
             @Test
             @DisplayName("invalid parameters")
             void testInvalidParameters() {
+                String parameterTargetTypes = Arrays.asList(
+                        "(java.io.Reader, com.github.robtimus.junit.support.extension.InjectionTarget)",
+                        "(java.io.Reader)",
+                        "(java.io.InputStream, com.github.robtimus.junit.support.extension.InjectionTarget)",
+                        "(java.io.InputStream)")
+                        .stream()
+                        .collect(Collectors.joining(", "));
+
                 assertSingleContainerFailure(TestResourceTest.LoadWithErrors.InvalidParameters.class, PreconditionViolationException.class,
                         equalTo(String.format("Method [readResource(java.lang.String)] in class [%s] does not have a parameter combination in [%s]",
                                 "com.github.robtimus.junit.support.extension.testresource.TestResourceTest",
-                                "(java.io.Reader), (java.io.InputStream)")));
+                                parameterTargetTypes)));
             }
 
             @Nested
