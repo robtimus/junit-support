@@ -22,6 +22,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -33,12 +34,16 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import java.io.IOException;
+import java.time.Month;
+import java.time.MonthDay;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -48,8 +53,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 @SuppressWarnings("nls")
 class ArgumentsCombinerTest {
@@ -1139,10 +1146,7 @@ class ArgumentsCombinerTest {
         @Test
         @DisplayName("match")
         void testMatch() {
-            assertSame(combiner, combiner.excludeCombinations(arguments -> {
-                Object[] args = arguments.get();
-                return Boolean.TRUE.equals(args[0]) && "bar".equals(args[2]);
-            }));
+            assertSame(combiner, combiner.excludeCombinations(arguments -> Boolean.TRUE.equals(arguments[0]) && "bar".equals(arguments[2])));
 
             assertArguments(combiner,
                     arguments(true, 1, "foo"),
@@ -1298,5 +1302,27 @@ class ArgumentsCombinerTest {
                 valuesMatcher.describeMismatch(item.get(), mismatchDescription);
             }
         };
+    }
+
+    @ParameterizedTest(name = "month = {0}, day = {1}")
+    @ArgumentsSource(MonthDayArgumentsProvider.class)
+    @DisplayName("site example")
+    void testSiteExample(Month month, int day) {
+        assertDoesNotThrow(() -> MonthDay.of(month, day));
+    }
+
+    private static final class MonthDayArgumentsProvider implements ArgumentsProvider {
+
+        @Override
+        public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
+            return ArgumentsCombiner.with(EnumSet.allOf(Month.class))
+                    .crossJoin(() -> IntStream.rangeClosed(1, 31).boxed())
+                    .excludeCombinations(arguments -> Month.FEBRUARY.equals(arguments[0]) && (int) arguments[1] > 28)
+                    .excludeCombination(Month.APRIL, 31)
+                    .excludeCombination(Month.JUNE, 31)
+                    .excludeCombination(Month.SEPTEMBER, 31)
+                    .excludeCombination(Month.NOVEMBER, 31)
+                    .stream();
+        }
     }
 }

@@ -478,13 +478,12 @@ public final class ArgumentsCombiner {
     public ArgumentsCombiner excludeCombination(Object... values) {
         Objects.requireNonNull(values);
 
-        Predicate<Arguments> filter = arguments -> {
-            Object[] args = arguments.get();
-            if (args.length != values.length) {
+        Predicate<Object[]> filter = arguments -> {
+            if (arguments.length != values.length) {
                 throw new IllegalStateException(String.format(
-                        "Incorrect number of values given. Expected %d, was %d: %s", args.length, values.length, Arrays.toString(values)));
+                        "Incorrect number of values given. Expected %d, was %d: %s", arguments.length, values.length, Arrays.toString(values)));
             }
-            return Arrays.equals(values, args);
+            return Arrays.equals(values, arguments);
         };
         return excludeCombinations(filter);
     }
@@ -497,10 +496,10 @@ public final class ArgumentsCombiner {
      * @return This object.
      * @throws NullPointerException If the given filter is {@code null}.
      */
-    public ArgumentsCombiner excludeCombinations(Predicate<? super Arguments> filter) {
+    public ArgumentsCombiner excludeCombinations(Predicate<? super Object[]> filter) {
         Objects.requireNonNull(filter);
 
-        stream = stream.filter(filter.negate());
+        stream = stream.filter(arguments -> !filter.test(arguments.get()));
 
         return this;
     }
