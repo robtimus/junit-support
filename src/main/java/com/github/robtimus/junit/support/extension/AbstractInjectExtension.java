@@ -90,9 +90,9 @@ public abstract class AbstractInjectExtension<A extends Annotation> implements B
             throw e;
         });
 
-        Object value = resolveValue(annotation, target, context);
-
         try {
+            Object value = resolveValue(annotation, target, context);
+
             if (!field.isAccessible()) {
                 field.setAccessible(true);
             }
@@ -100,11 +100,6 @@ public abstract class AbstractInjectExtension<A extends Annotation> implements B
         } catch (Exception e) {
             throwAsUncheckedException(e);
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T extends Throwable> void throwAsUncheckedException(Throwable t) throws T {
-        throw (T) t;
     }
 
     @Override
@@ -134,7 +129,11 @@ public abstract class AbstractInjectExtension<A extends Annotation> implements B
         A annotation = parameterContext.findAnnotation(annotationType).orElseThrow(IllegalStateException::new);
         InjectionTarget target = InjectionTarget.forParameter(parameterContext);
 
-        return resolveValue(annotation, target, extensionContext);
+        try {
+            return resolveValue(annotation, target, extensionContext);
+        } catch (Exception e) {
+            return throwAsUncheckedException(e);
+        }
     }
 
     /**
@@ -144,6 +143,12 @@ public abstract class AbstractInjectExtension<A extends Annotation> implements B
      * @param target The target to inject the value in; never {@code null}.
      * @param context The current extension context; never {@code null}.
      * @return The value to inject; possibly {@code null}.
+     * @throws Exception If the value could not be resolved.
      */
-    protected abstract Object resolveValue(A annotation, InjectionTarget target, ExtensionContext context);
+    protected abstract Object resolveValue(A annotation, InjectionTarget target, ExtensionContext context) throws Exception;
+
+    @SuppressWarnings("unchecked")
+    private static <T extends Throwable, R> R throwAsUncheckedException(Throwable t) throws T {
+        throw (T) t;
+    }
 }

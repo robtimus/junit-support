@@ -90,7 +90,7 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
     }
 
     @Override
-    protected Object resolveValue(TestResource resource, InjectionTarget target, ExtensionContext context) {
+    protected Object resolveValue(TestResource resource, InjectionTarget target, ExtensionContext context) throws IOException {
         LoadWith loadWith = target.findAnnotation(LoadWith.class).orElse(null);
         if (loadWith != null) {
             validateNoEOL(target, "@EOL not allowed in combination with @LoadWith");
@@ -108,7 +108,9 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
         return resolveValueFromInputStream(resource, target, context);
     }
 
-    private Object resolveValueFromInputStream(TestResource resource, Method factoryMethod, InjectionTarget target, ExtensionContext context) {
+    private Object resolveValueFromInputStream(TestResource resource, Method factoryMethod, InjectionTarget target, ExtensionContext context)
+            throws IOException {
+
         try (InputStream inputStream = target.declaringClass().getResourceAsStream(resource.value())) {
             validateResource(resource, target, inputStream);
 
@@ -118,12 +120,12 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
             return factoryMethod.getParameterCount() == 1
                     ? ReflectionSupport.invokeMethod(factoryMethod, testInstance, inputStream)
                     : ReflectionSupport.invokeMethod(factoryMethod, testInstance, inputStream, target);
-        } catch (IOException e) {
-            return throwAsUncheckedException(e);
         }
     }
 
-    private Object resolveValueFromReader(TestResource resource, Method factoryMethod, InjectionTarget target, ExtensionContext context) {
+    private Object resolveValueFromReader(TestResource resource, Method factoryMethod, InjectionTarget target, ExtensionContext context)
+            throws IOException {
+
         try (InputStream inputStream = target.declaringClass().getResourceAsStream(resource.value())) {
             validateResource(resource, target, inputStream);
 
@@ -134,12 +136,10 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
                         ? ReflectionSupport.invokeMethod(factoryMethod, testInstance, reader)
                         : ReflectionSupport.invokeMethod(factoryMethod, testInstance, reader, target);
             }
-        } catch (IOException e) {
-            return throwAsUncheckedException(e);
         }
     }
 
-    private Object resolveValueFromInputStream(TestResource resource, InjectionTarget target, ExtensionContext context) {
+    private Object resolveValueFromInputStream(TestResource resource, InjectionTarget target, ExtensionContext context) throws IOException {
         Class<?> targetType = target.type();
         try (InputStream inputStream = target.declaringClass().getResourceAsStream(resource.value())) {
             validateResource(resource, target, inputStream);
@@ -147,8 +147,6 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
             ResourceConverter resourceConverter = RESOURCE_CONVERTERS.get(targetType);
 
             return resourceConverter.convert(inputStream, target, context);
-        } catch (IOException e) {
-            return throwAsUncheckedException(e);
         }
     }
 
@@ -269,11 +267,6 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
         if (encoding != null) {
             throw new PreconditionViolationException(message);
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T extends Throwable, R> R throwAsUncheckedException(Throwable t) throws T {
-        throw (T) t;
     }
 
     private interface ResourceConverter {
