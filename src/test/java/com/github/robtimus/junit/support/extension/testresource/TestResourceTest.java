@@ -26,6 +26,7 @@ import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -409,8 +410,19 @@ final class TestResourceTest {
                 @DisplayName("uses InputStream and target")
                 void testUsesInputStreamAndTarget(
                         @TestResource("lorem.txt")
-                        @LoadWith("loadResource(java.io.InputStream, com.github.robtimus.junit.support.extension.InjectionTarget)") byte[] resource) {
-                    assertArrayEquals(readResource("lorem.txt"), resource);
+                        @LoadWith("loadResource(java.io.InputStream, com.github.robtimus.junit.support.extension.InjectionTarget)")
+                        InjectionTarget target) {
+
+                    assertEquals(InjectionTarget.class, target.type());
+                    assertInstanceOf(ParameterResolutionException.class, target.createException("test"));
+                }
+
+                @Test
+                @DisplayName("uses InputStream and target type")
+                void testUsesInputStreamAndTargetType(
+                        @TestResource("lorem.txt") @LoadWith("loadResource(java.io.InputStream, java.lang.Class)") Class<?> targetType) {
+
+                    assertEquals(Class.class, targetType);
                 }
 
                 @Test
@@ -423,8 +435,19 @@ final class TestResourceTest {
                 @DisplayName("uses Reader and target")
                 void testUsesReaderAndTarget(
                         @TestResource("lorem.txt")
-                        @LoadWith("loadResource(java.io.Reader, com.github.robtimus.junit.support.extension.InjectionTarget)") String resource) {
-                    assertEquals(new String(readResource("lorem.txt")), resource);
+                        @LoadWith("loadResource(java.io.Reader, com.github.robtimus.junit.support.extension.InjectionTarget)")
+                        InjectionTarget target) {
+
+                    assertEquals(InjectionTarget.class, target.type());
+                    assertInstanceOf(ParameterResolutionException.class, target.createException("test"));
+                }
+
+                @Test
+                @DisplayName("uses Reader and target type")
+                void testUsesReaderAndTargetType(
+                        @TestResource("lorem.txt") @LoadWith("loadResource(java.io.Reader, java.lang.Class)") Class<?> targetType) {
+
+                    assertEquals(Class.class, targetType);
                 }
 
                 @SuppressWarnings("unused")
@@ -433,8 +456,13 @@ final class TestResourceTest {
                 }
 
                 @SuppressWarnings("unused")
-                private byte[] loadResource(InputStream inputStream, InjectionTarget target) throws IOException {
-                    return TestResourceLoaders.toBytes(inputStream);
+                private InjectionTarget loadResource(InputStream inputStream, InjectionTarget target) throws IOException {
+                    return target;
+                }
+
+                @SuppressWarnings("unused")
+                private Class<?> loadResource(InputStream inputStream, Class<?> targetType) throws IOException {
+                    return targetType;
                 }
 
                 @SuppressWarnings("unused")
@@ -443,8 +471,13 @@ final class TestResourceTest {
                 }
 
                 @SuppressWarnings("unused")
-                private String loadResource(Reader reader, InjectionTarget target) throws IOException {
-                    return TestResourceLoaders.toString(reader);
+                private InjectionTarget loadResource(Reader reader, InjectionTarget target) throws IOException {
+                    return target;
+                }
+
+                @SuppressWarnings("unused")
+                private Class<?> loadResource(Reader reader, Class<?> targetType) throws IOException {
+                    return targetType;
                 }
             }
 
@@ -707,8 +740,10 @@ final class TestResourceTest {
                 void testWithoutParameters() {
                     String parameterTargetTypes = Arrays.asList(
                             "(java.io.Reader, com.github.robtimus.junit.support.extension.InjectionTarget)",
+                            "(java.io.Reader, java.lang.Class)",
                             "(java.io.Reader)",
                             "(java.io.InputStream, com.github.robtimus.junit.support.extension.InjectionTarget)",
+                            "(java.io.InputStream, java.lang.Class)",
                             "(java.io.InputStream)")
                             .stream()
                             .collect(Collectors.joining(", "));
@@ -753,8 +788,10 @@ final class TestResourceTest {
             void testInvalidParameters() {
                 String parameterTargetTypes = Arrays.asList(
                         "(java.io.Reader, com.github.robtimus.junit.support.extension.InjectionTarget)",
+                        "(java.io.Reader, java.lang.Class)",
                         "(java.io.Reader)",
                         "(java.io.InputStream, com.github.robtimus.junit.support.extension.InjectionTarget)",
+                        "(java.io.InputStream, java.lang.Class)",
                         "(java.io.InputStream)")
                         .stream()
                         .collect(Collectors.joining(", "));

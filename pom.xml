@@ -276,7 +276,7 @@
                 --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.test.collections=org.junit.platform.commons
                 --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.test.io=org.junit.platform.commons
 
-                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.examples.collection=org.junit.platform.commons
+                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.examples.collections=org.junit.platform.commons
                 --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.examples.covariantreturn=org.junit.platform.commons
                 --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.examples.delegation=org.junit.platform.commons
                 --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.examples.io=org.junit.platform.commons

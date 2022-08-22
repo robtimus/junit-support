@@ -109,9 +109,30 @@ The method reference in the annotation can come in the following formats:
 
 The parameter types can be one of the following combination; if they are not given, the method lookup will be performed in this order:
 * `java.io.Reader`, `com.github.robtimus.junit.support.extension.InjectionTarget`
+* `java.io.Reader`, `java.lang.Class`
 * `java.io.Reader`
 * `java.io.InputStream`, `com.github.robtimus.junit.support.extension.InjectionTarget`
+* `java.io.InputStream`, `java.lang.Class`
 * `java.io.InputStream`
+
+The `InjectionTarget` or `Class` arguments represents the target or target type respectively, and can be used for dynamic conversion methods. For instance:
+
+```
+@Test
+void testWithResource(@TestResource("person.xml") @LoadWith("xmlToObject") Person person) {
+    // use person as needed
+}
+
+@Test
+void testWithResource(@TestResource("address.xml") @LoadWith("xmlToObject") Address address) {
+    // use address as needed
+}
+
+<T> T xmlToObject(Reader reader, Class<T> type) throws IOException {
+    // perform conversion, e.g. using JAXB
+}
+```
+
 
 #### Specifying the encoding
 

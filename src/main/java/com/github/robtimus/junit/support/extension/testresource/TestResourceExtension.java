@@ -44,8 +44,10 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
     private static final Map<String, Supplier<String>> ENCODING_LOOKUPS;
 
     private static final MethodLookup LOAD_AS_LOOKUP = MethodLookup.withParameterTypes(Reader.class, InjectionTarget.class)
+            .orParameterTypes(Reader.class, Class.class)
             .orParameterTypes(Reader.class)
             .orParameterTypes(InputStream.class, InjectionTarget.class)
+            .orParameterTypes(InputStream.class, Class.class)
             .orParameterTypes(InputStream.class);
 
     static {
@@ -98,18 +100,25 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
             MethodLookup.Result lookupResult = LOAD_AS_LOOKUP.find(loadWith.value(), context);
             switch (lookupResult.index()) {
                 case 0: // Reader + InjectionTarget
-                case 1: // Reader
-                    return resolveValueFromReader(resource, lookupResult.method(), target, context);
-                default: // InputStream + InjectionTarget, InputStream
-                    return resolveValueFromInputStream(resource, lookupResult.method(), target, context);
+                    return resolveValueFromReader(resource, lookupResult.method(), target, target, context);
+                case 1: // Reader + Class
+                    return resolveValueFromReader(resource, lookupResult.method(), target, target.type(), context);
+                case 2: // Reader
+                    return resolveValueFromReader(resource, lookupResult.method(), target, null, context);
+                case 3: // InputStream + InjectionTarget
+                    return resolveValueFromInputStream(resource, lookupResult.method(), target, target, context);
+                case 4: // InputStream + Class
+                    return resolveValueFromInputStream(resource, lookupResult.method(), target, target.type(), context);
+                default: // index == 5, InputStream
+                    return resolveValueFromInputStream(resource, lookupResult.method(), target, null, context);
             }
         }
 
         return resolveValueFromInputStream(resource, target, context);
     }
 
-    private Object resolveValueFromInputStream(TestResource resource, Method factoryMethod, InjectionTarget target, ExtensionContext context)
-            throws IOException {
+    private Object resolveValueFromInputStream(TestResource resource, Method factoryMethod, InjectionTarget target, Object additionalMethodArgument,
+            ExtensionContext context) throws IOException {
 
         try (InputStream inputStream = target.declaringClass().getResourceAsStream(resource.value())) {
             validateResource(resource, target, inputStream);
@@ -119,12 +128,12 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
             Object testInstance = context.getTestInstance().orElse(null);
             return factoryMethod.getParameterCount() == 1
                     ? ReflectionSupport.invokeMethod(factoryMethod, testInstance, inputStream)
-                    : ReflectionSupport.invokeMethod(factoryMethod, testInstance, inputStream, target);
+                    : ReflectionSupport.invokeMethod(factoryMethod, testInstance, inputStream, additionalMethodArgument);
         }
     }
 
-    private Object resolveValueFromReader(TestResource resource, Method factoryMethod, InjectionTarget target, ExtensionContext context)
-            throws IOException {
+    private Object resolveValueFromReader(TestResource resource, Method factoryMethod, InjectionTarget target, Object additionalMethodArgument,
+            ExtensionContext context) throws IOException {
 
         try (InputStream inputStream = target.declaringClass().getResourceAsStream(resource.value())) {
             validateResource(resource, target, inputStream);
@@ -134,7 +143,7 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
                 Object testInstance = context.getTestInstance().orElse(null);
                 return factoryMethod.getParameterCount() == 1
                         ? ReflectionSupport.invokeMethod(factoryMethod, testInstance, reader)
-                        : ReflectionSupport.invokeMethod(factoryMethod, testInstance, reader, target);
+                        : ReflectionSupport.invokeMethod(factoryMethod, testInstance, reader, additionalMethodArgument);
             }
         }
     }
