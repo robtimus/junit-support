@@ -115,7 +115,7 @@ The parameter types can be one of the following combination; if they are not giv
 * `java.io.InputStream`, `java.lang.Class`
 * `java.io.InputStream`
 
-The `InjectionTarget` or `Class` arguments represents the target or target type respectively, and can be used for dynamic conversion methods. For instance:
+The [InjectionTarget](../apidocs/com/github/robtimus/junit/support/extension/InjectionTarget.html) or `Class` arguments represents the target or target type respectively, and can be used for dynamic conversion methods. For instance:
 
 ```
 @Test

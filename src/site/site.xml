@@ -33,23 +33,12 @@
       <item name="MethodLookup" href="extension/method-lookup.html" />
       <item name="AbstractInjectExtension" href="extension/abstract-inject-extension.html" />
     </menu>
-    <menu name="Pre-defined tests">
-      <item name="Introduction" href="test/introduction.html" />
-      <item name="Collections framework" href="test/collections.html" />
-      <item name="I/O" href="test/io.html" />
-      <item name="Method delegation" href="test/delegation.html" />
-      <item name="Covariant return types" href="test/covariant-return.html" />
-      <item name="Disabling tests" href="test/disabling.html" />
-    </menu>
-    <menu name="Assertions">
+    <menu name="Various">
+      <item name="Pre-defined tests" href="pre-defined-tests.html" />
       <item name="AssertionFailedErrorBuilder" href="assertion-failed-error-builder.html" />
       <item name="Additional assertions" href="additional-assertions.html" />
-    </menu>
-    <menu name="Parameterized tests">
-      <item name="ArgumentsCombiner" href="params/arguments-combiner.html" />
-    </menu>
-    <menu name="Hamcrest">
-      <item name="PathMatchers" href="matchers/path-matchers.html" />
+      <item name="Parameterized test support" href="parameterized-test-support.html" />
+      <item name="Hamcrest matchers" href="hamcrest-matchers.html" />
     </menu>
   </body>
 </project>
