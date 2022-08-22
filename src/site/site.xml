@@ -31,7 +31,7 @@
     </menu>
     <menu name="Extension Support">
       <item name="MethodLookup" href="extension/method-lookup.html" />
-      <item name="AbstractInjectExtension" href="extension/abstract-inject-extension.html" />
+      <item name="Injection extensions" href="extension/injecting-extensions.html" />
     </menu>
     <menu name="Various">
       <item name="Pre-defined tests" href="pre-defined-tests.html" />

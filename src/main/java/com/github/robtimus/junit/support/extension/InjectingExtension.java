@@ -1,5 +1,5 @@
 /*
- * AbstractInjectExtension.java
+ * InjectingExtension.java
  * Copyright 2022 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,6 @@
 
 package com.github.robtimus.junit.support.extension;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.Objects;
 import java.util.Optional;
@@ -28,55 +27,44 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.platform.commons.JUnitException;
-import org.junit.platform.commons.support.AnnotationSupport;
 import org.junit.platform.commons.support.HierarchyTraversalMode;
 import org.junit.platform.commons.support.ModifierSupport;
+import org.junit.platform.commons.support.ReflectionSupport;
 
 /**
- * An abstract base class for <a href="http://junit.org/">JUnit</a> extensions that can inject values in fields and/or parameters,
- * based on a specific annotation.
- * <p>
- * A compatible annotation should look like this, where {@code MyExtension} extends {@code AbstractInjectExtension<MyAnnotation>}:
- * <pre><code>
- * &#64;ExtendWith(MyExtension.class)
- * &#64;Target({ ElementType.FIELD, ElementType.PARAMETER })
- * &#64;Retention(RetentionPolicy.RUNTIME)
- * public &#64;interface MyAnnotation {
- *     // add fields as needed
- * }
- * </code></pre>
+ * An abstract base class for <a href="http://junit.org/">JUnit</a> extensions that can inject values in fields and/or parameters.
  *
  * @author Rob Spoor
- * @param <A> The type of annotation to use for fields and/or parameters.
  * @since 2.0
  */
-public abstract class AbstractInjectExtension<A extends Annotation> implements BeforeAllCallback, BeforeEachCallback, ParameterResolver {
+public abstract class InjectingExtension implements BeforeAllCallback, BeforeEachCallback, ParameterResolver {
 
-    private final Class<A> annotationType;
+    private final Predicate<Field> fieldPredicate;
 
     /**
      * Creates a new extension.
      *
-     * @param annotationType The annotation type to check for.
+     * @param fieldPredicate A predicate that determines which fields are eligible for injection.
+     * @throws NullPointerException If the given predicate is {@code null}.
      */
-    protected AbstractInjectExtension(Class<A> annotationType) {
-        this.annotationType = Objects.requireNonNull(annotationType);
+    protected InjectingExtension(Predicate<Field> fieldPredicate) {
+        this.fieldPredicate = Objects.requireNonNull(fieldPredicate);
     }
 
     @Override
-    public void beforeAll(ExtensionContext context) throws Exception {
+    public final void beforeAll(ExtensionContext context) throws Exception {
         injectFields(null, context.getRequiredTestClass(), ModifierSupport::isStatic, context);
     }
 
     @Override
-    public void beforeEach(ExtensionContext context) throws Exception {
+    public final void beforeEach(ExtensionContext context) throws Exception {
         for (Object testInstance : context.getRequiredTestInstances().getAllInstances()) {
             injectFields(testInstance, testInstance.getClass(), ModifierSupport::isNotStatic, context);
         }
     }
 
     private void injectFields(Object testInstance, Class<?> testClass, Predicate<Field> predicate, ExtensionContext context) {
-        for (Field field : AnnotationSupport.findAnnotatedFields(testClass, annotationType, predicate, HierarchyTraversalMode.TOP_DOWN)) {
+        for (Field field : ReflectionSupport.findFields(testClass, fieldPredicate.and(predicate), HierarchyTraversalMode.TOP_DOWN)) {
             setValue(field, testInstance, context);
         }
     }
@@ -84,14 +72,12 @@ public abstract class AbstractInjectExtension<A extends Annotation> implements B
     private void setValue(Field field, Object testInstance, ExtensionContext context) {
         InjectionTarget target = InjectionTarget.forField(field);
 
-        A annotation = target.findAnnotation(annotationType).orElseThrow(IllegalStateException::new);
-
-        validateTarget(target, annotation, context).ifPresent(e -> {
+        validateTarget(target, context).ifPresent(e -> {
             throw e;
         });
 
         try {
-            Object value = resolveValue(annotation, target, context);
+            Object value = resolveValue(target, context);
 
             if (!field.isAccessible()) {
                 field.setAccessible(true);
@@ -103,34 +89,35 @@ public abstract class AbstractInjectExtension<A extends Annotation> implements B
     }
 
     @Override
-    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
-        A annotation = parameterContext.findAnnotation(annotationType).orElse(null);
-        if (annotation == null) {
-            return false;
-        }
+    public final boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
         InjectionTarget target = InjectionTarget.forParameter(parameterContext);
-        return !validateTarget(target, annotation, extensionContext).isPresent();
+        return !validateTarget(target, extensionContext).isPresent();
     }
 
     /**
-     * Validates that a target is valid for an injection annotation.
+     * Validates that a target is valid for injecting.
+     * <p>
+     * If this method returns a non-empty {@link Optional} for parameter injection, {@link #supportsParameter(ParameterContext, ExtensionContext)}
+     * will return {@code false}, and JUnit will fail if no other extension supports the parameter.
+     * <p>
+     * If this method returns a non-empty {@link Optional} for field injection, the exception is thrown. This situation may or may not be prevented
+     * using the field predicate used to create this extension. In some cases the predicate may not test all aspects that are used to inject a value
+     * into fields; if that's the case, throwing an error may be an appropriate action.
      *
      * @param target The target to validate; never {@code null}.
-     * @param annotation The injection annotation found on the target; never {@code null}.
      * @param context The current extension context; never {@code null}.
-     * @return {@link Optional#empty()} if the given target is valid for the given annotation, or an {@link Optional} describing an exception that
-     *         indicates why the target is invalid otherwise. In that case, the exception should have been created using
+     * @return {@link Optional#empty()} if the given target is valid for injecting, or an {@link Optional} describing an exception that indicates why
+     *         the target is invalid otherwise. In that case, the exception should have been created using
      *         {@link InjectionTarget#createException(String)} or {@link InjectionTarget#createException(String, Throwable)}.
      */
-    protected abstract Optional<JUnitException> validateTarget(InjectionTarget target, A annotation, ExtensionContext context);
+    protected abstract Optional<JUnitException> validateTarget(InjectionTarget target, ExtensionContext context);
 
     @Override
-    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
-        A annotation = parameterContext.findAnnotation(annotationType).orElseThrow(IllegalStateException::new);
+    public final Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
         InjectionTarget target = InjectionTarget.forParameter(parameterContext);
 
         try {
-            return resolveValue(annotation, target, extensionContext);
+            return resolveValue(target, extensionContext);
         } catch (Exception e) {
             return throwAsUncheckedException(e);
         }
@@ -138,14 +125,19 @@ public abstract class AbstractInjectExtension<A extends Annotation> implements B
 
     /**
      * Resolves the value to inject.
+     * <p>
+     * When this method is called for parameter injection, {@link #supportsParameter(ParameterContext, ExtensionContext)} will have returned
+     * {@code true}, which means that {@link #validateTarget(InjectionTarget, ExtensionContext)} will have returned an empty {@link Optional}.
+     * <p>
+     * When this method is called for field injection, {@link #validateTarget(InjectionTarget, ExtensionContext)} will have been called and verified
+     * to have returned an empty {@link Optional}.
      *
-     * @param annotation The injection annotation found on the target; never {@code null}.
      * @param target The target to inject the value in; never {@code null}.
      * @param context The current extension context; never {@code null}.
      * @return The value to inject; possibly {@code null}.
      * @throws Exception If the value could not be resolved.
      */
-    protected abstract Object resolveValue(A annotation, InjectionTarget target, ExtensionContext context) throws Exception;
+    protected abstract Object resolveValue(InjectionTarget target, ExtensionContext context) throws Exception;
 
     @SuppressWarnings("unchecked")
     private static <T extends Throwable, R> R throwAsUncheckedException(Throwable t) throws T {

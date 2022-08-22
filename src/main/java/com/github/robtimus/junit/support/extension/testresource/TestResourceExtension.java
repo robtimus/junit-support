@@ -32,12 +32,12 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.platform.commons.JUnitException;
 import org.junit.platform.commons.PreconditionViolationException;
 import org.junit.platform.commons.support.ReflectionSupport;
-import com.github.robtimus.junit.support.extension.AbstractInjectExtension;
+import com.github.robtimus.junit.support.extension.AnnotationBasedInjectingExtension;
 import com.github.robtimus.junit.support.extension.InjectionTarget;
 import com.github.robtimus.junit.support.extension.MethodLookup;
 
 @SuppressWarnings("nls")
-class TestResourceExtension extends AbstractInjectExtension<TestResource> {
+class TestResourceExtension extends AnnotationBasedInjectingExtension<TestResource> {
 
     private static final Map<Class<?>, ResourceConverter> RESOURCE_CONVERTERS;
     private static final Map<String, String> EOL_VALUES;
@@ -92,7 +92,7 @@ class TestResourceExtension extends AbstractInjectExtension<TestResource> {
     }
 
     @Override
-    protected Object resolveValue(TestResource resource, InjectionTarget target, ExtensionContext context) throws IOException {
+    protected Object resolveValue(InjectionTarget target, TestResource resource, ExtensionContext context) throws IOException {
         LoadWith loadWith = target.findAnnotation(LoadWith.class).orElse(null);
         if (loadWith != null) {
             validateNoEOL(target, "@EOL not allowed in combination with @LoadWith");
