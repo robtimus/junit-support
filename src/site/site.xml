@@ -38,7 +38,6 @@
       <item name="AssertionFailedErrorBuilder" href="assertion-failed-error-builder.html" />
       <item name="Additional assertions" href="additional-assertions.html" />
       <item name="Parameterized test support" href="parameterized-test-support.html" />
-      <item name="Hamcrest matchers" href="hamcrest-matchers.html" />
     </menu>
   </body>
 </project>
