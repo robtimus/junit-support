@@ -18,9 +18,7 @@
 package com.github.robtimus.junit.support.test.io;
 
 import static com.github.robtimus.junit.support.ThrowableAssertions.assertDoesNotThrowCheckedException;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.either;
-import static org.hamcrest.Matchers.instanceOf;
+import static com.github.robtimus.junit.support.ThrowableAssertions.assertThrowsOneOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -292,9 +290,8 @@ public interface WriterDelegateTests {
 
                 try (Writer writer = wrapWriter(delegate)) {
                     char[] buffer = new char[10];
-                    Exception exception = assertThrows(Exception.class, () -> writer.write(buffer, -1, 10));
-                    assertThat(exception, either(instanceOf(IndexOutOfBoundsException.class)).or(instanceOf(IllegalArgumentException.class))
-                            .or(instanceOf(IOException.class)));
+                    assertThrowsOneOf(Arrays.asList(IndexOutOfBoundsException.class, IllegalArgumentException.class, IOException.class),
+                            () -> writer.write(buffer, -1, 10));
                 }
                 assertEquals(expectedContent, delegate.toString());
             });
@@ -310,9 +307,8 @@ public interface WriterDelegateTests {
 
                 try (Writer writer = wrapWriter(delegate)) {
                     char[] buffer = new char[10];
-                    Exception exception = assertThrows(Exception.class, () -> writer.write(buffer, buffer.length + 1, 0));
-                    assertThat(exception, either(instanceOf(IndexOutOfBoundsException.class)).or(instanceOf(IllegalArgumentException.class))
-                            .or(instanceOf(IOException.class)));
+                    assertThrowsOneOf(Arrays.asList(IndexOutOfBoundsException.class, IllegalArgumentException.class, IOException.class),
+                            () -> writer.write(buffer, buffer.length + 1, 0));
                 }
                 assertEquals(expectedContent, delegate.toString());
             });
@@ -328,9 +324,8 @@ public interface WriterDelegateTests {
 
                 try (Writer writer = wrapWriter(delegate)) {
                     char[] buffer = new char[10];
-                    Exception exception = assertThrows(Exception.class, () -> writer.write(buffer, 5, -1));
-                    assertThat(exception, either(instanceOf(IndexOutOfBoundsException.class)).or(instanceOf(IllegalArgumentException.class))
-                            .or(instanceOf(IOException.class)));
+                    assertThrowsOneOf(Arrays.asList(IndexOutOfBoundsException.class, IllegalArgumentException.class, IOException.class),
+                            () -> writer.write(buffer, 5, -1));
                 }
                 assertEquals(expectedContent, delegate.toString());
             });
@@ -347,9 +342,8 @@ public interface WriterDelegateTests {
                 try (Writer writer = wrapWriter(delegate)) {
                     char[] buffer = new char[10];
                     // don't use 0 and 11, use 1 and 10, so it's not the value of the length that triggers the error but the combination off + len
-                    Exception exception = assertThrows(Exception.class, () -> writer.write(buffer, 1, buffer.length));
-                    assertThat(exception, either(instanceOf(IndexOutOfBoundsException.class)).or(instanceOf(IllegalArgumentException.class))
-                            .or(instanceOf(IOException.class)));
+                    assertThrowsOneOf(Arrays.asList(IndexOutOfBoundsException.class, IllegalArgumentException.class, IOException.class),
+                            () -> writer.write(buffer, 1, buffer.length));
                 }
                 assertEquals(expectedContent, delegate.toString());
             });
@@ -519,9 +513,8 @@ public interface WriterDelegateTests {
 
                 try (Writer writer = wrapWriter(delegate)) {
                     String string = "0123456789"; //$NON-NLS-1$
-                    Exception exception = assertThrows(Exception.class, () -> writer.write(string, -1, 10));
-                    assertThat(exception, either(instanceOf(IndexOutOfBoundsException.class)).or(instanceOf(IllegalArgumentException.class))
-                            .or(instanceOf(IOException.class)));
+                    assertThrowsOneOf(Arrays.asList(IndexOutOfBoundsException.class, IllegalArgumentException.class, IOException.class),
+                            () -> writer.write(string, -1, 10));
                 }
                 assertEquals(expectedContent, delegate.toString());
             });
@@ -537,9 +530,8 @@ public interface WriterDelegateTests {
 
                 try (Writer writer = wrapWriter(delegate)) {
                     String string = "0123456789"; //$NON-NLS-1$
-                    Exception exception = assertThrows(Exception.class, () -> writer.write(string, string.length() + 1, 0));
-                    assertThat(exception, either(instanceOf(IndexOutOfBoundsException.class)).or(instanceOf(IllegalArgumentException.class))
-                            .or(instanceOf(IOException.class)));
+                    assertThrowsOneOf(Arrays.asList(IndexOutOfBoundsException.class, IllegalArgumentException.class, IOException.class),
+                            () -> writer.write(string, string.length() + 1, 0));
                 }
                 assertEquals(expectedContent, delegate.toString());
             });
@@ -555,9 +547,8 @@ public interface WriterDelegateTests {
 
                 try (Writer writer = wrapWriter(delegate)) {
                     String string = "0123456789"; //$NON-NLS-1$
-                    Exception exception = assertThrows(Exception.class, () -> writer.write(string, 5, -1));
-                    assertThat(exception, either(instanceOf(IndexOutOfBoundsException.class)).or(instanceOf(IllegalArgumentException.class))
-                            .or(instanceOf(IOException.class)));
+                    assertThrowsOneOf(Arrays.asList(IndexOutOfBoundsException.class, IllegalArgumentException.class, IOException.class),
+                            () -> writer.write(string, 5, -1));
                 }
                 assertEquals(expectedContent, delegate.toString());
             });
@@ -574,9 +565,8 @@ public interface WriterDelegateTests {
                 try (Writer writer = wrapWriter(delegate)) {
                     String string = "0123456789"; //$NON-NLS-1$
                     // don't use 0 and 11, use 1 and 10, so it's not the value of the length that triggers the error but the combination off + len
-                    Exception exception = assertThrows(Exception.class, () -> writer.write(string, 1, string.length()));
-                    assertThat(exception, either(instanceOf(IndexOutOfBoundsException.class)).or(instanceOf(IllegalArgumentException.class))
-                            .or(instanceOf(IOException.class)));
+                    assertThrowsOneOf(Arrays.asList(IndexOutOfBoundsException.class, IllegalArgumentException.class, IOException.class),
+                            () -> writer.write(string, 1, string.length()));
                 }
                 assertEquals(expectedContent, delegate.toString());
             });
@@ -759,9 +749,8 @@ public interface WriterDelegateTests {
 
                 try (Writer writer = wrapWriter(delegate)) {
                     String string = "0123456789"; //$NON-NLS-1$
-                    Exception exception = assertThrows(Exception.class, () -> writer.append(string, -1, 10));
-                    assertThat(exception, either(instanceOf(IndexOutOfBoundsException.class)).or(instanceOf(IllegalArgumentException.class))
-                            .or(instanceOf(IOException.class)));
+                    assertThrowsOneOf(Arrays.asList(IndexOutOfBoundsException.class, IllegalArgumentException.class, IOException.class),
+                            () -> writer.append(string, -1, 10));
                 }
                 assertEquals(expectedContent, delegate.toString());
             });
@@ -777,9 +766,8 @@ public interface WriterDelegateTests {
 
                 try (Writer writer = wrapWriter(delegate)) {
                     String string = "0123456789"; //$NON-NLS-1$
-                    Exception exception = assertThrows(Exception.class, () -> writer.append(string, string.length() + 1, 0));
-                    assertThat(exception, either(instanceOf(IndexOutOfBoundsException.class)).or(instanceOf(IllegalArgumentException.class))
-                            .or(instanceOf(IOException.class)));
+                    assertThrowsOneOf(Arrays.asList(IndexOutOfBoundsException.class, IllegalArgumentException.class, IOException.class),
+                            () -> writer.append(string, string.length() + 1, 0));
                 }
                 assertEquals(expectedContent, delegate.toString());
             });
@@ -795,9 +783,8 @@ public interface WriterDelegateTests {
 
                 try (Writer writer = wrapWriter(delegate)) {
                     String string = "0123456789"; //$NON-NLS-1$
-                    Exception exception = assertThrows(Exception.class, () -> writer.append(string, 0, -1));
-                    assertThat(exception, either(instanceOf(IndexOutOfBoundsException.class)).or(instanceOf(IllegalArgumentException.class))
-                            .or(instanceOf(IOException.class)));
+                    assertThrowsOneOf(Arrays.asList(IndexOutOfBoundsException.class, IllegalArgumentException.class, IOException.class),
+                            () -> writer.append(string, 0, -1));
                 }
                 assertEquals(expectedContent, delegate.toString());
             });
@@ -813,9 +800,8 @@ public interface WriterDelegateTests {
 
                 try (Writer writer = wrapWriter(delegate)) {
                     String string = "0123456789"; //$NON-NLS-1$
-                    Exception exception = assertThrows(Exception.class, () -> writer.append(string, 5, 4));
-                    assertThat(exception, either(instanceOf(IndexOutOfBoundsException.class)).or(instanceOf(IllegalArgumentException.class))
-                            .or(instanceOf(IOException.class)));
+                    assertThrowsOneOf(Arrays.asList(IndexOutOfBoundsException.class, IllegalArgumentException.class, IOException.class),
+                            () -> writer.append(string, 5, 4));
                 }
                 assertEquals(expectedContent, delegate.toString());
             });
@@ -831,9 +817,8 @@ public interface WriterDelegateTests {
 
                 try (Writer writer = wrapWriter(delegate)) {
                     String string = "0123456789"; //$NON-NLS-1$
-                    Exception exception = assertThrows(Exception.class, () -> writer.append(string, 1, string.length() + 1));
-                    assertThat(exception, either(instanceOf(IndexOutOfBoundsException.class)).or(instanceOf(IllegalArgumentException.class))
-                            .or(instanceOf(IOException.class)));
+                    assertThrowsOneOf(Arrays.asList(IndexOutOfBoundsException.class, IllegalArgumentException.class, IOException.class),
+                            () -> writer.append(string, 1, string.length() + 1));
                 }
                 assertEquals(expectedContent, delegate.toString());
             });

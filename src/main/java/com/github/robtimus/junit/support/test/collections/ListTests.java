@@ -17,9 +17,7 @@
 
 package com.github.robtimus.junit.support.test.collections;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.either;
-import static org.hamcrest.Matchers.instanceOf;
+import static com.github.robtimus.junit.support.ThrowableAssertions.assertThrowsOneOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -1071,8 +1069,7 @@ public interface ListTests<T> extends CollectionTests<T> {
 
             // List.subList specifies that if from > to, an IndexOutOfBoundsException should be thrown.
             // However, AbstractList.subList throws an IllegalArgumentException, and documents that it does.
-            Exception exception = assertThrows(Exception.class, () -> list.subList(from, to));
-            assertThat(exception, either(instanceOf(IndexOutOfBoundsException.class)).or(instanceOf(IllegalArgumentException.class)));
+            assertThrowsOneOf(IndexOutOfBoundsException.class, IllegalArgumentException.class, () -> list.subList(from, to));
         }
     }
 

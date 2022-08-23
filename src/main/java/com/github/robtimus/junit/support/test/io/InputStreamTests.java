@@ -19,11 +19,10 @@ package com.github.robtimus.junit.support.test.io;
 
 import static com.github.robtimus.junit.support.IOAssertions.assertContainsContent;
 import static com.github.robtimus.junit.support.ThrowableAssertions.assertDoesNotThrowCheckedException;
+import static com.github.robtimus.junit.support.ThrowableAssertions.assertThrowsOneOf;
 import static com.github.robtimus.junit.support.test.io.StreamAssertions.assertNegativeSkip;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.either;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -212,9 +212,8 @@ public interface InputStreamTests {
             assertDoesNotThrowCheckedException(() -> {
                 try (InputStream inputStream = inputStream()) {
                     byte[] buffer = new byte[10];
-                    Exception exception = assertThrows(Exception.class, () -> inputStream.read(buffer, -1, 10));
-                    assertThat(exception, either(instanceOf(IndexOutOfBoundsException.class)).or(instanceOf(IllegalArgumentException.class))
-                            .or(instanceOf(IOException.class)));
+                    assertThrowsOneOf(Arrays.asList(IndexOutOfBoundsException.class, IllegalArgumentException.class, IOException.class),
+                            () -> inputStream.read(buffer, -1, 10));
 
                     // assert that the read did not alter the input stream's state
                     assertContainsContent(inputStream, expectedContent());
@@ -228,9 +227,8 @@ public interface InputStreamTests {
             assertDoesNotThrowCheckedException(() -> {
                 try (InputStream inputStream = inputStream()) {
                     byte[] buffer = new byte[10];
-                    Exception exception = assertThrows(Exception.class, () -> inputStream.read(buffer, buffer.length + 1, 0));
-                    assertThat(exception, either(instanceOf(IndexOutOfBoundsException.class)).or(instanceOf(IllegalArgumentException.class))
-                            .or(instanceOf(IOException.class)));
+                    assertThrowsOneOf(Arrays.asList(IndexOutOfBoundsException.class, IllegalArgumentException.class, IOException.class),
+                            () -> inputStream.read(buffer, buffer.length + 1, 0));
 
                     // assert that the read did not alter the input stream's state
                     assertContainsContent(inputStream, expectedContent());
@@ -244,9 +242,8 @@ public interface InputStreamTests {
             assertDoesNotThrowCheckedException(() -> {
                 try (InputStream inputStream = inputStream()) {
                     byte[] buffer = new byte[10];
-                    Exception exception = assertThrows(Exception.class, () -> inputStream.read(buffer, 5, -1));
-                    assertThat(exception, either(instanceOf(IndexOutOfBoundsException.class)).or(instanceOf(IllegalArgumentException.class))
-                            .or(instanceOf(IOException.class)));
+                    assertThrowsOneOf(Arrays.asList(IndexOutOfBoundsException.class, IllegalArgumentException.class, IOException.class),
+                            () -> inputStream.read(buffer, 5, -1));
 
                     // assert that the read did not alter the input stream's state
                     assertContainsContent(inputStream, expectedContent());
@@ -261,9 +258,8 @@ public interface InputStreamTests {
                 try (InputStream inputStream = inputStream()) {
                     byte[] buffer = new byte[10];
                     // don't use 0 and 11, use 1 and 10
-                    Exception exception = assertThrows(Exception.class, () -> inputStream.read(buffer, 1, buffer.length));
-                    assertThat(exception, either(instanceOf(IndexOutOfBoundsException.class)).or(instanceOf(IllegalArgumentException.class))
-                            .or(instanceOf(IOException.class)));
+                    assertThrowsOneOf(Arrays.asList(IndexOutOfBoundsException.class, IllegalArgumentException.class, IOException.class),
+                            () -> inputStream.read(buffer, 1, buffer.length));
 
                     // assert that the read did not alter the input stream's state
                     assertContainsContent(inputStream, expectedContent());
