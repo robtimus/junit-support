@@ -2,106 +2,52 @@
 
 Contains interfaces and classes that make it easier to write unit tests with [JUnit](https://junit.org/).
 
-## Predefined tests
-
-This library mainly contains interfaces that each test one small aspect of a class or interface, often a single method. This is done for two reasons:
-
-* It allows testing only those methods that have been overridden / implemented. For instance, when testing a class that extends [AbstractList](https://docs.oracle.com/javase/8/docs/api/java/util/AbstractList.html), it's not necessary to test methods like [subList](https://docs.oracle.com/javase/8/docs/api/java/util/List.html#subList-int-int-) if the class doesn't override them.
-* It allows nesting tests using [@Nested](https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/Nested.html). However, it's not required to do so.
-
-To add tests to a class, simply implement the appropriate interface. All tests in the interface will then be added to the test class.
-
-### Collection tests
-
-Package [com.github.robtimus.junit.support.collections](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/collections/package-summary.html) contains tests for the following interfaces in the Collections Framework:
-
-* [Collection](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/collections/CollectionTests.html)
-* [Iterable](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/collections/IterableTests.html)
-* [Iterator](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/collections/IteratorTests.html)
-* [List](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/collections/ListTests.html) and [ListIterator](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/collections/ListIteratorTests.html)
-* [Map](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/collections/MapTests.html) and [Map.Entry](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/collections/MapEntryTests.html)
-* [Set](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/collections/SetTests.html)
-* [Spliterator](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/collections/SpliteratorTests.html)
-
-For `Collection`, `Iterator`, `List`, `ListIterator`, `Map`, `Map.Entry` and `Set` there are also tests for unmodifiable versions of these interfaces. By implementing regular (modifiable) test interfaces for one set of operations and unmodifiable test interfaces for another set, it's easy to test implementations that support some operations but not others.
-
-### I/O tests
-
-Package [com.github.robtimus.junit.support.io](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/io/package-summary.html) contains tests for input streams, output streams, readers and writers.
-
-### Testing method delegation
-
-[DelegateTests](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/DelegateTests.html) makes it relatively easy to test that objects delegate to objects of the same type.
-
-### Testing method overrides with covariant return types
-
-[CovariantReturnTests](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/CovariantReturnTests.html) makes it relatively easy to test that classes override all fluent methods (methods returning `this`) to change the return type. It's also possible to use a different return type to check on.
-
-### Disabling tests
-
-Sometimes it's necessary to disable a test, e.g. because it doesn't apply to the class to test. An example is testing a partial sub list of an empty list; the only sub list to return is the full list. To disable a test, simply override it and don't apply any (JUnit) annotation to the method; this will make JUnit ignore the test.
-
-### Examples
-
-See [here](https://github.com/robtimus/junit-support/tree/master/src/test/java/com/github/robtimus/junit/support/examples) for examples on using the interfaces in this library to create test classes.
-
-## Additional assertions
-
-Classes [AdditionalAssertions](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/AdditionalAssertions.html) and [IOAssertions](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/io/IOAssertions.html) provide some additional assertions that can be used in unit tests. Some examples:
-
-* `AdditionalAssertions` provides assertions similar to `assertDoesNotThrow` that lets unchecked exceptions to pass through (including `AssertionFailedError`)
-* `AdditionalAssertions` provides assertions for checking exception causes
-* `AdditionalAssertions` provides assertions for `Optional`
-* `AdditionalAssertions` provides assertions similar to `assertThrows` that check for more than one exception type
-* `AdditionalAssertions` provides assertions similar to `assertThrows` that check for optional exceptions
-* `IOAssertions` provides assertions for checking the content of `Reader` or `InputStream` instances
-* `IOAssertions` provides assertions for testing that objects are or are not serializable
+A quick overview of the functionality in this library:
 
 ## Injecting resources
 
-A lot of people have one or more utility methods like this:
+Instead of having to write a utility method to read the contents of a resource, simply annotate a field, constructor parameter or method parameter with `@TestResource`, and JUnit will inject the resource for you:
 
-    private static String readResource(String name) {
-        StringBuilder sb = new StringBuilder();
-        try (Reader input = new InputStreamReader(MyClassTest.class.getResourceAsStream(name), StandardCharsets.UTF_8)) {
-            char[] buffer = new char[4096];
-            int len;
-            while ((len = input.read(buffer)) != -1) {
-                sb.append(buffer, 0, len);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        return sb.toString();
-    }
+```
+@Test
+void testWithResource(@TestResource("input.json") String json) {
+    // use json as needed
+}
+```
 
-Instead of having to write this boilerplate code for every project (and sometimes for each test), annotate fields, constructor arguments or method arguments with [TestResource](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/extension/testresource/TestResource.html) to inject a Java resource into the field, constructor argument or method argument, as `String`, `CharSequence`, `StringBuilder` or `byte[]`:
+See [@TestResource](https://robtimus.github.io/junit-support/extension/test-resource.html) for more information, including options to configure how the resource is read or how to convert it to an object.
 
-    @Test
-    void testWithResource(@TestResource("input.json") String json) {
-        // use json as needed
-    }
+## Simplify writing JUnit extensions
 
-Combine `TestResource` with [LoadWith](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/extension/testresource/LoadWith.html) to provide your own resource-to-object conversion:
+If you want to write a JUnit extension that performs method lookups like [@MethodSource](https://junit.org/junit5/docs/current/api/org.junit.jupiter.params/org/junit/jupiter/params/provider/MethodSource.html), [MethodLookup](https://robtimus.github.io/junit-support/extension/method-lookup.html) provides an easy to use API.
 
-    @Test
-    void testWithResource(@TestResource("person.json") @LoadWith("jsonToPerson") Person person) {
-        // use person as needed
-    }
+If you want to write a JUnit extension that can inject values into fields, constructor parameters or method parameters, some [base classes](https://robtimus.github.io/junit-support/extension/injecting-extensions.html) are provided that let you focus on what's important - provide the values to inject.
 
-    Person jsonToPerson(Reader reader) throws IOException {
-        // perform conversion, e.g. using Jackson or Gson
-    }
+## Predefined tests
 
-A specialized version of `@LoadWith` is provided for `Properties` objects, [AsProperties](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/extension/testresource/AsProperties.html):
+This library mainly contains several [pre-defined tests](https://robtimus.github.io/junit-support/pre-defined-tests.html), defined in interfaces that each test one small aspect of a class or interface, often a single method. This makes it easier to test custom implementations of various common interfaces or base classes. The currently supported list is:
 
-    // inject as a static field
-    @TestResource("test.properties")
-    @AsProperties
-    private static Properties testProperties;
+* [Collection](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/test/collections/CollectionTests.html), both modifiable and unmodifiable
+* [Iterable](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/test/collections/IterableTests.html)
+* [Iterator](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/test/collections/IteratorTests.html), both modifiable and unmodifiable
+* [List](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/test/collections/ListTests.html) and [ListIterator](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/test/collections/ListIteratorTests.html), both modifiable and unmodifiable
+* [Map](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/test/collections/MapTests.html) and [Map.Entry](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/test/collections/MapEntryTests.html), both modifiable and unmodifiable
+* [Set](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/test/collections/SetTests.html), both modifiable and unmodifiable
+* [Spliterator](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/test/collections/SpliteratorTests.html)
+* [InputStream, OutputStream, Reader and Writer](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/test/io/package-summary.html)
 
-Note that the resource name is relative to the class that defines the method. Use a leading `/` to start from the root of the class path.
+In addition, there are pre-defined tests for [MethodDelegation](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/test/DelegateTests.html) and [covariant return types](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/test/CovariantReturnTests.html).
 
-## Programmatic argument combination
+## Additional assertions
+
+Several [additional assertions](https://robtimus.github.io/junit-support/additional-assertions.html) are provided. Some examples:
+
+* assertions for checking the content of a `Reader` or `InputStream`
+* assertions for `Optional`, `OptionalInt`, `OptionalLong` and `OptionalDouble`
+* assertions for exception causes
+* assertions for code that can can throw more than one different types of exceptions
+* assertions for code that optionally throws an exception
+
+## Parameterized test support
 
 [JUnit Pioneer](https://junit-pioneer.org/) has [@CartesianTest](https://junit-pioneer.org/docs/cartesian-product/) to provide the Cartesian product of sets of arguments. Using `@CartesianTest.MethodFactory` allows you to create argument sets programmatically. It does not provide the possibility to filter out combinations though. Class [ArgumentsCombiner](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/params/ArgumentsCombiner.html) works like JUnit Pioneer's `ArgumentSets` class but allows filtering out combinations.
