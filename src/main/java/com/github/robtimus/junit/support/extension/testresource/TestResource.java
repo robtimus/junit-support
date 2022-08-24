@@ -50,7 +50,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
  * @since 2.0
  */
 @ExtendWith(TestResourceExtension.class)
-@Target({ ElementType.FIELD, ElementType.PARAMETER })
+@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TestResource {
 

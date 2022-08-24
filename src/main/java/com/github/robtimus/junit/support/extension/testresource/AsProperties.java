@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
  * @author Rob Spoor
  * @since 2.0
  */
-@Target({ ElementType.FIELD, ElementType.PARAMETER })
+@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @LoadWith("com.github.robtimus.junit.support.extension.testresource.TestResourceLoaders#toProperties(java.io.Reader)")
 public @interface AsProperties {
