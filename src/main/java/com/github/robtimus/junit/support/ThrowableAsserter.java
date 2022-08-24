@@ -30,10 +30,11 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
+import org.junit.jupiter.api.function.ThrowingSupplier;
 import org.opentest4j.AssertionFailedError;
 
 /**
- * An object that asserts that execution of an {@link Executable} throws an error.
+ * An object that asserts that executing an {@link Executable} or retrieving the value of a {@link ThrowingSupplier} throws an error.
  * <p>
  * This class is like several of the throwing assertions of {@link ThrowableAssertions}, especially the "one-of" assertions, but it provides more
  * flexibility. It also removes the need for checking the return type of the returned error in case of the "one-of" assertions; instead, a set of
@@ -41,56 +42,54 @@ import org.opentest4j.AssertionFailedError;
  * <p>
  * This class should be used as follows:
  * <ol>
- * <li>Create an instance using one of the {@code executing} methods.</li>
- * <li>Call {@link #whenThrows(Class)}, {@link #whenThrowsExactly(Class)} and {@link #whenThrowsNothing()} any number of times and in any order,
- *     and specify the assertions using {@code thenAssert} or {@code thenAssertNothing}.
- *     However, you must call {@link #whenThrows(Class)} or {@link #whenThrowsExactly(Class)} at least once. Also, all calls must be unique, i.e. you
- *     cannot call {@link #whenThrows(Class)} twice with the same type, or call {@link #whenThrowsExactly(Class)} twice with the same type, or call
- *     {@link #whenThrowsNothing()} twice.</li>
- * <li>Call {@link #runAssertions()}.</li>
- * <li>Optionally, call {@link Asserted#andReturn()}, {@link Asserted#andReturnAs(Class)}, {@link Asserted#andReturnIfThrown()} or
- *     {@link Asserted#andReturnIfThrownAs(Class)} to retrieve the error that was thrown.</li>
+ * <li>Call one of the static {@code whenThrows} or {@code whenThrowsExactly} methods to create an instance, and specify the assertions for that error
+ *     type using {@code thenAssert} or {@code thenAssertNothing}.</li>
+ * <li>Call {@code whenThrows} and {@code whenThrowsExactly} any number of times and in any order, and specify the assertions for that error type
+ *     using {@code thenAssert} or {@code thenAssertNothing}.<br>
+ *     However, all calls must be unique, i.e. you cannot call {@code whenThrows} twice with the same type, or call {@code whenThrowsExactly} twice
+ *     with the same type</li>
+ * <li>Call {@code whenThrowsNothing} at most once, and specify the assertions for no error using {@code thenAssert} or {@code thenAssertNothing}.
+ *     </li>
+ * <li>Call {@code execute}. This will execute the {@link Executable} or retrieve the value of the {@link ThrowingSupplier}, and perform the necessary
+ *     assertions.</li>
+ * <li>Optionally, use the return value of the {@code execute} method to retrieve the error that was thrown or the {@link ThrowingSupplier}'s value.
+ *     </li>
  * </ol>
  * <p>
  * An example:
  * <pre><code>
- * executing(() -&gt; map.computeIfAbsent(key, function))
- *         .whenThrows(UnsupportedOperationException.class).thenAssertNothing()
+ * whenThrows(UnsupportedOperationException.class, () -&gt; map.computeIfAbsent(key, function)).thenAssertNothing()
  *         .whenThrows(IllegalArgumentException.class).thenAssert(thrown -&gt; assertSame(exception, thrown))
- *         .runAssertions();
+ *         .execute();
  * </code></pre>
  * <p>
- * All methods throw a {@link NullPointerException} when provided with {@code null} arguments.<br>
+ * All methods throw a {@link NullPointerException} when provided with {@code null} arguments unless specified otherwise.
  *
  * @author Rob Spoor
+ * @param <R> The result type of the code to execute.
  * @since 2.0
  */
 @SuppressWarnings("nls")
-public final class ThrowableAsserter {
+public final class ThrowableAsserter<R> {
 
     private static final Consumer<Object> DO_NOTHING_CONSUMER = o -> {
         // do nothing
     };
-    private static final Runnable DO_NOTHING_RUNNABLE = () -> {
-        // do nothing
-    };
 
-    private final Executable executable;
-    private final Object messageOrSupplier;
+    private final ThrowingSupplier<R> supplier;
 
     private final Map<Class<? extends Throwable>, Consumer<? super Throwable>> errors;
     private final Map<Class<? extends Throwable>, Consumer<? super Throwable>> exactErrors;
     private final Set<Class<? extends Throwable>> expectedErrorTypes;
-    private Runnable nothingThrownAsserter;
+    private Consumer<? super R> nothingThrownAsserter;
 
     private State state;
     // The following are only set if state is CONFIGURING_ERROR_TYPE
     private Class<? extends Throwable> configuringErrorType;
     private boolean configuringExactErrorType;
 
-    private ThrowableAsserter(Executable executable, Object messageOrSupplier) {
-        this.executable = executable;
-        this.messageOrSupplier = messageOrSupplier;
+    private ThrowableAsserter(ThrowingSupplier<R> supplier) {
+        this.supplier = supplier;
 
         errors = new HashMap<>();
         exactErrors = new HashMap<>();
@@ -99,48 +98,41 @@ public final class ThrowableAsserter {
         state = State.INITIALIZED;
     }
 
-    /**
-     * Returns an object that asserts that execution of the supplier {@link Executable} throws an error.
-     * The possible types of errors can be configured on the returned object using {@link #whenThrows(Class)} and
-     * {@link #whenThrowsExactly(Class)}. {@link #whenThrowsNothing()} can be called to indicate that throwing an error is optional.
-     *
-     * @param executable The {@link Executable} to run.
-     * @return An object that asserts that execution of the supplier {@link Executable} throws an error.
-     */
-    public static ThrowableAsserter executing(Executable executable) {
-        return executing(executable, (Object) null);
+    private static ThrowingSupplier<Void> asThrowableSupplier(Executable executable) {
+        return () -> {
+            executable.execute();
+            return null;
+        };
     }
 
     /**
-     * Returns an object that asserts that execution of the supplier {@link Executable} throws an error.
-     * The possible types of errors can be configured on the returned object using {@link #whenThrows(Class)} and
-     * {@link #whenThrowsExactly(Class)}. {@link #whenThrowsNothing()} can be called to indicate that throwing an error is optional.
+     * Returns an object for configuring the assertions that should be performed when an instance of a specific error type is thrown when an
+     * {@link Executable} is run.
      *
+     * @param <T> The error type.
+     * @param errorType The error type.
      * @param executable The {@link Executable} to run.
-     * @param message The failure message to fail with.
-     * @return An object that asserts that execution of the supplier {@link Executable} throws an error.
+     * @return An object for configuring the assertions that should be performed when an instance of a specific error type is thrown.
+     * @see Assertions#assertThrows(Class, Executable)
      */
-    public static ThrowableAsserter executing(Executable executable, String message) {
-        return executing(executable, (Object) message);
+    public static <T extends Throwable> ThrownError<T, Void> whenThrows(Class<T> errorType, Executable executable) {
+        return whenThrows(errorType, asThrowableSupplier(executable));
     }
 
     /**
-     * Returns an object that asserts that execution of the supplier {@link Executable} throws an error.
-     * The possible types of errors can be configured on the returned object using {@link #whenThrows(Class)} and
-     * {@link #whenThrowsExactly(Class)}. {@link #whenThrowsNothing()} can be called to indicate that throwing an error is optional.
+     * Returns an object for configuring the assertions that should be performed when an instance of a specific error type is thrown when the result
+     * of a {@link ThrowingSupplier} is retrieved.
      *
-     * @param executable The {@link Executable} to run.
-     * @param messageSupplier The supplier for the failure message to fail with.
-     * @return An object that asserts that execution of the supplier {@link Executable} throws an error.
+     * @param <T> The error type.
+     * @param <R> The result type of the {@link ThrowingSupplier}.
+     * @param errorType The error type.
+     * @param supplier The {@link ThrowingSupplier} with the result to retrieve.
+     * @return An object for configuring the assertions that should be performed when an instance of a specific error type is thrown.
+     * @see Assertions#assertThrows(Class, Executable)
      */
-    public static ThrowableAsserter executing(Executable executable, Supplier<String> messageSupplier) {
-        return executing(executable, (Object) messageSupplier);
-    }
-
-    private static ThrowableAsserter executing(Executable executable, Object messageOrSupplier) {
-        Objects.requireNonNull(executable);
-
-        return new ThrowableAsserter(executable, messageOrSupplier);
+    public static <T extends Throwable, R> ThrownError<T, R> whenThrows(Class<T> errorType, ThrowingSupplier<R> supplier) {
+        Objects.requireNonNull(supplier);
+        return new ThrowableAsserter<>(supplier).whenThrows(errorType);
     }
 
     /**
@@ -152,9 +144,39 @@ public final class ThrowableAsserter {
      * @throws IllegalArgumentException If this method has already been called with the given error type.
      * @see Assertions#assertThrows(Class, Executable)
      */
-    public <T extends Throwable> ThrownError<T> whenThrows(Class<T> errorType) {
+    public <T extends Throwable> ThrownError<T, R> whenThrows(Class<T> errorType) {
         Objects.requireNonNull(errorType);
         return whenThrows(errorType, errors, false);
+    }
+
+    /**
+     * Returns an object for configuring the assertions that should be performed when an exact instance of a specific error type is thrown when an
+     * {@link Executable} is run.
+     *
+     * @param <T> The error type.
+     * @param errorType The error type.
+     * @param executable The {@link Executable} to run.
+     * @return An object for configuring the assertions that should be performed when an exact instance of a specific error type is thrown.
+     * @see Assertions#assertThrowsExactly(Class, Executable)
+     */
+    public static <T extends Throwable> ThrownError<T, Void> whenThrowsExactly(Class<T> errorType, Executable executable) {
+        return whenThrowsExactly(errorType, asThrowableSupplier(executable));
+    }
+
+    /**
+     * Returns an object for configuring the assertions that should be performed when an exact instance of a specific error type is thrown when the
+     * result of a {@link ThrowingSupplier} is retrieved.
+     *
+     * @param <T> The error type.
+     * @param <R> The result type of the {@link ThrowingSupplier}.
+     * @param errorType The error type.
+     * @param supplier The {@link ThrowingSupplier} with the result to retrieve.
+     * @return An object for configuring the assertions that should be performed when an exact instance of a specific error type is thrown.
+     * @see Assertions#assertThrowsExactly(Class, Executable)
+     */
+    public static <T extends Throwable, R> ThrownError<T, R> whenThrowsExactly(Class<T> errorType, ThrowingSupplier<R> supplier) {
+        Objects.requireNonNull(supplier);
+        return new ThrowableAsserter<>(supplier).whenThrowsExactly(errorType);
     }
 
     /**
@@ -166,12 +188,12 @@ public final class ThrowableAsserter {
      * @throws IllegalArgumentException If this method has already been called with the given error type.
      * @see Assertions#assertThrowsExactly(Class, Executable)
      */
-    public <T extends Throwable> ThrownError<T> whenThrowsExactly(Class<T> errorType) {
+    public <T extends Throwable> ThrownError<T, R> whenThrowsExactly(Class<T> errorType) {
         Objects.requireNonNull(errorType);
         return whenThrows(errorType, exactErrors, true);
     }
 
-    private <T extends Throwable> ThrownError<T> whenThrows(Class<T> errorType,
+    private <T extends Throwable> ThrownError<T, R> whenThrows(Class<T> errorType,
             Map<Class<? extends Throwable>, Consumer<? super Throwable>> errorMap, boolean exact) {
 
         if (state != State.INITIALIZED && state != State.CONFIGURED) {
@@ -187,70 +209,99 @@ public final class ThrowableAsserter {
         configuringErrorType = errorType;
         configuringExactErrorType = exact;
 
-        return new ThrownError<>(errorType, errorMap, exact);
+        return new ThrownError<>(this, errorType, errorMap, exact);
     }
 
     /**
      * Returns an object for configuring the assertions that should be performed if no error is thrown.
      * <p>
-     * If this method is not called, {@link #runAssertions()} will fail if no error is thrown.
+     * If this method is not called, {@link #execute()}, {@link #execute(String)} and {@link #execute(Supplier)} will fail if no error is thrown.
      *
      * @return An object for configuring the assertions that should be performed if no error is thrown.
      * @throws IllegalStateException If this method is called without configuring the assertions for at least one error type,
      *                                   or If this method has already been called.
      */
-    public NoError whenThrowsNothing() {
-        if (state != State.INITIALIZED && state != State.CONFIGURED) {
+    public NoError<R> whenThrowsNothing() {
+        if (state != State.CONFIGURED) {
             throw new IllegalStateException("Cannot configure assertions for no error when current state is " + state);
         }
 
         if (nothingThrownAsserter != null) {
             throw new IllegalStateException("Assertions for no error already configured");
         }
-        nothingThrownAsserter = DO_NOTHING_RUNNABLE;
+        nothingThrownAsserter = DO_NOTHING_CONSUMER;
 
         state = State.CONFIGURING_NO_ERROR;
 
-        return new NoError();
+        return new NoError<>(this);
     }
 
     /**
-     * Runs the executable and the necessary configured assertions.
+     * Executes the {@link Executable} or retrieves the value of the {@link ThrowingSupplier} used to create this object, and perform the necessary
+     * assertions.
      *
-     * @return This object.
-     * @throws IllegalStateException If this method is called without configuring the assertions for at least one error type.
+     * @return An object that represents this object in its asserted state.
      * @throws AssertionFailedError If an error is thrown that is not an instance of one of the configured error types,
      *                                  or if no error is thrown and {@link #whenThrowsNothing()} has not been called.
      */
-    public Asserted runAssertions() {
+    public Asserted<R> execute() {
+        return execute((Object) null);
+    }
+
+    /**
+     * Executes the {@link Executable} or retrieves the value of the {@link ThrowingSupplier} used to create this object, and perform the necessary
+     * assertions.
+     *
+     * @param message The failure message to fail with; may be {@code null}.
+     * @return An object that represents this object in its asserted state.
+     * @throws AssertionFailedError If an error is thrown that is not an instance of one of the configured error types,
+     *                                  or if no error is thrown and {@link #whenThrowsNothing()} has not been called.
+     */
+    public Asserted<R> execute(String message) {
+        return execute((Object) message);
+    }
+
+    /**
+     * Executes the {@link Executable} or retrieves the value of the {@link ThrowingSupplier} used to create this object, and perform the necessary
+     * assertions.
+     *
+     * @param messageSupplier The supplier for the failure message to fail with; may be {@code null}.
+     * @return An object that represents this object in its asserted state.
+     * @throws AssertionFailedError If an error is thrown that is not an instance of one of the configured error types,
+     *                                  or if no error is thrown and {@link #whenThrowsNothing()} has not been called.
+     */
+    public Asserted<R> execute(Supplier<String> messageSupplier) {
+        return execute((Object) messageSupplier);
+    }
+
+    private Asserted<R> execute(Object messageOrSupplier) {
         if (state != State.CONFIGURED) {
             throw new IllegalStateException("Cannot run assertions when current state is " + state);
         }
-        if (expectedErrorTypes.isEmpty()) {
-            throw new IllegalStateException("Cannot run assertions without expected error types");
-        }
+
+        R result;
 
         try {
-            executable.execute();
+            result = supplier.get();
 
         } catch (Throwable actualError) {
-            runAssertionsForError(actualError);
+            runAssertionsForError(actualError, messageOrSupplier);
 
             state = State.ASSERTED;
 
-            return new Asserted(actualError);
+            return new Asserted<>(actualError);
         }
 
-        runAssertionsWhenNothingThrown();
+        runAssertionsWhenNothingThrown(result, messageOrSupplier);
 
         state = State.ASSERTED;
 
-        return new Asserted(null);
+        return new Asserted<>(result);
     }
 
-    private void runAssertionsWhenNothingThrown() throws AssertionFailedError {
+    private void runAssertionsWhenNothingThrown(R result, Object messageOrSupplier) throws AssertionFailedError {
         if (nothingThrownAsserter != null) {
-            nothingThrownAsserter.run();
+            nothingThrownAsserter.accept(result);
             return;
         }
 
@@ -262,7 +313,7 @@ public final class ThrowableAsserter {
                 .build();
     }
 
-    private void runAssertionsForError(Throwable actualError) throws AssertionFailedError {
+    private void runAssertionsForError(Throwable actualError, Object messageOrSupplier) throws AssertionFailedError {
         boolean hasRunAssertions = runAllAssertions(actualError);
         if (hasRunAssertions) {
             return;
@@ -306,15 +357,20 @@ public final class ThrowableAsserter {
      *
      * @author Rob Spoor
      * @param <T> The error type.
+     * @param <R> The result type of the code to execute.
      * @since 2.0
      */
-    public final class ThrownError<T extends Throwable> {
+    public static final class ThrownError<T extends Throwable, R> {
 
+        private final ThrowableAsserter<R> throwableAsserter;
         private final Class<T> errorType;
         private final Map<Class<? extends Throwable>, Consumer<? super Throwable>> errorMap;
         private final boolean exact;
 
-        private ThrownError(Class<T> errorType, Map<Class<? extends Throwable>, Consumer<? super Throwable>> errorMap, boolean exact) {
+        private ThrownError(ThrowableAsserter<R> throwableAsserter, Class<T> errorType,
+                Map<Class<? extends Throwable>, Consumer<? super Throwable>> errorMap, boolean exact) {
+
+            this.throwableAsserter = throwableAsserter;
             this.errorType = errorType;
             this.errorMap = errorMap;
             this.exact = exact;
@@ -328,12 +384,10 @@ public final class ThrowableAsserter {
          * @throws NullPointerException If the given operation is {@code null}.
          */
         @SuppressWarnings("unchecked")
-        public ThrowableAsserter thenAssert(Consumer<? super T> asserter) {
+        public ThrowableAsserter<R> thenAssert(Consumer<? super T> asserter) {
             Objects.requireNonNull(asserter);
 
-            configureAssertions((Consumer<? super Throwable>) asserter);
-
-            return ThrowableAsserter.this;
+            return configureAssertions((Consumer<? super Throwable>) asserter);
         }
 
         /**
@@ -341,26 +395,30 @@ public final class ThrowableAsserter {
          *
          * @return The error asserter that returned this object.
          */
-        public ThrowableAsserter thenAssertNothing() {
-            configureAssertions(DO_NOTHING_CONSUMER);
-
-            return ThrowableAsserter.this;
+        public ThrowableAsserter<R> thenAssertNothing() {
+            return configureAssertions(DO_NOTHING_CONSUMER);
         }
 
-        private void configureAssertions(Consumer<? super Throwable> asserter) {
-            if (state != State.CONFIGURING_ERROR_TYPE) {
-                throw new IllegalStateException("Cannot specify assertions for an error type when current state is " + state);
+        private ThrowableAsserter<R> configureAssertions(Consumer<? super Throwable> asserter) {
+            if (throwableAsserter.state != State.CONFIGURING_ERROR_TYPE) {
+                throw new IllegalStateException("Cannot specify assertions for an error type when current state is " + throwableAsserter.state);
             }
-            if (errorType != configuringErrorType || exact != configuringExactErrorType) {
+            if (errorType != throwableAsserter.configuringErrorType || exact != throwableAsserter.configuringExactErrorType) {
                 throw new IllegalStateException(String.format("Cannot specify assertions; currently configuring for %s (exact: %b)",
-                        configuringErrorType, configuringExactErrorType));
+                        throwableAsserter.configuringErrorType, throwableAsserter.configuringExactErrorType));
             }
 
             errorMap.put(errorType, asserter);
 
-            state = State.CONFIGURED;
-            configuringErrorType = null;
-            configuringExactErrorType = false;
+            throwableAsserter.state = State.CONFIGURED;
+            throwableAsserter.configuringErrorType = null;
+            throwableAsserter.configuringExactErrorType = false;
+
+            return throwableAsserter;
+        }
+
+        ThrowableAsserter<R> throwableAsserter() {
+            return throwableAsserter;
         }
     }
 
@@ -368,11 +426,15 @@ public final class ThrowableAsserter {
      * An object that can be used to configure the assertions that should be performed when no error is thrown.
      *
      * @author Rob Spoor
+     * @param <R> The result type of the code to execute.
      * @since 2.0
      */
-    public final class NoError {
+    public static final class NoError<R> {
 
-        private NoError() {
+        private final ThrowableAsserter<R> throwableAsserter;
+
+        private NoError(ThrowableAsserter<R> throwableAsserter) {
+            this.throwableAsserter = throwableAsserter;
         }
 
         /**
@@ -382,12 +444,23 @@ public final class ThrowableAsserter {
          * @return The error asserter that returned this object.
          * @throws NullPointerException If the given runnable is {@code null}.
          */
-        public ThrowableAsserter thenAssert(Runnable asserter) {
+        public ThrowableAsserter<R> thenAssert(Runnable asserter) {
             Objects.requireNonNull(asserter);
 
-            configureAssertions(asserter);
+            return configureAssertions(r -> asserter.run());
+        }
 
-            return ThrowableAsserter.this;
+        /**
+         * Specifies the assertions that should be performed when no error is thrown.
+         *
+         * @param asserter An operation with the assertions that should be performed. The result of the executed code will be the operation's input.
+         * @return The error asserter that returned this object.
+         * @throws NullPointerException If the given operation is {@code null}.
+         */
+        public ThrowableAsserter<R> thenAssert(Consumer<? super R> asserter) {
+            Objects.requireNonNull(asserter);
+
+            return configureAssertions(asserter);
         }
 
         /**
@@ -395,20 +468,24 @@ public final class ThrowableAsserter {
          *
          * @return The error asserter that returned this object.
          */
-        public ThrowableAsserter thenAssertNothing() {
-            configureAssertions(DO_NOTHING_RUNNABLE);
-
-            return ThrowableAsserter.this;
+        public ThrowableAsserter<R> thenAssertNothing() {
+            return configureAssertions(DO_NOTHING_CONSUMER);
         }
 
-        private void configureAssertions(Runnable asserter) {
-            if (state != State.CONFIGURING_NO_ERROR) {
-                throw new IllegalStateException("Cannot specify assertions for no error when current state is " + state);
+        private ThrowableAsserter<R> configureAssertions(Consumer<? super R> asserter) {
+            if (throwableAsserter.state != State.CONFIGURING_NO_ERROR) {
+                throw new IllegalStateException("Cannot specify assertions for no error when current state is " + throwableAsserter.state);
             }
 
-            nothingThrownAsserter = asserter;
+            throwableAsserter.nothingThrownAsserter = asserter;
 
-            state = State.CONFIGURED;
+            throwableAsserter.state = State.CONFIGURED;
+
+            return throwableAsserter;
+        }
+
+        ThrowableAsserter<R> throwableAsserter() {
+            return throwableAsserter;
         }
     }
 
@@ -416,14 +493,31 @@ public final class ThrowableAsserter {
      * An object that represents a {@link ThrowableAsserter} in its asserted state. It can be used to query the assertion results.
      *
      * @author Rob Spoor
+     * @param <R> The result type.
      * @since 2.0
      */
-    public final class Asserted {
+    public static final class Asserted<R> {
 
+        private final R result;
         private final Throwable thrown;
 
+        private Asserted(R result) {
+            this.result = result;
+            this.thrown = null;
+        }
+
         private Asserted(Throwable thrown) {
+            this.result = null;
             this.thrown = thrown;
+        }
+
+        /**
+         * Returns the result of the executed code.
+         *
+         * @return An {@link Optional} describing the result, or {@link Optional#empty()} if an error was thrown or the result was {@code null}.
+         */
+        public Optional<R> andReturnResult() {
+            return Optional.ofNullable(result);
         }
 
         /**
@@ -432,7 +526,7 @@ public final class ThrowableAsserter {
          * @return The error that was thrown.
          * @throws IllegalStateException If no error was thrown.
          */
-        public Throwable andReturn() {
+        public Throwable andReturnError() {
             if (thrown == null) {
                 throw new IllegalStateException("Nothing was thrown");
             }
@@ -449,7 +543,7 @@ public final class ThrowableAsserter {
          * @throws IllegalStateException If no error was thrown.
          * @throws ClassCastException If the error that was thrown is not an instance of the given error type.
          */
-        public <T extends Throwable> T andReturnAs(Class<T> errorType) {
+        public <T extends Throwable> T andReturnErrorAs(Class<T> errorType) {
             if (thrown == null) {
                 throw new IllegalStateException("Nothing was thrown");
             }
@@ -461,7 +555,7 @@ public final class ThrowableAsserter {
          *
          * @return An {@link Optional} describing the error that was thrown, or {@link Optional#empty()} if no error was thrown.
          */
-        public Optional<Throwable> andReturnIfThrown() {
+        public Optional<Throwable> andReturnErrorIfThrown() {
             return Optional.ofNullable(thrown);
         }
 
@@ -474,7 +568,7 @@ public final class ThrowableAsserter {
          * @return An {@link Optional} describing the error that was thrown, or {@link Optional#empty()} if no error was thrown.
          * @throws ClassCastException If an error was thrown that is not an instance of the given error type.
          */
-        public <T extends Throwable> Optional<T> andReturnIfThrownAs(Class<T> errorType) {
+        public <T extends Throwable> Optional<T> andReturnErrorIfThrownAs(Class<T> errorType) {
             return thrown == null
                     ? Optional.empty()
                     : Optional.of(errorType.cast(thrown));

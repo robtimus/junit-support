@@ -17,7 +17,7 @@
 
 package com.github.robtimus.junit.support.test.collections;
 
-import static com.github.robtimus.junit.support.ThrowableAsserter.executing;
+import static com.github.robtimus.junit.support.ThrowableAsserter.whenThrows;
 import static com.github.robtimus.junit.support.ThrowableAssertions.assertOptionallyThrows;
 import static com.github.robtimus.junit.support.ThrowableAssertions.assertThrowsOneOf;
 import static com.github.robtimus.junit.support.test.collections.CollectionAssertions.assertHasElements;
@@ -1591,10 +1591,9 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
             }
 
             for (K key : nonContainedEntries().keySet()) {
-                executing(() -> map.computeIfAbsent(key, function))
-                        .whenThrows(UnsupportedOperationException.class).thenAssertNothing()
+                whenThrows(UnsupportedOperationException.class, () -> map.computeIfAbsent(key, function)).thenAssertNothing()
                         .whenThrows(IllegalArgumentException.class).thenAssert(thrown -> assertSame(exception, thrown))
-                        .runAssertions();
+                        .execute();
             }
 
             assertEquals(expectedEntries, map);
@@ -1683,10 +1682,9 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
             Map<K, V> expectedEntries = expectedEntries();
 
             for (K key : expectedEntries.keySet()) {
-                executing(() -> map.computeIfPresent(key, function))
-                        .whenThrows(UnsupportedOperationException.class).thenAssertNothing()
+                whenThrows(UnsupportedOperationException.class, () -> map.computeIfPresent(key, function)).thenAssertNothing()
                         .whenThrows(IllegalArgumentException.class).thenAssert(thrown -> assertSame(exception, thrown))
-                        .runAssertions();
+                        .execute();
             }
 
             for (K key : nonContainedEntries().keySet()) {
@@ -1786,17 +1784,15 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
             Map<K, V> expectedEntries = expectedEntries();
 
             for (K key : expectedEntries.keySet()) {
-                executing(() -> map.compute(key, function))
-                        .whenThrows(UnsupportedOperationException.class).thenAssertNothing()
+                whenThrows(UnsupportedOperationException.class, () -> map.compute(key, function)).thenAssertNothing()
                         .whenThrows(IllegalArgumentException.class).thenAssert(thrown -> assertSame(exception, thrown))
-                        .runAssertions();
+                        .execute();
             }
 
             for (K key : nonContainedEntries().keySet()) {
-                executing(() -> map.compute(key, function))
-                        .whenThrows(UnsupportedOperationException.class).thenAssertNothing()
+                whenThrows(UnsupportedOperationException.class, () -> map.compute(key, function)).thenAssertNothing()
                         .whenThrows(IllegalArgumentException.class).thenAssert(thrown -> assertSame(exception, thrown))
-                        .runAssertions();
+                        .execute();
             }
 
             assertEquals(expectedEntries, map);
@@ -1889,17 +1885,15 @@ public interface UnmodifiableMapTests<K, V> extends MapTests<K, V> {
             Map<K, V> expectedEntries = expectedEntries();
 
             for (Map.Entry<K, V> entry : expectedEntries.entrySet()) {
-                executing(() -> map.merge(entry.getKey(), entry.getValue(), operator))
-                        .whenThrows(UnsupportedOperationException.class).thenAssertNothing()
+                whenThrows(UnsupportedOperationException.class, () -> map.merge(entry.getKey(), entry.getValue(), operator)).thenAssertNothing()
                         .whenThrows(IllegalArgumentException.class).thenAssert(thrown -> assertSame(exception, thrown))
-                        .runAssertions();
+                        .execute();
             }
 
             for (Map.Entry<K, V> entry : nonContainedEntries().entrySet()) {
-                executing(() -> map.merge(entry.getKey(), entry.getValue(), operator))
-                        .whenThrows(UnsupportedOperationException.class).thenAssertNothing()
+                whenThrows(UnsupportedOperationException.class, () -> map.merge(entry.getKey(), entry.getValue(), operator)).thenAssertNothing()
                         .whenThrows(IllegalArgumentException.class).thenAssert(thrown -> assertSame(exception, thrown))
-                        .runAssertions();
+                        .execute();
             }
 
             assertEquals(expectedEntries, map);

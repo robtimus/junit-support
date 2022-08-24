@@ -6,19 +6,21 @@
 
 A lot of people have one or more utility methods like this:
 
-    private static String readResource(String name) {
-        StringBuilder sb = new StringBuilder();
-        try (Reader input = new InputStreamReader(MyClassTest.class.getResourceAsStream(name), StandardCharsets.UTF_8)) {
-            char[] buffer = new char[4096];
-            int len;
-            while ((len = input.read(buffer)) != -1) {
+```
+private static String readResource(String name) {
+    StringBuilder sb = new StringBuilder();
+    try (Reader input = new InputStreamReader(MyClassTest.class.getResourceAsStream(name), StandardCharsets.UTF_8)) {
+        char[] buffer = new char[4096];
+        int len;
+        while ((len = input.read(buffer)) != -1) {
                 sb.append(buffer, 0, len);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
-        return sb.toString();
+    } catch (IOException e) {
+        throw new UncheckedIOException(e);
     }
+    return sb.toString();
+}
+```
 
 Instead of having to write this boilerplate code for every project (and sometimes for multiple test classes inside the same project), annotate fields, constructor parameters or method parameters with [@TestResource](../apidocs/com/github/robtimus/junit/support/extension/testresource/TestResource.html) to inject a Java resource into the field, constructor parameter or method parameter.
 
@@ -142,7 +144,9 @@ When using a method that takes a `Reader`, the encoding can be specified in the 
 
 A specialized version of `@LoadWith` is provided for `Properties` objects, [@AsProperties](../apidocs/com/github/robtimus/junit/support/extension/testresource/AsProperties.html):
 
-    // inject as a static field
-    @TestResource("test.properties")
-    @AsProperties
-    private static Properties testProperties;
+```
+// inject as a static field
+@TestResource("test.properties")
+@AsProperties
+private static Properties testProperties;
+```

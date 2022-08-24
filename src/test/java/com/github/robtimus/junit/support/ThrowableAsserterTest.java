@@ -19,7 +19,8 @@ package com.github.robtimus.junit.support;
 
 import static com.github.robtimus.junit.support.OptionalAssertions.assertIsEmpty;
 import static com.github.robtimus.junit.support.OptionalAssertions.assertIsPresent;
-import static com.github.robtimus.junit.support.ThrowableAsserter.executing;
+import static com.github.robtimus.junit.support.ThrowableAsserter.whenThrows;
+import static com.github.robtimus.junit.support.ThrowableAsserter.whenThrowsExactly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -35,7 +36,9 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import java.io.IOException;
 import java.nio.file.InvalidPathException;
 import java.nio.file.NoSuchFileException;
+import java.text.ParseException;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -55,48 +58,7 @@ class ThrowableAsserterTest {
     @DisplayName("state changes")
     class StateChanges {
 
-        @Nested
-        @DisplayName("from initialized")
-        class FromInitialized {
-
-            @ParameterizedTest(name = "exact: {0}")
-            @ValueSource(booleans = { true, false })
-            @DisplayName("to configuring error type")
-            void testToConfiguringErrorType(boolean exact) {
-                ThrowableAsserter asserter = initialized();
-
-                if (exact) {
-                    asserter.whenThrowsExactly(NullPointerException.class);
-                } else {
-                    asserter.whenThrows(NullPointerException.class);
-                }
-
-                assertConfiguringErrorType(asserter, NullPointerException.class, exact);
-            }
-
-            @Test
-            @DisplayName("to configuring no error")
-            void testToConfiguringNoError() {
-                ThrowableAsserter asserter = initialized();
-
-                asserter.whenThrowsNothing();
-
-                assertConfiguringNoError(asserter);
-            }
-
-            // Impossible to go from initialized to configured without going through configuring error type first
-
-            @Test
-            @DisplayName("to asserted")
-            void testToAsserted() {
-                ThrowableAsserter asserter = initialized();
-
-                IllegalStateException exception = assertThrows(IllegalStateException.class, asserter::runAssertions);
-                assertEquals("Cannot run assertions when current state is initialized", exception.getMessage());
-
-                assertInitialized(asserter);
-            }
-        }
+        // from initialized is not possible; the first returned value is linked to a configuring object
 
         @Nested
         @DisplayName("from configuring error type")
@@ -108,7 +70,7 @@ class ThrowableAsserterTest {
             @ValueSource(booleans = { true, false })
             @DisplayName("to configuring same error type")
             void testToConfiguringSameErrorType(boolean exact) {
-                ThrowableAsserter asserter = configuringErrorType(NullPointerException.class, exact);
+                ThrowableAsserter<?> asserter = configuringErrorType(NullPointerException.class, exact).throwableAsserter();
 
                 IllegalStateException exception = assertThrows(IllegalStateException.class, () -> asserter.whenThrows(NullPointerException.class));
                 assertEquals("Cannot configure assertions for an error type when current state is configuring assertions for an error type",
@@ -127,7 +89,7 @@ class ThrowableAsserterTest {
             @ValueSource(booleans = { true, false })
             @DisplayName("to configuring different error type")
             void testToConfiguringDifferentErrorType(boolean exact) {
-                ThrowableAsserter asserter = configuringErrorType(NullPointerException.class, exact);
+                ThrowableAsserter<?> asserter = configuringErrorType(NullPointerException.class, exact).throwableAsserter();
 
                 IllegalStateException exception = assertThrows(IllegalStateException.class, () -> asserter.whenThrows(IOException.class));
                 assertEquals("Cannot configure assertions for an error type when current state is configuring assertions for an error type",
@@ -146,7 +108,7 @@ class ThrowableAsserterTest {
             @ValueSource(booleans = { true, false })
             @DisplayName("to configuring no error")
             void testToConfiguringNoErrorType(boolean exact) {
-                ThrowableAsserter asserter = configuringErrorType(NullPointerException.class, exact);
+                ThrowableAsserter<?> asserter = configuringErrorType(NullPointerException.class, exact).throwableAsserter();
 
                 IllegalStateException exception = assertThrows(IllegalStateException.class, asserter::whenThrowsNothing);
                 assertEquals("Cannot configure assertions for no error when current state is configuring assertions for an error type",
@@ -159,9 +121,10 @@ class ThrowableAsserterTest {
             @ValueSource(booleans = { true, false })
             @DisplayName("to configured with same error type, same exactness")
             void testToConfiguredWithSameErrorTypeSameExactness(boolean exact) {
-                ThrowableAsserter asserter = initialized();
+                ThrownError<NullPointerException, ?> thrownError = configuringErrorType(NullPointerException.class, exact);
 
-                ThrownError<NullPointerException> thrownError = toConfiguringErrorType(asserter, NullPointerException.class, exact);
+                ThrowableAsserter<?> asserter = thrownError.throwableAsserter();
+
                 thrownError.thenAssertNothing();
 
                 assertConfigured(asserter);
@@ -171,9 +134,10 @@ class ThrowableAsserterTest {
             @ValueSource(booleans = { true, false })
             @DisplayName("to configured with same error type, different exactness")
             void testToConfiguredWithSameErrorTypeDifferentExactness(boolean exact) {
-                ThrowableAsserter asserter = initialized();
+                ThrownError<NullPointerException, ?> thrownError = configuringErrorType(NullPointerException.class, exact);
 
-                ThrownError<NullPointerException> thrownError = toConfiguringErrorType(asserter, NullPointerException.class, exact);
+                ThrowableAsserter<?> asserter = thrownError.throwableAsserter();
+
                 thrownError.thenAssertNothing();
 
                 assertConfigured(asserter);
@@ -190,9 +154,10 @@ class ThrowableAsserterTest {
             @ValueSource(booleans = { true, false })
             @DisplayName("to configured with different error type, same exactness")
             void testToConfiguredWithDifferentErrorTypeSameExactness(boolean exact) {
-                ThrowableAsserter asserter = initialized();
+                ThrownError<NullPointerException, ?> thrownError = configuringErrorType(NullPointerException.class, exact);
 
-                ThrownError<NullPointerException> thrownError = toConfiguringErrorType(asserter, NullPointerException.class, exact);
+                ThrowableAsserter<?> asserter = thrownError.throwableAsserter();
+
                 thrownError.thenAssertNothing();
 
                 assertConfigured(asserter);
@@ -209,9 +174,10 @@ class ThrowableAsserterTest {
             @ValueSource(booleans = { true, false })
             @DisplayName("to configured with different error type, different exactness")
             void testToConfiguredWithDifferentErrorTypeDifferentExactness(boolean exact) {
-                ThrowableAsserter asserter = initialized();
+                ThrownError<NullPointerException, ?> thrownError = configuringErrorType(NullPointerException.class, exact);
 
-                ThrownError<NullPointerException> thrownError = toConfiguringErrorType(asserter, NullPointerException.class, exact);
+                ThrowableAsserter<?> asserter = thrownError.throwableAsserter();
+
                 thrownError.thenAssertNothing();
 
                 assertConfigured(asserter);
@@ -228,9 +194,9 @@ class ThrowableAsserterTest {
             @ValueSource(booleans = { true, false })
             @DisplayName("to configured with no errors")
             void testToConfiguredWithNoErrors(boolean exact) {
-                ThrowableAsserter asserter = initialized();
+                ThrowableAsserter<?> asserter = configured(NullPointerException.class, exact);
 
-                NoError noError = toConfiguringNoError(asserter);
+                NoError<?> noError = toConfiguringNoError(asserter);
                 noError.thenAssertNothing();
 
                 assertConfigured(asserter);
@@ -247,20 +213,12 @@ class ThrowableAsserterTest {
             @ValueSource(booleans = { true, false })
             @DisplayName("to asserted")
             void testToAsserted(boolean exact) {
-                ThrowableAsserter asserter = configuringErrorType(NullPointerException.class, exact);
+                ThrowableAsserter<?> asserter = configuringErrorType(NullPointerException.class, exact).throwableAsserter();
 
-                IllegalStateException exception = assertThrows(IllegalStateException.class, asserter::runAssertions);
+                IllegalStateException exception = assertThrows(IllegalStateException.class, asserter::execute);
                 assertEquals("Cannot run assertions when current state is configuring assertions for an error type", exception.getMessage());
 
                 assertConfiguringErrorType(asserter, NullPointerException.class, exact);
-            }
-
-            private ThrowableAsserter configuringErrorType(Class<? extends Throwable> errorType, boolean exact) {
-                ThrowableAsserter asserter = initialized();
-
-                toConfiguringErrorType(asserter, errorType, exact);
-
-                return asserter;
             }
         }
 
@@ -273,7 +231,7 @@ class ThrowableAsserterTest {
             @Test
             @DisplayName("to configuring error type")
             void testToConfiguringErrorType() {
-                ThrowableAsserter asserter = configuringNoError();
+                ThrowableAsserter<?> asserter = configuringNoError(NullPointerException.class, false).throwableAsserter();
 
                 IllegalStateException exception = assertThrows(IllegalStateException.class, () -> asserter.whenThrows(IOException.class));
                 assertEquals("Cannot configure assertions for an error type when current state is configuring assertions for no error",
@@ -291,7 +249,7 @@ class ThrowableAsserterTest {
             @Test
             @DisplayName("to configuring no error")
             void testToConfiguringNoErrorType() {
-                ThrowableAsserter asserter = configuringNoError();
+                ThrowableAsserter<?> asserter = configuringNoError(NullPointerException.class, false).throwableAsserter();
 
                 IllegalStateException exception = assertThrows(IllegalStateException.class, asserter::whenThrowsNothing);
                 assertEquals("Cannot configure assertions for no error when current state is configuring assertions for no error",
@@ -303,9 +261,10 @@ class ThrowableAsserterTest {
             @Test
             @DisplayName("to configured")
             void testToConfigured() {
-                ThrowableAsserter asserter = initialized();
+                NoError<?> noError = configuringNoError(NullPointerException.class, false);
 
-                NoError noError = toConfiguringNoError(asserter);
+                ThrowableAsserter<?> asserter = noError.throwableAsserter();
+
                 noError.thenAssertNothing();
 
                 assertConfigured(asserter);
@@ -314,20 +273,12 @@ class ThrowableAsserterTest {
             @Test
             @DisplayName("to asserted")
             void testToAsserted() {
-                ThrowableAsserter asserter = configuringNoError();
+                ThrowableAsserter<?> asserter = configuringNoError(NullPointerException.class, false).throwableAsserter();
 
-                IllegalStateException exception = assertThrows(IllegalStateException.class, asserter::runAssertions);
+                IllegalStateException exception = assertThrows(IllegalStateException.class, asserter::execute);
                 assertEquals("Cannot run assertions when current state is configuring assertions for no error", exception.getMessage());
 
                 assertConfiguringNoError(asserter);
-            }
-
-            private ThrowableAsserter configuringNoError() {
-                ThrowableAsserter asserter = initialized();
-
-                toConfiguringNoError(asserter);
-
-                return asserter;
             }
         }
 
@@ -341,7 +292,7 @@ class ThrowableAsserterTest {
             @ValueSource(booleans = { true, false })
             @DisplayName("to configuring error type")
             void testToConfiguringErrorType(boolean exact) {
-                ThrowableAsserter asserter = configured(NullPointerException.class, exact);
+                ThrowableAsserter<?> asserter = configured(NullPointerException.class, exact);
 
                 toConfiguringErrorType(asserter, IOException.class, exact);
 
@@ -351,7 +302,7 @@ class ThrowableAsserterTest {
             @Test
             @DisplayName("to configuring no error")
             void testToConfiguringNoErrorType() {
-                ThrowableAsserter asserter = configured(IOException.class, false);
+                ThrowableAsserter<?> asserter = configured(IOException.class, false);
 
                 toConfiguringNoError(asserter);
 
@@ -362,9 +313,13 @@ class ThrowableAsserterTest {
             @ValueSource(booleans = { true, false })
             @DisplayName("to configured with same error, same exactness")
             void testToConfiguredSameErrorSameExactness(boolean exact) {
-                ThrowableAsserter asserter = initialized();
+                ThrownError<NullPointerException, ?> thrownError = configuringErrorType(NullPointerException.class, exact);
 
-                ThrownError<NullPointerException> thrownError = toConfigured(asserter, NullPointerException.class, exact);
+                ThrowableAsserter<?> asserter = thrownError.throwableAsserter();
+
+                thrownError.thenAssertNothing();
+
+                assertConfigured(asserter);
 
                 IllegalStateException exception = assertThrows(IllegalStateException.class, thrownError::thenAssertNothing);
                 assertEquals("Cannot specify assertions for an error type when current state is configured", exception.getMessage());
@@ -376,9 +331,13 @@ class ThrowableAsserterTest {
             @ValueSource(booleans = { true, false })
             @DisplayName("to configured with same error, different exactness")
             void testToConfiguredSameErrorDifferentExactness(boolean exact) {
-                ThrowableAsserter asserter = initialized();
+                ThrownError<NullPointerException, ?> thrownError = configuringErrorType(NullPointerException.class, exact);
 
-                ThrownError<NullPointerException> thrownError = toConfigured(asserter, NullPointerException.class, exact);
+                ThrowableAsserter<?> asserter = thrownError.throwableAsserter();
+
+                thrownError.thenAssertNothing();
+
+                assertConfigured(asserter);
 
                 // Ignore the result
                 toConfigured(asserter, NullPointerException.class, !exact);
@@ -393,12 +352,16 @@ class ThrowableAsserterTest {
             @ValueSource(booleans = { true, false })
             @DisplayName("to configured with different error, same exactness")
             void testToConfiguredDifferentErrorSameExactness(boolean exact) {
-                ThrowableAsserter asserter = initialized();
+                ThrownError<NullPointerException, ?> thrownError = configuringErrorType(NullPointerException.class, exact);
 
-                ThrownError<NullPointerException> thrownError = toConfigured(asserter, NullPointerException.class, exact);
+                ThrowableAsserter<?> asserter = thrownError.throwableAsserter();
+
+                thrownError.thenAssertNothing();
+
+                assertConfigured(asserter);
 
                 // Ignore the result
-                toConfigured(asserter, IOException.class, !exact);
+                toConfigured(asserter, IOException.class, exact);
 
                 IllegalStateException exception = assertThrows(IllegalStateException.class, thrownError::thenAssertNothing);
                 assertEquals("Cannot specify assertions for an error type when current state is configured", exception.getMessage());
@@ -410,9 +373,13 @@ class ThrowableAsserterTest {
             @ValueSource(booleans = { true, false })
             @DisplayName("to configured with different error, different exactness")
             void testToConfiguredDifferentErrorDifferentExactness(boolean exact) {
-                ThrowableAsserter asserter = initialized();
+                ThrownError<NullPointerException, ?> thrownError = configuringErrorType(NullPointerException.class, exact);
 
-                ThrownError<NullPointerException> thrownError = toConfigured(asserter, NullPointerException.class, exact);
+                ThrowableAsserter<?> asserter = thrownError.throwableAsserter();
+
+                thrownError.thenAssertNothing();
+
+                assertConfigured(asserter);
 
                 // Ignore the result
                 toConfigured(asserter, IOException.class, !exact);
@@ -427,12 +394,12 @@ class ThrowableAsserterTest {
             @ValueSource(booleans = { true, false })
             @DisplayName("to configured with no error")
             void testToConfiguredNoError(boolean exact) {
-                ThrowableAsserter asserter = initialized();
+                ThrowableAsserter<?> asserter = configured(NullPointerException.class, exact);
 
-                NoError noError = toConfiguredWithNoError(asserter);
+                NoError<?> noError = toConfiguredWithNoError(asserter);
 
                 // Ignore the result
-                toConfigured(asserter, IOException.class, !exact);
+                toConfigured(asserter, IOException.class, exact);
 
                 IllegalStateException exception = assertThrows(IllegalStateException.class, noError::thenAssertNothing);
                 assertEquals("Cannot specify assertions for no error when current state is configured", exception.getMessage());
@@ -443,92 +410,42 @@ class ThrowableAsserterTest {
             @Test
             @DisplayName("to asserted")
             void testToAsserted() {
-                ThrowableAsserter asserter = configured(NullPointerException.class, false);
+                ThrowableAsserter<?> asserter = configured(NullPointerException.class, false);
 
-                Asserted asserted = asserter.runAssertions();
+                Asserted<?> asserted = asserter.execute();
 
                 assertAsserted(asserter);
 
-                assertInstanceOf(NullPointerException.class, asserted.andReturn());
-                assertInstanceOf(NullPointerException.class, assertIsPresent(asserted.andReturnIfThrown()));
+                assertIsEmpty(asserted.andReturnResult());
+                assertInstanceOf(NullPointerException.class, asserted.andReturnError());
+                assertInstanceOf(NullPointerException.class, assertIsPresent(asserted.andReturnErrorIfThrown()));
             }
 
             @Test
             @DisplayName("to asserted failure")
             void testToAssertedFailure() {
-                ThrowableAsserter asserter = configured(IOException.class, false);
+                ThrowableAsserter<?> asserter = configured(IOException.class, false);
 
-                assertThrows(AssertionFailedError.class, asserter::runAssertions);
+                assertThrows(AssertionFailedError.class, asserter::execute);
 
                 assertConfigured(asserter);
             }
         }
 
         @Nested
-        @DisplayName("from configured without errors")
-        class FromConfiguredWithoutErrors {
+        @DisplayName("from configured with no error")
+        class FromConfiguredWithNoError {
 
-            // Impossible to go back to initialized
-
-            @ParameterizedTest(name = "exact: {0}")
-            @ValueSource(booleans = { true, false })
-            @DisplayName("to configuring error type")
-            void testToConfiguringErrorType(boolean exact) {
-                ThrowableAsserter asserter = configuredWithoutErrors();
-
-                toConfiguringErrorType(asserter, IOException.class, exact);
-
-                // toConfiguringNoError already performs the assertions
-            }
+            // configured without error is not possible; the first returned value is linked to an error type configuring object
 
             @Test
             @DisplayName("to configuring no error")
             void testToConfiguringNoErrorType() {
-                ThrowableAsserter asserter = configuredWithoutErrors();
+                ThrowableAsserter<?> asserter = configured(NullPointerException.class, false)
+                        .whenThrowsNothing().thenAssertNothing();
 
                 IllegalStateException exception = assertThrows(IllegalStateException.class, asserter::whenThrowsNothing);
                 assertEquals("Assertions for no error already configured", exception.getMessage());
-
-                assertConfigured(asserter);
-            }
-
-            @ParameterizedTest
-            @ValueSource(booleans = { true, false })
-            @DisplayName("to configured with error")
-            void testToConfiguredWithError(boolean exact) {
-                ThrowableAsserter asserter = initialized();
-
-                ThrownError<NullPointerException> thrownError = toConfigured(asserter, NullPointerException.class, exact);
-
-                // Ignore the result
-                toConfiguredWithNoError(asserter);
-
-                IllegalStateException exception = assertThrows(IllegalStateException.class, thrownError::thenAssertNothing);
-                assertEquals("Cannot specify assertions for an error type when current state is configured", exception.getMessage());
-
-                assertConfigured(asserter);
-            }
-
-            @Test
-            @DisplayName("to configured with no error")
-            void testToConfiguredNoError() {
-                ThrowableAsserter asserter = initialized();
-
-                NoError noError = toConfiguredWithNoError(asserter);
-
-                IllegalStateException exception = assertThrows(IllegalStateException.class, noError::thenAssertNothing);
-                assertEquals("Cannot specify assertions for no error when current state is configured", exception.getMessage());
-
-                assertConfigured(asserter);
-            }
-
-            @Test
-            @DisplayName("to asserted")
-            void testToAsserted() {
-                ThrowableAsserter asserter = configuredWithoutErrors();
-
-                IllegalStateException exception = assertThrows(IllegalStateException.class, asserter::runAssertions);
-                assertEquals("Cannot run assertions without expected error types", exception.getMessage());
 
                 assertConfigured(asserter);
             }
@@ -543,7 +460,7 @@ class ThrowableAsserterTest {
             @Test
             @DisplayName("to configuring error type")
             void testToConfiguringErrorType() {
-                ThrowableAsserter asserter = asserted();
+                ThrowableAsserter<?> asserter = asserted();
 
                 IllegalStateException exception = assertThrows(IllegalStateException.class, () -> asserter.whenThrows(IOException.class));
                 assertEquals("Cannot configure assertions for an error type when current state is asserted", exception.getMessage());
@@ -559,7 +476,7 @@ class ThrowableAsserterTest {
             @Test
             @DisplayName("to configuring no error")
             void testToConfiguringNoErrorType() {
-                ThrowableAsserter asserter = asserted();
+                ThrowableAsserter<?> asserter = asserted();
 
                 IllegalStateException exception = assertThrows(IllegalStateException.class, asserter::whenThrowsNothing);
                 assertEquals("Cannot configure assertions for no error when current state is asserted", exception.getMessage());
@@ -571,16 +488,21 @@ class ThrowableAsserterTest {
             @ValueSource(booleans = { true, false })
             @DisplayName("to configured with error type")
             void testToConfiguredWithErrorType(boolean exact) {
-                ThrowableAsserter asserter = initialized();
+                ThrownError<NullPointerException, ?> thrownError = configuringErrorType(NullPointerException.class, exact);
 
-                ThrownError<NullPointerException> thrownError = toConfigured(asserter, NullPointerException.class, exact);
+                ThrowableAsserter<?> asserter = thrownError.throwableAsserter();
 
-                Asserted asserted = asserter.runAssertions();
+                thrownError.thenAssertNothing();
+
+                assertConfigured(asserter);
+
+                Asserted<?> asserted = asserter.execute();
 
                 assertAsserted(asserter);
 
-                assertInstanceOf(NullPointerException.class, asserted.andReturn());
-                assertInstanceOf(NullPointerException.class, assertIsPresent(asserted.andReturnIfThrown()));
+                assertIsEmpty(asserted.andReturnResult());
+                assertInstanceOf(NullPointerException.class, asserted.andReturnError());
+                assertInstanceOf(NullPointerException.class, assertIsPresent(asserted.andReturnErrorIfThrown()));
 
                 IllegalStateException exception = assertThrows(IllegalStateException.class, thrownError::thenAssertNothing);
                 assertEquals("Cannot specify assertions for an error type when current state is asserted", exception.getMessage());
@@ -592,19 +514,20 @@ class ThrowableAsserterTest {
             @ValueSource(booleans = { true, false })
             @DisplayName("to configured with no error")
             void testToConfiguredWithNoError(boolean exact) {
-                ThrowableAsserter asserter = configured(NullPointerException.class, exact);
+                ThrowableAsserter<?> asserter = configured(NullPointerException.class, exact);
 
-                NoError noError = toConfiguringNoError(asserter);
+                NoError<?> noError = toConfiguringNoError(asserter);
                 noError.thenAssertNothing();
 
                 assertConfigured(asserter);
 
-                Asserted asserted = asserter.runAssertions();
+                Asserted<?> asserted = asserter.execute();
 
                 assertAsserted(asserter);
 
-                assertInstanceOf(NullPointerException.class, asserted.andReturn());
-                assertInstanceOf(NullPointerException.class, assertIsPresent(asserted.andReturnIfThrown()));
+                assertIsEmpty(asserted.andReturnResult());
+                assertInstanceOf(NullPointerException.class, asserted.andReturnError());
+                assertInstanceOf(NullPointerException.class, assertIsPresent(asserted.andReturnErrorIfThrown()));
 
                 IllegalStateException exception = assertThrows(IllegalStateException.class, noError::thenAssertNothing);
                 assertEquals("Cannot specify assertions for no error when current state is asserted", exception.getMessage());
@@ -615,63 +538,69 @@ class ThrowableAsserterTest {
             @Test
             @DisplayName("to asserted")
             void testToAsserted() {
-                ThrowableAsserter asserter = configured(NullPointerException.class, false);
+                ThrowableAsserter<?> asserter = configured(NullPointerException.class, false);
 
-                Asserted asserted = asserter.runAssertions();
+                Asserted<?> asserted = asserter.execute();
 
                 assertAsserted(asserter);
 
-                assertInstanceOf(NullPointerException.class, asserted.andReturn());
-                assertInstanceOf(NullPointerException.class, assertIsPresent(asserted.andReturnIfThrown()));
+                assertIsEmpty(asserted.andReturnResult());
+                assertInstanceOf(NullPointerException.class, asserted.andReturnError());
+                assertInstanceOf(NullPointerException.class, assertIsPresent(asserted.andReturnErrorIfThrown()));
 
-                IllegalStateException exception = assertThrows(IllegalStateException.class, asserter::runAssertions);
+                IllegalStateException exception = assertThrows(IllegalStateException.class, asserter::execute);
                 assertEquals("Cannot run assertions when current state is asserted", exception.getMessage());
 
                 assertAsserted(asserter);
             }
-
-            private ThrowableAsserter asserted() {
-                ThrowableAsserter asserter = configured(NullPointerException.class, false);
-
-                Asserted asserted = asserter.runAssertions();
-
-                assertAsserted(asserter);
-
-                assertInstanceOf(NullPointerException.class, asserted.andReturn());
-                assertInstanceOf(NullPointerException.class, assertIsPresent(asserted.andReturnIfThrown()));
-
-                return asserter;
-            }
         }
 
-        private ThrowableAsserter initialized() {
-            ThrowableAsserter asserter = executing(() -> {
-                throw new NullPointerException("error");
-            });
+        private <T extends Throwable> ThrownError<T, ?> configuringErrorType(Class<T> errorType, boolean exact) {
+            Executable executable = throwing(new NullPointerException("error"));
 
-            assertInitialized(asserter);
+            ThrownError<T, ?> thrownError = exact
+                    ? whenThrowsExactly(errorType, executable)
+                    : whenThrows(errorType, executable);
+
+            assertConfiguringErrorType(thrownError.throwableAsserter(), errorType, exact);
+
+            return thrownError;
+        }
+
+        private NoError<?> configuringNoError(Class<? extends Throwable> initialErrorType, boolean exact) {
+            ThrowableAsserter<?> asserter = configured(initialErrorType, exact);
+
+            NoError<?> noError = asserter.whenThrowsNothing();
+
+            assertConfiguringNoError(asserter);
+
+            return noError;
+        }
+
+        private ThrowableAsserter<?> configured(Class<? extends Throwable> errorType, boolean exact) {
+            ThrowableAsserter<?> asserter = configuringErrorType(errorType, exact).thenAssertNothing();
+
+            assertConfigured(asserter);
 
             return asserter;
         }
 
-        private ThrowableAsserter configured(Class<? extends Throwable> errorType, boolean exact) {
-            ThrowableAsserter asserter = initialized();
+        private ThrowableAsserter<?> asserted() {
+            ThrowableAsserter<?> asserter = configured(NullPointerException.class, false);
 
-            toConfigured(asserter, errorType, exact);
+            Asserted<?> asserted = asserter.execute();
 
-            return asserter;
-        }
+            assertAsserted(asserter);
 
-        private ThrowableAsserter configuredWithoutErrors() {
-            ThrowableAsserter asserter = initialized();
-
-            toConfiguredWithNoError(asserter);
+            assertIsEmpty(asserted.andReturnResult());
+            assertInstanceOf(NullPointerException.class, asserted.andReturnError());
+            assertInstanceOf(NullPointerException.class, assertIsPresent(asserted.andReturnErrorIfThrown()));
 
             return asserter;
         }
 
-        private <T extends Throwable> ThrownError<T> toConfiguringErrorType(ThrowableAsserter asserter, Class<T> errorType, boolean exact) {
-            ThrownError<T> thrownError = exact
+        private <T extends Throwable, R> ThrownError<T, R> toConfiguringErrorType(ThrowableAsserter<R> asserter, Class<T> errorType, boolean exact) {
+            ThrownError<T, R> thrownError = exact
                     ? asserter.whenThrowsExactly(errorType)
                     : asserter.whenThrows(errorType);
 
@@ -680,16 +609,16 @@ class ThrowableAsserterTest {
             return thrownError;
         }
 
-        private NoError toConfiguringNoError(ThrowableAsserter asserter) {
-            NoError noError = asserter.whenThrowsNothing();
+        private <R> NoError<R> toConfiguringNoError(ThrowableAsserter<R> asserter) {
+            NoError<R> noError = asserter.whenThrowsNothing();
 
             assertConfiguringNoError(asserter);
 
             return noError;
         }
 
-        private <T extends Throwable> ThrownError<T> toConfigured(ThrowableAsserter asserter, Class<T> errorType, boolean exact) {
-            ThrownError<T> thrownError = exact
+        private <T extends Throwable, R> ThrownError<T, R> toConfigured(ThrowableAsserter<R> asserter, Class<T> errorType, boolean exact) {
+            ThrownError<T, R> thrownError = exact
                     ? asserter.whenThrowsExactly(errorType)
                     : asserter.whenThrows(errorType);
 
@@ -700,8 +629,8 @@ class ThrowableAsserterTest {
             return thrownError;
         }
 
-        private NoError toConfiguredWithNoError(ThrowableAsserter asserter) {
-            NoError noError = asserter.whenThrowsNothing();
+        private <R> NoError<R> toConfiguredWithNoError(ThrowableAsserter<R> asserter) {
+            NoError<R> noError = asserter.whenThrowsNothing();
 
             noError.thenAssertNothing();
 
@@ -710,31 +639,25 @@ class ThrowableAsserterTest {
             return noError;
         }
 
-        private void assertInitialized(ThrowableAsserter asserter) {
-            assertEquals(State.INITIALIZED, asserter.state());
-            assertNull(asserter.configuringErrorType());
-            assertFalse(asserter.configuringExactErrorType());
-        }
-
-        private void assertConfiguringErrorType(ThrowableAsserter asserter, Class<? extends Throwable> errorType, boolean exact) {
+        private void assertConfiguringErrorType(ThrowableAsserter<?> asserter, Class<? extends Throwable> errorType, boolean exact) {
             assertEquals(State.CONFIGURING_ERROR_TYPE, asserter.state());
             assertEquals(errorType, asserter.configuringErrorType());
             assertEquals(exact, asserter.configuringExactErrorType());
         }
 
-        private void assertConfiguringNoError(ThrowableAsserter asserter) {
+        private void assertConfiguringNoError(ThrowableAsserter<?> asserter) {
             assertEquals(State.CONFIGURING_NO_ERROR, asserter.state());
             assertNull(asserter.configuringErrorType());
             assertFalse(asserter.configuringExactErrorType());
         }
 
-        private void assertConfigured(ThrowableAsserter asserter) {
+        private void assertConfigured(ThrowableAsserter<?> asserter) {
             assertEquals(State.CONFIGURED, asserter.state());
             assertNull(asserter.configuringErrorType());
             assertFalse(asserter.configuringExactErrorType());
         }
 
-        private void assertAsserted(ThrowableAsserter asserter) {
+        private void assertAsserted(ThrowableAsserter<?> asserter) {
             assertEquals(State.ASSERTED, asserter.state());
             assertNull(asserter.configuringErrorType());
             assertFalse(asserter.configuringExactErrorType());
@@ -748,7 +671,7 @@ class ThrowableAsserterTest {
         @Test
         @DisplayName("unique errorType")
         void testUniqueErrorType() {
-            ThrowableAsserter asserter = executing(() -> new NullPointerException());
+            ThrowableAsserter<?> asserter = newAsserter();
 
             assertFalse(asserter.runAllAssertions(new NullPointerException()));
             assertFalse(asserter.runAllAssertions(new IOException()));
@@ -767,7 +690,7 @@ class ThrowableAsserterTest {
         @Test
         @DisplayName("duplicate errorType")
         void testDuplicateErrorType() {
-            ThrowableAsserter asserter = executing(() -> new NullPointerException());
+            ThrowableAsserter<?> asserter = newAsserter();
 
             Consumer<NullPointerException> consumer = mockedConsumer();
 
@@ -791,7 +714,7 @@ class ThrowableAsserterTest {
         @Test
         @DisplayName("errorType already configured exactly")
         void testErrorTypeConfiguredExactly() {
-            ThrowableAsserter asserter = executing(() -> new NullPointerException());
+            ThrowableAsserter<?> asserter = newAsserter();
 
             Consumer<IllegalArgumentException> consumer1 = mockedConsumer();
             Consumer<IllegalArgumentException> consumer2 = mockedConsumer();
@@ -825,6 +748,10 @@ class ThrowableAsserterTest {
             verify(consumer2).accept(error2);
             verifyNoMoreInteractions(consumer1, consumer2);
         }
+
+        private ThrowableAsserter<?> newAsserter() {
+            return whenThrows(ParseException.class, Object::new).thenAssertNothing();
+        }
     }
 
     @Nested
@@ -834,7 +761,7 @@ class ThrowableAsserterTest {
         @Test
         @DisplayName("unique errorType")
         void testUniqueErrorType() {
-            ThrowableAsserter asserter = executing(() -> new NullPointerException());
+            ThrowableAsserter<?> asserter = newAsserter();
 
             assertFalse(asserter.runAllAssertions(new NullPointerException()));
             assertFalse(asserter.runAllAssertions(new IOException()));
@@ -853,7 +780,7 @@ class ThrowableAsserterTest {
         @Test
         @DisplayName("duplicate errorType")
         void testDuplicateErrorType() {
-            ThrowableAsserter asserter = executing(() -> new NullPointerException());
+            ThrowableAsserter<?> asserter = newAsserter();
 
             Consumer<NullPointerException> consumer = mockedConsumer();
 
@@ -878,7 +805,7 @@ class ThrowableAsserterTest {
         @Test
         @DisplayName("errorType already configured not-exactly")
         void testErrorTypeConfiguredNotExactly() {
-            ThrowableAsserter asserter = executing(() -> new NullPointerException());
+            ThrowableAsserter<?> asserter = newAsserter();
 
             Consumer<IllegalArgumentException> consumer1 = mockedConsumer();
             Consumer<IllegalArgumentException> consumer2 = mockedConsumer();
@@ -912,6 +839,10 @@ class ThrowableAsserterTest {
             verify(consumer2).accept(error1);
             verifyNoMoreInteractions(consumer1, consumer2);
         }
+
+        private ThrowableAsserter<?> newAsserter() {
+            return whenThrows(ParseException.class, Object::new).thenAssertNothing();
+        }
     }
 
     @Nested
@@ -924,8 +855,7 @@ class ThrowableAsserterTest {
             Consumer<Throwable> consumer1 = mockedConsumer();
             Consumer<Throwable> consumer2 = mockedConsumer();
 
-            ThrowableAsserter asserter = executing(Object::new)
-                    .whenThrows(IllegalArgumentException.class).thenAssert(consumer1)
+            ThrowableAsserter<?> asserter = whenThrows(IllegalArgumentException.class, Object::new).thenAssert(consumer1)
                     .whenThrowsExactly(IllegalArgumentException.class).thenAssert(consumer2);
 
             IllegalArgumentException error = new IllegalArgumentException();
@@ -943,8 +873,7 @@ class ThrowableAsserterTest {
             Consumer<Throwable> consumer1 = mockedConsumer();
             Consumer<Throwable> consumer2 = mockedConsumer();
 
-            ThrowableAsserter asserter = executing(Object::new)
-                    .whenThrows(IllegalArgumentException.class).thenAssert(consumer1)
+            ThrowableAsserter<?> asserter = whenThrows(IllegalArgumentException.class, Object::new).thenAssert(consumer1)
                     .whenThrows(NumberFormatException.class).thenAssert(consumer2);
 
             IllegalArgumentException error1 = new IllegalArgumentException();
@@ -968,8 +897,7 @@ class ThrowableAsserterTest {
             Consumer<Throwable> consumer1 = mockedConsumer();
             Consumer<Throwable> consumer2 = mockedConsumer();
 
-            ThrowableAsserter asserter = executing(Object::new)
-                    .whenThrows(IllegalArgumentException.class).thenAssert(consumer1)
+            ThrowableAsserter<?> asserter = whenThrows(IllegalArgumentException.class, Object::new).thenAssert(consumer1)
                     .whenThrows(NumberFormatException.class).thenAssert(consumer2);
 
             IOException error1 = new IOException();
@@ -983,8 +911,8 @@ class ThrowableAsserterTest {
     }
 
     @Nested
-    @DisplayName("runAssertions")
-    class RunAssertions {
+    @DisplayName("execute")
+    class Execute {
 
         @Nested
         @DisplayName("without message or supplier")
@@ -999,11 +927,10 @@ class ThrowableAsserterTest {
                 void whenThrowsNothingNotCalled() {
                     Consumer<Throwable> consumer = mockedConsumer();
 
-                    ThrowableAsserter asserter = executing(Object::new)
-                            .whenThrows(NullPointerException.class).thenAssert(consumer)
+                    ThrowableAsserter<?> asserter = whenThrows(NullPointerException.class, Object::new).thenAssert(consumer)
                             .whenThrows(IOException.class).thenAssert(consumer);
 
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class, asserter::runAssertions);
+                    AssertionFailedError error = assertThrows(AssertionFailedError.class, asserter::execute);
                     assertEquals(String.format("Expected one of <%s>, <%s> to be thrown, but nothing was thrown.",
                             NullPointerException.class.getName(), IOException.class.getName()),
                             error.getMessage());
@@ -1012,27 +939,52 @@ class ThrowableAsserterTest {
                 }
 
                 @Test
-                @DisplayName("whenThrowsNothing called")
-                void whenThrowsNothingCalled() {
+                @DisplayName("whenThrowsNothing called with Runnable")
+                void whenThrowsNothingCalledWithRunnable() {
                     Consumer<Throwable> consumer = mockedConsumer();
                     Runnable runnable = mock(Runnable.class);
 
-                    Asserted asserted = executing(Object::new)
-                            .whenThrows(NullPointerException.class).thenAssert(consumer)
+                    Asserted<?> asserted = whenThrows(NullPointerException.class, notThrowing()).thenAssert(consumer)
                             .whenThrows(IOException.class).thenAssertNothing()
                             .whenThrowsNothing().thenAssert(runnable)
-                            .runAssertions();
+                            .execute();
 
                     verify(runnable).run();
                     verifyNoMoreInteractions(consumer, runnable);
 
-                    assertIsEmpty(asserted.andReturnIfThrown());
-                    assertIsEmpty(asserted.andReturnIfThrownAs(Exception.class));
+                    assertIsEmpty(asserted.andReturnResult());
+                    assertIsEmpty(asserted.andReturnErrorIfThrown());
+                    assertIsEmpty(asserted.andReturnErrorIfThrownAs(Exception.class));
 
-                    IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturn);
+                    IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturnError);
                     assertEquals("Nothing was thrown", exception.getMessage());
 
-                    exception = assertThrows(IllegalStateException.class, () -> asserted.andReturnAs(Exception.class));
+                    exception = assertThrows(IllegalStateException.class, () -> asserted.andReturnErrorAs(Exception.class));
+                    assertEquals("Nothing was thrown", exception.getMessage());
+                }
+
+                @Test
+                @DisplayName("whenThrowsNothing called with Consumer")
+                void whenThrowsNothingCalled() {
+                    Consumer<Throwable> consumer1 = mockedConsumer();
+                    Consumer<String> consumer2 = mockedConsumer();
+
+                    Asserted<?> asserted = whenThrows(NullPointerException.class, () -> "foo").thenAssert(consumer1)
+                            .whenThrows(IOException.class).thenAssertNothing()
+                            .whenThrowsNothing().thenAssert(consumer2)
+                            .execute();
+
+                    verify(consumer2).accept("foo");
+                    verifyNoMoreInteractions(consumer1, consumer2);
+
+                    assertEquals("foo", assertIsPresent(asserted.andReturnResult()));
+                    assertIsEmpty(asserted.andReturnErrorIfThrown());
+                    assertIsEmpty(asserted.andReturnErrorIfThrownAs(Exception.class));
+
+                    IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturnError);
+                    assertEquals("Nothing was thrown", exception.getMessage());
+
+                    exception = assertThrows(IllegalStateException.class, () -> asserted.andReturnErrorAs(Exception.class));
                     assertEquals("Nothing was thrown", exception.getMessage());
                 }
 
@@ -1041,21 +993,21 @@ class ThrowableAsserterTest {
                 void whenThrowsNothingCalledWithoutAssertions() {
                     Consumer<Throwable> consumer = mockedConsumer();
 
-                    Asserted asserted = executing(Object::new)
-                            .whenThrows(NullPointerException.class).thenAssert(consumer)
+                    Asserted<?> asserted = whenThrows(NullPointerException.class, () -> "foo").thenAssert(consumer)
                             .whenThrows(IOException.class).thenAssertNothing()
                             .whenThrowsNothing().thenAssertNothing()
-                            .runAssertions();
+                            .execute();
 
                     verifyNoMoreInteractions(consumer);
 
-                    assertIsEmpty(asserted.andReturnIfThrown());
-                    assertIsEmpty(asserted.andReturnIfThrownAs(Exception.class));
+                    assertEquals("foo", assertIsPresent(asserted.andReturnResult()));
+                    assertIsEmpty(asserted.andReturnErrorIfThrown());
+                    assertIsEmpty(asserted.andReturnErrorIfThrownAs(Exception.class));
 
-                    IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturn);
+                    IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturnError);
                     assertEquals("Nothing was thrown", exception.getMessage());
 
-                    exception = assertThrows(IllegalStateException.class, () -> asserted.andReturnAs(Exception.class));
+                    exception = assertThrows(IllegalStateException.class, () -> asserted.andReturnErrorAs(Exception.class));
                     assertEquals("Nothing was thrown", exception.getMessage());
                 }
             }
@@ -1069,22 +1021,22 @@ class ThrowableAsserterTest {
 
                 NullPointerException error = new NullPointerException("error");
 
-                Asserted asserted = executing(throwing(error))
-                        .whenThrows(NullPointerException.class).thenAssert(consumer1)
+                Asserted<?> asserted = whenThrows(NullPointerException.class, throwing(error)).thenAssert(consumer1)
                         .whenThrows(IOException.class).thenAssert(consumer2)
                         .whenThrowsNothing().thenAssert(runnable)
-                        .runAssertions();
+                        .execute();
 
                 verify(consumer1).accept(error);
                 verifyNoMoreInteractions(consumer1, consumer2, runnable);
 
-                assertSame(error, asserted.andReturn());
-                assertSame(error, asserted.andReturnAs(Exception.class));
-                assertSame(error, assertIsPresent(asserted.andReturnIfThrown()));
-                assertSame(error, assertIsPresent(asserted.andReturnIfThrownAs(Exception.class)));
+                assertIsEmpty(asserted.andReturnResult());
+                assertSame(error, asserted.andReturnError());
+                assertSame(error, asserted.andReturnErrorAs(Exception.class));
+                assertSame(error, assertIsPresent(asserted.andReturnErrorIfThrown()));
+                assertSame(error, assertIsPresent(asserted.andReturnErrorIfThrownAs(Exception.class)));
 
-                assertThrows(ClassCastException.class, () -> asserted.andReturnAs(IllegalArgumentException.class));
-                assertThrows(ClassCastException.class, () -> asserted.andReturnIfThrownAs(IllegalArgumentException.class));
+                assertThrows(ClassCastException.class, () -> asserted.andReturnErrorAs(IllegalArgumentException.class));
+                assertThrows(ClassCastException.class, () -> asserted.andReturnErrorIfThrownAs(IllegalArgumentException.class));
             }
 
             @Test
@@ -1096,22 +1048,22 @@ class ThrowableAsserterTest {
 
                 IOException error = new IOException("error");
 
-                Asserted asserted = executing(throwing(error))
-                        .whenThrows(NullPointerException.class).thenAssert(consumer1)
+                Asserted<?> asserted = whenThrows(NullPointerException.class, throwing(error)).thenAssert(consumer1)
                         .whenThrows(IOException.class).thenAssert(consumer2)
                         .whenThrowsNothing().thenAssert(runnable)
-                        .runAssertions();
+                        .execute();
 
                 verify(consumer2).accept(error);
                 verifyNoMoreInteractions(consumer1, consumer2, runnable);
 
-                assertSame(error, asserted.andReturn());
-                assertSame(error, asserted.andReturnAs(Exception.class));
-                assertSame(error, assertIsPresent(asserted.andReturnIfThrown()));
-                assertSame(error, assertIsPresent(asserted.andReturnIfThrownAs(Exception.class)));
+                assertIsEmpty(asserted.andReturnResult());
+                assertSame(error, asserted.andReturnError());
+                assertSame(error, asserted.andReturnErrorAs(Exception.class));
+                assertSame(error, assertIsPresent(asserted.andReturnErrorIfThrown()));
+                assertSame(error, assertIsPresent(asserted.andReturnErrorIfThrownAs(Exception.class)));
 
-                assertThrows(ClassCastException.class, () -> asserted.andReturnAs(IllegalArgumentException.class));
-                assertThrows(ClassCastException.class, () -> asserted.andReturnIfThrownAs(IllegalArgumentException.class));
+                assertThrows(ClassCastException.class, () -> asserted.andReturnErrorAs(IllegalArgumentException.class));
+                assertThrows(ClassCastException.class, () -> asserted.andReturnErrorIfThrownAs(IllegalArgumentException.class));
             }
 
             @Test
@@ -1123,12 +1075,11 @@ class ThrowableAsserterTest {
 
                 IllegalArgumentException error = new IllegalArgumentException("error");
 
-                ThrowableAsserter asserter = executing(throwing(error))
-                        .whenThrows(NullPointerException.class).thenAssert(consumer1)
+                ThrowableAsserter<?> asserter = whenThrows(NullPointerException.class, throwing(error)).thenAssert(consumer1)
                         .whenThrows(IOException.class).thenAssert(consumer2)
                         .whenThrowsNothing().thenAssert(runnable);
 
-                AssertionFailedError failure = assertThrows(AssertionFailedError.class, asserter::runAssertions);
+                AssertionFailedError failure = assertThrows(AssertionFailedError.class, asserter::execute);
                 assertEquals(String.format("Unexpected exception type thrown, expected: one of <%s>, <%s> but was: <%s>",
                         NullPointerException.class.getName(), IOException.class.getName(), error.getClass().getName()),
                         failure.getMessage());
@@ -1151,11 +1102,10 @@ class ThrowableAsserterTest {
                 void whenThrowsNothingNotCalled() {
                     Consumer<Throwable> consumer = mockedConsumer();
 
-                    ThrowableAsserter asserter = executing(Object::new, "error")
-                            .whenThrows(NullPointerException.class).thenAssert(consumer)
+                    ThrowableAsserter<?> asserter = whenThrows(NullPointerException.class, Object::new).thenAssert(consumer)
                             .whenThrows(IOException.class).thenAssert(consumer);
 
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class, asserter::runAssertions);
+                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> asserter.execute("error"));
                     assertEquals(String.format("error ==> Expected one of <%s>, <%s> to be thrown, but nothing was thrown.",
                             NullPointerException.class.getName(), IOException.class.getName()),
                             error.getMessage());
@@ -1164,27 +1114,52 @@ class ThrowableAsserterTest {
                 }
 
                 @Test
-                @DisplayName("whenThrowsNothing called")
-                void whenThrowsNothingCalled() {
+                @DisplayName("whenThrowsNothing called with Runnable")
+                void whenThrowsNothingCalledWithRunnable() {
                     Consumer<Throwable> consumer = mockedConsumer();
                     Runnable runnable = mock(Runnable.class);
 
-                    Asserted asserted = executing(Object::new, "error")
-                            .whenThrows(NullPointerException.class).thenAssert(consumer)
+                    Asserted<?> asserted = whenThrows(NullPointerException.class, notThrowing()).thenAssert(consumer)
                             .whenThrows(IOException.class).thenAssertNothing()
                             .whenThrowsNothing().thenAssert(runnable)
-                            .runAssertions();
+                            .execute("error");
 
                     verify(runnable).run();
                     verifyNoMoreInteractions(consumer, runnable);
 
-                    assertIsEmpty(asserted.andReturnIfThrown());
-                    assertIsEmpty(asserted.andReturnIfThrownAs(Exception.class));
+                    assertIsEmpty(asserted.andReturnResult());
+                    assertIsEmpty(asserted.andReturnErrorIfThrown());
+                    assertIsEmpty(asserted.andReturnErrorIfThrownAs(Exception.class));
 
-                    IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturn);
+                    IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturnError);
                     assertEquals("Nothing was thrown", exception.getMessage());
 
-                    exception = assertThrows(IllegalStateException.class, () -> asserted.andReturnAs(Exception.class));
+                    exception = assertThrows(IllegalStateException.class, () -> asserted.andReturnErrorAs(Exception.class));
+                    assertEquals("Nothing was thrown", exception.getMessage());
+                }
+
+                @Test
+                @DisplayName("whenThrowsNothing called with Consumer")
+                void whenThrowsNothingCalled() {
+                    Consumer<Throwable> consumer1 = mockedConsumer();
+                    Consumer<String> consumer2 = mockedConsumer();
+
+                    Asserted<?> asserted = whenThrows(NullPointerException.class, () -> "foo").thenAssert(consumer1)
+                            .whenThrows(IOException.class).thenAssertNothing()
+                            .whenThrowsNothing().thenAssert(consumer2)
+                            .execute("error");
+
+                    verify(consumer2).accept("foo");
+                    verifyNoMoreInteractions(consumer1, consumer2);
+
+                    assertEquals("foo", assertIsPresent(asserted.andReturnResult()));
+                    assertIsEmpty(asserted.andReturnErrorIfThrown());
+                    assertIsEmpty(asserted.andReturnErrorIfThrownAs(Exception.class));
+
+                    IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturnError);
+                    assertEquals("Nothing was thrown", exception.getMessage());
+
+                    exception = assertThrows(IllegalStateException.class, () -> asserted.andReturnErrorAs(Exception.class));
                     assertEquals("Nothing was thrown", exception.getMessage());
                 }
 
@@ -1193,21 +1168,21 @@ class ThrowableAsserterTest {
                 void whenThrowsNothingCalledWithoutAssertions() {
                     Consumer<Throwable> consumer = mockedConsumer();
 
-                    Asserted asserted = executing(Object::new, "error")
-                            .whenThrows(NullPointerException.class).thenAssert(consumer)
+                    Asserted<?> asserted = whenThrows(NullPointerException.class, () -> "foo").thenAssert(consumer)
                             .whenThrows(IOException.class).thenAssertNothing()
                             .whenThrowsNothing().thenAssertNothing()
-                            .runAssertions();
+                            .execute("error");
 
                     verifyNoMoreInteractions(consumer);
 
-                    assertIsEmpty(asserted.andReturnIfThrown());
-                    assertIsEmpty(asserted.andReturnIfThrownAs(Exception.class));
+                    assertEquals("foo", assertIsPresent(asserted.andReturnResult()));
+                    assertIsEmpty(asserted.andReturnErrorIfThrown());
+                    assertIsEmpty(asserted.andReturnErrorIfThrownAs(Exception.class));
 
-                    IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturn);
+                    IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturnError);
                     assertEquals("Nothing was thrown", exception.getMessage());
 
-                    exception = assertThrows(IllegalStateException.class, () -> asserted.andReturnAs(Exception.class));
+                    exception = assertThrows(IllegalStateException.class, () -> asserted.andReturnErrorAs(Exception.class));
                     assertEquals("Nothing was thrown", exception.getMessage());
                 }
             }
@@ -1221,22 +1196,22 @@ class ThrowableAsserterTest {
 
                 NullPointerException error = new NullPointerException("error");
 
-                Asserted asserted = executing(throwing(error), "error")
-                        .whenThrows(NullPointerException.class).thenAssert(consumer1)
+                Asserted<?> asserted = whenThrows(NullPointerException.class, throwing(error)).thenAssert(consumer1)
                         .whenThrows(IOException.class).thenAssert(consumer2)
                         .whenThrowsNothing().thenAssert(runnable)
-                        .runAssertions();
+                        .execute("error");
 
                 verify(consumer1).accept(error);
                 verifyNoMoreInteractions(consumer1, consumer2, runnable);
 
-                assertSame(error, asserted.andReturn());
-                assertSame(error, asserted.andReturnAs(Exception.class));
-                assertSame(error, assertIsPresent(asserted.andReturnIfThrown()));
-                assertSame(error, assertIsPresent(asserted.andReturnIfThrownAs(Exception.class)));
+                assertIsEmpty(asserted.andReturnResult());
+                assertSame(error, asserted.andReturnError());
+                assertSame(error, asserted.andReturnErrorAs(Exception.class));
+                assertSame(error, assertIsPresent(asserted.andReturnErrorIfThrown()));
+                assertSame(error, assertIsPresent(asserted.andReturnErrorIfThrownAs(Exception.class)));
 
-                assertThrows(ClassCastException.class, () -> asserted.andReturnAs(IllegalArgumentException.class));
-                assertThrows(ClassCastException.class, () -> asserted.andReturnIfThrownAs(IllegalArgumentException.class));
+                assertThrows(ClassCastException.class, () -> asserted.andReturnErrorAs(IllegalArgumentException.class));
+                assertThrows(ClassCastException.class, () -> asserted.andReturnErrorIfThrownAs(IllegalArgumentException.class));
             }
 
             @Test
@@ -1248,22 +1223,22 @@ class ThrowableAsserterTest {
 
                 IOException error = new IOException("error");
 
-                Asserted asserted = executing(throwing(error), "error")
-                        .whenThrows(NullPointerException.class).thenAssert(consumer1)
+                Asserted<?> asserted = whenThrows(NullPointerException.class, throwing(error)).thenAssert(consumer1)
                         .whenThrows(IOException.class).thenAssert(consumer2)
                         .whenThrowsNothing().thenAssert(runnable)
-                        .runAssertions();
+                        .execute("error");
 
                 verify(consumer2).accept(error);
                 verifyNoMoreInteractions(consumer1, consumer2, runnable);
 
-                assertSame(error, asserted.andReturn());
-                assertSame(error, asserted.andReturnAs(Exception.class));
-                assertSame(error, assertIsPresent(asserted.andReturnIfThrown()));
-                assertSame(error, assertIsPresent(asserted.andReturnIfThrownAs(Exception.class)));
+                assertIsEmpty(asserted.andReturnResult());
+                assertSame(error, asserted.andReturnError());
+                assertSame(error, asserted.andReturnErrorAs(Exception.class));
+                assertSame(error, assertIsPresent(asserted.andReturnErrorIfThrown()));
+                assertSame(error, assertIsPresent(asserted.andReturnErrorIfThrownAs(Exception.class)));
 
-                assertThrows(ClassCastException.class, () -> asserted.andReturnAs(IllegalArgumentException.class));
-                assertThrows(ClassCastException.class, () -> asserted.andReturnIfThrownAs(IllegalArgumentException.class));
+                assertThrows(ClassCastException.class, () -> asserted.andReturnErrorAs(IllegalArgumentException.class));
+                assertThrows(ClassCastException.class, () -> asserted.andReturnErrorIfThrownAs(IllegalArgumentException.class));
             }
 
             @Test
@@ -1275,12 +1250,11 @@ class ThrowableAsserterTest {
 
                 IllegalArgumentException error = new IllegalArgumentException("error");
 
-                ThrowableAsserter asserter = executing(throwing(error), "error")
-                        .whenThrows(NullPointerException.class).thenAssert(consumer1)
+                ThrowableAsserter<?> asserter = whenThrows(NullPointerException.class, throwing(error)).thenAssert(consumer1)
                         .whenThrows(IOException.class).thenAssert(consumer2)
                         .whenThrowsNothing().thenAssert(runnable);
 
-                AssertionFailedError failure = assertThrows(AssertionFailedError.class, asserter::runAssertions);
+                AssertionFailedError failure = assertThrows(AssertionFailedError.class, () -> asserter.execute("error"));
                 assertEquals(String.format("error ==> Unexpected exception type thrown, expected: one of <%s>, <%s> but was: <%s>",
                         NullPointerException.class.getName(), IOException.class.getName(), error.getClass().getName()),
                         failure.getMessage());
@@ -1303,11 +1277,11 @@ class ThrowableAsserterTest {
                 void whenThrowsNothingNotCalled() {
                     Consumer<Throwable> consumer = mockedConsumer();
 
-                    ThrowableAsserter asserter = executing(Object::new, () -> "error")
-                            .whenThrows(NullPointerException.class).thenAssert(consumer)
+                    ThrowableAsserter<?> asserter = whenThrows(NullPointerException.class, Object::new).thenAssert(consumer)
                             .whenThrows(IOException.class).thenAssert(consumer);
 
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class, asserter::runAssertions);
+                    Supplier<String> messageSupplier = () -> "error";
+                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> asserter.execute(messageSupplier));
                     assertEquals(String.format("error ==> Expected one of <%s>, <%s> to be thrown, but nothing was thrown.",
                             NullPointerException.class.getName(), IOException.class.getName()),
                             error.getMessage());
@@ -1316,27 +1290,52 @@ class ThrowableAsserterTest {
                 }
 
                 @Test
-                @DisplayName("whenThrowsNothing called")
-                void whenThrowsNothingCalled() {
+                @DisplayName("whenThrowsNothing called with Runnable")
+                void whenThrowsNothingCalledWithRunnable() {
                     Consumer<Throwable> consumer = mockedConsumer();
                     Runnable runnable = mock(Runnable.class);
 
-                    Asserted asserted = executing(Object::new, () -> "error")
-                            .whenThrows(NullPointerException.class).thenAssert(consumer)
+                    Asserted<?> asserted = whenThrows(NullPointerException.class, notThrowing()).thenAssert(consumer)
                             .whenThrows(IOException.class).thenAssertNothing()
                             .whenThrowsNothing().thenAssert(runnable)
-                            .runAssertions();
+                            .execute(() -> "error");
 
                     verify(runnable).run();
                     verifyNoMoreInteractions(consumer, runnable);
 
-                    assertIsEmpty(asserted.andReturnIfThrown());
-                    assertIsEmpty(asserted.andReturnIfThrownAs(Exception.class));
+                    assertIsEmpty(asserted.andReturnResult());
+                    assertIsEmpty(asserted.andReturnErrorIfThrown());
+                    assertIsEmpty(asserted.andReturnErrorIfThrownAs(Exception.class));
 
-                    IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturn);
+                    IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturnError);
                     assertEquals("Nothing was thrown", exception.getMessage());
 
-                    exception = assertThrows(IllegalStateException.class, () -> asserted.andReturnAs(Exception.class));
+                    exception = assertThrows(IllegalStateException.class, () -> asserted.andReturnErrorAs(Exception.class));
+                    assertEquals("Nothing was thrown", exception.getMessage());
+                }
+
+                @Test
+                @DisplayName("whenThrowsNothing called with Consumer")
+                void whenThrowsNothingCalled() {
+                    Consumer<Throwable> consumer1 = mockedConsumer();
+                    Consumer<String> consumer2 = mockedConsumer();
+
+                    Asserted<?> asserted = whenThrows(NullPointerException.class, () -> "foo").thenAssert(consumer1)
+                            .whenThrows(IOException.class).thenAssertNothing()
+                            .whenThrowsNothing().thenAssert(consumer2)
+                            .execute(() -> "error");
+
+                    verify(consumer2).accept("foo");
+                    verifyNoMoreInteractions(consumer1, consumer2);
+
+                    assertEquals("foo", assertIsPresent(asserted.andReturnResult()));
+                    assertIsEmpty(asserted.andReturnErrorIfThrown());
+                    assertIsEmpty(asserted.andReturnErrorIfThrownAs(Exception.class));
+
+                    IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturnError);
+                    assertEquals("Nothing was thrown", exception.getMessage());
+
+                    exception = assertThrows(IllegalStateException.class, () -> asserted.andReturnErrorAs(Exception.class));
                     assertEquals("Nothing was thrown", exception.getMessage());
                 }
 
@@ -1345,21 +1344,21 @@ class ThrowableAsserterTest {
                 void whenThrowsNothingCalledWithoutAssertions() {
                     Consumer<Throwable> consumer = mockedConsumer();
 
-                    Asserted asserted = executing(Object::new, () -> "error")
-                            .whenThrows(NullPointerException.class).thenAssert(consumer)
+                    Asserted<?> asserted = whenThrows(NullPointerException.class, () -> "foo").thenAssert(consumer)
                             .whenThrows(IOException.class).thenAssertNothing()
                             .whenThrowsNothing().thenAssertNothing()
-                            .runAssertions();
+                            .execute(() -> "error");
 
                     verifyNoMoreInteractions(consumer);
 
-                    assertIsEmpty(asserted.andReturnIfThrown());
-                    assertIsEmpty(asserted.andReturnIfThrownAs(Exception.class));
+                    assertEquals("foo", assertIsPresent(asserted.andReturnResult()));
+                    assertIsEmpty(asserted.andReturnErrorIfThrown());
+                    assertIsEmpty(asserted.andReturnErrorIfThrownAs(Exception.class));
 
-                    IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturn);
+                    IllegalStateException exception = assertThrows(IllegalStateException.class, asserted::andReturnError);
                     assertEquals("Nothing was thrown", exception.getMessage());
 
-                    exception = assertThrows(IllegalStateException.class, () -> asserted.andReturnAs(Exception.class));
+                    exception = assertThrows(IllegalStateException.class, () -> asserted.andReturnErrorAs(Exception.class));
                     assertEquals("Nothing was thrown", exception.getMessage());
                 }
             }
@@ -1373,22 +1372,22 @@ class ThrowableAsserterTest {
 
                 NullPointerException error = new NullPointerException("error");
 
-                Asserted asserted = executing(throwing(error), () -> "error")
-                        .whenThrows(NullPointerException.class).thenAssert(consumer1)
+                Asserted<?> asserted = whenThrows(NullPointerException.class, throwing(error)).thenAssert(consumer1)
                         .whenThrows(IOException.class).thenAssert(consumer2)
                         .whenThrowsNothing().thenAssert(runnable)
-                        .runAssertions();
+                        .execute(() -> "error");
 
                 verify(consumer1).accept(error);
                 verifyNoMoreInteractions(consumer1, consumer2, runnable);
 
-                assertSame(error, asserted.andReturn());
-                assertSame(error, asserted.andReturnAs(Exception.class));
-                assertSame(error, assertIsPresent(asserted.andReturnIfThrown()));
-                assertSame(error, assertIsPresent(asserted.andReturnIfThrownAs(Exception.class)));
+                assertIsEmpty(asserted.andReturnResult());
+                assertSame(error, asserted.andReturnError());
+                assertSame(error, asserted.andReturnErrorAs(Exception.class));
+                assertSame(error, assertIsPresent(asserted.andReturnErrorIfThrown()));
+                assertSame(error, assertIsPresent(asserted.andReturnErrorIfThrownAs(Exception.class)));
 
-                assertThrows(ClassCastException.class, () -> asserted.andReturnAs(IllegalArgumentException.class));
-                assertThrows(ClassCastException.class, () -> asserted.andReturnIfThrownAs(IllegalArgumentException.class));
+                assertThrows(ClassCastException.class, () -> asserted.andReturnErrorAs(IllegalArgumentException.class));
+                assertThrows(ClassCastException.class, () -> asserted.andReturnErrorIfThrownAs(IllegalArgumentException.class));
             }
 
             @Test
@@ -1400,22 +1399,22 @@ class ThrowableAsserterTest {
 
                 IOException error = new IOException("error");
 
-                Asserted asserted = executing(throwing(error), () -> "error")
-                        .whenThrows(NullPointerException.class).thenAssert(consumer1)
+                Asserted<?> asserted = whenThrows(NullPointerException.class, throwing(error)).thenAssert(consumer1)
                         .whenThrows(IOException.class).thenAssert(consumer2)
                         .whenThrowsNothing().thenAssert(runnable)
-                        .runAssertions();
+                        .execute(() -> "error");
 
                 verify(consumer2).accept(error);
                 verifyNoMoreInteractions(consumer1, consumer2, runnable);
 
-                assertSame(error, asserted.andReturn());
-                assertSame(error, asserted.andReturnAs(Exception.class));
-                assertSame(error, assertIsPresent(asserted.andReturnIfThrown()));
-                assertSame(error, assertIsPresent(asserted.andReturnIfThrownAs(Exception.class)));
+                assertIsEmpty(asserted.andReturnResult());
+                assertSame(error, asserted.andReturnError());
+                assertSame(error, asserted.andReturnErrorAs(Exception.class));
+                assertSame(error, assertIsPresent(asserted.andReturnErrorIfThrown()));
+                assertSame(error, assertIsPresent(asserted.andReturnErrorIfThrownAs(Exception.class)));
 
-                assertThrows(ClassCastException.class, () -> asserted.andReturnAs(IllegalArgumentException.class));
-                assertThrows(ClassCastException.class, () -> asserted.andReturnIfThrownAs(IllegalArgumentException.class));
+                assertThrows(ClassCastException.class, () -> asserted.andReturnErrorAs(IllegalArgumentException.class));
+                assertThrows(ClassCastException.class, () -> asserted.andReturnErrorIfThrownAs(IllegalArgumentException.class));
             }
 
             @Test
@@ -1427,12 +1426,12 @@ class ThrowableAsserterTest {
 
                 IllegalArgumentException error = new IllegalArgumentException("error");
 
-                ThrowableAsserter asserter = executing(throwing(error), () -> "error")
-                        .whenThrows(NullPointerException.class).thenAssert(consumer1)
+                ThrowableAsserter<?> asserter = whenThrows(NullPointerException.class, throwing(error)).thenAssert(consumer1)
                         .whenThrows(IOException.class).thenAssert(consumer2)
                         .whenThrowsNothing().thenAssert(runnable);
 
-                AssertionFailedError failure = assertThrows(AssertionFailedError.class, asserter::runAssertions);
+                Supplier<String> messageSupplier = () -> "error";
+                AssertionFailedError failure = assertThrows(AssertionFailedError.class, () -> asserter.execute(messageSupplier));
                 assertEquals(String.format("error ==> Unexpected exception type thrown, expected: one of <%s>, <%s> but was: <%s>",
                         NullPointerException.class.getName(), IOException.class.getName(), error.getClass().getName()),
                         failure.getMessage());
@@ -1441,16 +1440,22 @@ class ThrowableAsserterTest {
                 verifyNoInteractions(consumer1, consumer2, runnable);
             }
         }
+    }
 
-        private Executable throwing(Throwable error) {
-            return () -> {
-                throw error;
-            };
-        }
+    private Executable throwing(Throwable error) {
+        return () -> {
+            throw error;
+        };
+    }
+
+    private Executable notThrowing() {
+        return () -> {
+            // do nothing
+        };
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends Throwable> Consumer<T> mockedConsumer() {
+    private <T> Consumer<T> mockedConsumer() {
         return mock(Consumer.class);
     }
 }

@@ -26,8 +26,7 @@ Class [Assertions](https://junit.org/junit5/docs/current/api/org.junit.jupiter.a
 In some cases, the "one-of" assertions of `ThrowableAssertions` is not sufficient, and you need different assertions for each of the possible exceptions. If that's the case, class [ThrowableAsserter](apidocs/com/github/robtimus/junit/support/ThrowableAsserter.html) can be used. Besides specifying each error type that can be thrown, for each error type the type's specific assertions must be specified. For instance, from one of the [pre-defined tests](pre-defined-tests.html):
 
 ```
-executing(() -> map.computeIfAbsent(key, function))
-        .whenThrows(UnsupportedOperationException.class).thenAssertNothing()
+whenThrows(UnsupportedOperationException.class, () -> map.computeIfAbsent(key, function)).thenAssertNothing()
         .whenThrows(IllegalArgumentException.class).thenAssert(thrown -> assertSame(exception, thrown))
-        .runAssertions();
+        .execute();
 ```
