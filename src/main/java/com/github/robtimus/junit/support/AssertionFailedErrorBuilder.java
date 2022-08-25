@@ -48,8 +48,8 @@ import org.opentest4j.AssertionFailedError;
 @SuppressWarnings("nls")
 public final class AssertionFailedErrorBuilder {
 
-    private static final ExpectedValue EXPECTED_NULL = new ExpectedValue(null, null);
-    private static final ActualValue ACTUAL_NULL = new ActualValue(null, null);
+    private static final Expected EXPECTED_NULL = new Expected.Value(null, null);
+    private static final Actual ACTUAL_NULL = new Actual.Value(null, null);
 
     private Object message;
     private Throwable cause;
@@ -133,12 +133,12 @@ public final class AssertionFailedErrorBuilder {
 
     private AssertionFailedErrorBuilder expectedWithPrefix(String prefix, Object expected) {
         this.mismatch = true;
-        this.expected = new ExpectedValue(prefix, expected);
+        this.expected = new Expected.Value(prefix, expected);
         return this;
     }
 
     /**
-     * Sets the allowed expected values of the assertion. This method will use prefix {@code one of}. To omit the prefix, use
+     * Sets the possible expected values of the assertion. This method will use prefix {@code one of}. To omit the prefix, use
      * {@link #prefixed(String) prefixed("")}.
      * <p>
      * Note that the {@link AssertionFailedError#getExpected() expected value} of the assertion will be a list containing the expected values.
@@ -151,7 +151,7 @@ public final class AssertionFailedErrorBuilder {
     }
 
     /**
-     * Sets the allowed expected values of the assertion. This method will use prefix {@code one of}. To omit the prefix, use
+     * Sets the possible expected values of the assertion. This method will use prefix {@code one of}. To omit the prefix, use
      * {@link #prefixed(String) prefixed("")}.
      * <p>
      * Note that the {@link AssertionFailedError#getExpected() expected value} of the assertion will be a list containing the expected values.
@@ -166,7 +166,20 @@ public final class AssertionFailedErrorBuilder {
 
     private AssertionFailedErrorBuilder expectedOneOfWithPrefix(String prefix, Collection<?> expected) {
         this.mismatch = true;
-        this.expected = new ExpectedValues(prefix, expected);
+        this.expected = new Expected.Values(prefix, expected);
+        return this;
+    }
+
+    /**
+     * Sets a message representing the expected value of the assertion. This message will be added to the final error message without any value
+     * indicators.
+     *
+     * @param expected The expected value message.
+     * @return This object.
+     */
+    public AssertionFailedErrorBuilder expectedMessage(String expected) {
+        this.mismatch = true;
+        this.expected = new Expected.Message(expected);
         return this;
     }
 
@@ -182,7 +195,7 @@ public final class AssertionFailedErrorBuilder {
 
     private AssertionFailedErrorBuilder actualWithPrefix(String prefix, Object actual) {
         this.mismatch = true;
-        this.actual = new ActualValue(prefix, actual);
+        this.actual = new Actual.Value(prefix, actual);
         return this;
     }
 
@@ -213,7 +226,7 @@ public final class AssertionFailedErrorBuilder {
 
     private AssertionFailedErrorBuilder actualValuesWithPrefix(String prefix, Collection<?> actual) {
         this.mismatch = true;
-        this.actual = new ActualValues(prefix, actual);
+        this.actual = new Actual.Values(prefix, actual);
         return this;
     }
 
@@ -434,7 +447,7 @@ public final class AssertionFailedErrorBuilder {
     }
 
     /**
-     * An object that can set the allowed expected value or actual value of an assertion with a prefix.
+     * An object that can set the possible expected value or actual value of an assertion with a prefix.
      *
      * @author Rob Spoor
      * @since 2.0
@@ -460,7 +473,7 @@ public final class AssertionFailedErrorBuilder {
         }
 
         /**
-         * Sets the allowed expected values of the assertion.
+         * Sets the possible expected values of the assertion.
          * <p>
          * Note that the {@link AssertionFailedError#getExpected() expected value} of the assertion will be a list containing the expected values.
          *
@@ -472,7 +485,7 @@ public final class AssertionFailedErrorBuilder {
         }
 
         /**
-         * Sets the allowed expected values of the assertion.
+         * Sets the possible expected values of the assertion.
          * <p>
          * Note that the {@link AssertionFailedError#getExpected() expected value} of the assertion will be a list containing the expected values.
          *
@@ -543,85 +556,115 @@ public final class AssertionFailedErrorBuilder {
         abstract String doFormatWithClass();
 
         abstract Object value();
-    }
 
-    private static final class ExpectedValue extends Expected {
+        private static final class Value extends Expected {
 
-        private final Object value;
-        private final String valueString;
+            private final Object value;
+            private final String valueString;
 
-        private ExpectedValue(String prefix, Object value) {
-            super(prefix);
-            this.value = value;
-            this.valueString = objectToString(value);
-        }
-
-        @Override
-        boolean isFormattedAs(String actualString) {
-            return valueString.equals(actualString);
-        }
-
-        @Override
-        String doFormat() {
-            return String.format("<%s>", valueString);
-        }
-
-        @Override
-        String doFormatWithClass() {
-            return formatClassAndValue(value, valueString);
-        }
-
-        @Override
-        Object value() {
-            return value;
-        }
-    }
-
-    private static final class ExpectedValues extends Expected {
-
-        private final List<?> values;
-        private final List<String> valueStrings;
-        private final String valuesString;
-
-        private ExpectedValues(String prefix, Collection<?> values) {
-            super(prefix);
-            this.values = new ArrayList<>(values);
-            this.valueStrings = values.stream()
-                    .map(AssertionFailedErrorBuilder::objectToString)
-                    .collect(Collectors.toList());
-            this.valuesString = valueStrings.stream()
-                    .collect(Collectors.joining(", "));
-        }
-
-        @Override
-        boolean isFormattedAs(String actualString) {
-            return valueStrings.contains(actualString) || valuesString.equals(actualString);
-        }
-
-        @Override
-        String doFormat() {
-            return valueStrings.stream()
-                    .map(valueString -> String.format("<%s>", valueString))
-                    .collect(Collectors.joining(", "));
-        }
-
-        @Override
-        String doFormatWithClass() {
-            Iterator<?> valueIterator = values.iterator();
-            Iterator<String> valueStringIterator = valueStrings.iterator();
-            StringJoiner stringJoiner = new StringJoiner(", ");
-
-            while (valueIterator.hasNext()) {
-                Object value = valueIterator.next();
-                String valueString = valueStringIterator.next();
-                stringJoiner.add(formatClassAndValue(value, valueString));
+            private Value(String prefix, Object value) {
+                super(prefix);
+                this.value = value;
+                this.valueString = objectToString(value);
             }
-            return stringJoiner.toString();
+
+            @Override
+            boolean isFormattedAs(String actualString) {
+                return valueString.equals(actualString);
+            }
+
+            @Override
+            String doFormat() {
+                return String.format("<%s>", valueString);
+            }
+
+            @Override
+            String doFormatWithClass() {
+                return formatClassAndValue(value, valueString);
+            }
+
+            @Override
+            Object value() {
+                return value;
+            }
         }
 
-        @Override
-        Object value() {
-            return values;
+        private static final class Values extends Expected {
+
+            private final List<?> values;
+            private final List<String> valueStrings;
+            private final String valuesString;
+
+            private Values(String prefix, Collection<?> values) {
+                super(prefix);
+                this.values = new ArrayList<>(values);
+                this.valueStrings = values.stream()
+                        .map(AssertionFailedErrorBuilder::objectToString)
+                        .collect(Collectors.toList());
+                this.valuesString = valueStrings.stream()
+                        .collect(Collectors.joining(", "));
+            }
+
+            @Override
+            boolean isFormattedAs(String actualString) {
+                return valueStrings.contains(actualString) || valuesString.equals(actualString);
+            }
+
+            @Override
+            String doFormat() {
+                return valueStrings.stream()
+                        .map(valueString -> String.format("<%s>", valueString))
+                        .collect(Collectors.joining(", "));
+            }
+
+            @Override
+            String doFormatWithClass() {
+                Iterator<?> valueIterator = values.iterator();
+                Iterator<String> valueStringIterator = valueStrings.iterator();
+                StringJoiner stringJoiner = new StringJoiner(", ");
+
+                while (valueIterator.hasNext()) {
+                    Object value = valueIterator.next();
+                    String valueString = valueStringIterator.next();
+                    stringJoiner.add(formatClassAndValue(value, valueString));
+                }
+                return stringJoiner.toString();
+            }
+
+            @Override
+            Object value() {
+                return values;
+            }
+        }
+
+        private static final class Message extends Expected {
+
+            private final String message;
+
+            private Message(String message) {
+                super("");
+                this.message = message;
+            }
+
+            @Override
+            boolean isFormattedAs(String actualString) {
+                return false;
+            }
+
+            @Override
+            String doFormat() {
+                return message;
+            }
+
+            @Override
+            String doFormatWithClass() {
+                return message;
+            }
+
+            @Override
+            Object value() {
+                return message;
+            }
         }
     }
 
@@ -648,83 +691,83 @@ public final class AssertionFailedErrorBuilder {
         abstract Object value();
 
         abstract String valueString();
-    }
 
-    private static final class ActualValue extends Actual {
+        private static final class Value extends Actual {
 
-        private final Object value;
-        private final String valueString;
+            private final Object value;
+            private final String valueString;
 
-        private ActualValue(String prefix, Object value) {
-            super(prefix);
-            this.value = value;
-            this.valueString = objectToString(value);
-        }
-
-        @Override
-        String doFormat() {
-            return String.format("<%s>", valueString);
-        }
-
-        @Override
-        String doFormatWithClass() {
-            return formatClassAndValue(value, valueString);
-        }
-
-        @Override
-        Object value() {
-            return value;
-        }
-
-        @Override
-        String valueString() {
-            return valueString;
-        }
-    }
-
-    private static final class ActualValues extends Actual {
-
-        private final List<?> values;
-        private final List<String> valueStrings;
-
-        private ActualValues(String prefix, Collection<?> values) {
-            super(prefix);
-            this.values = new ArrayList<>(values);
-            this.valueStrings = values.stream()
-                    .map(AssertionFailedErrorBuilder::objectToString)
-                    .collect(Collectors.toList());
-        }
-
-        @Override
-        String doFormat() {
-            return valueStrings.stream()
-                    .map(valueString -> String.format("<%s>", valueString))
-                    .collect(Collectors.joining(", "));
-        }
-
-        @Override
-        String doFormatWithClass() {
-            Iterator<?> valueIterator = values.iterator();
-            Iterator<String> valueStringIterator = valueStrings.iterator();
-            StringJoiner stringJoiner = new StringJoiner(", ");
-
-            while (valueIterator.hasNext()) {
-                Object value = valueIterator.next();
-                String valueString = valueStringIterator.next();
-                stringJoiner.add(formatClassAndValue(value, valueString));
+            private Value(String prefix, Object value) {
+                super(prefix);
+                this.value = value;
+                this.valueString = objectToString(value);
             }
-            return stringJoiner.toString();
+
+            @Override
+            String doFormat() {
+                return String.format("<%s>", valueString);
+            }
+
+            @Override
+            String doFormatWithClass() {
+                return formatClassAndValue(value, valueString);
+            }
+
+            @Override
+            Object value() {
+                return value;
+            }
+
+            @Override
+            String valueString() {
+                return valueString;
+            }
         }
 
-        @Override
-        Object value() {
-            return values;
-        }
+        private static final class Values extends Actual {
 
-        @Override
-        public String valueString() {
-            return valueStrings.stream()
-                    .collect(Collectors.joining(", "));
+            private final List<?> values;
+            private final List<String> valueStrings;
+
+            private Values(String prefix, Collection<?> values) {
+                super(prefix);
+                this.values = new ArrayList<>(values);
+                this.valueStrings = values.stream()
+                        .map(AssertionFailedErrorBuilder::objectToString)
+                        .collect(Collectors.toList());
+            }
+
+            @Override
+            String doFormat() {
+                return valueStrings.stream()
+                        .map(valueString -> String.format("<%s>", valueString))
+                        .collect(Collectors.joining(", "));
+            }
+
+            @Override
+            String doFormatWithClass() {
+                Iterator<?> valueIterator = values.iterator();
+                Iterator<String> valueStringIterator = valueStrings.iterator();
+                StringJoiner stringJoiner = new StringJoiner(", ");
+
+                while (valueIterator.hasNext()) {
+                    Object value = valueIterator.next();
+                    String valueString = valueStringIterator.next();
+                    stringJoiner.add(formatClassAndValue(value, valueString));
+                }
+                return stringJoiner.toString();
+            }
+
+            @Override
+            Object value() {
+                return values;
+            }
+
+            @Override
+            public String valueString() {
+                return valueStrings.stream()
+                        .collect(Collectors.joining(", "));
+            }
         }
     }
 }

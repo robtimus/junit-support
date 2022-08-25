@@ -4,6 +4,24 @@
 
 ## Additional assertions
 
+### Predicate-based
+
+When using `assertTrue` or `assertFalse`, you'll end up with failure messages `expected: <true> but was: <false>` or `expected: <false> but was: <true>`. While these tell you there is a failure, they don't tell you _why_.
+
+Class [PredicateAssertions](apidocs/com/github/robtimus/junit/support/PredicateAssertions.html) provides alternatives that take a predicate and the value to apply the predicate to, and provide failure messages like `expected: matching predicate but was: <foo>` and `expected: not matching predicate but was: <foo>`. For instance:
+
+```
+// assertTrue(StringUtils.isNotBlank(value));
+assertMatches(StringUtils::isNotBlank, value);
+// assertFalse(StringUtils.isBlank(value));
+assertDoesNotMatch(StringUtils::isBlank, value);
+
+// assertTrue(i > 0);
+assertMatches(n -> n > 0, i);
+// assertFalse(i < 0);
+assertDoesNotMatch(n -> n < 0, i);
+```
+
 ### IO related
 
 Class [IOAssertions](apidocs/com/github/robtimus/junit/support/IOAssertions.html) provides some additional I/O related assertions, for instance for checking the content of a `Reader` or `InputStream` or to check the serializability of objects.

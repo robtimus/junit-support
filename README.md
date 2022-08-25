@@ -42,6 +42,7 @@ In addition, there are pre-defined tests for [MethodDelegation](https://robtimus
 
 Several [additional assertions](https://robtimus.github.io/junit-support/additional-assertions.html) are provided. Some examples:
 
+* alternatives to `assertTrue` and `assertFalse` that provide better failure messages
 * assertions for checking the content of a `Reader` or `InputStream`
 * assertions for `Optional`, `OptionalInt`, `OptionalLong` and `OptionalDouble`
 * assertions for exception causes

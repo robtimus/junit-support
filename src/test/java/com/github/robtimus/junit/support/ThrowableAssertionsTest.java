@@ -302,7 +302,7 @@ class ThrowableAssertionsTest {
 
         @Nested
         @DisplayName("with message supplier")
-        class WithMessageOrSupplier {
+        class WithMessageSupplier {
 
             @Test
             @DisplayName("with matching cause")

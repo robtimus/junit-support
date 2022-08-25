@@ -2616,6 +2616,159 @@ class AssertionFailedErrorBuilderTest {
         }
 
         @Nested
+        @DisplayName("with expected message")
+        class WithExpectedMessage {
+
+            @Test
+            @DisplayName("without reason, message or cause")
+            void testWithoutReasonOrMessageOrCause() {
+                AssertionFailedError error = assertionFailedError()
+                        .expectedMessage("matching predicate")
+                        .actual("foo")
+                        .build();
+
+                assertEquals("expected: matching predicate but was: <foo>", error.getMessage());
+                assertExpected(error, "matching predicate");
+                assertActual(error, "foo");
+                assertNull(error.getCause());
+
+                // No JUnit equivalent
+            }
+
+            @Test
+            @DisplayName("with cause, without reason or message")
+            void testWithCauseWithoutReasonOrMessage() {
+                IOException cause = new IOException();
+
+                AssertionFailedError error = assertionFailedError()
+                        .expectedMessage("matching predicate")
+                        .actual("foo")
+                        .cause(cause)
+                        .build();
+
+                assertEquals("expected: matching predicate but was: <foo>", error.getMessage());
+                assertExpected(error, "matching predicate");
+                assertActual(error, "foo");
+                assertSame(cause, error.getCause());
+
+                // No JUnit equivalent
+            }
+
+            @Test
+            @DisplayName("with message, without reason or cause")
+            void testWithMessageWithoutReasonOrCause() {
+                AssertionFailedError error = assertionFailedError()
+                        .message("some message")
+                        .expectedMessage("matching predicate")
+                        .actual("foo")
+                        .build();
+
+                assertEquals("some message ==> expected: matching predicate but was: <foo>", error.getMessage());
+                assertExpected(error, "matching predicate");
+                assertActual(error, "foo");
+                assertNull(error.getCause());
+
+                // No JUnit equivalent
+            }
+
+            @Test
+            @DisplayName("with message and cause, without reason")
+            void testWithMessageAndCauseWithoutReason() {
+                IOException cause = new IOException();
+
+                AssertionFailedError error = assertionFailedError()
+                        .message("some message")
+                        .expectedMessage("matching predicate")
+                        .actual("foo")
+                        .cause(cause)
+                        .build();
+
+                assertEquals("some message ==> expected: matching predicate but was: <foo>", error.getMessage());
+                assertExpected(error, "matching predicate");
+                assertActual(error, "foo");
+                assertSame(cause, error.getCause());
+
+                // No JUnit equivalent
+            }
+
+            @Test
+            @DisplayName("with reason, without message or cause")
+            void testWithReasonWithoutMessageOrCause() {
+                AssertionFailedError error = assertionFailedError()
+                        .reason("some reason")
+                        .expectedMessage("matching predicate")
+                        .actual("foo")
+                        .build();
+
+                assertEquals("some reason, expected: matching predicate but was: <foo>", error.getMessage());
+                assertExpected(error, "matching predicate");
+                assertActual(error, "foo");
+                assertNull(error.getCause());
+
+                // No JUnit equivalent
+            }
+
+            @Test
+            @DisplayName("with reason and cause, without message")
+            void testWithReasonAndCauseWithoutMessage() {
+                IOException cause = new IOException();
+
+                AssertionFailedError error = assertionFailedError()
+                        .reason("some reason")
+                        .expectedMessage("matching predicate")
+                        .actual("foo")
+                        .cause(cause)
+                        .build();
+
+                assertEquals("some reason, expected: matching predicate but was: <foo>", error.getMessage());
+                assertExpected(error, "matching predicate");
+                assertActual(error, "foo");
+                assertSame(cause, error.getCause());
+
+                // No JUnit equivalent
+            }
+
+            @Test
+            @DisplayName("with reason and message, without cause")
+            void testWithReasonWithoutMessageOrExpectedOrActualOrCause() {
+                AssertionFailedError error = assertionFailedError()
+                        .message("some message")
+                        .reason("some reason")
+                        .expectedMessage("matching predicate")
+                        .actual("foo")
+                        .build();
+
+                assertEquals("some message ==> some reason, expected: matching predicate but was: <foo>", error.getMessage());
+                assertExpected(error, "matching predicate");
+                assertActual(error, "foo");
+                assertNull(error.getCause());
+
+                // No JUnit equivalent
+            }
+
+            @Test
+            @DisplayName("with message, reason and cause")
+            void testWithReasonAndCauseWithoutMessageOrExpectedOrActual() {
+                IOException cause = new IOException();
+
+                AssertionFailedError error = assertionFailedError()
+                        .message("some message")
+                        .reason("some reason")
+                        .expectedMessage("matching predicate")
+                        .actual("foo")
+                        .cause(cause)
+                        .build();
+
+                assertEquals("some message ==> some reason, expected: matching predicate but was: <foo>", error.getMessage());
+                assertExpected(error, "matching predicate");
+                assertActual(error, "foo");
+                assertSame(cause, error.getCause());
+
+                // No JUnit equivalent
+            }
+        }
+
+        @Nested
         @DisplayName("reasonPattern")
         class ReasonPattern {
 
