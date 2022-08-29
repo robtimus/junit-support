@@ -22,6 +22,8 @@ assertMatches(n -> n > 0, i);
 assertDoesNotMatch(n -> n < 0, i);
 ```
 
+In case you want even more information in your failure messages, you should consider using [Hamcrest](https://hamcrest.org/JavaHamcrest/).
+
 ### IO related
 
 Class [IOAssertions](apidocs/com/github/robtimus/junit/support/IOAssertions.html) provides some additional I/O related assertions, for instance for checking the content of a `Reader` or `InputStream` or to check the serializability of objects.
