@@ -1,4 +1,9 @@
 com.github.robtimus.junit.support
-com.github.robtimus.junit.support.collections
-com.github.robtimus.junit.support.collections.annotation
-com.github.robtimus.junit.support.io
+com.github.robtimus.junit.support.extension
+com.github.robtimus.junit.support.extension.testresource
+com.github.robtimus.junit.support.params
+com.github.robtimus.junit.support.test
+com.github.robtimus.junit.support.test.collections
+com.github.robtimus.junit.support.test.collections.annotation
+com.github.robtimus.junit.support.test.io
+com.github.robtimus.junit.support.util
