@@ -22,7 +22,7 @@
   <parent>
     <groupId>com.github.robtimus</groupId>
     <artifactId>robtimus-parent</artifactId>
-    <version>1.4.3</version>
+    <version>1.5</version>
     <relativePath />
   </parent>
 
@@ -65,7 +65,11 @@
     <version.commons-io>2.11.0</version.commons-io>
     <version.io-functions>2.0</version.io-functions>
     <version.junit-testkit>1.9.0</version.junit-testkit>
-    <version.pioneer>1.7.1</version.pioneer>
+    <version.log4j>2.19.0</version.log4j>
+    <!-- Don't use higher versions, those require Java 11 -->
+    <version.logback>1.2.11</version.logback>
+    <version.pioneer>1.9.0</version.pioneer>
+    <version.reload4j>1.2.23</version.reload4j>
   </properties>
 
   <dependencies>
@@ -91,6 +95,27 @@
     </dependency>
 
     <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>${version.log4j}</version>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>${version.logback}</version>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>ch.qos.reload4j</groupId>
+      <artifactId>reload4j</artifactId>
+      <version>${version.reload4j}</version>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>${version.commons-io}</version>
@@ -109,6 +134,12 @@
       <artifactId>junit-pioneer</artifactId>
       <version>${version.pioneer}</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.junit.platform</groupId>
+          <artifactId>junit-platform-commons</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 
@@ -126,6 +157,25 @@
         </includes>
       </resource>
     </resources>
+
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <configuration>
+            <links>
+              <link>https://commons.apache.org/proper/commons-io/javadocs/api-release/</link>
+              <link>https://junit.org/junit5/docs/current/api/</link>
+              <link>https://logging.apache.org/log4j/2.x/log4j-api/apidocs/</link>
+              <link>https://logging.apache.org/log4j/2.x/log4j-core/apidocs/</link>
+              <link>https://logback.qos.ch/apidocs/</link>
+              <link>https://reload4j.qos.ch/apidocs/</link>
+            </links>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
 
     <plugins>
       <plugin>
@@ -161,12 +211,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <links>
-            <link>https://commons.apache.org/proper/commons-io/javadocs/api-release/</link>
-            <link>https://junit.org/junit5/docs/current/api/</link>
-          </links>
-        </configuration>
       </plugin>
 
       <plugin>
@@ -198,6 +242,11 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <java.util.logging.config.class>com.github.robtimus.junit.support.extension.testlogger.JdkLoggerConfigurer</java.util.logging.config.class>
+          </systemPropertyVariables>
+        </configuration>
       </plugin>
 
       <plugin>
@@ -250,6 +299,8 @@
       <id>native-module</id>
       <properties>
         <version.java>11</version.java>
+        <version.logback>1.4.5</version.logback>
+        <version.slf4j>2.0.4</version.slf4j>
       </properties>
       <build>
         <plugins>
@@ -259,8 +310,11 @@
             <configuration>
               <!-- Allow JUnit to fully access the test classes -->
               <argLine>
+                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testlogger=java.logging
+
                 --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support=org.junit.platform.commons
                 --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension=org.junit.platform.commons
+                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testlogger=org.junit.platform.commons
                 --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testresource=org.junit.platform.commons
                 --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.params=org.junit.platform.commons
                 --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.test=org.junit.platform.commons

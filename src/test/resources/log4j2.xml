@@ -1,0 +1,16 @@
+<Configuration packages="com.github.robtimus.junit.support.extension.testlogger">
+  <Appenders>
+    <Log4jTest name="A1" />
+    <Log4jTest name="A2" />
+  </Appenders>
+
+  <Loggers>
+    <Root level="warn">
+      <AppenderRef ref="A1" />
+    </Root>
+
+    <Logger name="com.github.robtimus.junit.support.extension.testlogger.TestLogger" level="info">
+      <AppenderRef ref="A2" />
+    </Logger>
+  </Loggers>
+</Configuration>

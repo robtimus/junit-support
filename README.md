@@ -17,6 +17,10 @@ void testWithResource(@TestResource("input.json") String json) {
 
 See [@TestResource](https://robtimus.github.io/junit-support/extension/test-resource.html) for more information, including options to configure how the resource is read or how to convert it to an object.
 
+## Reconfigure static loggers
+
+Loggers are often defined as `private static final` fields. That makes them difficult to mock. Using [@TestLogger](https://robtimus.github.io/junit-support/extension/test-logger.html) allows you to reconfigure these for test purposes.
+
 ## Simplify writing JUnit extensions
 
 If you want to write a JUnit extension that performs method lookups like [@MethodSource](https://junit.org/junit5/docs/current/api/org.junit.jupiter.params/org/junit/jupiter/params/provider/MethodSource.html), [MethodLookup](https://robtimus.github.io/junit-support/extension/method-lookup.html) provides an easy to use API.
