@@ -310,7 +310,14 @@
             <configuration>
               <!-- Allow JUnit to fully access the test classes -->
               <argLine>
+                --add-modules org.apache.logging.log4j
+                --add-modules ch.qos.logback.classic
+                --add-modules ch.qos.logback.core
+
                 --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testlogger=java.logging
+                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testlogger=org.apache.logging.log4j.core
+                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testlogger=ch.qos.logback.core
+                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testlogger=ch.qos.reload4j
 
                 --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support=org.junit.platform.commons
                 --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension=org.junit.platform.commons

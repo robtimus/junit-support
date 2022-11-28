@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import java.util.Collections;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.impl.Log4jLogEvent;
@@ -80,8 +79,12 @@ class Log4jNullAppenderTest {
         void testImmutableEvent() {
             Log4jNullAppender appender = spy(Log4jNullAppender.create("MockAppender"));
 
-            SimpleMessage message = new SimpleMessage("test message");
-            LogEvent event = new Log4jLogEvent("logger", null, "logger", Level.INFO, message, Collections.emptyList(), null);
+            LogEvent event = Log4jLogEvent.newBuilder()
+                    .setLoggerName("logger")
+                    .setLoggerFqcn("logger")
+                    .setLevel(Level.INFO)
+                    .setMessage(new SimpleMessage("test message"))
+                    .build();
 
             appender.append(event);
 

@@ -6,12 +6,12 @@ module com.github.robtimus.junit.support {
     requires org.junit.platform.commons;
     requires org.mockito;
     requires static java.logging;
-    requires static ch.qos.reload4j;
-    requires static org.slf4j;
-    requires static ch.qos.logback.classic;
-    requires static ch.qos.logback.core;
     requires static org.apache.logging.log4j;
     requires static org.apache.logging.log4j.core;
+    requires static ch.qos.logback.classic;
+    requires static ch.qos.logback.core;
+    requires static ch.qos.reload4j;
+    requires static org.slf4j;
 
     exports com.github.robtimus.junit.support;
     exports com.github.robtimus.junit.support.extension;
