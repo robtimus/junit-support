@@ -18,6 +18,7 @@
 package com.github.robtimus.junit.support.extension.testlogger;
 
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Predicate;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -186,5 +187,23 @@ public final class Log4jLoggerContext extends LoggerContext<Level, Appender> {
     @Override
     void doSetUseParentAppenders(boolean useParentAppenders) {
         logger.setAdditive(useParentAppenders);
+    }
+
+    @Override
+    void saveSettings() {
+        long originalAppenderCount = streamAppenders().count();
+
+        // logger.getAppenders() returns the appenders of the parent, unless an appender has been added first
+        Appender dummyAppender = Log4jNullAppender.create(UUID.randomUUID().toString());
+        logger.addAppender(dummyAppender);
+        logger.removeAppender(dummyAppender);
+
+        long appenderCount = streamAppenders().count();
+        if (appenderCount != originalAppenderCount) {
+            // the appenders were inherited from the parent; explicitly restore the inheritance behavior
+            logger.setAdditive(true);
+        }
+
+        super.saveSettings();
     }
 }

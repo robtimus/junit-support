@@ -6,13 +6,13 @@
 
 Loggers are often defined as `private static final` fields. That makes them difficult to mock.
 
-Using [@TestLogger](../apidocs/com/github/robtimus/junit/support/extension/testlogger/TestLogger.html) you can inject a so-called _logger context_ that allows you to configure a logger:
+Using [@TestLogger](../apidocs/com/github/robtimus/junit/support/extension/testlogger/TestLogger.html), [@TestLogger.ForClass](../apidocs/com/github/robtimus/junit/support/extension/testlogger/TestLogger.ForClass.html) or [@TestLogger.Root](../apidocs/com/github/robtimus/junit/support/extension/testlogger/TestLogger.Root.html) you can inject a so-called _logger context_ that allows you to configure a logger:
 
 * Setting the level
 * Add, remove or replace appenders / handlers
 * Enable or disable inheriting appenders / handlers from the parent logger
 
-Where `@TestLogger` requires the logger name to be given, [@TestLogger.ForClass](../apidocs/com/github/robtimus/junit/support/extension/testlogger/TestLogger.ForClass.html) can be used to define the logger using a class literal. [@TestLogger.Root](../apidocs/com/github/robtimus/junit/support/extension/testlogger/TestLogger.Root.html) can be used for the root logger.
+When the logger context goes out of scope (when injected as a field or method parameter, when the test ends), all original settings are restored.
 
 ### Supported logging frameworks
 
