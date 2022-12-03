@@ -52,15 +52,6 @@ public final class JdkLoggerContext extends LoggerContext<Level, Handler> {
     }
 
     /**
-     * Returns the name of the logger.
-     *
-     * @return The name of the logger.
-     */
-    public String getName() {
-        return logger.getName();
-    }
-
-    /**
      * Sets the new level for the logger.
      *
      * @param level The new level.

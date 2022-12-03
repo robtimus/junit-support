@@ -12,25 +12,23 @@ Using [@TestLogger](../apidocs/com/github/robtimus/junit/support/extension/testl
 * Add, remove or replace appenders / handlers
 * Enable or disable inheriting appenders / handlers from the parent logger
 
-When the logger context goes out of scope (when injected as a field or method parameter, when the test ends), all original settings are restored.
+When the logger context goes out of scope (when injected as a field or method parameter, this is when the test ends), all original settings are restored.
 
 ### Supported logging frameworks
 
 The following logging framework implementations are supported:
 
-* `java.util.logging`, represented by class [JdkLoggerContext](../apidocs/com/github/robtimus/junit/support/extension/testlogger/JdkLoggerContext.html)
-* [Log4j 2.x](https://logging.apache.org/log4j/2.x/) (core), represented by class [Log4jLoggerContext](../apidocs/com/github/robtimus/junit/support/extension/testlogger/Log4jLoggerContext.html)
-* [Logback](https://logback.qos.ch/), represented by class [LogbackLoggerContext](../apidocs/com/github/robtimus/junit/support/extension/testlogger/LogbackLoggerContext.html)
-* [reload4j](https://reload4j.qos.ch/), represented by class [Reload4jLoggerContext](../apidocs/com/github/robtimus/junit/support/extension/testlogger/Reload4jLoggerContext.html)
-    * Since reload4j is a fork of Log4j 1.2.17, `Reload4jLoggerContext` can also be used for that
+#### java.util.logging
 
-#### Delegating logging frameworks
+Class [JdkLoggerContext](../apidocs/com/github/robtimus/junit/support/extension/testlogger/JdkLoggerContext.html) can be used for the logger context when `java.util.logging` is used as logging implementation. This is true not only when using `java.util.logging.Logger` directly, but also when `java.util.logging` is used through dependencies like `org.slf4j:slf4j-jdk14` or `org.apache.logging.log4j:log4j-jul`.
 
-Some frameworks, like SLF4J, Log4j 2.x and Apache Commons Logging (JCL), delegate to other logging frameworks for the actual implementation. It's the implementation that determines which logging context class to use. For instance, when using `slf4j-reload4j`, you should use `Reload4jLoggerContext`; when using `log4j-jul`, you should use `JdkLoggerContext`, etc.
+#### Log4j core
 
-### Log4j appender limitations
+Class [Log4jLoggerContext](../apidocs/com/github/robtimus/junit/support/extension/testlogger/Log4jLoggerContext.html) can be used for the logger context when [Log4j 2.x](https://logging.apache.org/log4j/2.x/) is used as logging implementation. This means that `org.apache.logging.log4j:log4j-core` must be used. When using `org.apache.logging.log4j:log4j-api` with a different implementation (e.g. `org.apache.logging.log4j:log4j-jul`), class `Log4jLoggerContext` can **not** be used.
 
-While appenders / handlers for `java.util.logging`, logback and reload4j can easily be provided as mocks, the same is not true for Log4j for a few reasons:
+##### Appender mocking
+
+Unlike appenders / handlers for other logging frameworks, Log4j appenders cannot be easily provided as mocks for the following reasons:
 
 * Appenders must have a name
 * Appenders should be started
@@ -48,6 +46,20 @@ verify(appender, atLeastOnce()).ignore(eventCaptor.capture());
 List<LogEvent> events = eventCaptor.getAllValues();
 // perform assertions on events
 ```
+
+#### Logback
+
+Class [LogbackLoggerContext](../apidocs/com/github/robtimus/junit/support/extension/testlogger/LogbackLoggerContext.html) can be used for the logger context when [Logback](https://logback.qos.ch/) is used as logging implementation. Since logback is a native SLF4J implementation, SLF4J should not have any other bindings.
+
+#### Reload4j
+
+Class [Reload4jLoggerContext](../apidocs/com/github/robtimus/junit/support/extension/testlogger/Reload4jLoggerContext.html) can be used for the logger context when [reload4j](https://reload4j.qos.ch/) is used as logging implementation. This is true not only when using reload4 directly, but also when reload4j is used through dependencies like `org.slf4j:slf4j-reload4j`.
+
+Since reload4j is a fork of Log4j 1.2.17, `Reload4jLoggerContext` should also be usable for when using Log4j 1.2.17 (possibly through dependency `org.slf4j:slf4j-log4j12`).
+
+#### API based frameworks
+
+For API based frameworks like SLF4J and Log4j, the logger context class to used depends on the binding. For instance, use class [JdkLoggerContext](../apidocs/com/github/robtimus/junit/support/extension/testlogger/JdkLoggerContext.html) if the binding is `org.slf4j:slf4j-jdk14` or `org.apache.logging.log4j:log4j-jul`, etc.
 
 ### Examples
 

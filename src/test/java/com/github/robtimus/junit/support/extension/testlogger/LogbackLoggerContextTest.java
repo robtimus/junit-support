@@ -123,12 +123,6 @@ final class LogbackLoggerContextTest {
             validateLoggers();
         }
 
-        @Test
-        @DisplayName("getName()")
-        void testGetName() {
-            assertEquals(LOGGER.getName(), context.getName());
-        }
-
         @ParameterizedTest(name = "{0}")
         @ValueSource(strings = { "OFF", "ERROR", "WARN", "INFO", "DEBUG", "TRACE" })
         @DisplayName("setLevel(Level)")
@@ -284,12 +278,6 @@ final class LogbackLoggerContextTest {
         void restoreContext() {
             context.restore();
             validateLoggers();
-        }
-
-        @Test
-        @DisplayName("getName()")
-        void testGetName() {
-            assertEquals(ROOT_LOGGER.getName(), context.getName());
         }
 
         @ParameterizedTest(name = "{0}")

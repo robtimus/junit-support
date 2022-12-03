@@ -117,12 +117,6 @@ final class JdkLoggerContextTest {
             validateLoggers();
         }
 
-        @Test
-        @DisplayName("getName()")
-        void testGetName() {
-            assertEquals(LOGGER.getName(), context.getName());
-        }
-
         @ParameterizedTest(name = "{0}")
         @ValueSource(strings = { "OFF", "SEVERE", "WARNING", "INFO", "CONFIG", "FINE", "FINER", "FINEST", "ALL" })
         @DisplayName("setLevel(Level)")
@@ -275,12 +269,6 @@ final class JdkLoggerContextTest {
         void restoreContext() {
             context.restore();
             validateLoggers();
-        }
-
-        @Test
-        @DisplayName("getName()")
-        void testGetName() {
-            assertEquals(ROOT_LOGGER.getName(), context.getName());
         }
 
         @ParameterizedTest(name = "{0}")
