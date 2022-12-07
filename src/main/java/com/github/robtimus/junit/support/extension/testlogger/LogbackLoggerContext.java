@@ -19,6 +19,7 @@ package com.github.robtimus.junit.support.extension.testlogger;
 
 import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -31,12 +32,12 @@ import ch.qos.logback.core.Appender;
  *
  * @author Rob Spoor
  */
-public final class LogbackLoggerContext extends LoggerContext<Level, Appender<ILoggingEvent>> {
+public final class LogbackLoggerContext extends LoggerContext {
 
-    private final Logger logger;
+    private final Helper helper;
 
     private LogbackLoggerContext(Logger logger) {
-        this.logger = logger;
+        helper = new Helper(logger);
     }
 
     static LogbackLoggerContext forLogger(String name) {
@@ -62,18 +63,8 @@ public final class LogbackLoggerContext extends LoggerContext<Level, Appender<IL
      */
     public LogbackLoggerContext setLevel(Level level) {
         Objects.requireNonNull(level);
-        doSetLevel(level);
+        helper.setLevel(level);
         return this;
-    }
-
-    @Override
-    Level doGetLevel() {
-        return logger.getLevel();
-    }
-
-    @Override
-    void doSetLevel(Level level) {
-        logger.setLevel(level);
     }
 
     /**
@@ -85,7 +76,7 @@ public final class LogbackLoggerContext extends LoggerContext<Level, Appender<IL
      */
     public LogbackLoggerContext addAppender(Appender<ILoggingEvent> appender) {
         Objects.requireNonNull(appender);
-        doAddAppender(appender);
+        helper.addAppender(appender);
         return this;
     }
 
@@ -98,7 +89,7 @@ public final class LogbackLoggerContext extends LoggerContext<Level, Appender<IL
      */
     public LogbackLoggerContext setAppender(Appender<ILoggingEvent> appender) {
         Objects.requireNonNull(appender);
-        doSetAppender(appender);
+        helper.setAppender(appender);
         return this;
     }
 
@@ -111,7 +102,7 @@ public final class LogbackLoggerContext extends LoggerContext<Level, Appender<IL
      */
     public LogbackLoggerContext removeAppender(Appender<ILoggingEvent> appender) {
         Objects.requireNonNull(appender);
-        doRemoveAppender(appender);
+        helper.removeAppender(appender);
         return this;
     }
 
@@ -121,7 +112,7 @@ public final class LogbackLoggerContext extends LoggerContext<Level, Appender<IL
      * @return This object.
      */
     public LogbackLoggerContext removeAppenders() {
-        doRemoveAppenders();
+        helper.removeAppenders();
         return this;
     }
 
@@ -134,23 +125,8 @@ public final class LogbackLoggerContext extends LoggerContext<Level, Appender<IL
      */
     public LogbackLoggerContext removeAppenders(Predicate<? super Appender<ILoggingEvent>> filter) {
         Objects.requireNonNull(filter);
-        doRemoveAppenders(filter);
+        helper.removeAppenders(filter);
         return this;
-    }
-
-    @Override
-    Iterable<Appender<ILoggingEvent>> doListAppenders() {
-        return logger::iteratorForAppenders;
-    }
-
-    @Override
-    void doAddAppender(Appender<ILoggingEvent> appender) {
-        logger.addAppender(appender);
-    }
-
-    @Override
-    void doRemoveAppender(Appender<ILoggingEvent> appender) {
-        logger.detachAppender(appender);
     }
 
     /**
@@ -160,17 +136,65 @@ public final class LogbackLoggerContext extends LoggerContext<Level, Appender<IL
      * @return This object.
      */
     public LogbackLoggerContext useParentAppenders(boolean useParentAppenders) {
-        doSetUseParentAppenders(useParentAppenders);
+        helper.useParentAppenders(useParentAppenders);
         return this;
     }
 
-    @Override
-    boolean doGetUseParentAppenders() {
-        return logger.isAdditive();
+    Stream<Appender<ILoggingEvent>> streamAppenders() {
+        return helper.streamAppenders();
     }
 
     @Override
-    void doSetUseParentAppenders(boolean useParentAppenders) {
-        logger.setAdditive(useParentAppenders);
+    void saveSettings() {
+        helper.saveSettings();
+    }
+
+    @Override
+    public void restore() {
+        helper.restore();
+    }
+
+    private static final class Helper extends LoggerContextHelper<Level, Appender<ILoggingEvent>> {
+
+        private final Logger logger;
+
+        private Helper(Logger logger) {
+            this.logger = logger;
+        }
+
+        @Override
+        Level getLevel() {
+            return logger.getLevel();
+        }
+
+        @Override
+        void setLevel(Level level) {
+            logger.setLevel(level);
+        }
+
+        @Override
+        Iterable<Appender<ILoggingEvent>> appenders() {
+            return logger::iteratorForAppenders;
+        }
+
+        @Override
+        void addAppender(Appender<ILoggingEvent> appender) {
+            logger.addAppender(appender);
+        }
+
+        @Override
+        void removeAppender(Appender<ILoggingEvent> appender) {
+            logger.detachAppender(appender);
+        }
+
+        @Override
+        boolean useParentAppenders() {
+            return logger.isAdditive();
+        }
+
+        @Override
+        void useParentAppenders(boolean useParentAppenders) {
+            logger.setAdditive(useParentAppenders);
+        }
     }
 }

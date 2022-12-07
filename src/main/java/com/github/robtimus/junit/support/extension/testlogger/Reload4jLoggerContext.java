@@ -22,6 +22,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -34,12 +35,12 @@ import org.apache.log4j.Logger;
  *
  * @author Rob Spoor
  */
-public final class Reload4jLoggerContext extends LoggerContext<Level, Appender> {
+public final class Reload4jLoggerContext extends LoggerContext {
 
-    private final Logger logger;
+    private final Helper helper;
 
     private Reload4jLoggerContext(Logger logger) {
-        this.logger = logger;
+        helper = new Helper(logger);
     }
 
     static Reload4jLoggerContext forLogger(String name) {
@@ -66,18 +67,8 @@ public final class Reload4jLoggerContext extends LoggerContext<Level, Appender> 
      */
     public Reload4jLoggerContext setLevel(Level level) {
         Objects.requireNonNull(level);
-        doSetLevel(level);
+        helper.setLevel(level);
         return this;
-    }
-
-    @Override
-    Level doGetLevel() {
-        return logger.getLevel();
-    }
-
-    @Override
-    void doSetLevel(Level level) {
-        logger.setLevel(level);
     }
 
     /**
@@ -89,7 +80,7 @@ public final class Reload4jLoggerContext extends LoggerContext<Level, Appender> 
      */
     public Reload4jLoggerContext addAppender(Appender appender) {
         Objects.requireNonNull(appender);
-        doAddAppender(appender);
+        helper.addAppender(appender);
         return this;
     }
 
@@ -102,7 +93,7 @@ public final class Reload4jLoggerContext extends LoggerContext<Level, Appender> 
      */
     public Reload4jLoggerContext setAppender(Appender appender) {
         Objects.requireNonNull(appender);
-        doSetAppender(appender);
+        helper.setAppender(appender);
         return this;
     }
 
@@ -115,7 +106,7 @@ public final class Reload4jLoggerContext extends LoggerContext<Level, Appender> 
      */
     public Reload4jLoggerContext removeAppender(Appender appender) {
         Objects.requireNonNull(appender);
-        doRemoveAppender(appender);
+        helper.removeAppender(appender);
         return this;
     }
 
@@ -125,7 +116,7 @@ public final class Reload4jLoggerContext extends LoggerContext<Level, Appender> 
      * @return This object.
      */
     public Reload4jLoggerContext removeAppenders() {
-        doRemoveAppenders();
+        helper.removeAppenders();
         return this;
     }
 
@@ -138,32 +129,8 @@ public final class Reload4jLoggerContext extends LoggerContext<Level, Appender> 
      */
     public Reload4jLoggerContext removeAppenders(Predicate<? super Appender> filter) {
         Objects.requireNonNull(filter);
-        doRemoveAppenders(filter);
+        helper.removeAppenders(filter);
         return this;
-    }
-
-    @Override
-    void doRemoveAppenders() {
-        logger.removeAllAppenders();
-    }
-
-    @Override
-    Iterable<Appender> doListAppenders() {
-        List<Appender> appenders = new ArrayList<>();
-        for (@SuppressWarnings("unchecked") Enumeration<Appender> e = logger.getAllAppenders(); e.hasMoreElements(); ) {
-            appenders.add(e.nextElement());
-        }
-        return appenders;
-    }
-
-    @Override
-    void doAddAppender(Appender appender) {
-        logger.addAppender(appender);
-    }
-
-    @Override
-    void doRemoveAppender(Appender appender) {
-        logger.removeAppender(appender);
     }
 
     /**
@@ -173,17 +140,74 @@ public final class Reload4jLoggerContext extends LoggerContext<Level, Appender> 
      * @return This object.
      */
     public Reload4jLoggerContext useParentAppenders(boolean useParentAppenders) {
-        doSetUseParentAppenders(useParentAppenders);
+        helper.useParentAppenders(useParentAppenders);
         return this;
     }
 
-    @Override
-    boolean doGetUseParentAppenders() {
-        return logger.getAdditivity();
+    Stream<Appender> streamAppenders() {
+        return helper.streamAppenders();
     }
 
     @Override
-    void doSetUseParentAppenders(boolean useParentAppenders) {
-        logger.setAdditivity(useParentAppenders);
+    void saveSettings() {
+        helper.saveSettings();
+    }
+
+    @Override
+    public void restore() {
+        helper.restore();
+    }
+
+    private static final class Helper extends LoggerContextHelper<Level, Appender> {
+
+        private final Logger logger;
+
+        private Helper(Logger logger) {
+            this.logger = logger;
+        }
+
+        @Override
+        Level getLevel() {
+            return logger.getLevel();
+        }
+
+        @Override
+        void setLevel(Level level) {
+            logger.setLevel(level);
+        }
+
+        @Override
+        void removeAppenders() {
+            logger.removeAllAppenders();
+        }
+
+        @Override
+        Iterable<Appender> appenders() {
+            List<Appender> appenders = new ArrayList<>();
+            for (@SuppressWarnings("unchecked") Enumeration<Appender> e = logger.getAllAppenders(); e.hasMoreElements(); ) {
+                appenders.add(e.nextElement());
+            }
+            return appenders;
+        }
+
+        @Override
+        void addAppender(Appender appender) {
+            logger.addAppender(appender);
+        }
+
+        @Override
+        void removeAppender(Appender appender) {
+            logger.removeAppender(appender);
+        }
+
+        @Override
+        boolean useParentAppenders() {
+            return logger.getAdditivity();
+        }
+
+        @Override
+        void useParentAppenders(boolean useParentAppenders) {
+            logger.setAdditivity(useParentAppenders);
+        }
     }
 }

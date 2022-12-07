@@ -20,6 +20,7 @@ package com.github.robtimus.junit.support.extension.testlogger;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Appender;
@@ -36,12 +37,12 @@ import org.apache.logging.log4j.core.Logger;
  *
  * @author Rob Spoor
  */
-public final class Log4jLoggerContext extends LoggerContext<Level, Appender> {
+public final class Log4jLoggerContext extends LoggerContext {
 
-    private final Logger logger;
+    private final Helper helper;
 
     private Log4jLoggerContext(Logger logger) {
-        this.logger = logger;
+        helper = new Helper(logger);
     }
 
     static Log4jLoggerContext forLogger(String name) {
@@ -68,18 +69,8 @@ public final class Log4jLoggerContext extends LoggerContext<Level, Appender> {
      */
     public Log4jLoggerContext setLevel(Level level) {
         Objects.requireNonNull(level);
-        doSetLevel(level);
+        helper.setLevel(level);
         return this;
-    }
-
-    @Override
-    Level doGetLevel() {
-        return logger.getLevel();
-    }
-
-    @Override
-    void doSetLevel(Level level) {
-        logger.setLevel(level);
     }
 
     /**
@@ -91,7 +82,7 @@ public final class Log4jLoggerContext extends LoggerContext<Level, Appender> {
      */
     public Log4jLoggerContext addAppender(Appender appender) {
         Objects.requireNonNull(appender);
-        doAddAppender(appender);
+        helper.addAppender(appender);
         return this;
     }
 
@@ -104,7 +95,7 @@ public final class Log4jLoggerContext extends LoggerContext<Level, Appender> {
      */
     public Log4jLoggerContext setAppender(Appender appender) {
         Objects.requireNonNull(appender);
-        doSetAppender(appender);
+        helper.setAppender(appender);
         return this;
     }
 
@@ -117,7 +108,7 @@ public final class Log4jLoggerContext extends LoggerContext<Level, Appender> {
      */
     public Log4jLoggerContext removeAppender(Appender appender) {
         Objects.requireNonNull(appender);
-        doRemoveAppender(appender);
+        helper.removeAppender(appender);
         return this;
     }
 
@@ -127,7 +118,7 @@ public final class Log4jLoggerContext extends LoggerContext<Level, Appender> {
      * @return This object.
      */
     public Log4jLoggerContext removeAppenders() {
-        doRemoveAppenders();
+        helper.removeAppenders();
         return this;
     }
 
@@ -140,23 +131,8 @@ public final class Log4jLoggerContext extends LoggerContext<Level, Appender> {
      */
     public Log4jLoggerContext removeAppenders(Predicate<? super Appender> filter) {
         Objects.requireNonNull(filter);
-        doRemoveAppenders(filter);
+        helper.removeAppenders(filter);
         return this;
-    }
-
-    @Override
-    Iterable<Appender> doListAppenders() {
-        return logger.getAppenders().values();
-    }
-
-    @Override
-    void doAddAppender(Appender appender) {
-        logger.addAppender(appender);
-    }
-
-    @Override
-    void doRemoveAppender(Appender appender) {
-        logger.removeAppender(appender);
     }
 
     /**
@@ -166,35 +142,83 @@ public final class Log4jLoggerContext extends LoggerContext<Level, Appender> {
      * @return This object.
      */
     public Log4jLoggerContext useParentAppenders(boolean useParentAppenders) {
-        doSetUseParentAppenders(useParentAppenders);
+        helper.useParentAppenders(useParentAppenders);
         return this;
     }
 
-    @Override
-    boolean doGetUseParentAppenders() {
-        return logger.isAdditive();
-    }
-
-    @Override
-    void doSetUseParentAppenders(boolean useParentAppenders) {
-        logger.setAdditive(useParentAppenders);
+    Stream<Appender> streamAppenders() {
+        return helper.streamAppenders();
     }
 
     @Override
     void saveSettings() {
-        long originalAppenderCount = streamAppenders().count();
+        helper.saveSettings();
+    }
 
-        // logger.getAppenders() returns the appenders of the parent, unless an appender has been added first
-        Appender dummyAppender = Log4jNullAppender.create(UUID.randomUUID().toString());
-        logger.addAppender(dummyAppender);
-        logger.removeAppender(dummyAppender);
+    @Override
+    public void restore() {
+        helper.restore();
+    }
 
-        long appenderCount = streamAppenders().count();
-        if (appenderCount != originalAppenderCount) {
-            // the appenders were inherited from the parent; explicitly restore the inheritance behavior
-            logger.setAdditive(true);
+    private static final class Helper extends LoggerContextHelper<Level, Appender> {
+
+        private final Logger logger;
+
+        private Helper(Logger logger) {
+            this.logger = logger;
         }
 
-        super.saveSettings();
+        @Override
+        Level getLevel() {
+            return logger.getLevel();
+        }
+
+        @Override
+        void setLevel(Level level) {
+            logger.setLevel(level);
+        }
+
+        @Override
+        Iterable<Appender> appenders() {
+            return logger.getAppenders().values();
+        }
+
+        @Override
+        void addAppender(Appender appender) {
+            logger.addAppender(appender);
+        }
+
+        @Override
+        void removeAppender(Appender appender) {
+            logger.removeAppender(appender);
+        }
+
+        @Override
+        boolean useParentAppenders() {
+            return logger.isAdditive();
+        }
+
+        @Override
+        void useParentAppenders(boolean useParentAppenders) {
+            logger.setAdditive(useParentAppenders);
+        }
+
+        @Override
+        void saveSettings() {
+            long originalAppenderCount = streamAppenders().count();
+
+            // logger.getAppenders() returns the appenders of the parent, unless an appender has been added first
+            Appender dummyAppender = Log4jNullAppender.create(UUID.randomUUID().toString());
+            logger.addAppender(dummyAppender);
+            logger.removeAppender(dummyAppender);
+
+            long appenderCount = streamAppenders().count();
+            if (appenderCount != originalAppenderCount) {
+                // the appenders were inherited from the parent; explicitly restore the inheritance behavior
+                logger.setAdditive(true);
+            }
+
+            super.saveSettings();
+        }
     }
 }

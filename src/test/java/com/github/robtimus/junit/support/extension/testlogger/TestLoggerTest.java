@@ -27,7 +27,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import java.util.Collections;
 import java.util.List;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.AfterAll;
@@ -568,13 +567,13 @@ final class TestLoggerTest {
         void init() {
             validateLoggers();
 
-            testHandler = assertIsPresent(logger().streamAppenders()
+            testHandler = assertIsPresent(logger().streamHandlers()
                     .filter(JdkTestHandler.class::isInstance)
                     .map(JdkTestHandler.class::cast)
                     .findAny());
             testHandler.clearRecords();
 
-            rootTestHandler = assertIsPresent(rootLogger().streamAppenders()
+            rootTestHandler = assertIsPresent(rootLogger().streamHandlers()
                     .filter(JdkTestHandler.class::isInstance)
                     .map(JdkTestHandler.class::cast)
                     .findAny());
@@ -1661,40 +1660,15 @@ final class TestLoggerTest {
             assertNotNull(context);
         }
 
-        static final class UnsupportedContext extends LoggerContext<java.util.logging.Level, java.util.logging.Handler> {
+        static final class UnsupportedContext extends LoggerContext {
 
             @Override
-            Iterable<java.util.logging.Handler> doListAppenders() {
-                return Collections.emptyList();
-            }
-
-            @Override
-            java.util.logging.Level doGetLevel() {
-                return java.util.logging.Level.INFO;
-            }
-
-            @Override
-            void doSetLevel(java.util.logging.Level level) {
+            void saveSettings() {
                 // does nothing
             }
 
             @Override
-            void doAddAppender(java.util.logging.Handler appender) {
-                // does nothing
-            }
-
-            @Override
-            void doRemoveAppender(java.util.logging.Handler appender) {
-                // does nothing
-            }
-
-            @Override
-            boolean doGetUseParentAppenders() {
-                return true;
-            }
-
-            @Override
-            void doSetUseParentAppenders(boolean useParentAppenders) {
+            public void restore() {
                 // does nothing
             }
         }

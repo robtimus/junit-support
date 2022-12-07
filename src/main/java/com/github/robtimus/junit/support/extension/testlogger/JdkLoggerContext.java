@@ -23,6 +23,7 @@ import java.util.function.Predicate;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /**
  * {@code JdkLoggerContext} represents a JDK {@link Logger}. It can be injected using {@link TestLogger}, {@link TestLogger.ForClass} or
@@ -30,12 +31,12 @@ import java.util.logging.Logger;
  *
  * @author Rob Spoor
  */
-public final class JdkLoggerContext extends LoggerContext<Level, Handler> {
+public final class JdkLoggerContext extends LoggerContext {
 
-    private final Logger logger;
+    private final Helper helper;
 
     private JdkLoggerContext(Logger logger) {
-        this.logger = logger;
+        helper = new Helper(logger);
     }
 
     static JdkLoggerContext forLogger(String name) {
@@ -60,18 +61,8 @@ public final class JdkLoggerContext extends LoggerContext<Level, Handler> {
      */
     public JdkLoggerContext setLevel(Level level) {
         Objects.requireNonNull(level);
-        doSetLevel(level);
+        helper.setLevel(level);
         return this;
-    }
-
-    @Override
-    Level doGetLevel() {
-        return logger.getLevel();
-    }
-
-    @Override
-    void doSetLevel(Level level) {
-        logger.setLevel(level);
     }
 
     /**
@@ -83,7 +74,7 @@ public final class JdkLoggerContext extends LoggerContext<Level, Handler> {
      */
     public JdkLoggerContext addHandler(Handler handler) {
         Objects.requireNonNull(handler);
-        doAddAppender(handler);
+        helper.addAppender(handler);
         return this;
     }
 
@@ -96,7 +87,7 @@ public final class JdkLoggerContext extends LoggerContext<Level, Handler> {
      */
     public JdkLoggerContext setHandler(Handler handler) {
         Objects.requireNonNull(handler);
-        doSetAppender(handler);
+        helper.setAppender(handler);
         return this;
     }
 
@@ -109,7 +100,7 @@ public final class JdkLoggerContext extends LoggerContext<Level, Handler> {
      */
     public JdkLoggerContext removeHandler(Handler handler) {
         Objects.requireNonNull(handler);
-        doRemoveAppender(handler);
+        helper.removeAppender(handler);
         return this;
     }
 
@@ -119,7 +110,7 @@ public final class JdkLoggerContext extends LoggerContext<Level, Handler> {
      * @return This object.
      */
     public JdkLoggerContext removeHandlers() {
-        doRemoveAppenders();
+        helper.removeAppenders();
         return this;
     }
 
@@ -132,23 +123,8 @@ public final class JdkLoggerContext extends LoggerContext<Level, Handler> {
      */
     public JdkLoggerContext removeHandlers(Predicate<? super Handler> filter) {
         Objects.requireNonNull(filter);
-        doRemoveAppenders(filter);
+        helper.removeAppenders(filter);
         return this;
-    }
-
-    @Override
-    Iterable<Handler> doListAppenders() {
-        return Arrays.asList(logger.getHandlers());
-    }
-
-    @Override
-    void doAddAppender(Handler handler) {
-        logger.addHandler(handler);
-    }
-
-    @Override
-    void doRemoveAppender(Handler handler) {
-        logger.removeHandler(handler);
     }
 
     /**
@@ -158,17 +134,65 @@ public final class JdkLoggerContext extends LoggerContext<Level, Handler> {
      * @return This object.
      */
     public JdkLoggerContext useParentHandlers(boolean useParentHandlers) {
-        doSetUseParentAppenders(useParentHandlers);
+        helper.useParentAppenders(useParentHandlers);
         return this;
     }
 
-    @Override
-    boolean doGetUseParentAppenders() {
-        return logger.getUseParentHandlers();
+    Stream<Handler> streamHandlers() {
+        return helper.streamAppenders();
     }
 
     @Override
-    void doSetUseParentAppenders(boolean useParentHandlers) {
-        logger.setUseParentHandlers(useParentHandlers);
+    void saveSettings() {
+        helper.saveSettings();
+    }
+
+    @Override
+    public void restore() {
+        helper.restore();
+    }
+
+    private static final class Helper extends LoggerContextHelper<Level, Handler> {
+
+        private final Logger logger;
+
+        private Helper(Logger logger) {
+            this.logger = logger;
+        }
+
+        @Override
+        Level getLevel() {
+            return logger.getLevel();
+        }
+
+        @Override
+        void setLevel(Level level) {
+            logger.setLevel(level);
+        }
+
+        @Override
+        Iterable<Handler> appenders() {
+            return Arrays.asList(logger.getHandlers());
+        }
+
+        @Override
+        void addAppender(Handler handler) {
+            logger.addHandler(handler);
+        }
+
+        @Override
+        void removeAppender(Handler handler) {
+            logger.removeHandler(handler);
+        }
+
+        @Override
+        boolean useParentAppenders() {
+            return logger.getUseParentHandlers();
+        }
+
+        @Override
+        void useParentAppenders(boolean useParentHandlers) {
+            logger.setUseParentHandlers(useParentHandlers);
+        }
     }
 }

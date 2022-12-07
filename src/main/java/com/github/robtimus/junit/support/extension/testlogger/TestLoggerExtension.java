@@ -43,10 +43,10 @@ class TestLoggerExtension extends InjectingExtension {
     private static final Namespace NAMESPACE = Namespace.create(TestLoggerExtension.class);
     private static final Object ROOT_KEY = true;
 
-    private static final Map<Class<? extends LoggerContext<?, ?>>, ContextFactory<?>> CONTEXT_FACTORIES;
+    private static final Map<Class<? extends LoggerContext>, ContextFactory<?>> CONTEXT_FACTORIES;
 
     static {
-        Map<Class<? extends LoggerContext<?, ?>>, ContextFactory<?>> contextFactories = new HashMap<>();
+        Map<Class<? extends LoggerContext>, ContextFactory<?>> contextFactories = new HashMap<>();
         contextFactories.put(JdkLoggerContext.class,
                 new ContextFactory<>(JdkLoggerContext::forLogger, JdkLoggerContext::forLogger, JdkLoggerContext::forRootLogger));
         contextFactories.put(Log4jLoggerContext.class,
@@ -86,7 +86,7 @@ class TestLoggerExtension extends InjectingExtension {
         return resolveContext(target, contextFactory, context);
     }
 
-    private LoggerContext<?, ?> resolveContext(InjectionTarget target, ContextFactory<?> contextFactory, ExtensionContext context) {
+    private LoggerContext resolveContext(InjectionTarget target, ContextFactory<?> contextFactory, ExtensionContext context) {
         TestLogger testLogger = target.findAnnotation(TestLogger.class)
                 .orElse(null);
         TestLogger.ForClass testLoggerForClass = target.findAnnotation(TestLogger.ForClass.class)
@@ -116,7 +116,7 @@ class TestLoggerExtension extends InjectingExtension {
         }
     }
 
-    private static final class ContextFactory<C extends LoggerContext<?, ?>> {
+    private static final class ContextFactory<C extends LoggerContext> {
 
         private final Function<String, C> newContextFromName;
         private final Function<Class<?>, C> newContextFromClass;
@@ -146,9 +146,9 @@ class TestLoggerExtension extends InjectingExtension {
 
     private static final class CloseableContext implements CloseableResource {
 
-        private final LoggerContext<?, ?> context;
+        private final LoggerContext context;
 
-        private CloseableContext(LoggerContext<?, ?> context) {
+        private CloseableContext(LoggerContext context) {
             this.context = context;
             context.saveSettings();
         }
