@@ -64,12 +64,12 @@
   <properties>
     <version.commons-io>2.11.0</version.commons-io>
     <version.io-functions>2.0</version.io-functions>
-    <version.junit-testkit>1.9.0</version.junit-testkit>
+    <version.junit-testkit>1.9.1</version.junit-testkit>
     <version.log4j>2.19.0</version.log4j>
     <!-- Don't use higher versions, those require Java 11 -->
     <version.logback>1.2.11</version.logback>
-    <version.pioneer>1.9.0</version.pioneer>
-    <version.reload4j>1.2.23</version.reload4j>
+    <version.pioneer>1.9.1</version.pioneer>
+    <version.reload4j>1.2.24</version.reload4j>
   </properties>
 
   <dependencies>
