@@ -31,6 +31,7 @@ import ch.qos.logback.core.Appender;
  * {@link TestLogger.Root}, and can be used to configure the logger for test purposes.
  *
  * @author Rob Spoor
+ * @since 2.1
  */
 public final class LogbackLoggerContext extends LoggerContext {
 

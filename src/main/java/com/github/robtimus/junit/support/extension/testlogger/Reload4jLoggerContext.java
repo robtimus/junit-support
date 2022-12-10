@@ -34,6 +34,7 @@ import org.apache.log4j.Logger;
  * Note: reloadj4 is based on Log4j 1.x. As a result, this class can most likely also be used with Log4j 1.x. However, no guarantees are made.
  *
  * @author Rob Spoor
+ * @since 2.1
  */
 public final class Reload4jLoggerContext extends LoggerContext {
 

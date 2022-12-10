@@ -30,6 +30,7 @@ import org.apache.logging.log4j.core.config.Property;
  * {@linkplain LogEvent#toImmutable() immutable} events.
  *
  * @author Rob Spoor
+ * @since 2.1
  */
 public class Log4jNullAppender extends AbstractAppender {
 
@@ -79,6 +80,7 @@ public class Log4jNullAppender extends AbstractAppender {
      * A builder for {@link Log4jNullAppender} instances.
      *
      * @author Rob Spoor
+     * @since 2.1
      */
     public static final class Builder extends AbstractAppender.Builder<Builder> {
 

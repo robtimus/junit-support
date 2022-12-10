@@ -36,6 +36,7 @@ import org.apache.logging.log4j.core.Logger;
  * {@link Log4jNullAppender} and verify calls to its {@link Log4jNullAppender#ignore(LogEvent)} method.
  *
  * @author Rob Spoor
+ * @since 2.1
  */
 public final class Log4jLoggerContext extends LoggerContext {
 

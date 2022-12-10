@@ -30,6 +30,7 @@ import java.util.stream.Stream;
  * {@link TestLogger.Root}, and can be used to configure the logger for test purposes.
  *
  * @author Rob Spoor
+ * @since 2.1
  */
 public final class JdkLoggerContext extends LoggerContext {
 
