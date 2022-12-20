@@ -1,5 +1,5 @@
 /*
- * LoggingContextExtension.java
+ * TestLoggerExtension.java
  * Copyright 2022 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
