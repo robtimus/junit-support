@@ -456,7 +456,7 @@ class InjectionTargetTest {
         int value();
 
         @Retention(RetentionPolicy.RUNTIME)
-        public @interface List {
+        @interface List {
 
             RepeatableAnnotation0[] value();
         }
@@ -469,7 +469,7 @@ class InjectionTargetTest {
         int value();
 
         @Retention(RetentionPolicy.RUNTIME)
-        public @interface List {
+        @interface List {
 
             RepeatableAnnotation1[] value();
         }
@@ -482,7 +482,7 @@ class InjectionTargetTest {
         int value();
 
         @Retention(RetentionPolicy.RUNTIME)
-        public @interface List {
+        @interface List {
 
             RepeatableAnnotation2[] value();
         }
@@ -495,7 +495,7 @@ class InjectionTargetTest {
         int value();
 
         @Retention(RetentionPolicy.RUNTIME)
-        public @interface List {
+        @interface List {
 
             RepeatableAnnotation3[] value();
         }
@@ -508,7 +508,7 @@ class InjectionTargetTest {
         int value();
 
         @Retention(RetentionPolicy.RUNTIME)
-        public @interface List {
+        @interface List {
 
             RepeatableAnnotation4[] value();
         }

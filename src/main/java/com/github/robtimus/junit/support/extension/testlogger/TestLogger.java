@@ -63,7 +63,7 @@ public @interface TestLogger {
     @ExtendWith(TestLoggerExtension.class)
     @Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
     @Retention(RetentionPolicy.RUNTIME)
-    public @interface ForClass {
+    @interface ForClass {
 
         /**
          * The class that acts as the name of the logger.
@@ -80,7 +80,7 @@ public @interface TestLogger {
     @ExtendWith(TestLoggerExtension.class)
     @Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
     @Retention(RetentionPolicy.RUNTIME)
-    public @interface Root {
+    @interface Root {
 
         // no properties
     }
