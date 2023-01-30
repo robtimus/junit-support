@@ -46,7 +46,7 @@ public final class OptionalAssertions {
      */
     public static <T> T assertIsPresent(Optional<T> optional) {
         assertNotEquals(Optional.empty(), optional);
-        return optional.get(); // NOSONAR
+        return optional.get(); // NOSONAR: the Optional is not empty due to the assertion
     }
 
     /**
@@ -59,7 +59,7 @@ public final class OptionalAssertions {
      */
     public static <T> T assertIsPresent(Optional<T> optional, String message) {
         assertNotEquals(Optional.empty(), optional, message);
-        return optional.get(); // NOSONAR
+        return optional.get(); // NOSONAR: the Optional is not empty due to the assertion
     }
 
     /**
@@ -72,7 +72,7 @@ public final class OptionalAssertions {
      */
     public static <T> T assertIsPresent(Optional<T> optional, Supplier<String> messageSupplier) {
         assertNotEquals(Optional.empty(), optional, messageSupplier);
-        return optional.get(); // NOSONAR
+        return optional.get(); // NOSONAR: the Optional is not empty due to the assertion
     }
 
     /**
