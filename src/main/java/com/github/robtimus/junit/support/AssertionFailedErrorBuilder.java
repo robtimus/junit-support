@@ -559,68 +559,68 @@ public final class AssertionFailedErrorBuilder {
 
         private static final class Value extends Expected {
 
-            private final Object value;
-            private final String valueString;
+            private final Object expectedValue;
+            private final String expectedValueString;
 
-            private Value(String prefix, Object value) {
+            private Value(String prefix, Object expectedValue) {
                 super(prefix);
-                this.value = value;
-                this.valueString = objectToString(value);
+                this.expectedValue = expectedValue;
+                this.expectedValueString = objectToString(expectedValue);
             }
 
             @Override
             boolean isFormattedAs(String actualString) {
-                return valueString.equals(actualString);
+                return expectedValueString.equals(actualString);
             }
 
             @Override
             String doFormat() {
-                return String.format("<%s>", valueString);
+                return String.format("<%s>", expectedValueString);
             }
 
             @Override
             String doFormatWithClass() {
-                return formatClassAndValue(value, valueString);
+                return formatClassAndValue(expectedValue, expectedValueString);
             }
 
             @Override
             Object value() {
-                return value;
+                return expectedValue;
             }
         }
 
         private static final class Values extends Expected {
 
-            private final List<?> values;
-            private final List<String> valueStrings;
-            private final String valuesString;
+            private final List<?> expectedValues;
+            private final List<String> expectedValueStrings;
+            private final String expectedValuesString;
 
-            private Values(String prefix, Collection<?> values) {
+            private Values(String prefix, Collection<?> expectedValues) {
                 super(prefix);
-                this.values = new ArrayList<>(values);
-                this.valueStrings = values.stream()
+                this.expectedValues = new ArrayList<>(expectedValues);
+                this.expectedValueStrings = expectedValues.stream()
                         .map(AssertionFailedErrorBuilder::objectToString)
                         .collect(Collectors.toList());
-                this.valuesString = valueStrings.stream()
+                this.expectedValuesString = expectedValueStrings.stream()
                         .collect(Collectors.joining(", "));
             }
 
             @Override
             boolean isFormattedAs(String actualString) {
-                return valueStrings.contains(actualString) || valuesString.equals(actualString);
+                return expectedValueStrings.contains(actualString) || expectedValuesString.equals(actualString);
             }
 
             @Override
             String doFormat() {
-                return valueStrings.stream()
+                return expectedValueStrings.stream()
                         .map(valueString -> String.format("<%s>", valueString))
                         .collect(Collectors.joining(", "));
             }
 
             @Override
             String doFormatWithClass() {
-                Iterator<?> valueIterator = values.iterator();
-                Iterator<String> valueStringIterator = valueStrings.iterator();
+                Iterator<?> valueIterator = expectedValues.iterator();
+                Iterator<String> valueStringIterator = expectedValueStrings.iterator();
                 StringJoiner stringJoiner = new StringJoiner(", ");
 
                 while (valueIterator.hasNext()) {
@@ -633,17 +633,17 @@ public final class AssertionFailedErrorBuilder {
 
             @Override
             Object value() {
-                return values;
+                return expectedValues;
             }
         }
 
         private static final class Message extends Expected {
 
-            private final String message;
+            private final String expectedMessage;
 
-            private Message(String message) {
+            private Message(String expectedMessage) {
                 super("");
-                this.message = message;
+                this.expectedMessage = expectedMessage;
             }
 
             @Override
@@ -653,17 +653,17 @@ public final class AssertionFailedErrorBuilder {
 
             @Override
             String doFormat() {
-                return message;
+                return expectedMessage;
             }
 
             @Override
             String doFormatWithClass() {
-                return message;
+                return expectedMessage;
             }
 
             @Override
             Object value() {
-                return message;
+                return expectedMessage;
             }
         }
     }
@@ -694,60 +694,60 @@ public final class AssertionFailedErrorBuilder {
 
         private static final class Value extends Actual {
 
-            private final Object value;
-            private final String valueString;
+            private final Object actualValue;
+            private final String actualValueString;
 
-            private Value(String prefix, Object value) {
+            private Value(String prefix, Object actualValue) {
                 super(prefix);
-                this.value = value;
-                this.valueString = objectToString(value);
+                this.actualValue = actualValue;
+                this.actualValueString = objectToString(actualValue);
             }
 
             @Override
             String doFormat() {
-                return String.format("<%s>", valueString);
+                return String.format("<%s>", actualValueString);
             }
 
             @Override
             String doFormatWithClass() {
-                return formatClassAndValue(value, valueString);
+                return formatClassAndValue(actualValue, actualValueString);
             }
 
             @Override
             Object value() {
-                return value;
+                return actualValue;
             }
 
             @Override
             String valueString() {
-                return valueString;
+                return actualValueString;
             }
         }
 
         private static final class Values extends Actual {
 
-            private final List<?> values;
-            private final List<String> valueStrings;
+            private final List<?> actualValues;
+            private final List<String> actualValueStrings;
 
-            private Values(String prefix, Collection<?> values) {
+            private Values(String prefix, Collection<?> actualValues) {
                 super(prefix);
-                this.values = new ArrayList<>(values);
-                this.valueStrings = values.stream()
+                this.actualValues = new ArrayList<>(actualValues);
+                this.actualValueStrings = actualValues.stream()
                         .map(AssertionFailedErrorBuilder::objectToString)
                         .collect(Collectors.toList());
             }
 
             @Override
             String doFormat() {
-                return valueStrings.stream()
+                return actualValueStrings.stream()
                         .map(valueString -> String.format("<%s>", valueString))
                         .collect(Collectors.joining(", "));
             }
 
             @Override
             String doFormatWithClass() {
-                Iterator<?> valueIterator = values.iterator();
-                Iterator<String> valueStringIterator = valueStrings.iterator();
+                Iterator<?> valueIterator = actualValues.iterator();
+                Iterator<String> valueStringIterator = actualValueStrings.iterator();
                 StringJoiner stringJoiner = new StringJoiner(", ");
 
                 while (valueIterator.hasNext()) {
@@ -760,12 +760,12 @@ public final class AssertionFailedErrorBuilder {
 
             @Override
             Object value() {
-                return values;
+                return actualValues;
             }
 
             @Override
             public String valueString() {
-                return valueStrings.stream()
+                return actualValueStrings.stream()
                         .collect(Collectors.joining(", "));
             }
         }

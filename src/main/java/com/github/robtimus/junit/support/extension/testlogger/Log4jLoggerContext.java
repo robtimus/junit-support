@@ -206,14 +206,14 @@ public final class Log4jLoggerContext extends LoggerContext {
 
         @Override
         void saveSettings() {
-            long originalAppenderCount = streamAppenders().count();
+            long originalAppenderCount = super.streamAppenders().count();
 
             // logger.getAppenders() returns the appenders of the parent, unless an appender has been added first
             Appender dummyAppender = Log4jNullAppender.create(UUID.randomUUID().toString());
             logger.addAppender(dummyAppender);
             logger.removeAppender(dummyAppender);
 
-            long appenderCount = streamAppenders().count();
+            long appenderCount = super.streamAppenders().count();
             if (appenderCount != originalAppenderCount) {
                 // the appenders were inherited from the parent; explicitly restore the inheritance behavior
                 logger.setAdditive(true);

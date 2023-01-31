@@ -416,7 +416,7 @@ public final class ThrowableAssertions {
      * @return The exception that was thrown.
      * @see Assertions#assertThrowsExactly(Class, Executable)
      */
-    public static <T extends Throwable> T assertThrowsExactlyOneOf(Collection<? extends Class<? extends T>> expectedTypes, Executable executable) {
+    public static <T extends Throwable> T assertThrowsExactlyOneOf(Collection<Class<? extends T>> expectedTypes, Executable executable) {
         return assertThrowsExactlyOneOf(expectedTypes, executable, (Object) null);
     }
 
@@ -435,7 +435,7 @@ public final class ThrowableAssertions {
      * @return The exception that was thrown.
      * @see Assertions#assertThrowsExactly(Class, Executable, String)
      */
-    public static <T extends Throwable> T assertThrowsExactlyOneOf(Collection<? extends Class<? extends T>> expectedTypes, Executable executable,
+    public static <T extends Throwable> T assertThrowsExactlyOneOf(Collection<Class<? extends T>> expectedTypes, Executable executable,
             String message) {
 
         return assertThrowsExactlyOneOf(expectedTypes, executable, (Object) message);
@@ -456,13 +456,13 @@ public final class ThrowableAssertions {
      * @return The exception that was thrown.
      * @see Assertions#assertThrowsExactly(Class, Executable, Supplier)
      */
-    public static <T extends Throwable> T assertThrowsExactlyOneOf(Collection<? extends Class<? extends T>> expectedTypes, Executable executable,
+    public static <T extends Throwable> T assertThrowsExactlyOneOf(Collection<Class<? extends T>> expectedTypes, Executable executable,
             Supplier<String> messageSupplier) {
 
         return assertThrowsExactlyOneOf(expectedTypes, executable, (Object) messageSupplier);
     }
 
-    private static <T extends Throwable> T assertThrowsExactlyOneOf(Collection<? extends Class<? extends T>> expectedTypes, Executable executable,
+    private static <T extends Throwable> T assertThrowsExactlyOneOf(Collection<Class<? extends T>> expectedTypes, Executable executable,
             Object messageOrSupplier) {
 
         return assertOptionallyThrowsExactlyOneOf(expectedTypes, executable, messageOrSupplier)
@@ -564,7 +564,7 @@ public final class ThrowableAssertions {
      * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
      * @see Assertions#assertThrowsExactly(Class, Executable)
      */
-    public static <T extends Throwable> Optional<T> assertOptionallyThrowsExactlyOneOf(Collection<? extends Class<? extends T>> expectedTypes,
+    public static <T extends Throwable> Optional<T> assertOptionallyThrowsExactlyOneOf(Collection<Class<? extends T>> expectedTypes,
             Executable executable) {
 
         return assertOptionallyThrowsExactlyOneOf(expectedTypes, executable, (Object) null);
@@ -587,7 +587,7 @@ public final class ThrowableAssertions {
      * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
      * @see Assertions#assertThrowsExactly(Class, Executable, String)
      */
-    public static <T extends Throwable> Optional<T> assertOptionallyThrowsExactlyOneOf(Collection<? extends Class<? extends T>> expectedTypes,
+    public static <T extends Throwable> Optional<T> assertOptionallyThrowsExactlyOneOf(Collection<Class<? extends T>> expectedTypes,
             Executable executable, String message) {
 
         return assertOptionallyThrowsExactlyOneOf(expectedTypes, executable, (Object) message);
@@ -610,13 +610,13 @@ public final class ThrowableAssertions {
      * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
      * @see Assertions#assertThrowsExactly(Class, Executable, Supplier)
      */
-    public static <T extends Throwable> Optional<T> assertOptionallyThrowsExactlyOneOf(Collection<? extends Class<? extends T>> expectedTypes,
+    public static <T extends Throwable> Optional<T> assertOptionallyThrowsExactlyOneOf(Collection<Class<? extends T>> expectedTypes,
             Executable executable, Supplier<String> messageSupplier) {
 
         return assertOptionallyThrowsExactlyOneOf(expectedTypes, executable, (Object) messageSupplier);
     }
 
-    private static <T extends Throwable> Optional<T> assertOptionallyThrowsExactlyOneOf(Collection<? extends Class<? extends T>> expectedTypes,
+    private static <T extends Throwable> Optional<T> assertOptionallyThrowsExactlyOneOf(Collection<Class<? extends T>> expectedTypes,
             Executable executable, Object messageOrSupplier) {
 
         try {
@@ -717,7 +717,7 @@ public final class ThrowableAssertions {
      * @return The exception that was thrown.
      * @see Assertions#assertThrows(Class, Executable)
      */
-    public static <T extends Throwable> T assertThrowsOneOf(Collection<? extends Class<? extends T>> expectedTypes, Executable executable) {
+    public static <T extends Throwable> T assertThrowsOneOf(Collection<Class<? extends T>> expectedTypes, Executable executable) {
         return assertThrowsOneOf(expectedTypes, executable, (Object) null);
     }
 
@@ -735,7 +735,7 @@ public final class ThrowableAssertions {
      * @return The exception that was thrown.
      * @see Assertions#assertThrows(Class, Executable, String)
      */
-    public static <T extends Throwable> T assertThrowsOneOf(Collection<? extends Class<? extends T>> expectedTypes, Executable executable,
+    public static <T extends Throwable> T assertThrowsOneOf(Collection<Class<? extends T>> expectedTypes, Executable executable,
             String message) {
 
         return assertThrowsOneOf(expectedTypes, executable, (Object) message);
@@ -755,13 +755,13 @@ public final class ThrowableAssertions {
      * @return The exception that was thrown.
      * @see Assertions#assertThrows(Class, Executable, Supplier)
      */
-    public static <T extends Throwable> T assertThrowsOneOf(Collection<? extends Class<? extends T>> expectedTypes, Executable executable,
+    public static <T extends Throwable> T assertThrowsOneOf(Collection<Class<? extends T>> expectedTypes, Executable executable,
             Supplier<String> messageSupplier) {
 
         return assertThrowsOneOf(expectedTypes, executable, (Object) messageSupplier);
     }
 
-    private static <T extends Throwable> T assertThrowsOneOf(Collection<? extends Class<? extends T>> expectedTypes, Executable executable,
+    private static <T extends Throwable> T assertThrowsOneOf(Collection<Class<? extends T>> expectedTypes, Executable executable,
             Object messageOrSupplier) {
 
         return assertOptionallyThrowsOneOf(expectedTypes, executable, messageOrSupplier)
@@ -855,7 +855,7 @@ public final class ThrowableAssertions {
      * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
      * @see Assertions#assertThrows(Class, Executable)
      */
-    public static <T extends Throwable> Optional<T> assertOptionallyThrowsOneOf(Collection<? extends Class<? extends T>> expectedTypes,
+    public static <T extends Throwable> Optional<T> assertOptionallyThrowsOneOf(Collection<Class<? extends T>> expectedTypes,
             Executable executable) {
 
         return assertOptionallyThrowsOneOf(expectedTypes, executable, (Object) null);
@@ -876,7 +876,7 @@ public final class ThrowableAssertions {
      * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
      * @see Assertions#assertThrows(Class, Executable, String)
      */
-    public static <T extends Throwable> Optional<T> assertOptionallyThrowsOneOf(Collection<? extends Class<? extends T>> expectedTypes,
+    public static <T extends Throwable> Optional<T> assertOptionallyThrowsOneOf(Collection<Class<? extends T>> expectedTypes,
             Executable executable, String message) {
 
         return assertOptionallyThrowsOneOf(expectedTypes, executable, (Object) message);
@@ -897,13 +897,13 @@ public final class ThrowableAssertions {
      * @return An {@link Optional} describing the exception that was thrown, or {@link Optional#empty()} if no exception was thrown.
      * @see Assertions#assertThrows(Class, Executable, Supplier)
      */
-    public static <T extends Throwable> Optional<T> assertOptionallyThrowsOneOf(Collection<? extends Class<? extends T>> expectedTypes,
+    public static <T extends Throwable> Optional<T> assertOptionallyThrowsOneOf(Collection<Class<? extends T>> expectedTypes,
             Executable executable, Supplier<String> messageSupplier) {
 
         return assertOptionallyThrowsOneOf(expectedTypes, executable, (Object) messageSupplier);
     }
 
-    private static <T extends Throwable> Optional<T> assertOptionallyThrowsOneOf(Collection<? extends Class<? extends T>> expectedTypes,
+    private static <T extends Throwable> Optional<T> assertOptionallyThrowsOneOf(Collection<Class<? extends T>> expectedTypes,
             Executable executable, Object messageOrSupplier) {
 
         try {
