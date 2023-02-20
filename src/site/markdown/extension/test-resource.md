@@ -140,6 +140,20 @@ void testWithResource(@TestResource("address.xml") @LoadWith("xmlToObject") Addr
 
 When using a method that takes a `Reader`, the encoding can be specified in the same way as for `String`, `CharSequence` or `StringBuilder`, using `@Encoding` or the `com.github.robtimus.junit.support.extension.testresource.encoding` JUnit configuration parameter. It's not allowed to use `@Encoding` for methods that take an `InputStream`.
 
+### Injecting lines
+
+Two specialized versions of `@LoadWith` are provided for lines, [@AsLines](../apidocs/com/github/robtimus/junit/support/extension/testresource/AsLines.html) and [@AsLinesArray](../apidocs/com/github/robtimus/junit/support/extension/testresource/AsLinesArray.html):
+
+```
+// inject as a static field
+@TestResource("test.properties")
+@AsLines
+private static List<String> testLines;
+@TestResource("test.properties")
+@AsLinesArray
+private static String[] testLinesArray;
+```
+
 ### Injecting Properties
 
 A specialized version of `@LoadWith` is provided for `Properties` objects, [@AsProperties](../apidocs/com/github/robtimus/junit/support/extension/testresource/AsProperties.html):

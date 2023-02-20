@@ -17,12 +17,17 @@
 
 package com.github.robtimus.junit.support.extension.testresource;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.io.UncheckedIOException;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * {@link TestResourceLoaders} contains some utility methods that can be used with {@link LoadWith} to load resource into objects.
@@ -143,6 +148,45 @@ public final class TestResourceLoaders {
             outputStream.write(buffer, 0, len);
         }
         return outputStream.toByteArray();
+    }
+
+    /**
+     * Loads a resource into a list, where each element represents a line from the resource.
+     *
+     * @param reader A {@link Reader} containing the contents of the resource.
+     * @return A list containing the lines of the resources/
+     * @throws NullPointerException If the given reader is {@code null}.
+     * @throws IOException If an error occurred when loading the resource.
+     * @since 2.2
+     */
+    public static List<String> toLines(Reader reader) throws IOException {
+        try {
+            return lines(reader).collect(Collectors.toList());
+        } catch (UncheckedIOException e) {
+            throw e.getCause();
+        }
+    }
+
+    /**
+     * Loads a resource into an array, where each element represents a line from the resource.
+     *
+     * @param reader A {@link Reader} containing the contents of the resource.
+     * @return An array containing the lines of the resources/
+     * @throws NullPointerException If the given reader is {@code null}.
+     * @throws IOException If an error occurred when loading the resource.
+     * @since 2.2
+     */
+    public static String[] toLinesArray(Reader reader) throws IOException {
+        try {
+            return lines(reader).toArray(String[]::new);
+        } catch (UncheckedIOException e) {
+            throw e.getCause();
+        }
+    }
+
+    private static Stream<String> lines(Reader reader) {
+        BufferedReader bufferedReader = new BufferedReader(reader);
+        return bufferedReader.lines();
     }
 
     /**

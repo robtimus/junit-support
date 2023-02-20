@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import org.hamcrest.Matcher;
@@ -64,6 +65,12 @@ final class TestResourceTest {
     @TestResource("lorem.txt")
     private static byte[] resourceAsBytes;
     @TestResource("test.properties")
+    @AsLines
+    private static List<String> resourceAsLines;
+    @TestResource("test.properties")
+    @AsLinesArray
+    private static String[] resourceAsLinesArray;
+    @TestResource("test.properties")
     @AsProperties
     private static Properties resourceAsProperties;
     @TestResource("test.properties")
@@ -87,6 +94,8 @@ final class TestResourceTest {
         private final CharSequence resourceAsCharSequence;
         private final StringBuilder resourceAsStringBuilder;
         private final byte[] resourceAsBytes;
+        private final List<String> resourceAsLines;
+        private final String[] resourceAsLinesArray;
         private final Properties resourceAsProperties;
         private final String resourceAsStringWithCustomEOL;
         private final CharSequence resourceAsCharSequenceWithCustomEOL;
@@ -97,6 +106,8 @@ final class TestResourceTest {
                 @TestResource("lorem.txt") CharSequence resourceAsCharSequence,
                 @TestResource("lorem.txt") StringBuilder resourceAsStringBuilder,
                 @TestResource("lorem.txt") byte[] resourceAsBytes,
+                @TestResource("test.properties") @AsLines List<String> resourceAsLines,
+                @TestResource("test.properties") @AsLinesArray String[] resourceAsLinesArray,
                 @TestResource("test.properties") @AsProperties Properties resourceAsProperties,
                 @TestResource("test.properties") @EOL(EOL.NONE) String resourceAsStringWithCustomEOL,
                 @TestResource("test.properties") @EOL(EOL.NONE) CharSequence resourceAsCharSequenceWithCustomEOL,
@@ -106,6 +117,8 @@ final class TestResourceTest {
             this.resourceAsCharSequence = resourceAsCharSequence;
             this.resourceAsStringBuilder = resourceAsStringBuilder;
             this.resourceAsBytes = resourceAsBytes;
+            this.resourceAsLines = resourceAsLines;
+            this.resourceAsLinesArray = resourceAsLinesArray;
             this.resourceAsProperties = resourceAsProperties;
             this.resourceAsStringWithCustomEOL = resourceAsStringWithCustomEOL;
             this.resourceAsCharSequenceWithCustomEOL = resourceAsCharSequenceWithCustomEOL;
@@ -135,6 +148,20 @@ final class TestResourceTest {
         @DisplayName("as bytes")
         void testAsBytes() {
             assertArrayEquals(readResource("lorem.txt"), resourceAsBytes);
+        }
+
+        @Test
+        @DisplayName("as lines")
+        void testAsLines() {
+            List<String> expected = Arrays.asList("key1=value1", "key2=value2");
+            assertEquals(expected, resourceAsLines);
+        }
+
+        @Test
+        @DisplayName("as lines array")
+        void testAsLinesArray() {
+            String[] expected = { "key1=value1", "key2=value2" };
+            assertArrayEquals(expected, resourceAsLinesArray);
         }
 
         @Test
@@ -179,6 +206,12 @@ final class TestResourceTest {
         @TestResource("lorem.txt")
         private byte[] resourceAsBytes;
         @TestResource("test.properties")
+        @AsLines
+        private List<String> resourceAsLines;
+        @TestResource("test.properties")
+        @AsLinesArray
+        private String[] resourceAsLinesArray;
+        @TestResource("test.properties")
         @AsProperties
         private Properties resourceAsProperties;
         @TestResource("test.properties")
@@ -214,6 +247,20 @@ final class TestResourceTest {
         @DisplayName("as bytes")
         void testAsBytes() {
             assertArrayEquals(readResource("lorem.txt"), resourceAsBytes);
+        }
+
+        @Test
+        @DisplayName("as lines")
+        void testAsLines() {
+            List<String> expected = Arrays.asList("key1=value1", "key2=value2");
+            assertEquals(expected, resourceAsLines);
+        }
+
+        @Test
+        @DisplayName("as lines array")
+        void testAsLinesArray() {
+            String[] expected = { "key1=value1", "key2=value2" };
+            assertArrayEquals(expected, resourceAsLinesArray);
         }
 
         @Test
@@ -275,6 +322,20 @@ final class TestResourceTest {
         }
 
         @Test
+        @DisplayName("as lines")
+        void testAsLines() {
+            List<String> expected = Arrays.asList("key1=value1", "key2=value2");
+            assertEquals(expected, resourceAsLines);
+        }
+
+        @Test
+        @DisplayName("as lines array")
+        void testAsLinesArray() {
+            String[] expected = { "key1=value1", "key2=value2" };
+            assertArrayEquals(expected, resourceAsLinesArray);
+        }
+
+        @Test
         @DisplayName("as Properties")
         void testAsProperties() {
             Properties expected = new Properties();
@@ -330,6 +391,20 @@ final class TestResourceTest {
         @DisplayName("as bytes")
         void testAsBytes(@TestResource("lorem.txt") byte[] resource) {
             assertArrayEquals(readResource("lorem.txt"), resource);
+        }
+
+        @Test
+        @DisplayName("as lines")
+        void testAsLines(@TestResource("test.properties") @AsLines List<String> resource) {
+            List<String> expected = Arrays.asList("key1=value1", "key2=value2");
+            assertEquals(expected, resource);
+        }
+
+        @Test
+        @DisplayName("as lines array")
+        void testAsLinesArray(@TestResource("test.properties") @AsLinesArray String[] resource) {
+            String[] expected = { "key1=value1", "key2=value2" };
+            assertArrayEquals(expected, resource);
         }
 
         @Test

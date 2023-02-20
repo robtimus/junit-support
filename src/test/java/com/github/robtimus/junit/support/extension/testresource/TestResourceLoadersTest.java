@@ -19,11 +19,19 @@ package com.github.robtimus.junit.support.extension.testresource;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 import java.io.StringReader;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.Random;
+import org.apache.commons.io.input.BrokenInputStream;
+import org.apache.commons.io.input.BrokenReader;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -168,6 +176,30 @@ class TestResourceLoadersTest {
     }
 
     @Test
+    @DisplayName("toLines(Reader)")
+    void testToLines() throws IOException {
+        StringReader reader = new StringReader("key1=value1\nkey2=value2\n");
+
+        List<String> lines = TestResourceLoaders.toLines(reader);
+
+        List<String> expected = Arrays.asList("key1=value1", "key2=value2");
+
+        assertEquals(expected, lines);
+    }
+
+    @Test
+    @DisplayName("toLinesArray(Reader)")
+    void testToLinesArray() throws IOException {
+        StringReader reader = new StringReader("key1=value1\nkey2=value2\n");
+
+        String[] lines = TestResourceLoaders.toLinesArray(reader);
+
+        String[] expected = { "key1=value1", "key2=value2" };
+
+        assertArrayEquals(expected, lines);
+    }
+
+    @Test
     @DisplayName("toProperties(Reader)")
     void testToProperties() throws IOException {
         StringReader reader = new StringReader("key1=value1\nkey2=value2\n");
@@ -179,5 +211,140 @@ class TestResourceLoadersTest {
         expected.put("key2", "value2");
 
         assertEquals(expected, properties);
+    }
+
+    @Nested
+    @DisplayName("error propagation")
+    class ErrorPropagation {
+
+        @Test
+        @DisplayName("toString(Reader)")
+        void testToString() {
+            IOException exception = new IOException();
+
+            @SuppressWarnings("resource")
+            Reader reader = new BrokenReader(exception);
+
+            IOException thrown = assertThrows(IOException.class, () -> TestResourceLoaders.toString(reader));
+
+            assertSame(exception, thrown);
+        }
+
+        @Test
+        @DisplayName("toString(Reader, String)")
+        void testToStringWithLineSeparator() {
+            IOException exception = new IOException();
+
+            @SuppressWarnings("resource")
+            Reader reader = new BrokenReader(exception);
+
+            IOException thrown = assertThrows(IOException.class, () -> TestResourceLoaders.toString(reader, "\n"));
+
+            assertSame(exception, thrown);
+        }
+
+        @Test
+        @DisplayName("toStringBuilder(Reader)")
+        void testToStringBuilder() {
+            IOException exception = new IOException();
+
+            @SuppressWarnings("resource")
+            Reader reader = new BrokenReader(exception);
+
+            IOException thrown = assertThrows(IOException.class, () -> TestResourceLoaders.toStringBuilder(reader));
+
+            assertSame(exception, thrown);
+        }
+
+        @Test
+        @DisplayName("toStringBuilder(Reader, String)")
+        void testToStringBuilderWithLineSeparator() {
+            IOException exception = new IOException();
+
+            @SuppressWarnings("resource")
+            Reader reader = new BrokenReader(exception);
+
+            IOException thrown = assertThrows(IOException.class, () -> TestResourceLoaders.toStringBuilder(reader, "\n"));
+
+            assertSame(exception, thrown);
+        }
+
+        @Test
+        @DisplayName("toCharSequence(Reader)")
+        void testToCharSequence() {
+            IOException exception = new IOException();
+
+            @SuppressWarnings("resource")
+            Reader reader = new BrokenReader(exception);
+
+            IOException thrown = assertThrows(IOException.class, () -> TestResourceLoaders.toCharSequence(reader));
+
+            assertSame(exception, thrown);
+        }
+
+        @Test
+        @DisplayName("toCharSequence(Reader, String)")
+        void testToCharSequenceWithLineSeparator() {
+            IOException exception = new IOException();
+
+            @SuppressWarnings("resource")
+            Reader reader = new BrokenReader(exception);
+
+            IOException thrown = assertThrows(IOException.class, () -> TestResourceLoaders.toCharSequence(reader, "\n"));
+
+            assertSame(exception, thrown);
+        }
+
+        @Test
+        @DisplayName("toBytes(InputStream)")
+        void testToBytes() {
+            IOException exception = new IOException();
+
+            @SuppressWarnings("resource")
+            InputStream inputStream = new BrokenInputStream(exception);
+
+            IOException thrown = assertThrows(IOException.class, () -> TestResourceLoaders.toBytes(inputStream));
+
+            assertSame(exception, thrown);
+        }
+
+        @Test
+        @DisplayName("toLines(Reader)")
+        void testToLines() {
+            IOException exception = new IOException();
+
+            @SuppressWarnings("resource")
+            Reader reader = new BrokenReader(exception);
+
+            IOException thrown = assertThrows(IOException.class, () -> TestResourceLoaders.toLines(reader));
+
+            assertSame(exception, thrown);
+        }
+
+        @Test
+        @DisplayName("toLinesArray(Reader)")
+        void testToLinesArray() {
+            IOException exception = new IOException();
+
+            @SuppressWarnings("resource")
+            Reader reader = new BrokenReader(exception);
+
+            IOException thrown = assertThrows(IOException.class, () -> TestResourceLoaders.toLinesArray(reader));
+
+            assertSame(exception, thrown);
+        }
+
+        @Test
+        @DisplayName("toProperties(Reader)")
+        void testToProperties() {
+            IOException exception = new IOException();
+
+            @SuppressWarnings("resource")
+            Reader reader = new BrokenReader(exception);
+
+            IOException thrown = assertThrows(IOException.class, () -> TestResourceLoaders.toProperties(reader));
+
+            assertSame(exception, thrown);
+        }
     }
 }
