@@ -40,6 +40,7 @@ Class [Assertions](https://junit.org/junit5/docs/current/api/org.junit.jupiter.a
 * assertions similar to `assertThrows` and `assertThrowsExactly` that check for more than one exception type
 * assertions similar to `assertThrows` and `assertThrowsExactly` that check for optional exceptions
 * assertions for checking exception causes
+* assertions for checking exception types and messages against expected exceptions
 
 #### ThrowableAsserter
 

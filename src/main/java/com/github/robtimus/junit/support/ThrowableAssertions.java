@@ -19,11 +19,16 @@ package com.github.robtimus.junit.support;
 
 import static com.github.robtimus.junit.support.AssertionFailedErrorBuilder.assertionFailedError;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
@@ -1047,6 +1052,121 @@ public final class ThrowableAssertions {
             return assertDoesNotThrow(() -> {
                 throw t;
             }, messageSupplier);
+        }
+    }
+
+    /**
+     * Asserts that a throwable has the same type and message as another.
+     * This method will not check causes.
+     *
+     * @param expected The throwable with the expected type and message.
+     * @param actual The actual throwable.
+     * @since 2.2
+     */
+    public static void assertEqualTypeAndMessage(Throwable expected, Throwable actual) {
+        assertEqualTypeAndMessage(expected, actual, 0, 0);
+    }
+
+    /**
+     * Asserts that a throwable has the same type and message as another.
+     * This method will also check causes until the given max depth has been reached.
+     *
+     * @param expected The throwable with the expected type and message.
+     * @param actual The actual throwable.
+     * @param maxDepth The maximum depth, defined as the maximum number of causes to traverse.
+     * @throws IllegalArgumentException If the given maximum depth is negative.
+     * @since 2.2
+     */
+    public static void assertEqualTypeAndMessage(Throwable expected, Throwable actual, int maxDepth) {
+        validateMaxDepth(maxDepth);
+        assertEqualTypeAndMessage(expected, actual, maxDepth, 0);
+    }
+
+    private static void assertEqualTypeAndMessage(Throwable expected, Throwable actual, int maxDepth, int depth) {
+        IntFunction<String> messageSupplier = d -> d == 0 ? null : ("depth: " + d);
+        assertEqualTypeAndMessage(expected, actual, maxDepth, depth, messageSupplier);
+    }
+
+    /**
+     * Asserts that a throwable has the same type and message as another.
+     * This method will not check causes.
+     *
+     * @param expected The throwable with the expected type and message.
+     * @param actual The actual throwable.
+     * @param message The failure message to fail with.
+     * @since 2.2
+     */
+    public static void assertEqualTypeAndMessage(Throwable expected, Throwable actual, String message) {
+        assertEqualTypeAndMessage(expected, actual, 0, 0, message);
+    }
+
+    /**
+     * Asserts that a throwable has the same type and message as another.
+     * This method will also check causes until the given max depth has been reached.
+     *
+     * @param expected The throwable with the expected type and message.
+     * @param actual The actual throwable.
+     * @param maxDepth The maximum depth, defined as the maximum number of causes to traverse.
+     * @param message The failure message to fail with.
+     * @throws IllegalArgumentException If the given maximum depth is negative.
+     * @since 2.2
+     */
+    public static void assertEqualTypeAndMessage(Throwable expected, Throwable actual, int maxDepth, String message) {
+        validateMaxDepth(maxDepth);
+        assertEqualTypeAndMessage(expected, actual, maxDepth, 0, message);
+    }
+
+    private static void assertEqualTypeAndMessage(Throwable expected, Throwable actual, int maxDepth, int depth, String message) {
+        IntFunction<String> messageSupplier = message == null ? null : d -> message;
+        assertEqualTypeAndMessage(expected, actual, maxDepth, depth, messageSupplier);
+    }
+
+    /**
+     * Asserts that a throwable has the same type and message as another.
+     * This method will not check causes.
+     *
+     * @param expected The throwable with the expected type and message.
+     * @param actual The actual throwable.
+     * @param messageSupplier The supplier for the failure message to fail with. It takes the depth at which the failure occurs as argument.
+     * @since 2.2
+     */
+    public static void assertEqualTypeAndMessage(Throwable expected, Throwable actual, IntFunction<String> messageSupplier) {
+        assertEqualTypeAndMessage(expected, actual, 0, 0, messageSupplier);
+    }
+
+    /**
+     * Asserts that a throwable has the same type and message as another.
+     * This method will also check causes until the given max depth has been reached.
+     *
+     * @param expected The throwable with the expected type and message.
+     * @param actual The actual throwable.
+     * @param maxDepth The maximum depth, defined as the maximum number of causes to traverse.
+     * @param messageSupplier The supplier for the failure message to fail with. It takes the depth at which the failure occurs as argument.
+     * @throws IllegalArgumentException If the given maximum depth is negative.
+     * @since 2.2
+     */
+    public static void assertEqualTypeAndMessage(Throwable expected, Throwable actual, int maxDepth, IntFunction<String> messageSupplier) {
+        validateMaxDepth(maxDepth);
+        assertEqualTypeAndMessage(expected, actual, maxDepth, 0, messageSupplier);
+    }
+
+    private static void validateMaxDepth(int maxDepth) {
+        assertTrue(maxDepth >= 0, "maxDepth must not be negative");
+    }
+
+    private static void assertEqualTypeAndMessage(Throwable expected, Throwable actual, int maxDepth, int depth,
+            IntFunction<String> messageSupplier) {
+
+        final String message = messageSupplier == null ? null : messageSupplier.apply(depth);
+        if (expected == null) {
+            assertNull(actual, message);
+        } else {
+            assertNotNull(actual, message);
+            assertEquals(expected.getClass(), actual.getClass(), message);
+            assertEquals(expected.getMessage(), actual.getMessage(), message);
+            if (maxDepth > 0) {
+                assertEqualTypeAndMessage(expected.getCause(), actual.getCause(), maxDepth - 1, depth + 1, messageSupplier);
+            }
         }
     }
 
