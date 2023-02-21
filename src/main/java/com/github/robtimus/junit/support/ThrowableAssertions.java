@@ -19,16 +19,14 @@ package com.github.robtimus.junit.support;
 
 import static com.github.robtimus.junit.support.AssertionFailedErrorBuilder.assertionFailedError;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.function.IntFunction;
+import java.util.StringJoiner;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
@@ -45,6 +43,7 @@ import org.junit.jupiter.api.function.ThrowingSupplier;
 public final class ThrowableAssertions {
 
     private static final String CAUSED_BY = "caused by";
+    private static final int DEFAULT_MAX_DEPTH = 20;
 
     private ThrowableAssertions() {
     }
@@ -1056,118 +1055,154 @@ public final class ThrowableAssertions {
     }
 
     /**
-     * Asserts that a throwable has the same type and message as another.
-     * This method will not check causes.
+     * Asserts that a throwable represents the same throwable chain as another.
+     * Two throwable chains are regarded as equal if they have the same throwables in the chain, where equality is determined by the type and message.
+     * <p>
+     * This method uses a maximum depth of {@code 20}. To use a different maximum length, use {@link #assertChainEquals(Throwable, Throwable, int)}.
      *
-     * @param expected The throwable with the expected type and message.
+     * @param expected The throwable with the expected throwable chain.
      * @param actual The actual throwable.
+     * @return The first cause of the actual throwable that exceeds the maximum depth,
+     *         or {@code null} if the actual throwable chain does not exceed the maximum depth.
      * @since 2.2
      */
-    public static void assertEqualTypeAndMessage(Throwable expected, Throwable actual) {
-        assertEqualTypeAndMessage(expected, actual, 0, 0);
+    public static Throwable assertChainEquals(Throwable expected, Throwable actual) {
+        return assertChainEquals(expected, actual, DEFAULT_MAX_DEPTH);
     }
 
     /**
-     * Asserts that a throwable has the same type and message as another.
-     * This method will also check causes until the given max depth has been reached.
+     * Asserts that a throwable represents the same throwable chain as another.
+     * Two throwable chains are regarded as equal if they have the same throwables in the chain, where equality is determined by the type and message.
      *
-     * @param expected The throwable with the expected type and message.
+     * @param expected The throwable with the expected throwable chain.
      * @param actual The actual throwable.
      * @param maxDepth The maximum depth, defined as the maximum number of causes to traverse.
+     * @return The first cause of the actual throwable that exceeds the maximum depth,
+     *         or {@code null} if the actual throwable chain does not exceed the maximum depth.
      * @throws IllegalArgumentException If the given maximum depth is negative.
      * @since 2.2
      */
-    public static void assertEqualTypeAndMessage(Throwable expected, Throwable actual, int maxDepth) {
+    public static Throwable assertChainEquals(Throwable expected, Throwable actual, int maxDepth) {
         validateMaxDepth(maxDepth);
-        assertEqualTypeAndMessage(expected, actual, maxDepth, 0);
-    }
-
-    private static void assertEqualTypeAndMessage(Throwable expected, Throwable actual, int maxDepth, int depth) {
-        IntFunction<String> messageSupplier = d -> d == 0 ? null : ("depth: " + d);
-        assertEqualTypeAndMessage(expected, actual, maxDepth, depth, messageSupplier);
+        return assertChainEquals(expected, actual, maxDepth, (Object) null);
     }
 
     /**
-     * Asserts that a throwable has the same type and message as another.
-     * This method will not check causes.
+     * Asserts that a throwable represents the same throwable chain as another.
+     * Two throwable chains are regarded as equal if they have the same throwables in the chain, where equality is determined by the type and message.
+     * <p>
+     * This method uses a maximum depth of {@code 20}. To use a different maximum length, use
+     * {@link #assertChainEquals(Throwable, Throwable, int, String)}.
      *
-     * @param expected The throwable with the expected type and message.
+     * @param expected The throwable with the expected throwable chain.
      * @param actual The actual throwable.
      * @param message The failure message to fail with.
+     * @return The first cause of the actual throwable that exceeds the maximum depth,
+     *         or {@code null} if the actual throwable chain does not exceed the maximum depth.
      * @since 2.2
      */
-    public static void assertEqualTypeAndMessage(Throwable expected, Throwable actual, String message) {
-        assertEqualTypeAndMessage(expected, actual, 0, 0, message);
+    public static Throwable assertChainEquals(Throwable expected, Throwable actual, String message) {
+        return assertChainEquals(expected, actual, DEFAULT_MAX_DEPTH, message);
     }
 
     /**
-     * Asserts that a throwable has the same type and message as another.
-     * This method will also check causes until the given max depth has been reached.
+     * Asserts that a throwable represents the same throwable chain as another.
+     * Two throwable chains are regarded as equal if they have the same throwables in the chain, where equality is determined by the type and message.
      *
-     * @param expected The throwable with the expected type and message.
+     * @param expected The throwable with the expected throwable chain.
      * @param actual The actual throwable.
      * @param maxDepth The maximum depth, defined as the maximum number of causes to traverse.
      * @param message The failure message to fail with.
+     * @return The first cause of the actual throwable that exceeds the maximum depth,
+     *         or {@code null} if the actual throwable chain does not exceed the maximum depth.
      * @throws IllegalArgumentException If the given maximum depth is negative.
      * @since 2.2
      */
-    public static void assertEqualTypeAndMessage(Throwable expected, Throwable actual, int maxDepth, String message) {
+    public static Throwable assertChainEquals(Throwable expected, Throwable actual, int maxDepth, String message) {
         validateMaxDepth(maxDepth);
-        assertEqualTypeAndMessage(expected, actual, maxDepth, 0, message);
-    }
-
-    private static void assertEqualTypeAndMessage(Throwable expected, Throwable actual, int maxDepth, int depth, String message) {
-        IntFunction<String> messageSupplier = message == null ? null : d -> message;
-        assertEqualTypeAndMessage(expected, actual, maxDepth, depth, messageSupplier);
+        return assertChainEquals(expected, actual, maxDepth, (Object) message);
     }
 
     /**
-     * Asserts that a throwable has the same type and message as another.
-     * This method will not check causes.
+     * Asserts that a throwable represents the same throwable chain as another.
+     * Two throwable chains are regarded as equal if they have the same throwables in the chain, where equality is determined by the type and message.
+     * <p>
+     * This method uses a maximum depth of {@code 20}. To use a different maximum length, use
+     * {@link #assertChainEquals(Throwable, Throwable, int, Supplier)}.
      *
-     * @param expected The throwable with the expected type and message.
+     * @param expected The throwable with the expected throwable chain.
      * @param actual The actual throwable.
      * @param messageSupplier The supplier for the failure message to fail with. It takes the depth at which the failure occurs as argument.
+     * @return The first cause of the actual throwable that exceeds the maximum depth,
+     *         or {@code null} if the actual throwable chain does not exceed the maximum depth.
      * @since 2.2
      */
-    public static void assertEqualTypeAndMessage(Throwable expected, Throwable actual, IntFunction<String> messageSupplier) {
-        assertEqualTypeAndMessage(expected, actual, 0, 0, messageSupplier);
+    public static Throwable assertChainEquals(Throwable expected, Throwable actual, Supplier<String> messageSupplier) {
+        return assertChainEquals(expected, actual, DEFAULT_MAX_DEPTH, messageSupplier);
     }
 
     /**
-     * Asserts that a throwable has the same type and message as another.
-     * This method will also check causes until the given max depth has been reached.
+     * Asserts that a throwable represents the same throwable chain as another.
+     * Two throwable chains are regarded as equal if they have the same throwables in the chain, where equality is determined by the type and message.
      *
-     * @param expected The throwable with the expected type and message.
+     * @param expected The throwable with the expected throwable chain.
      * @param actual The actual throwable.
      * @param maxDepth The maximum depth, defined as the maximum number of causes to traverse.
      * @param messageSupplier The supplier for the failure message to fail with. It takes the depth at which the failure occurs as argument.
+     * @return The first cause of the actual throwable that exceeds the maximum depth,
+     *         or {@code null} if the actual throwable chain does not exceed the maximum depth.
      * @throws IllegalArgumentException If the given maximum depth is negative.
      * @since 2.2
      */
-    public static void assertEqualTypeAndMessage(Throwable expected, Throwable actual, int maxDepth, IntFunction<String> messageSupplier) {
+    public static Throwable assertChainEquals(Throwable expected, Throwable actual, int maxDepth, Supplier<String> messageSupplier) {
         validateMaxDepth(maxDepth);
-        assertEqualTypeAndMessage(expected, actual, maxDepth, 0, messageSupplier);
+        return assertChainEquals(expected, actual, maxDepth, (Object) messageSupplier);
     }
 
     private static void validateMaxDepth(int maxDepth) {
         assertTrue(maxDepth >= 0, "maxDepth must not be negative");
     }
 
-    private static void assertEqualTypeAndMessage(Throwable expected, Throwable actual, int maxDepth, int depth,
-            IntFunction<String> messageSupplier) {
-
-        final String message = messageSupplier == null ? null : messageSupplier.apply(depth);
-        if (expected == null) {
-            assertNull(actual, message);
-        } else {
-            assertNotNull(actual, message);
-            assertEquals(expected.getClass(), actual.getClass(), message);
-            assertEquals(expected.getMessage(), actual.getMessage(), message);
-            if (maxDepth > 0) {
-                assertEqualTypeAndMessage(expected.getCause(), actual.getCause(), maxDepth - 1, depth + 1, messageSupplier);
-            }
+    private static Throwable assertChainEquals(Throwable expected, Throwable actual, int maxDepth, Object messageOrSupplier) {
+        String expectedChainString = toChainString(expected, maxDepth);
+        String actualChainString = toChainString(actual, maxDepth);
+        if (Objects.equals(expectedChainString, actualChainString)) {
+            return getCause(actual, maxDepth);
         }
+
+        throw assertionFailedError()
+                .message(messageOrSupplier)
+                .expected(expectedChainString)
+                .actual(actualChainString)
+                .build();
+    }
+
+    private static String toChainString(Throwable throwable, int maxDepth) {
+        if (throwable == null) {
+            return null;
+        }
+        StringJoiner joiner = new StringJoiner(" caused by ");
+        Throwable iterator = throwable;
+        int depth = 0;
+        while (iterator != null && depth <= maxDepth) {
+            joiner.add(String.format("%s(%s)", iterator.getClass().getName(), iterator.getMessage()));
+            iterator = iterator.getCause();
+            depth++;
+        }
+        return joiner.toString();
+    }
+
+    private static Throwable getCause(Throwable throwable, int maxDepth) {
+        if (throwable == null) {
+            return null;
+        }
+        Throwable result = throwable;
+        int depth = 0;
+        while (result != null && depth <= maxDepth) {
+            result = result.getCause();
+            depth++;
+        }
+        return result;
     }
 
     static AssertionFailedErrorBuilder unexpectedExceptionTypeThrown() {

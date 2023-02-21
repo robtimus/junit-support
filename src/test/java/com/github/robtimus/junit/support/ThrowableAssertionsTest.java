@@ -19,8 +19,8 @@ package com.github.robtimus.junit.support;
 
 import static com.github.robtimus.junit.support.OptionalAssertions.assertIsEmpty;
 import static com.github.robtimus.junit.support.OptionalAssertions.assertIsPresent;
+import static com.github.robtimus.junit.support.ThrowableAssertions.assertChainEquals;
 import static com.github.robtimus.junit.support.ThrowableAssertions.assertDoesNotThrowCheckedException;
-import static com.github.robtimus.junit.support.ThrowableAssertions.assertEqualTypeAndMessage;
 import static com.github.robtimus.junit.support.ThrowableAssertions.assertHasCause;
 import static com.github.robtimus.junit.support.ThrowableAssertions.assertHasDirectCause;
 import static com.github.robtimus.junit.support.ThrowableAssertions.assertOptionallyThrows;
@@ -30,6 +30,7 @@ import static com.github.robtimus.junit.support.ThrowableAssertions.assertOption
 import static com.github.robtimus.junit.support.ThrowableAssertions.assertThrowsExactlyOneOf;
 import static com.github.robtimus.junit.support.ThrowableAssertions.assertThrowsOneOf;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -41,16 +42,12 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.text.ParseException;
 import java.util.Optional;
-import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.api.function.ThrowingSupplier;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.opentest4j.AssertionFailedError;
 
 @SuppressWarnings("nls")
@@ -1934,12 +1931,97 @@ class ThrowableAssertionsTest {
     }
 
     @Nested
-    @DisplayName("assertEqualTypeAndMessage")
-    class AssertEqualTypeAndMessage {
+    @DisplayName("assertChainEquals")
+    class AssertChainEquals {
 
         @Nested
-        @DisplayName("no depth")
-        class NoDepth {
+        @DisplayName("default depth")
+        class DefaultDepth {
+
+            @Nested
+            @DisplayName("reached")
+            class Reached {
+
+                @Test
+                @DisplayName("without message or message supplier")
+                void testWithoutMessageOrMessageSupplier() {
+                    Throwable expected = createException(19, new IOException("error"));
+                    Throwable actual = createException(19, new IOException("error2"));
+
+                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertChainEquals(expected, actual));
+                    assertThat(error.getMessage(), startsWith("expected: "));
+                    assertThat(error.getMessage(), containsString(" caused by java.io.IOException(error)>"));
+                    assertThat(error.getMessage(), containsString(" caused by java.io.IOException(error2)>"));
+                }
+
+                @Test
+                @DisplayName("with message")
+                void testWithMessage() {
+                    Throwable expected = createException(19, new IOException("error"));
+                    Throwable actual = createException(19, new IOException("error2"));
+
+                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertChainEquals(expected, actual, "error"));
+                    assertThat(error.getMessage(), startsWith("error ==> expected: "));
+                    assertThat(error.getMessage(), containsString(" caused by java.io.IOException(error)>"));
+                    assertThat(error.getMessage(), containsString(" caused by java.io.IOException(error2)>"));
+                }
+
+                @Test
+                @DisplayName("with message supplier")
+                void testWithMessageSupplier() {
+                    Throwable expected = createException(19, new IOException("error"));
+                    Throwable actual = createException(19, new IOException("error2"));
+
+                    Supplier<String> messageSupplier = () -> "error";
+                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertChainEquals(expected, actual, messageSupplier));
+                    assertThat(error.getMessage(), startsWith("error ==> expected: "));
+                    assertThat(error.getMessage(), containsString(" caused by java.io.IOException(error)>"));
+                    assertThat(error.getMessage(), containsString(" caused by java.io.IOException(error2)>"));
+                }
+            }
+
+            @Nested
+            @DisplayName("exceeded")
+            class Exceeded {
+
+                @Test
+                @DisplayName("without message or message supplier")
+                void testWithoutMessageOrMessageSupplier() {
+                    Throwable expected = createException(20, new IOException("error"));
+                    Throwable rootCause = new IOException("error2");
+                    Throwable actual = createException(20, rootCause);
+
+                    Throwable result = assertChainEquals(expected, actual);
+                    assertEquals(rootCause, result);
+                }
+
+                @Test
+                @DisplayName("with message")
+                void testWithMessage() {
+                    Throwable expected = createException(20, new IOException("error"));
+                    Throwable rootCause = new IOException("error2");
+                    Throwable actual = createException(20, rootCause);
+
+                    Throwable result = assertChainEquals(expected, actual, "error");
+                    assertEquals(rootCause, result);
+                }
+
+                @Test
+                @DisplayName("with message supplier")
+                void testWithMessageSupplier() {
+                    Throwable expected = createException(20, new IOException("error"));
+                    Throwable rootCause = new IOException("error2");
+                    Throwable actual = createException(20, rootCause);
+
+                    Throwable result = assertChainEquals(expected, actual, () -> "error");
+                    assertEquals(rootCause, result);
+                }
+            }
+        }
+
+        @Nested
+        @DisplayName("zero depth")
+        class ZeroDepth {
 
             @Nested
             @DisplayName("equal type and message")
@@ -1951,18 +2033,18 @@ class ThrowableAssertionsTest {
                     Throwable expected = new IOException("error");
                     Throwable actual = new IOException("error");
 
-                    assertEqualTypeAndMessage(expected, actual);
+                    Throwable result = assertChainEquals(expected, actual, 0);
+                    assertNull(result);
                 }
 
-                @ParameterizedTest(name = "message: {0}")
-                @ValueSource(strings = "error")
-                @NullSource
+                @Test
                 @DisplayName("with message")
-                void testWithMessage(String message) {
+                void testWithMessage() {
                     Throwable expected = new IOException("error");
                     Throwable actual = new IOException("error");
 
-                    assertEqualTypeAndMessage(expected, actual, message);
+                    Throwable result = assertChainEquals(expected, actual, 0, "error");
+                    assertNull(result);
                 }
 
                 @Test
@@ -1971,7 +2053,8 @@ class ThrowableAssertionsTest {
                     Throwable expected = new IOException("error");
                     Throwable actual = new IOException("error");
 
-                    assertEqualTypeAndMessage(expected, actual, d -> "error" + d);
+                    Throwable result = assertChainEquals(expected, actual, 0, () -> "error");
+                    assertNull(result);
                 }
             }
 
@@ -1985,8 +2068,8 @@ class ThrowableAssertionsTest {
                     Throwable expected = new IOException("error");
                     Throwable actual = new FileNotFoundException("error");
 
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertEqualTypeAndMessage(expected, actual));
-                    assertEquals("expected: <java.io.IOException> but was: <java.io.FileNotFoundException>", error.getMessage());
+                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertChainEquals(expected, actual, 0));
+                    assertEquals("expected: <java.io.IOException(error)> but was: <java.io.FileNotFoundException(error)>", error.getMessage());
                 }
 
                 @Test
@@ -1995,19 +2078,9 @@ class ThrowableAssertionsTest {
                     Throwable expected = new IOException("error");
                     Throwable actual = new FileNotFoundException("error");
 
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertEqualTypeAndMessage(expected, actual, "error"));
-                    assertEquals("error ==> expected: <java.io.IOException> but was: <java.io.FileNotFoundException>", error.getMessage());
-                }
-
-                @Test
-                @DisplayName("with null message")
-                void testWithNullMessage() {
-                    Throwable expected = new IOException("error");
-                    Throwable actual = new FileNotFoundException("error");
-
-                    String message = null;
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertEqualTypeAndMessage(expected, actual, message));
-                    assertEquals("expected: <java.io.IOException> but was: <java.io.FileNotFoundException>", error.getMessage());
+                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertChainEquals(expected, actual, 0, "error"));
+                    assertEquals("error ==> expected: <java.io.IOException(error)> but was: <java.io.FileNotFoundException(error)>",
+                            error.getMessage());
                 }
 
                 @Test
@@ -2016,10 +2089,11 @@ class ThrowableAssertionsTest {
                     Throwable expected = new IOException("error");
                     Throwable actual = new FileNotFoundException("error");
 
-                    IntFunction<String> messageSupplier = d -> "error" + d;
+                    Supplier<String> messageSupplier = () -> "error";
                     AssertionFailedError error = assertThrows(AssertionFailedError.class,
-                            () -> assertEqualTypeAndMessage(expected, actual, messageSupplier));
-                    assertEquals("error0 ==> expected: <java.io.IOException> but was: <java.io.FileNotFoundException>", error.getMessage());
+                            () -> assertChainEquals(expected, actual, 0, messageSupplier));
+                    assertEquals("error ==> expected: <java.io.IOException(error)> but was: <java.io.FileNotFoundException(error)>",
+                            error.getMessage());
                 }
             }
 
@@ -2033,8 +2107,8 @@ class ThrowableAssertionsTest {
                     Throwable expected = new IOException("error");
                     Throwable actual = new IOException("error2");
 
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertEqualTypeAndMessage(expected, actual));
-                    assertEquals("expected: <error> but was: <error2>", error.getMessage());
+                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertChainEquals(expected, actual, 0));
+                    assertEquals("expected: <java.io.IOException(error)> but was: <java.io.IOException(error2)>", error.getMessage());
                 }
 
                 @Test
@@ -2043,19 +2117,8 @@ class ThrowableAssertionsTest {
                     Throwable expected = new IOException("error");
                     Throwable actual = new IOException("error2");
 
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertEqualTypeAndMessage(expected, actual, "error"));
-                    assertEquals("error ==> expected: <error> but was: <error2>", error.getMessage());
-                }
-
-                @Test
-                @DisplayName("with null message")
-                void testWithNullMessage() {
-                    Throwable expected = new IOException("error");
-                    Throwable actual = new IOException("error2");
-
-                    String message = null;
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertEqualTypeAndMessage(expected, actual, message));
-                    assertEquals("expected: <error> but was: <error2>", error.getMessage());
+                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertChainEquals(expected, actual, 0, "error"));
+                    assertEquals("error ==> expected: <java.io.IOException(error)> but was: <java.io.IOException(error2)>", error.getMessage());
                 }
 
                 @Test
@@ -2064,10 +2127,10 @@ class ThrowableAssertionsTest {
                     Throwable expected = new IOException("error");
                     Throwable actual = new IOException("error2");
 
-                    IntFunction<String> messageSupplier = d -> "error" + d;
+                    Supplier<String> messageSupplier = () -> "error";
                     AssertionFailedError error = assertThrows(AssertionFailedError.class,
-                            () -> assertEqualTypeAndMessage(expected, actual, messageSupplier));
-                    assertEquals("error0 ==> expected: <error> but was: <error2>", error.getMessage());
+                            () -> assertChainEquals(expected, actual, 0, messageSupplier));
+                    assertEquals("error ==> expected: <java.io.IOException(error)> but was: <java.io.IOException(error2)>", error.getMessage());
                 }
             }
 
@@ -2081,18 +2144,18 @@ class ThrowableAssertionsTest {
                     Throwable expected = new IOException("error");
                     Throwable actual = new IOException("error", expected);
 
-                    assertEqualTypeAndMessage(expected, actual);
+                    Throwable result = assertChainEquals(expected, actual, 0);
+                    assertSame(expected, result);
                 }
 
-                @ParameterizedTest(name = "message: {0}")
-                @ValueSource(strings = "error")
-                @NullSource
+                @Test
                 @DisplayName("with message")
-                void testWithMessage(String message) {
+                void testWithMessage() {
                     Throwable expected = new IOException("error");
                     Throwable actual = new IOException("error", expected);
 
-                    assertEqualTypeAndMessage(expected, actual, message);
+                    Throwable result = assertChainEquals(expected, actual, 0, "message");
+                    assertSame(expected, result);
                 }
 
                 @Test
@@ -2101,7 +2164,8 @@ class ThrowableAssertionsTest {
                     Throwable expected = new IOException("error");
                     Throwable actual = new IOException("error", expected);
 
-                    assertEqualTypeAndMessage(expected, actual, d -> "error" + d);
+                    Throwable result = assertChainEquals(expected, actual, 0, () -> "error");
+                    assertSame(expected, result);
                 }
             }
 
@@ -2114,8 +2178,8 @@ class ThrowableAssertionsTest {
                 void testWithoutMessageOrMessageSupplier() {
                     Throwable actual = new IOException("error");
 
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertEqualTypeAndMessage(null, actual));
-                    assertEquals("expected: <null> but was: <" + actual + ">", error.getMessage());
+                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertChainEquals(null, actual, 0));
+                    assertEquals("expected: <null> but was: <java.io.IOException(error)>", error.getMessage());
                 }
 
                 @Test
@@ -2123,18 +2187,8 @@ class ThrowableAssertionsTest {
                 void testWithMessage() {
                     Throwable actual = new IOException("error");
 
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertEqualTypeAndMessage(null, actual, "error"));
-                    assertEquals("error ==> expected: <null> but was: <" + actual + ">", error.getMessage());
-                }
-
-                @Test
-                @DisplayName("with null message")
-                void testWithNullMessage() {
-                    Throwable actual = new IOException("error");
-
-                    String message = null;
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertEqualTypeAndMessage(null, actual, message));
-                    assertEquals("expected: <null> but was: <" + actual + ">", error.getMessage());
+                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertChainEquals(null, actual, 0, "error"));
+                    assertEquals("error ==> expected: <null> but was: <java.io.IOException(error)>", error.getMessage());
                 }
 
                 @Test
@@ -2142,10 +2196,9 @@ class ThrowableAssertionsTest {
                 void testWithMessageSupplier() {
                     Throwable actual = new IOException("error");
 
-                    IntFunction<String> messageSupplier = d -> "error" + d;
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class,
-                            () -> assertEqualTypeAndMessage(null, actual, messageSupplier));
-                    assertEquals("error0 ==> expected: <null> but was: <" + actual + ">", error.getMessage());
+                    Supplier<String> messageSupplier = () -> "error";
+                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertChainEquals(null, actual, 0, messageSupplier));
+                    assertEquals("error ==> expected: <null> but was: <java.io.IOException(error)>", error.getMessage());
                 }
             }
 
@@ -2158,8 +2211,8 @@ class ThrowableAssertionsTest {
                 void testWithoutMessageOrMessageSupplier() {
                     Throwable expected = new IOException("error");
 
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertEqualTypeAndMessage(expected, null));
-                    assertEquals("expected: not <null>", error.getMessage());
+                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertChainEquals(expected, null, 0));
+                    assertEquals("expected: <java.io.IOException(error)> but was: <null>", error.getMessage());
                 }
 
                 @Test
@@ -2167,18 +2220,8 @@ class ThrowableAssertionsTest {
                 void testWithMessage() {
                     Throwable expected = new IOException("error");
 
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertEqualTypeAndMessage(expected, null, "error"));
-                    assertEquals("error ==> expected: not <null>", error.getMessage());
-                }
-
-                @Test
-                @DisplayName("with null message")
-                void testWithNullMessage() {
-                    Throwable expected = new IOException("error");
-
-                    String message = null;
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertEqualTypeAndMessage(expected, null, message));
-                    assertEquals("expected: not <null>", error.getMessage());
+                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertChainEquals(expected, null, 0, "error"));
+                    assertEquals("error ==> expected: <java.io.IOException(error)> but was: <null>", error.getMessage());
                 }
 
                 @Test
@@ -2186,10 +2229,10 @@ class ThrowableAssertionsTest {
                 void testWithMessageSupplier() {
                     Throwable expected = new IOException("error");
 
-                    IntFunction<String> messageSupplier = d -> "error" + d;
+                    Supplier<String> messageSupplier = () -> "error";
                     AssertionFailedError error = assertThrows(AssertionFailedError.class,
-                            () -> assertEqualTypeAndMessage(expected, null, messageSupplier));
-                    assertEquals("error0 ==> expected: not <null>", error.getMessage());
+                            () -> assertChainEquals(expected, null, 0, messageSupplier));
+                    assertEquals("error ==> expected: <java.io.IOException(error)> but was: <null>", error.getMessage());
                 }
             }
 
@@ -2200,27 +2243,28 @@ class ThrowableAssertionsTest {
                 @Test
                 @DisplayName("without message or message supplier")
                 void testWithoutMessageOrMessageSupplier() {
-                    assertEqualTypeAndMessage(null, null);
+                    Throwable result = assertChainEquals(null, null, 0);
+                    assertNull(result);
                 }
 
-                @ParameterizedTest(name = "message: {0}")
-                @ValueSource(strings = "error")
-                @NullSource
+                @Test
                 @DisplayName("with message")
-                void testWithMessage(String message) {
-                    assertEqualTypeAndMessage(null, null, message);
+                void testWithMessage() {
+                    Throwable result = assertChainEquals(null, null, 0, "error");
+                    assertNull(result);
                 }
 
                 @Test
                 @DisplayName("with message supplier")
                 void testWithMessageSupplier() {
-                    assertEqualTypeAndMessage(null, null, d -> "error" + d);
+                    Throwable result = assertChainEquals(null, null, 0, () -> "error");
+                    assertNull(result);
                 }
             }
         }
 
         @Nested
-        @DisplayName("non-0 depth")
+        @DisplayName("non-zero depth")
         class NonZeroDepth {
 
             @Nested
@@ -2230,25 +2274,23 @@ class ThrowableAssertionsTest {
                 @Test
                 @DisplayName("without message or message supplier")
                 void testWithoutMessageOrMessageSupplier() {
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertEqualTypeAndMessage(null, null, -1));
+                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertChainEquals(null, null, -1));
                     assertEquals("maxDepth must not be negative ==> expected: <true> but was: <false>", error.getMessage());
                 }
 
-                @ParameterizedTest(name = "message: {0}")
-                @ValueSource(strings = "error")
-                @NullSource
+                @Test
                 @DisplayName("with message")
-                void testWithMessage(String message) {
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertEqualTypeAndMessage(null, null, -1, message));
+                void testWithMessage() {
+                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertChainEquals(null, null, -1, "error"));
                     assertEquals("maxDepth must not be negative ==> expected: <true> but was: <false>", error.getMessage());
                 }
 
                 @Test
                 @DisplayName("with message supplier")
                 void testWithMessageSupplier() {
-                    IntFunction<String> messageSupplier = d -> "error" + d;
+                    Supplier<String> messageSupplier = () -> "error";
                     AssertionFailedError error = assertThrows(AssertionFailedError.class,
-                            () -> assertEqualTypeAndMessage(null, null, -1, messageSupplier));
+                            () -> assertChainEquals(null, null, -1, messageSupplier));
                     assertEquals("maxDepth must not be negative ==> expected: <true> but was: <false>", error.getMessage());
                 }
             }
@@ -2260,21 +2302,22 @@ class ThrowableAssertionsTest {
                 @Test
                 @DisplayName("without message or message supplier")
                 void testWithoutMessageOrMessageSupplier() {
-                    testNoException(5, 5);
+                    Throwable result = testNoException(3, 3);
+                    assertNull(result);
                 }
 
-                @ParameterizedTest(name = "message: {0}")
-                @ValueSource(strings = "error")
-                @NullSource
+                @Test
                 @DisplayName("with message")
-                void testWithMessage(String message) {
-                    testNoException(5, 5, message);
+                void testWithMessage() {
+                    Throwable result = testNoException(3, 3, "error");
+                    assertNull(result);
                 }
 
                 @Test
                 @DisplayName("with message supplier")
                 void testWithMessageSupplier() {
-                    testNoException(5, 5, d -> "error" + d);
+                    Throwable result = testNoException(3, 3, () -> "error");
+                    assertNull(result);
                 }
             }
 
@@ -2285,46 +2328,66 @@ class ThrowableAssertionsTest {
                 @Test
                 @DisplayName("without message or message supplier")
                 void testWithoutMessageOrMessageSupplier() {
-                    Throwable expected = createException(4, new IOException("error"));
-                    Throwable actual = createException(4, new FileNotFoundException("error"));
+                    Throwable expected = createException(2, new IOException("error"));
+                    Throwable actual = createException(2, new FileNotFoundException("error"));
 
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertEqualTypeAndMessage(expected, actual, 5));
-                    assertEquals("depth: 5 ==> expected: <java.io.IOException> but was: <java.io.FileNotFoundException>", error.getMessage());
+                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertChainEquals(expected, actual, 3));
+                    String expectedChainString = String.format("%s(%s) caused by %s(%s) caused by %s(%s) caused by %s(%s)",
+                            IOException.class.getName(), "depth: 0",
+                            IOException.class.getName(), "depth: 1",
+                            IOException.class.getName(), "depth: 2",
+                            IOException.class.getName(), "error");
+                    String actualChainString = String.format("%s(%s) caused by %s(%s) caused by %s(%s) caused by %s(%s)",
+                            IOException.class.getName(), "depth: 0",
+                            IOException.class.getName(), "depth: 1",
+                            IOException.class.getName(), "depth: 2",
+                            FileNotFoundException.class.getName(), "error");
+                    String expectedMessage = String.format("expected: <%s> but was: <%s>", expectedChainString, actualChainString);
+                    assertEquals(expectedMessage, error.getMessage());
                 }
 
                 @Test
                 @DisplayName("with message")
                 void testWithMessage() {
-                    Throwable expected = createException(4, new IOException("error"));
-                    Throwable actual = createException(4, new FileNotFoundException("error"));
+                    Throwable expected = createException(2, new IOException("error"));
+                    Throwable actual = createException(2, new FileNotFoundException("error"));
 
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class,
-                            () -> assertEqualTypeAndMessage(expected, actual, 5, "error"));
-                    assertEquals("error ==> expected: <java.io.IOException> but was: <java.io.FileNotFoundException>", error.getMessage());
-                }
-
-                @Test
-                @DisplayName("with null message")
-                void testWithNullMessage() {
-                    Throwable expected = createException(4, new IOException("error"));
-                    Throwable actual = createException(4, new FileNotFoundException("error"));
-
-                    String message = null;
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class,
-                            () -> assertEqualTypeAndMessage(expected, actual, 5, message));
-                    assertEquals("expected: <java.io.IOException> but was: <java.io.FileNotFoundException>", error.getMessage());
+                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertChainEquals(expected, actual, 3, "error"));
+                    String expectedChainString = String.format("%s(%s) caused by %s(%s) caused by %s(%s) caused by %s(%s)",
+                            IOException.class.getName(), "depth: 0",
+                            IOException.class.getName(), "depth: 1",
+                            IOException.class.getName(), "depth: 2",
+                            IOException.class.getName(), "error");
+                    String actualChainString = String.format("%s(%s) caused by %s(%s) caused by %s(%s) caused by %s(%s)",
+                            IOException.class.getName(), "depth: 0",
+                            IOException.class.getName(), "depth: 1",
+                            IOException.class.getName(), "depth: 2",
+                            FileNotFoundException.class.getName(), "error");
+                    String expectedMessage = String.format("error ==> expected: <%s> but was: <%s>", expectedChainString, actualChainString);
+                    assertEquals(expectedMessage, error.getMessage());
                 }
 
                 @Test
                 @DisplayName("with message supplier")
                 void testWithMessageSupplier() {
-                    Throwable expected = createException(4, new IOException("error"));
-                    Throwable actual = createException(4, new FileNotFoundException("error"));
+                    Throwable expected = createException(2, new IOException("error"));
+                    Throwable actual = createException(2, new FileNotFoundException("error"));
 
-                    IntFunction<String> messageSupplier = d -> "error" + d;
+                    Supplier<String> messageSupplier = () -> "error";
                     AssertionFailedError error = assertThrows(AssertionFailedError.class,
-                            () -> assertEqualTypeAndMessage(expected, actual, 5, messageSupplier));
-                    assertEquals("error5 ==> expected: <java.io.IOException> but was: <java.io.FileNotFoundException>", error.getMessage());
+                            () -> assertChainEquals(expected, actual, 3, messageSupplier));
+                    String expectedChainString = String.format("%s(%s) caused by %s(%s) caused by %s(%s) caused by %s(%s)",
+                            IOException.class.getName(), "depth: 0",
+                            IOException.class.getName(), "depth: 1",
+                            IOException.class.getName(), "depth: 2",
+                            IOException.class.getName(), "error");
+                    String actualChainString = String.format("%s(%s) caused by %s(%s) caused by %s(%s) caused by %s(%s)",
+                            IOException.class.getName(), "depth: 0",
+                            IOException.class.getName(), "depth: 1",
+                            IOException.class.getName(), "depth: 2",
+                            FileNotFoundException.class.getName(), "error");
+                    String expectedMessage = String.format("error ==> expected: <%s> but was: <%s>", expectedChainString, actualChainString);
+                    assertEquals(expectedMessage, error.getMessage());
                 }
             }
 
@@ -2335,30 +2398,34 @@ class ThrowableAssertionsTest {
                 @Test
                 @DisplayName("without message or message supplier")
                 void testWithoutMessageOrMessageSupplier() {
-                    Throwable expected = createException(5, new IOException("error"));
-                    Throwable actual = createException(5, new FileNotFoundException("error"));
+                    Throwable expected = createException(3, new IOException("error"));
+                    Throwable rootCause = new FileNotFoundException("error");
+                    Throwable actual = createException(3, rootCause);
 
-                    assertEqualTypeAndMessage(expected, actual, 5);
+                    Throwable result = assertChainEquals(expected, actual, 3);
+                    assertSame(rootCause, result);
                 }
 
-                @ParameterizedTest(name = "message: {0}")
-                @ValueSource(strings = "error")
-                @NullSource
+                @Test
                 @DisplayName("with message")
-                void testWithMessage(String message) {
-                    Throwable expected = createException(5, new IOException("error"));
-                    Throwable actual = createException(5, new FileNotFoundException("error"));
+                void testWithMessage() {
+                    Throwable expected = createException(3, new IOException("error"));
+                    Throwable rootCause = new FileNotFoundException("error");
+                    Throwable actual = createException(3, rootCause);
 
-                    assertEqualTypeAndMessage(expected, actual, 5, message);
+                    Throwable result = assertChainEquals(expected, actual, 3, "error");
+                    assertSame(rootCause, result);
                 }
 
                 @Test
                 @DisplayName("with message supplier")
                 void testWithMessageSupplier() {
-                    Throwable expected = createException(5, new IOException("error"));
-                    Throwable actual = createException(5, new FileNotFoundException("error"));
+                    Throwable expected = createException(3, new IOException("error"));
+                    Throwable rootCause = new FileNotFoundException("error");
+                    Throwable actual = createException(3, rootCause);
 
-                    assertEqualTypeAndMessage(expected, actual, 5, d -> "error" + d);
+                    Throwable result = assertChainEquals(expected, actual, 3, () -> "error");
+                    assertSame(rootCause, result);
                 }
             }
 
@@ -2369,46 +2436,66 @@ class ThrowableAssertionsTest {
                 @Test
                 @DisplayName("without message or message supplier")
                 void testWithoutMessageOrMessageSupplier() {
-                    Throwable expected = createException(4, new IOException("error"));
-                    Throwable actual = createException(4, new IOException("error2"));
+                    Throwable expected = createException(2, new IOException("error"));
+                    Throwable actual = createException(2, new IOException("error2"));
 
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertEqualTypeAndMessage(expected, actual, 5));
-                    assertEquals("depth: 5 ==> expected: <error> but was: <error2>", error.getMessage());
+                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertChainEquals(expected, actual, 3));
+                    String expectedChainString = String.format("%s(%s) caused by %s(%s) caused by %s(%s) caused by %s(%s)",
+                            IOException.class.getName(), "depth: 0",
+                            IOException.class.getName(), "depth: 1",
+                            IOException.class.getName(), "depth: 2",
+                            IOException.class.getName(), "error");
+                    String actualChainString = String.format("%s(%s) caused by %s(%s) caused by %s(%s) caused by %s(%s)",
+                            IOException.class.getName(), "depth: 0",
+                            IOException.class.getName(), "depth: 1",
+                            IOException.class.getName(), "depth: 2",
+                            IOException.class.getName(), "error2");
+                    String expectedMessage = String.format("expected: <%s> but was: <%s>", expectedChainString, actualChainString);
+                    assertEquals(expectedMessage, error.getMessage());
                 }
 
                 @Test
                 @DisplayName("with message")
                 void testWithMessage() {
-                    Throwable expected = createException(4, new IOException("error"));
-                    Throwable actual = createException(4, new IOException("error2"));
+                    Throwable expected = createException(2, new IOException("error"));
+                    Throwable actual = createException(2, new IOException("error2"));
 
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class,
-                            () -> assertEqualTypeAndMessage(expected, actual, 5, "error"));
-                    assertEquals("error ==> expected: <error> but was: <error2>", error.getMessage());
-                }
-
-                @Test
-                @DisplayName("with null message")
-                void testWithNullMessage() {
-                    Throwable expected = createException(4, new IOException("error"));
-                    Throwable actual = createException(4, new IOException("error2"));
-
-                    String message = null;
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class,
-                            () -> assertEqualTypeAndMessage(expected, actual, 5, message));
-                    assertEquals("expected: <error> but was: <error2>", error.getMessage());
+                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertChainEquals(expected, actual, 3, "error"));
+                    String expectedChainString = String.format("%s(%s) caused by %s(%s) caused by %s(%s) caused by %s(%s)",
+                            IOException.class.getName(), "depth: 0",
+                            IOException.class.getName(), "depth: 1",
+                            IOException.class.getName(), "depth: 2",
+                            IOException.class.getName(), "error");
+                    String actualChainString = String.format("%s(%s) caused by %s(%s) caused by %s(%s) caused by %s(%s)",
+                            IOException.class.getName(), "depth: 0",
+                            IOException.class.getName(), "depth: 1",
+                            IOException.class.getName(), "depth: 2",
+                            IOException.class.getName(), "error2");
+                    String expectedMessage = String.format("error ==> expected: <%s> but was: <%s>", expectedChainString, actualChainString);
+                    assertEquals(expectedMessage, error.getMessage());
                 }
 
                 @Test
                 @DisplayName("with message supplier")
                 void testWithMessageSupplier() {
-                    Throwable expected = createException(4, new IOException("error"));
-                    Throwable actual = createException(4, new IOException("error2"));
+                    Throwable expected = createException(2, new IOException("error"));
+                    Throwable actual = createException(2, new IOException("error2"));
 
-                    IntFunction<String> messageSupplier = d -> "error" + d;
+                    Supplier<String> messageSupplier = () -> "error";
                     AssertionFailedError error = assertThrows(AssertionFailedError.class,
-                            () -> assertEqualTypeAndMessage(expected, actual, 5, messageSupplier));
-                    assertEquals("error5 ==> expected: <error> but was: <error2>", error.getMessage());
+                            () -> assertChainEquals(expected, actual, 3, messageSupplier));
+                    String expectedChainString = String.format("%s(%s) caused by %s(%s) caused by %s(%s) caused by %s(%s)",
+                            IOException.class.getName(), "depth: 0",
+                            IOException.class.getName(), "depth: 1",
+                            IOException.class.getName(), "depth: 2",
+                            IOException.class.getName(), "error");
+                    String actualChainString = String.format("%s(%s) caused by %s(%s) caused by %s(%s) caused by %s(%s)",
+                            IOException.class.getName(), "depth: 0",
+                            IOException.class.getName(), "depth: 1",
+                            IOException.class.getName(), "depth: 2",
+                            IOException.class.getName(), "error2");
+                    String expectedMessage = String.format("error ==> expected: <%s> but was: <%s>", expectedChainString, actualChainString);
+                    assertEquals(expectedMessage, error.getMessage());
                 }
             }
 
@@ -2419,30 +2506,34 @@ class ThrowableAssertionsTest {
                 @Test
                 @DisplayName("without message or message supplier")
                 void testWithoutMessageOrMessageSupplier() {
-                    Throwable expected = createException(5, new IOException("error"));
-                    Throwable actual = createException(5, new IOException("erro2"));
+                    Throwable expected = createException(3, new IOException("error"));
+                    Throwable rootCause = new IOException("error2");
+                    Throwable actual = createException(3, rootCause);
 
-                    assertEqualTypeAndMessage(expected, actual, 5);
+                    Throwable result = assertChainEquals(expected, actual, 3);
+                    assertSame(rootCause, result);
                 }
 
-                @ParameterizedTest(name = "message: {0}")
-                @ValueSource(strings = "error")
-                @NullSource
+                @Test
                 @DisplayName("with message")
-                void testWithMessage(String message) {
-                    Throwable expected = createException(5, new IOException("error"));
-                    Throwable actual = createException(5, new IOException("erro2"));
+                void testWithMessage() {
+                    Throwable expected = createException(3, new IOException("error"));
+                    Throwable rootCause = new IOException("error2");
+                    Throwable actual = createException(3, rootCause);
 
-                    assertEqualTypeAndMessage(expected, actual, 5, message);
+                    Throwable result = assertChainEquals(expected, actual, 3, "error");
+                    assertSame(rootCause, result);
                 }
 
                 @Test
                 @DisplayName("with message supplier")
                 void testWithMessageSupplier() {
-                    Throwable expected = createException(5, new IOException("error"));
-                    Throwable actual = createException(5, new IOException("erro2"));
+                    Throwable expected = createException(3, new IOException("error"));
+                    Throwable rootCause = new IOException("error2");
+                    Throwable actual = createException(3, rootCause);
 
-                    assertEqualTypeAndMessage(expected, actual, 5, d -> "error" + d);
+                    Throwable result = assertChainEquals(expected, actual, 3, () -> "error");
+                    assertSame(rootCause, result);
                 }
             }
 
@@ -2453,50 +2544,63 @@ class ThrowableAssertionsTest {
                 @Test
                 @DisplayName("without message or message supplier")
                 void testWithoutMessageOrMessageSupplier() {
-                    Throwable expected = createException(4);
-                    Throwable rootCause = new IOException("root");
-                    Throwable actual = createException(4, rootCause);
+                    Throwable expected = createException(2);
+                    Throwable actual = createException(2, new IOException("root"));
 
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertEqualTypeAndMessage(expected, actual, 5));
-                    assertEquals("depth: 5 ==> expected: <null> but was: <" + rootCause + ">", error.getMessage());
+                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertChainEquals(expected, actual, 3));
+                    String expectedChainString = String.format("%s(%s) caused by %s(%s) caused by %s(%s)",
+                            IOException.class.getName(), "depth: 0",
+                            IOException.class.getName(), "depth: 1",
+                            IOException.class.getName(), "depth: 2");
+                    String actualChainString = String.format("%s(%s) caused by %s(%s) caused by %s(%s) caused by %s(%s)",
+                            IOException.class.getName(), "depth: 0",
+                            IOException.class.getName(), "depth: 1",
+                            IOException.class.getName(), "depth: 2",
+                            IOException.class.getName(), "root");
+                    String expectedMessage = String.format("expected: <%s> but was: <%s>", expectedChainString, actualChainString);
+                    assertEquals(expectedMessage, error.getMessage());
                 }
 
                 @Test
                 @DisplayName("with message")
                 void testWithMessage() {
-                    Throwable expected = createException(4);
-                    Throwable rootCause = new IOException("root");
-                    Throwable actual = createException(4, rootCause);
+                    Throwable expected = createException(2);
+                    Throwable actual = createException(2, new IOException("root"));
 
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class,
-                            () -> assertEqualTypeAndMessage(expected, actual, 5, "error"));
-                    assertEquals("error ==> expected: <null> but was: <" + rootCause + ">", error.getMessage());
-                }
-
-                @Test
-                @DisplayName("with null message")
-                void testWithNullMessage() {
-                    Throwable expected = createException(4);
-                    Throwable rootCause = new IOException("root");
-                    Throwable actual = createException(4, rootCause);
-
-                    String message = null;
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class,
-                            () -> assertEqualTypeAndMessage(expected, actual, 5, message));
-                    assertEquals("expected: <null> but was: <" + rootCause + ">", error.getMessage());
+                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertChainEquals(expected, actual, 3, "error"));
+                    String expectedChainString = String.format("%s(%s) caused by %s(%s) caused by %s(%s)",
+                            IOException.class.getName(), "depth: 0",
+                            IOException.class.getName(), "depth: 1",
+                            IOException.class.getName(), "depth: 2");
+                    String actualChainString = String.format("%s(%s) caused by %s(%s) caused by %s(%s) caused by %s(%s)",
+                            IOException.class.getName(), "depth: 0",
+                            IOException.class.getName(), "depth: 1",
+                            IOException.class.getName(), "depth: 2",
+                            IOException.class.getName(), "root");
+                    String expectedMessage = String.format("error ==> expected: <%s> but was: <%s>", expectedChainString, actualChainString);
+                    assertEquals(expectedMessage, error.getMessage());
                 }
 
                 @Test
                 @DisplayName("with message supplier")
                 void testWithMessageSupplier() {
-                    Throwable expected = createException(4);
-                    Throwable rootCause = new IOException("root");
-                    Throwable actual = createException(4, rootCause);
+                    Throwable expected = createException(2);
+                    Throwable actual = createException(2, new IOException("root"));
 
-                    IntFunction<String> messageSupplier = d -> "error" + d;
+                    Supplier<String> messageSupplier = () -> "error";
                     AssertionFailedError error = assertThrows(AssertionFailedError.class,
-                            () -> assertEqualTypeAndMessage(expected, actual, 5, messageSupplier));
-                    assertEquals("error5 ==> expected: <null> but was: <" + rootCause + ">", error.getMessage());
+                            () -> assertChainEquals(expected, actual, 3, messageSupplier));
+                    String expectedChainString = String.format("%s(%s) caused by %s(%s) caused by %s(%s)",
+                            IOException.class.getName(), "depth: 0",
+                            IOException.class.getName(), "depth: 1",
+                            IOException.class.getName(), "depth: 2");
+                    String actualChainString = String.format("%s(%s) caused by %s(%s) caused by %s(%s) caused by %s(%s)",
+                            IOException.class.getName(), "depth: 0",
+                            IOException.class.getName(), "depth: 1",
+                            IOException.class.getName(), "depth: 2",
+                            IOException.class.getName(), "root");
+                    String expectedMessage = String.format("error ==> expected: <%s> but was: <%s>", expectedChainString, actualChainString);
+                    assertEquals(expectedMessage, error.getMessage());
                 }
             }
 
@@ -2507,21 +2611,25 @@ class ThrowableAssertionsTest {
                 @Test
                 @DisplayName("without message or message supplier")
                 void testWithoutMessageOrMessageSupplier() {
-                    testNoException(5, 6);
+                    Throwable result = testNoException(3, 4);
+                    assertInstanceOf(IOException.class, result);
+                    assertEquals("depth: 4", result.getMessage());
                 }
 
-                @ParameterizedTest(name = "message: {0}")
-                @ValueSource(strings = "error")
-                @NullSource
+                @Test
                 @DisplayName("with message")
-                void testWithMessage(String message) {
-                    testNoException(5, 6, message);
+                void testWithMessage() {
+                    Throwable result = testNoException(3, 4, "error");
+                    assertInstanceOf(IOException.class, result);
+                    assertEquals("depth: 4", result.getMessage());
                 }
 
                 @Test
                 @DisplayName("with message supplier")
                 void testWithMessageSupplier() {
-                    testNoException(5, 6, d -> "error" + d);
+                    Throwable result = testNoException(3, 4, () -> "error");
+                    assertInstanceOf(IOException.class, result);
+                    assertEquals("depth: 4", result.getMessage());
                 }
             }
 
@@ -2532,46 +2640,63 @@ class ThrowableAssertionsTest {
                 @Test
                 @DisplayName("without message or message supplier")
                 void testWithoutMessageOrMessageSupplier() {
-                    Throwable expected = createException(5);
-                    Throwable actual = createException(4);
+                    Throwable expected = createException(3);
+                    Throwable actual = createException(2);
 
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertEqualTypeAndMessage(expected, actual, 5));
-                    assertEquals("depth: 5 ==> expected: not <null>", error.getMessage());
+                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertChainEquals(expected, actual, 3));
+                    String expectedChainString = String.format("%s(%s) caused by %s(%s) caused by %s(%s) caused by %s(%s)",
+                            IOException.class.getName(), "depth: 0",
+                            IOException.class.getName(), "depth: 1",
+                            IOException.class.getName(), "depth: 2",
+                            IOException.class.getName(), "depth: 3");
+                    String actualChainString = String.format("%s(%s) caused by %s(%s) caused by %s(%s)",
+                            IOException.class.getName(), "depth: 0",
+                            IOException.class.getName(), "depth: 1",
+                            IOException.class.getName(), "depth: 2");
+                    String expectedMessage = String.format("expected: <%s> but was: <%s>", expectedChainString, actualChainString);
+                    assertEquals(expectedMessage, error.getMessage());
                 }
 
                 @Test
                 @DisplayName("with message")
                 void testWithMessage() {
-                    Throwable expected = createException(5);
-                    Throwable actual = createException(4);
+                    Throwable expected = createException(3);
+                    Throwable actual = createException(2);
 
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class,
-                            () -> assertEqualTypeAndMessage(expected, actual, 5, "error"));
-                    assertEquals("error ==> expected: not <null>", error.getMessage());
-                }
-
-                @Test
-                @DisplayName("with null message")
-                void testWithNullMessage() {
-                    Throwable expected = createException(5);
-                    Throwable actual = createException(4);
-
-                    String message = null;
-                    AssertionFailedError error = assertThrows(AssertionFailedError.class,
-                            () -> assertEqualTypeAndMessage(expected, actual, 5, message));
-                    assertEquals("expected: not <null>", error.getMessage());
+                    AssertionFailedError error = assertThrows(AssertionFailedError.class, () -> assertChainEquals(expected, actual, 3, "error"));
+                    String expectedChainString = String.format("%s(%s) caused by %s(%s) caused by %s(%s) caused by %s(%s)",
+                            IOException.class.getName(), "depth: 0",
+                            IOException.class.getName(), "depth: 1",
+                            IOException.class.getName(), "depth: 2",
+                            IOException.class.getName(), "depth: 3");
+                    String actualChainString = String.format("%s(%s) caused by %s(%s) caused by %s(%s)",
+                            IOException.class.getName(), "depth: 0",
+                            IOException.class.getName(), "depth: 1",
+                            IOException.class.getName(), "depth: 2");
+                    String expectedMessage = String.format("error ==> expected: <%s> but was: <%s>", expectedChainString, actualChainString);
+                    assertEquals(expectedMessage, error.getMessage());
                 }
 
                 @Test
                 @DisplayName("with message supplier")
                 void testWithMessageSupplier() {
-                    Throwable expected = createException(5);
-                    Throwable actual = createException(4);
+                    Throwable expected = createException(3);
+                    Throwable actual = createException(2);
 
-                    IntFunction<String> messageSupplier = d -> "error" + d;
+                    Supplier<String> messageSupplier = () -> "error";
                     AssertionFailedError error = assertThrows(AssertionFailedError.class,
-                            () -> assertEqualTypeAndMessage(expected, actual, 5, messageSupplier));
-                    assertEquals("error5 ==> expected: not <null>", error.getMessage());
+                            () -> assertChainEquals(expected, actual, 3, messageSupplier));
+                    String expectedChainString = String.format("%s(%s) caused by %s(%s) caused by %s(%s) caused by %s(%s)",
+                            IOException.class.getName(), "depth: 0",
+                            IOException.class.getName(), "depth: 1",
+                            IOException.class.getName(), "depth: 2",
+                            IOException.class.getName(), "depth: 3");
+                    String actualChainString = String.format("%s(%s) caused by %s(%s) caused by %s(%s)",
+                            IOException.class.getName(), "depth: 0",
+                            IOException.class.getName(), "depth: 1",
+                            IOException.class.getName(), "depth: 2");
+                    String expectedMessage = String.format("error ==> expected: <%s> but was: <%s>", expectedChainString, actualChainString);
+                    assertEquals(expectedMessage, error.getMessage());
                 }
             }
 
@@ -2582,21 +2707,22 @@ class ThrowableAssertionsTest {
                 @Test
                 @DisplayName("without message or message supplier")
                 void testWithoutMessageOrMessageSupplier() {
-                    testNoException(6, 5);
+                    Throwable result = testNoException(4, 3);
+                    assertNull(result);
                 }
 
-                @ParameterizedTest(name = "message: {0}")
-                @ValueSource(strings = "error")
-                @NullSource
+                @Test
                 @DisplayName("with message")
-                void testWithMessage(String message) {
-                    testNoException(6, 5, message);
+                void testWithMessage() {
+                    Throwable result = testNoException(4, 3, "error");
+                    assertNull(result);
                 }
 
                 @Test
                 @DisplayName("with message supplier")
                 void testWithMessageSupplier() {
-                    testNoException(6, 5, d -> "error" + d);
+                    Throwable result = testNoException(4, 3, () -> "error");
+                    assertNull(result);
                 }
             }
 
@@ -2607,57 +2733,58 @@ class ThrowableAssertionsTest {
                 @Test
                 @DisplayName("without message or message supplier")
                 void testWithoutMessageOrMessageSupplier() {
-                    testNoException(4, 4);
+                    Throwable result = testNoException(2, 2);
+                    assertNull(result);
                 }
 
-                @ParameterizedTest(name = "message: {0}")
-                @ValueSource(strings = "error")
-                @NullSource
+                @Test
                 @DisplayName("with message")
-                void testWithMessage(String message) {
-                    testNoException(4, 4, message);
+                void testWithMessage() {
+                    Throwable result = testNoException(2, 2, "error");
+                    assertNull(result);
                 }
 
                 @Test
                 @DisplayName("with message supplier")
                 void testWithMessageSupplier() {
-                    testNoException(4, 4, d -> "error" + d);
+                    Throwable result = testNoException(2, 2, () -> "error");
+                    assertNull(result);
                 }
             }
 
-            private void testNoException(int expectedCauses, int actualCauses) {
+            private Throwable testNoException(int expectedCauses, int actualCauses) {
                 Throwable expected = createException(expectedCauses);
                 Throwable actual = createException(actualCauses);
 
-                assertEqualTypeAndMessage(expected, actual, 5);
+                return assertChainEquals(expected, actual, 3);
             }
 
-            private void testNoException(int expectedCauses, int actualCauses, String message) {
+            private Throwable testNoException(int expectedCauses, int actualCauses, String message) {
                 Throwable expected = createException(expectedCauses);
                 Throwable actual = createException(actualCauses);
 
-                assertEqualTypeAndMessage(expected, actual, 5, message);
+                return assertChainEquals(expected, actual, 3, message);
             }
 
-            private void testNoException(int expectedCauses, int actualCauses, IntFunction<String> messageSupplier) {
+            private Throwable testNoException(int expectedCauses, int actualCauses, Supplier<String> messageSupplier) {
                 Throwable expected = createException(expectedCauses);
                 Throwable actual = createException(actualCauses);
 
-                assertEqualTypeAndMessage(expected, actual, 5, messageSupplier);
+                return assertChainEquals(expected, actual, 3, messageSupplier);
             }
+        }
 
-            private Throwable createException(int causes) {
-                return createException(causes, null);
-            }
+        private Throwable createException(int causes) {
+            return createException(causes, null);
+        }
 
-            private Throwable createException(int causes, Throwable rootCause) {
-                return createException(0, causes, rootCause);
-            }
+        private Throwable createException(int causes, Throwable rootCause) {
+            return createException(0, causes, rootCause);
+        }
 
-            private Throwable createException(int depth, int causes, Throwable rootCause) {
-                Throwable cause = causes == 0 ? rootCause : createException(depth + 1, causes - 1, rootCause);
-                return new IOException("depth: " + depth, cause);
-            }
+        private Throwable createException(int depth, int causes, Throwable rootCause) {
+            Throwable cause = causes == 0 ? rootCause : createException(depth + 1, causes - 1, rootCause);
+            return new IOException("depth: " + depth, cause);
         }
     }
 
