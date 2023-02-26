@@ -64,8 +64,8 @@
   <properties>
     <version.commons-io>2.11.0</version.commons-io>
     <version.io-functions>2.0</version.io-functions>
-    <version.junit-testkit>1.9.1</version.junit-testkit>
-    <version.log4j>2.19.0</version.log4j>
+    <version.junit-testkit>1.9.2</version.junit-testkit>
+    <version.log4j>2.20.0</version.log4j>
     <!-- Don't use higher versions, those require Java 11 -->
     <version.logback>1.2.11</version.logback>
     <version.pioneer>1.9.1</version.pioneer>
