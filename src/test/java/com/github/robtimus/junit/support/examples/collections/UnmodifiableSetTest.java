@@ -28,14 +28,12 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
-import com.github.robtimus.junit.support.test.collections.SetTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableIteratorTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableSetTests;
 import com.github.robtimus.junit.support.test.collections.CollectionTests.ContainsAllTests;
 import com.github.robtimus.junit.support.test.collections.CollectionTests.ContainsTests;
 import com.github.robtimus.junit.support.test.collections.CollectionTests.ToArrayTests;
 import com.github.robtimus.junit.support.test.collections.CollectionTests.ToObjectArrayTests;
 import com.github.robtimus.junit.support.test.collections.IterableTests.ForEachTests;
+import com.github.robtimus.junit.support.test.collections.SetTests;
 import com.github.robtimus.junit.support.test.collections.SetTests.EqualsTests;
 import com.github.robtimus.junit.support.test.collections.SetTests.HashCodeTests;
 import com.github.robtimus.junit.support.test.collections.UnmodifiableCollectionTests.AddAllTests;
@@ -45,6 +43,8 @@ import com.github.robtimus.junit.support.test.collections.UnmodifiableCollection
 import com.github.robtimus.junit.support.test.collections.UnmodifiableCollectionTests.RemoveIfTests;
 import com.github.robtimus.junit.support.test.collections.UnmodifiableCollectionTests.RemoveTests;
 import com.github.robtimus.junit.support.test.collections.UnmodifiableCollectionTests.RetainAllTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableIteratorTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableSetTests;
 
 class UnmodifiableSetTest {
 

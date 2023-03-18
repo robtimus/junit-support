@@ -29,8 +29,6 @@ import java.util.TreeSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
-import com.github.robtimus.junit.support.test.collections.IteratorTests;
-import com.github.robtimus.junit.support.test.collections.SetTests;
 import com.github.robtimus.junit.support.test.collections.CollectionTests.ClearTests;
 import com.github.robtimus.junit.support.test.collections.CollectionTests.ContainsAllTests;
 import com.github.robtimus.junit.support.test.collections.CollectionTests.ContainsTests;
@@ -41,6 +39,8 @@ import com.github.robtimus.junit.support.test.collections.CollectionTests.Retain
 import com.github.robtimus.junit.support.test.collections.CollectionTests.ToArrayTests;
 import com.github.robtimus.junit.support.test.collections.CollectionTests.ToObjectArrayTests;
 import com.github.robtimus.junit.support.test.collections.IterableTests.ForEachTests;
+import com.github.robtimus.junit.support.test.collections.IteratorTests;
+import com.github.robtimus.junit.support.test.collections.SetTests;
 import com.github.robtimus.junit.support.test.collections.SetTests.AddAllTests;
 import com.github.robtimus.junit.support.test.collections.SetTests.AddTests;
 import com.github.robtimus.junit.support.test.collections.SetTests.EqualsTests;

@@ -29,10 +29,6 @@ import java.util.function.UnaryOperator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
-import com.github.robtimus.junit.support.test.collections.IteratorTests;
-import com.github.robtimus.junit.support.test.collections.ListIteratorTests;
-import com.github.robtimus.junit.support.test.collections.ListTests;
-import com.github.robtimus.junit.support.test.collections.UnmodifiableListIteratorTests;
 import com.github.robtimus.junit.support.test.collections.CollectionTests.ClearTests;
 import com.github.robtimus.junit.support.test.collections.CollectionTests.ContainsAllTests;
 import com.github.robtimus.junit.support.test.collections.CollectionTests.ContainsTests;
@@ -43,6 +39,9 @@ import com.github.robtimus.junit.support.test.collections.CollectionTests.Retain
 import com.github.robtimus.junit.support.test.collections.CollectionTests.ToArrayTests;
 import com.github.robtimus.junit.support.test.collections.CollectionTests.ToObjectArrayTests;
 import com.github.robtimus.junit.support.test.collections.IterableTests.ForEachTests;
+import com.github.robtimus.junit.support.test.collections.IteratorTests;
+import com.github.robtimus.junit.support.test.collections.ListIteratorTests;
+import com.github.robtimus.junit.support.test.collections.ListTests;
 import com.github.robtimus.junit.support.test.collections.ListTests.EqualsTests;
 import com.github.robtimus.junit.support.test.collections.ListTests.GetTests;
 import com.github.robtimus.junit.support.test.collections.ListTests.HashCodeTests;
@@ -52,6 +51,7 @@ import com.github.robtimus.junit.support.test.collections.ListTests.ListIterator
 import com.github.robtimus.junit.support.test.collections.ListTests.SubListTests;
 import com.github.robtimus.junit.support.test.collections.UnmodifiableCollectionTests.AddAllTests;
 import com.github.robtimus.junit.support.test.collections.UnmodifiableCollectionTests.AddTests;
+import com.github.robtimus.junit.support.test.collections.UnmodifiableListIteratorTests;
 import com.github.robtimus.junit.support.test.collections.UnmodifiableListTests.AddAllIndexedTests;
 import com.github.robtimus.junit.support.test.collections.UnmodifiableListTests.AddIndexedTests;
 import com.github.robtimus.junit.support.test.collections.UnmodifiableListTests.RemoveIndexedTests;
