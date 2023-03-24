@@ -309,9 +309,8 @@ class UnmodifiableMapTest {
 
                 @Override
                 public boolean hasFailFastNullCheck() {
-                    // Since Java 11, iterator.forEachRemaining does not perform a null check.
-                    // JRE.OTHER is larger than any other JRE; when the null check is added and released, the upper bound should be fixed
-                    return !EnumSet.range(JRE.JAVA_11, JRE.OTHER).contains(JRE.currentVersion());
+                    // Since Java 11, iterator.forEachRemaining does not perform a null check. This has been fixed in Java 20.
+                    return !EnumSet.range(JRE.JAVA_11, JRE.JAVA_19).contains(JRE.currentVersion());
                 }
             }
         }
