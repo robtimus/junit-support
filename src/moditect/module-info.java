@@ -31,7 +31,9 @@ module com.github.robtimus.junit.support {
     requires static org.slf4j;
 
     exports com.github.robtimus.junit.support;
+    exports com.github.robtimus.junit.support.concurrent;
     exports com.github.robtimus.junit.support.extension;
+    exports com.github.robtimus.junit.support.extension.testlogger;
     exports com.github.robtimus.junit.support.extension.testresource;
     exports com.github.robtimus.junit.support.params;
     exports com.github.robtimus.junit.support.test;
