@@ -220,7 +220,7 @@ class TestResourceLoadersTest {
         @Test
         @DisplayName("toString(Reader)")
         void testToString() {
-            IOException exception = new IOException();
+            Exception exception = new IOException();
 
             @SuppressWarnings("resource")
             Reader reader = new BrokenReader(exception);
@@ -233,7 +233,7 @@ class TestResourceLoadersTest {
         @Test
         @DisplayName("toString(Reader, String)")
         void testToStringWithLineSeparator() {
-            IOException exception = new IOException();
+            Exception exception = new IOException();
 
             @SuppressWarnings("resource")
             Reader reader = new BrokenReader(exception);
@@ -246,7 +246,7 @@ class TestResourceLoadersTest {
         @Test
         @DisplayName("toStringBuilder(Reader)")
         void testToStringBuilder() {
-            IOException exception = new IOException();
+            Exception exception = new IOException();
 
             @SuppressWarnings("resource")
             Reader reader = new BrokenReader(exception);
@@ -259,7 +259,7 @@ class TestResourceLoadersTest {
         @Test
         @DisplayName("toStringBuilder(Reader, String)")
         void testToStringBuilderWithLineSeparator() {
-            IOException exception = new IOException();
+            Exception exception = new IOException();
 
             @SuppressWarnings("resource")
             Reader reader = new BrokenReader(exception);
@@ -272,7 +272,7 @@ class TestResourceLoadersTest {
         @Test
         @DisplayName("toCharSequence(Reader)")
         void testToCharSequence() {
-            IOException exception = new IOException();
+            Exception exception = new IOException();
 
             @SuppressWarnings("resource")
             Reader reader = new BrokenReader(exception);
@@ -285,7 +285,7 @@ class TestResourceLoadersTest {
         @Test
         @DisplayName("toCharSequence(Reader, String)")
         void testToCharSequenceWithLineSeparator() {
-            IOException exception = new IOException();
+            Exception exception = new IOException();
 
             @SuppressWarnings("resource")
             Reader reader = new BrokenReader(exception);
@@ -298,7 +298,7 @@ class TestResourceLoadersTest {
         @Test
         @DisplayName("toBytes(InputStream)")
         void testToBytes() {
-            IOException exception = new IOException();
+            Exception exception = new IOException();
 
             @SuppressWarnings("resource")
             InputStream inputStream = new BrokenInputStream(exception);
@@ -311,7 +311,7 @@ class TestResourceLoadersTest {
         @Test
         @DisplayName("toLines(Reader)")
         void testToLines() {
-            IOException exception = new IOException();
+            Exception exception = new IOException();
 
             @SuppressWarnings("resource")
             Reader reader = new BrokenReader(exception);
@@ -324,7 +324,7 @@ class TestResourceLoadersTest {
         @Test
         @DisplayName("toLinesArray(Reader)")
         void testToLinesArray() {
-            IOException exception = new IOException();
+            Exception exception = new IOException();
 
             @SuppressWarnings("resource")
             Reader reader = new BrokenReader(exception);
@@ -337,7 +337,7 @@ class TestResourceLoadersTest {
         @Test
         @DisplayName("toProperties(Reader)")
         void testToProperties() {
-            IOException exception = new IOException();
+            Exception exception = new IOException();
 
             @SuppressWarnings("resource")
             Reader reader = new BrokenReader(exception);
