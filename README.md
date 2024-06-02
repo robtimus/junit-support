@@ -13,7 +13,7 @@ A quick overview of the functionality in this library:
 
 Instead of having to write a utility method to read the contents of a resource, simply annotate a field, constructor parameter or method parameter with `@TestResource`, and JUnit will inject the resource for you:
 
-```
+```java
 @Test
 void testWithResource(@TestResource("input.json") String json) {
     // use json as needed
@@ -61,3 +61,7 @@ Several [additional assertions](https://robtimus.github.io/junit-support/additio
 ## Parameterized test support
 
 [JUnit Pioneer](https://junit-pioneer.org/) has [@CartesianTest](https://junit-pioneer.org/docs/cartesian-product/) to provide the Cartesian product of sets of arguments. Using `@CartesianTest.MethodFactory` allows you to create argument sets programmatically. It does not provide the possibility to filter out combinations though. Class [ArgumentsCombiner](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/params/ArgumentsCombiner.html) works like JUnit Pioneer's `ArgumentSets` class but allows filtering out combinations.
+
+## Testing concurrent code
+
+Some classes for [testing concurrent code](https://robtimus.github.io/junit-support/testing-concurrent-code.html) are provided.

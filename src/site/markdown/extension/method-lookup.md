@@ -19,7 +19,7 @@ Method references can come in the following formats:
 
 To find a method based on one or more preferred sets of parameter types, use the following pattern:
 
-```
+```java
 MethodLookup.Result result = MethodLookup.withParameterTypes(String.class, int.class)
         .orParameterTypes(String.class)
         .find(methodReference, context);
@@ -33,7 +33,7 @@ If on the other hand the method reference does not have an explicit set of param
 
 To find a method based only on the method reference, use the following pattern:
 
-```
+```java
 Method method = MethodLookup.findMethod(methodReference, context);
 ```
 

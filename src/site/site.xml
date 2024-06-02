@@ -39,6 +39,7 @@
       <item name="AssertionFailedErrorBuilder" href="assertion-failed-error-builder.html" />
       <item name="Additional assertions" href="additional-assertions.html" />
       <item name="Parameterized test support" href="parameterized-test-support.html" />
+      <item name="Testing concurrent code" href="testing-concurrent-code.html" />
     </menu>
   </body>
 </project>

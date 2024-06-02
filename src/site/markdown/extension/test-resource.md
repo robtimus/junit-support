@@ -6,7 +6,7 @@
 
 A lot of people have one or more utility methods like this:
 
-```
+```java
 private static String readResource(String name) {
     StringBuilder sb = new StringBuilder();
     try (Reader input = new InputStreamReader(MyClassTest.class.getResourceAsStream(name), StandardCharsets.UTF_8)) {
@@ -30,7 +30,7 @@ Note that the resource name is relative to the class that defines the method. Us
 
 The simplest form is to inject into a field, constructor parameter or method parameter of type `byte[]`. Just annotate the injection target with `@TestResource`:
 
-```
+```java
 @Test
 void testWithResource(@TestResource("my-file.bin") byte[] myFile) {
     // use myFile as needed
@@ -54,7 +54,7 @@ By default, resources are loaded as UTF-8. In some cases this may not be the cor
 
 For instance:
 
-```
+```java
 @Test
 void testWithResource(@TestResource("my-file.txt") @Encoding("ISO-8859-1") String myFile) {
     // myFile has been loaded using the ISO-8859-1 charset
@@ -78,7 +78,7 @@ By default, the resource is loaded as-is. This may cause issues when tests are r
 
 For instance:
 
-```
+```java
 @Test
 void testWithResource(@TestResource("my-file.txt") @EOL(EOL.LF) String myFile) {
     // myFile uses \n as line separator, no matter the platform
@@ -89,7 +89,7 @@ void testWithResource(@TestResource("my-file.txt") @EOL(EOL.LF) String myFile) {
 
 Combine `@TestResource` with [@LoadWith](../apidocs/com/github/robtimus/junit/support/extension/testresource/LoadWith.html) to provide your own resource-to-object conversion. For instance:
 
-```
+```java
 @Test
 void testWithResource(@TestResource("person.xml") @LoadWith("xmlToPerson") Person person) {
     // use person as needed
@@ -119,7 +119,7 @@ The parameter types can be one of the following combination; if they are not giv
 
 The [InjectionTarget](../apidocs/com/github/robtimus/junit/support/extension/InjectionTarget.html) or `Class` arguments represents the target or target type respectively, and can be used for dynamic conversion methods. For instance:
 
-```
+```java
 @Test
 void testWithResource(@TestResource("person.xml") @LoadWith("xmlToObject") Person person) {
     // use person as needed
@@ -144,7 +144,7 @@ When using a method that takes a `Reader`, the encoding can be specified in the 
 
 Two specialized versions of `@LoadWith` are provided for lines, [@AsLines](../apidocs/com/github/robtimus/junit/support/extension/testresource/AsLines.html) and [@AsLinesArray](../apidocs/com/github/robtimus/junit/support/extension/testresource/AsLinesArray.html):
 
-```
+```java
 // inject as a static field
 @TestResource("test.properties")
 @AsLines
@@ -158,7 +158,7 @@ private static String[] testLinesArray;
 
 A specialized version of `@LoadWith` is provided for `Properties` objects, [@AsProperties](../apidocs/com/github/robtimus/junit/support/extension/testresource/AsProperties.html):
 
-```
+```java
 // inject as a static field
 @TestResource("test.properties")
 @AsProperties
