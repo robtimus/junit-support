@@ -18,13 +18,14 @@
 package com.github.robtimus.junit.support.concurrent;
 
 import static com.github.robtimus.junit.support.concurrent.ConcurrentResult.throwUnchecked;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.api.function.ThrowingSupplier;
-import org.opentest4j.MultipleFailuresError;
 
 /**
  * A class that represents the results produced by a {@link ConcurrentRunner}.
@@ -33,6 +34,7 @@ import org.opentest4j.MultipleFailuresError;
  *
  * @author Rob Spoor
  * @param <T> The type of result.
+ * @since 2.3
  */
 public final class ConcurrentResults<T> {
 
@@ -55,6 +57,18 @@ public final class ConcurrentResults<T> {
     }
 
     /**
+     * Returns a stream with the results produced by the {@link ConcurrentRunner} that created this object.
+     * <p>
+     * This method is similar to calling {@link #andStreamResults()} and the collecting the results to a list. The main difference is that this method
+     * will report <em>every</em> error and exception that was thrown instead of only the first.
+     *
+     * @return A list with the results produced by the {@link ConcurrentRunner} that created this object.
+     */
+    public List<T> andListResults() {
+        return results.collect(toList());
+    }
+
+    /**
      * Asserts that no {@link Executable} or {@link ThrowingSupplier} threw an error or exception.
      * If any {@link Executable} or {@link ThrowingSupplier} threw an error or exception, this method will throw an error or exception.
      */
@@ -64,15 +78,41 @@ public final class ConcurrentResults<T> {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        if (failures.isEmpty()) {
-            return;
+        throwUnchecked(failures);
+    }
+
+    static <T> Collector<ConcurrentResult<T>, ?, List<T>> toList() {
+        return Collector.of(
+                () -> new ResultCollector<T>(),
+                ResultCollector::accumulate,
+                ResultCollector::combine,
+                ResultCollector::finish
+        );
+    }
+
+    static final class ResultCollector<T> {
+
+        private final List<T> results = new ArrayList<>();
+        private final List<Throwable> failures = new ArrayList<>();
+
+        private void accumulate(ConcurrentResult<T> result) {
+            Throwable failure = result.failure();
+            if (failure != null) {
+                failures.add(failure);
+            } else {
+                results.add(result.result());
+            }
         }
-        if (failures.size() > 1) {
-            MultipleFailuresError error = new MultipleFailuresError(null, failures);
-            failures.forEach(error::addSuppressed);
-            throw error;
+
+        private ResultCollector<T> combine(ResultCollector<T> other) {
+            results.addAll(other.results);
+            failures.addAll(other.failures);
+            return this;
         }
-        Throwable singleFailure = failures.get(0);
-        throwUnchecked(singleFailure);
+
+        private List<T> finish() {
+            throwUnchecked(failures);
+            return results;
+        }
     }
 }

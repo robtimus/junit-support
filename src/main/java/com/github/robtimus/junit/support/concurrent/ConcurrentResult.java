@@ -18,6 +18,8 @@
 package com.github.robtimus.junit.support.concurrent;
 
 import static org.junit.jupiter.api.AssertionFailureBuilder.assertionFailure;
+import java.util.List;
+import org.opentest4j.MultipleFailuresError;
 
 @SuppressWarnings("nls")
 final class ConcurrentResult<T> {
@@ -42,6 +44,10 @@ final class ConcurrentResult<T> {
         return result;
     }
 
+    T result() {
+        return result;
+    }
+
     Throwable failure() {
         return failure;
     }
@@ -57,5 +63,18 @@ final class ConcurrentResult<T> {
                 .reason("Unexpected exception thrown: " + failure)
                 .cause(failure)
                 .build();
+    }
+
+    static void throwUnchecked(List<Throwable> failures) {
+        if (failures.isEmpty()) {
+            return;
+        }
+        if (failures.size() > 1) {
+            MultipleFailuresError error = new MultipleFailuresError(null, failures);
+            failures.forEach(error::addSuppressed);
+            throw error;
+        }
+        Throwable singleFailure = failures.get(0);
+        throwUnchecked(singleFailure);
     }
 }
