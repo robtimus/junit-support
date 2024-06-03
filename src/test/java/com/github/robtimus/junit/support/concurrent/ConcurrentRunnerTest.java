@@ -53,8 +53,8 @@ class ConcurrentRunnerTest {
     private static final int CONCURRENT_COUNT = 100;
 
     @Nested
-    @DisplayName("run()")
-    class Run {
+    @DisplayName("execute()")
+    class Execute {
 
         @Nested
         @DisplayName("with Suppliers")
@@ -66,9 +66,9 @@ class ConcurrentRunnerTest {
                 ThrowingSupplier<Integer> supplier1 = mockSupplier(1);
                 ThrowingSupplier<Integer> supplier2 = mockSupplier(2);
 
-                List<Integer> results = ConcurrentRunner.with(supplier1)
+                List<Integer> results = ConcurrentRunner.running(supplier1)
                         .concurrentlyWith(supplier2)
-                        .run()
+                        .execute()
                         .collect(Collectors.toList());
 
                 List<Integer> expected = Arrays.asList(1, 2);
@@ -91,9 +91,9 @@ class ConcurrentRunnerTest {
                 Error error2 = new InternalError("test error");
                 mockThrowAlways(supplier2, error2);
 
-                Stream<Integer> results = ConcurrentRunner.with(supplier1)
+                Stream<Integer> results = ConcurrentRunner.running(supplier1)
                         .concurrentlyWith(supplier2)
-                        .run();
+                        .execute();
 
                 Error thrown = assertThrows(Error.class, results::toArray);
 
@@ -112,9 +112,9 @@ class ConcurrentRunnerTest {
                 Error error = new InternalError("test error");
                 mockThrowAlways(supplier2, error);
 
-                Stream<Integer> results = ConcurrentRunner.with(supplier1)
+                Stream<Integer> results = ConcurrentRunner.running(supplier1)
                         .concurrentlyWith(supplier2)
-                        .run();
+                        .execute();
 
                 Error thrown = assertThrows(Error.class, results::toArray);
 
@@ -136,9 +136,9 @@ class ConcurrentRunnerTest {
                 RuntimeException exception2 = new IllegalArgumentException("test exception");
                 mockThrowAlways(supplier2, exception2);
 
-                Stream<Integer> results = ConcurrentRunner.with(supplier1)
+                Stream<Integer> results = ConcurrentRunner.running(supplier1)
                         .concurrentlyWith(supplier2)
-                        .run();
+                        .execute();
 
                 RuntimeException thrown = assertThrows(RuntimeException.class, results::toArray);
 
@@ -157,9 +157,9 @@ class ConcurrentRunnerTest {
                 RuntimeException exception = new IllegalArgumentException("test exception");
                 mockThrowAlways(supplier2, exception);
 
-                Stream<Integer> results = ConcurrentRunner.with(supplier1)
+                Stream<Integer> results = ConcurrentRunner.running(supplier1)
                         .concurrentlyWith(supplier2)
-                        .run();
+                        .execute();
 
                 RuntimeException thrown = assertThrows(RuntimeException.class, results::toArray);
 
@@ -181,9 +181,9 @@ class ConcurrentRunnerTest {
                 Exception exception2 = new IOException("test exception");
                 mockThrowAlways(supplier2, exception2);
 
-                Stream<Integer> results = ConcurrentRunner.with(supplier1)
+                Stream<Integer> results = ConcurrentRunner.running(supplier1)
                         .concurrentlyWith(supplier2)
-                        .run();
+                        .execute();
 
                 ConcurrentException thrown = assertThrows(ConcurrentException.class, results::toArray);
 
@@ -202,9 +202,9 @@ class ConcurrentRunnerTest {
                 Exception exception = new IOException("test exception");
                 mockThrowAlways(supplier2, exception);
 
-                Stream<Integer> results = ConcurrentRunner.with(supplier1)
+                Stream<Integer> results = ConcurrentRunner.running(supplier1)
                         .concurrentlyWith(supplier2)
-                        .run();
+                        .execute();
 
                 ConcurrentException thrown = assertThrows(ConcurrentException.class, results::toArray);
 
@@ -225,9 +225,9 @@ class ConcurrentRunnerTest {
                 Executable executable1 = mock(Executable.class);
                 Executable executable2 = mock(Executable.class);
 
-                List<Void> results = ConcurrentRunner.with(executable1)
+                List<Void> results = ConcurrentRunner.running(executable1)
                         .concurrentlyWith(executable2)
-                        .run()
+                        .execute()
                         .collect(Collectors.toList());
 
                 List<Void> expected = Arrays.asList(null, null);
@@ -250,9 +250,9 @@ class ConcurrentRunnerTest {
                 Error error2 = new InternalError("test error");
                 mockThrowAlways(executable2, error2);
 
-                Stream<Void> results = ConcurrentRunner.with(executable1)
+                Stream<Void> results = ConcurrentRunner.running(executable1)
                         .concurrentlyWith(executable2)
-                        .run();
+                        .execute();
 
                 Error thrown = assertThrows(Error.class, results::toArray);
 
@@ -271,9 +271,9 @@ class ConcurrentRunnerTest {
                 Error error = new InternalError("test error");
                 mockThrowAlways(executable2, error);
 
-                Stream<Void> results = ConcurrentRunner.with(executable1)
+                Stream<Void> results = ConcurrentRunner.running(executable1)
                         .concurrentlyWith(executable2)
-                        .run();
+                        .execute();
 
                 Error thrown = assertThrows(Error.class, results::toArray);
 
@@ -295,9 +295,9 @@ class ConcurrentRunnerTest {
                 RuntimeException exception2 = new IllegalArgumentException("test exception");
                 mockThrowAlways(executable2, exception2);
 
-                Stream<Void> results = ConcurrentRunner.with(executable1)
+                Stream<Void> results = ConcurrentRunner.running(executable1)
                         .concurrentlyWith(executable2)
-                        .run();
+                        .execute();
 
                 RuntimeException thrown = assertThrows(RuntimeException.class, results::toArray);
 
@@ -316,9 +316,9 @@ class ConcurrentRunnerTest {
                 RuntimeException exception = new IllegalArgumentException("test exception");
                 mockThrowAlways(executable2, exception);
 
-                Stream<Void> results = ConcurrentRunner.with(executable1)
+                Stream<Void> results = ConcurrentRunner.running(executable1)
                         .concurrentlyWith(executable2)
-                        .run();
+                        .execute();
 
                 RuntimeException thrown = assertThrows(RuntimeException.class, results::toArray);
 
@@ -340,9 +340,9 @@ class ConcurrentRunnerTest {
                 Exception exception2 = new IOException("test exception");
                 mockThrowAlways(executable2, exception2);
 
-                Stream<Void> results = ConcurrentRunner.with(executable1)
+                Stream<Void> results = ConcurrentRunner.running(executable1)
                         .concurrentlyWith(executable2)
-                        .run();
+                        .execute();
 
                 ConcurrentException thrown = assertThrows(ConcurrentException.class, results::toArray);
 
@@ -361,9 +361,9 @@ class ConcurrentRunnerTest {
                 Exception exception = new IOException("test exception");
                 mockThrowAlways(executable2, exception);
 
-                Stream<Void> results = ConcurrentRunner.with(executable1)
+                Stream<Void> results = ConcurrentRunner.running(executable1)
                         .concurrentlyWith(executable2)
-                        .run();
+                        .execute();
 
                 ConcurrentException thrown = assertThrows(ConcurrentException.class, results::toArray);
 
@@ -384,9 +384,9 @@ class ConcurrentRunnerTest {
                 ThrowingSupplier<Integer> supplier1 = mockSupplier(1);
                 ThrowingSupplier<Integer> supplier2 = mockSupplier(2);
 
-                List<Object> results = ConcurrentRunner.with(supplier1)
+                List<Object> results = ConcurrentRunner.running(supplier1)
                         .concurrentlyWith(supplier2)
-                        .run((result, thrown) -> thrown == null ? result : thrown)
+                        .execute((result, thrown) -> thrown == null ? result : thrown)
                         .collect(Collectors.toList());
 
                 List<Integer> expected = Arrays.asList(1, 2);
@@ -409,9 +409,9 @@ class ConcurrentRunnerTest {
                 Error error2 = new InternalError("test error");
                 mockThrowAlways(supplier2, error2);
 
-                List<Object> results = ConcurrentRunner.with(supplier1)
+                List<Object> results = ConcurrentRunner.running(supplier1)
                         .concurrentlyWith(supplier2)
-                        .run((result, thrown) -> thrown == null ? result : thrown)
+                        .execute((result, thrown) -> thrown == null ? result : thrown)
                         .collect(Collectors.toList());
 
                 List<Error> expected = Arrays.asList(error1, error2);
@@ -431,9 +431,9 @@ class ConcurrentRunnerTest {
                 Error error = new InternalError("test error");
                 mockThrowAlways(supplier2, error);
 
-                List<Object> results = ConcurrentRunner.with(supplier1)
+                List<Object> results = ConcurrentRunner.running(supplier1)
                         .concurrentlyWith(supplier2)
-                        .run((result, thrown) -> thrown == null ? result : thrown)
+                        .execute((result, thrown) -> thrown == null ? result : thrown)
                         .collect(Collectors.toList());
 
                 List<Object> expected = Arrays.asList(1, error);
@@ -456,9 +456,9 @@ class ConcurrentRunnerTest {
                 RuntimeException exception2 = new IllegalArgumentException("test exception");
                 mockThrowAlways(supplier2, exception2);
 
-                List<Object> results = ConcurrentRunner.with(supplier1)
+                List<Object> results = ConcurrentRunner.running(supplier1)
                         .concurrentlyWith(supplier2)
-                        .run((result, thrown) -> thrown == null ? result : thrown)
+                        .execute((result, thrown) -> thrown == null ? result : thrown)
                         .collect(Collectors.toList());
 
                 List<Object> expected = Arrays.asList(exception1, exception2);
@@ -478,9 +478,9 @@ class ConcurrentRunnerTest {
                 RuntimeException exception = new IllegalArgumentException("test exception");
                 mockThrowAlways(supplier2, exception);
 
-                List<Object> results = ConcurrentRunner.with(supplier1)
+                List<Object> results = ConcurrentRunner.running(supplier1)
                         .concurrentlyWith(supplier2)
-                        .run((result, thrown) -> thrown == null ? result : thrown)
+                        .execute((result, thrown) -> thrown == null ? result : thrown)
                         .collect(Collectors.toList());
 
                 List<Object> expected = Arrays.asList(1, exception);
@@ -503,9 +503,9 @@ class ConcurrentRunnerTest {
                 Exception exception2 = new IOException("test exception");
                 mockThrowAlways(supplier2, exception2);
 
-                List<Object> results = ConcurrentRunner.with(supplier1)
+                List<Object> results = ConcurrentRunner.running(supplier1)
                         .concurrentlyWith(supplier2)
-                        .run((result, thrown) -> thrown == null ? result : thrown)
+                        .execute((result, thrown) -> thrown == null ? result : thrown)
                         .collect(Collectors.toList());
 
                 List<Object> expected = Arrays.asList(exception1, exception2);
@@ -525,9 +525,9 @@ class ConcurrentRunnerTest {
                 Exception exception = new IOException("test exception");
                 mockThrowAlways(supplier2, exception);
 
-                List<Object> results = ConcurrentRunner.with(supplier1)
+                List<Object> results = ConcurrentRunner.running(supplier1)
                         .concurrentlyWith(supplier2)
-                        .run((result, thrown) -> thrown == null ? result : thrown)
+                        .execute((result, thrown) -> thrown == null ? result : thrown)
                         .collect(Collectors.toList());
 
                 List<Object> expected = Arrays.asList(1, exception);
@@ -545,7 +545,7 @@ class ConcurrentRunnerTest {
         void testInvalidThreadCount(int threadCount) {
             ThrowingSupplier<Integer> supplier = mockSupplier(1);
 
-            ConcurrentRunner<Integer> runner = ConcurrentRunner.with(supplier);
+            ConcurrentRunner<Integer> runner = ConcurrentRunner.running(supplier);
 
             assertThrows(IllegalArgumentException.class, () -> runner.withThreadCount(threadCount));
         }
@@ -556,9 +556,9 @@ class ConcurrentRunnerTest {
         void testWithFewerThreads(int threadCount) {
             ThrowingSupplier<Integer> supplier = mockSupplier(1);
 
-            List<Integer> results = ConcurrentRunner.with(supplier, CONCURRENT_COUNT)
+            List<Integer> results = ConcurrentRunner.running(supplier, CONCURRENT_COUNT)
                     .withThreadCount(threadCount)
-                    .run()
+                    .execute()
                     .collect(Collectors.toList());
 
             List<Integer> expected = IntStream.range(0, CONCURRENT_COUNT)

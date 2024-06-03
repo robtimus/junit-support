@@ -59,8 +59,8 @@ public final class ConcurrentRunner<T> {
      * @return The created concurrent runner.
      * @throws NullPointerException If the given supplier is {@code null}.
      */
-    public static <T> ConcurrentRunner<T> with(ThrowingSupplier<? extends T> supplier) {
-        return with(supplier, 1);
+    public static <T> ConcurrentRunner<T> running(ThrowingSupplier<? extends T> supplier) {
+        return running(supplier, 1);
     }
 
     /**
@@ -73,25 +73,25 @@ public final class ConcurrentRunner<T> {
      * @throws NullPointerException If the given supplier is {@code null}.
      * @throws IllegalArgumentException If the given count is not positive.
      */
-    public static <T> ConcurrentRunner<T> with(ThrowingSupplier<? extends T> supplier, int count) {
+    public static <T> ConcurrentRunner<T> running(ThrowingSupplier<? extends T> supplier, int count) {
         ConcurrentRunner<T> runner = new ConcurrentRunner<>();
         return runner.concurrentlyWith(supplier, count);
     }
 
     /**
-     * Creates a new concurrent runner. This is equivalent to calling {@link #with(ThrowingSupplier)} with a supplier that calls
+     * Creates a new concurrent runner. This is equivalent to calling {@link #running(ThrowingSupplier)} with a supplier that calls
      * {@link Executable#execute() executable.execute()} and then returns {@code null}.
      *
      * @param executable The first executable to call.
      * @return This object.
      * @throws NullPointerException If the given executable is {@code null}.
      */
-    public static ConcurrentRunner<Void> with(Executable executable) {
-        return with(executable, 1);
+    public static ConcurrentRunner<Void> running(Executable executable) {
+        return running(executable, 1);
     }
 
     /**
-     * Creates a new concurrent runner. This is equivalent to calling {@link #with(ThrowingSupplier)} with a supplier that calls
+     * Creates a new concurrent runner. This is equivalent to calling {@link #running(ThrowingSupplier)} with a supplier that calls
      * {@link Executable#execute() executable.execute()} and then returns {@code null}.
      *
      * @param executable The first executable to call.
@@ -100,9 +100,9 @@ public final class ConcurrentRunner<T> {
      * @throws NullPointerException If the given executable is {@code null}.
      * @throws IllegalArgumentException If the given count is not positive.
      */
-    public static ConcurrentRunner<Void> with(Executable executable, int count) {
+    public static ConcurrentRunner<Void> running(Executable executable, int count) {
         Objects.requireNonNull(executable);
-        return with(asSupplier(executable), count);
+        return running(asSupplier(executable), count);
     }
 
     /**
@@ -188,8 +188,8 @@ public final class ConcurrentRunner<T> {
      *
      * @return The results of calling the suppliers. The order matches the order of the added suppliers.
      */
-    public Stream<T> run() {
-        return run(results -> results.stream()
+    public Stream<T> execute() {
+        return execute(results -> results.stream()
                 .map(ConcurrentResult::getOrThrow));
     }
 
@@ -198,7 +198,7 @@ public final class ConcurrentRunner<T> {
      * If no thread count has been given a thread for each provided supplier will be used.
      * <p>
      * The given handler is called for the result of each supplier. The arguments are either the result and a {@code null} {@link Throwable} if the
-     * supplier was successful, or {@code null} and the thrown {@link Throwable} if the supplier was unsuccessful. Unlike with {@link #run()},
+     * supplier was successful, or {@code null} and the thrown {@link Throwable} if the supplier was unsuccessful. Unlike with {@link #execute()},
      * any checked exception will not be wrapped in a {@link ConcurrentException}.
      *
      * @param <R> The type of result.
@@ -206,23 +206,23 @@ public final class ConcurrentRunner<T> {
      * @return A stream with the results of calling the result handler. The order matches the order of the added suppliers.
      * @throws NullPointerException If the given result handler is {@code null}.
      */
-    public <R> Stream<R> run(BiFunction<? super T, ? super Throwable, ? extends R> resultHandler) {
+    public <R> Stream<R> execute(BiFunction<? super T, ? super Throwable, ? extends R> resultHandler) {
         Objects.requireNonNull(resultHandler);
-        return run(results -> results.stream()
+        return execute(results -> results.stream()
                 .map(result -> result.handle(resultHandler)));
     }
 
-    private <R> R run(Function<List<ConcurrentResult<T>>, R> resultMapper) {
+    private <R> R execute(Function<List<ConcurrentResult<T>>, R> resultMapper) {
         int poolSize = Math.min(suppliers.size(), threadCount);
         ExecutorService executor = Executors.newFixedThreadPool(poolSize);
         try {
-            return run(executor, poolSize, resultMapper);
+            return execute(executor, poolSize, resultMapper);
         } finally {
             executor.shutdown();
         }
     }
 
-    private <R> R run(ExecutorService executor, int poolSize, Function<List<ConcurrentResult<T>>, R> resultMapper) {
+    private <R> R execute(ExecutorService executor, int poolSize, Function<List<ConcurrentResult<T>>, R> resultMapper) {
         CountDownLatch readyLatch = new CountDownLatch(poolSize);
         CountDownLatch startLatch = new CountDownLatch(1);
 
@@ -270,7 +270,7 @@ public final class ConcurrentRunner<T> {
      * @throws IllegalArgumentException If the given count is not positive.
      */
     public static void runConcurrently(Executable executable, int count) {
-        with(executable, count).run(results -> {
+        running(executable, count).execute(results -> {
             results.forEach(ConcurrentResult::getOrThrow);
             return null;
         });
@@ -291,11 +291,11 @@ public final class ConcurrentRunner<T> {
             return;
         }
         Iterator<Executable> iterator = executables.iterator();
-        ConcurrentRunner<Void> runner = with(iterator.next());
+        ConcurrentRunner<Void> runner = running(iterator.next());
         while (iterator.hasNext()) {
             runner.concurrentlyWith(iterator.next());
         }
-        runner.run(results -> {
+        runner.execute(results -> {
             results.forEach(ConcurrentResult::getOrThrow);
             return null;
         });
