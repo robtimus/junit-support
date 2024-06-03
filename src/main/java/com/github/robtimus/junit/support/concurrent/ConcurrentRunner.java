@@ -19,6 +19,7 @@ package com.github.robtimus.junit.support.concurrent;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -26,8 +27,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.function.Executable;
@@ -182,47 +181,21 @@ public final class ConcurrentRunner<T> {
      * Calls all provided suppliers concurrently using the provided {@link #withThreadCount(int) number of threads}.
      * If no thread count has been given a thread for each provided supplier will be used.
      * <p>
-     * This method assumes that none of the suppliers throws an error or exception, including failed assertions.
-     * If any supplier does, the returned stream will throw an error or exception when a terminal operator is executed.
-     * Any checked exception will be wrapped in a {@link ConcurrentException}.
+     * Note that calling this method will not process any result until a method on the return value is called.
      *
-     * @return The results of calling the suppliers. The order matches the order of the added suppliers.
+     * @return The results of calling the suppliers.
      */
-    public Stream<T> execute() {
-        return execute(results -> results.stream()
-                .map(ConcurrentResult::getOrThrow));
-    }
-
-    /**
-     * Calls all provided suppliers concurrently using the provided {@link #withThreadCount(int) number of threads}.
-     * If no thread count has been given a thread for each provided supplier will be used.
-     * <p>
-     * The given handler is called for the result of each supplier. The arguments are either the result and a {@code null} {@link Throwable} if the
-     * supplier was successful, or {@code null} and the thrown {@link Throwable} if the supplier was unsuccessful. Unlike with {@link #execute()},
-     * any checked exception will not be wrapped in a {@link ConcurrentException}.
-     *
-     * @param <R> The type of result.
-     * @param resultHandler A handler for results.
-     * @return A stream with the results of calling the result handler. The order matches the order of the added suppliers.
-     * @throws NullPointerException If the given result handler is {@code null}.
-     */
-    public <R> Stream<R> execute(BiFunction<? super T, ? super Throwable, ? extends R> resultHandler) {
-        Objects.requireNonNull(resultHandler);
-        return execute(results -> results.stream()
-                .map(result -> result.handle(resultHandler)));
-    }
-
-    private <R> R execute(Function<List<ConcurrentResult<T>>, R> resultMapper) {
+    public ConcurrentResults<T> execute() {
         int poolSize = Math.min(suppliers.size(), threadCount);
         ExecutorService executor = Executors.newFixedThreadPool(poolSize);
         try {
-            return execute(executor, poolSize, resultMapper);
+            return execute(executor, poolSize);
         } finally {
             executor.shutdown();
         }
     }
 
-    private <R> R execute(ExecutorService executor, int poolSize, Function<List<ConcurrentResult<T>>, R> resultMapper) {
+    private ConcurrentResults<T> execute(ExecutorService executor, int poolSize) {
         CountDownLatch readyLatch = new CountDownLatch(poolSize);
         CountDownLatch startLatch = new CountDownLatch(1);
 
@@ -233,11 +206,12 @@ public final class ConcurrentRunner<T> {
         assertDoesNotThrow(() -> readyLatch.await()); // NOSONAR, a method reference gives an ambiguity error
         startLatch.countDown();
 
-        List<ConcurrentResult<T>> results = futures.stream()
-                .map(future -> assertDoesNotThrow(() -> future.get())) // NOSONAR, a method reference gives an ambiguity error
-                .collect(Collectors.toList());
+        // The call to future.get() should not throw any exception unless the current thread gets interrupted.
+        // as any failure from the future itself is wrapped in the returned ConcurrentResult instance.
+        Stream<ConcurrentResult<T>> results = futures.stream()
+                .map(future -> assertDoesNotThrow(() -> future.get())); // NOSONAR, a method reference gives an ambiguity error
 
-        return resultMapper.apply(results);
+        return new ConcurrentResults<>(results);
     }
 
     private CompletableFuture<ConcurrentResult<T>> newFuture(ThrowingSupplier<? extends T> supplier, ExecutorService executor,
@@ -261,8 +235,7 @@ public final class ConcurrentRunner<T> {
      * Runs a block of code several times concurrently. Each block of code will start at approximately the same time.
      * <p>
      * This method assumes that each block of code does not throw any exception, including failed assertions.
-     * If any block of code does, this method will throw an error or exception. Any checked exception will be wrapped in a
-     * {@link ConcurrentException}.
+     * If any block of code does, this method will throw an error or exception.
      *
      * @param executable The block of code to run concurrently.
      * @param count The number of times to run the block of code.
@@ -270,18 +243,27 @@ public final class ConcurrentRunner<T> {
      * @throws IllegalArgumentException If the given count is not positive.
      */
     public static void runConcurrently(Executable executable, int count) {
-        running(executable, count).execute(results -> {
-            results.forEach(ConcurrentResult::getOrThrow);
-            return null;
-        });
+        running(executable, count).execute().andAssertNoFailures();
     }
 
     /**
      * Runs several blocks of code concurrently. Each block of code will start at approximately the same time.
      * <p>
      * This method assumes that each block of code does not throw any exception, including failed assertions.
-     * If any block of code does, this method will throw an error or exception. Any checked exception will be wrapped in a
-     * {@link ConcurrentException}.
+     * If any block of code does, this method will throw an error or exception.
+     *
+     * @param executables The blocks of code to run concurrently.
+     * @throws NullPointerException If any of the given executables is {@code null}.
+     */
+    public static void runConcurrently(Executable... executables) {
+        runConcurrently(Arrays.asList(executables));
+    }
+
+    /**
+     * Runs several blocks of code concurrently. Each block of code will start at approximately the same time.
+     * <p>
+     * This method assumes that each block of code does not throw any exception, including failed assertions.
+     * If any block of code does, this method will throw an error or exception.
      *
      * @param executables The blocks of code to run concurrently.
      * @throws NullPointerException If any of the given executables is {@code null}.
@@ -295,10 +277,7 @@ public final class ConcurrentRunner<T> {
         while (iterator.hasNext()) {
             runner.concurrentlyWith(iterator.next());
         }
-        runner.execute(results -> {
-            results.forEach(ConcurrentResult::getOrThrow);
-            return null;
-        });
+        runner.execute().andAssertNoFailures();
     }
 
     private static <T> ThrowingSupplier<T> asSupplier(Executable executable) {

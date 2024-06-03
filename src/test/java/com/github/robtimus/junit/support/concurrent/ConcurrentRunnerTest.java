@@ -32,7 +32,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -45,6 +44,7 @@ import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.api.function.ThrowingSupplier;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.opentest4j.AssertionFailedError;
 import org.opentest4j.MultipleFailuresError;
 
 @SuppressWarnings("nls")
@@ -69,6 +69,7 @@ class ConcurrentRunnerTest {
                 List<Integer> results = ConcurrentRunner.running(supplier1)
                         .concurrentlyWith(supplier2)
                         .execute()
+                        .andStreamResults()
                         .collect(Collectors.toList());
 
                 List<Integer> expected = Arrays.asList(1, 2);
@@ -93,7 +94,8 @@ class ConcurrentRunnerTest {
 
                 Stream<Integer> results = ConcurrentRunner.running(supplier1)
                         .concurrentlyWith(supplier2)
-                        .execute();
+                        .execute()
+                        .andStreamResults();
 
                 Error thrown = assertThrows(Error.class, results::toArray);
 
@@ -114,7 +116,8 @@ class ConcurrentRunnerTest {
 
                 Stream<Integer> results = ConcurrentRunner.running(supplier1)
                         .concurrentlyWith(supplier2)
-                        .execute();
+                        .execute()
+                        .andStreamResults();
 
                 Error thrown = assertThrows(Error.class, results::toArray);
 
@@ -138,7 +141,8 @@ class ConcurrentRunnerTest {
 
                 Stream<Integer> results = ConcurrentRunner.running(supplier1)
                         .concurrentlyWith(supplier2)
-                        .execute();
+                        .execute()
+                        .andStreamResults();
 
                 RuntimeException thrown = assertThrows(RuntimeException.class, results::toArray);
 
@@ -159,7 +163,8 @@ class ConcurrentRunnerTest {
 
                 Stream<Integer> results = ConcurrentRunner.running(supplier1)
                         .concurrentlyWith(supplier2)
-                        .execute();
+                        .execute()
+                        .andStreamResults();
 
                 RuntimeException thrown = assertThrows(RuntimeException.class, results::toArray);
 
@@ -183,9 +188,10 @@ class ConcurrentRunnerTest {
 
                 Stream<Integer> results = ConcurrentRunner.running(supplier1)
                         .concurrentlyWith(supplier2)
-                        .execute();
+                        .execute()
+                        .andStreamResults();
 
-                ConcurrentException thrown = assertThrows(ConcurrentException.class, results::toArray);
+                AssertionFailedError thrown = assertThrows(AssertionFailedError.class, results::toArray);
 
                 assertSame(exception1, thrown.getCause());
 
@@ -204,9 +210,10 @@ class ConcurrentRunnerTest {
 
                 Stream<Integer> results = ConcurrentRunner.running(supplier1)
                         .concurrentlyWith(supplier2)
-                        .execute();
+                        .execute()
+                        .andStreamResults();
 
-                ConcurrentException thrown = assertThrows(ConcurrentException.class, results::toArray);
+                AssertionFailedError thrown = assertThrows(AssertionFailedError.class, results::toArray);
 
                 assertSame(exception, thrown.getCause());
 
@@ -228,6 +235,7 @@ class ConcurrentRunnerTest {
                 List<Void> results = ConcurrentRunner.running(executable1)
                         .concurrentlyWith(executable2)
                         .execute()
+                        .andStreamResults()
                         .collect(Collectors.toList());
 
                 List<Void> expected = Arrays.asList(null, null);
@@ -252,7 +260,8 @@ class ConcurrentRunnerTest {
 
                 Stream<Void> results = ConcurrentRunner.running(executable1)
                         .concurrentlyWith(executable2)
-                        .execute();
+                        .execute()
+                        .andStreamResults();
 
                 Error thrown = assertThrows(Error.class, results::toArray);
 
@@ -273,7 +282,8 @@ class ConcurrentRunnerTest {
 
                 Stream<Void> results = ConcurrentRunner.running(executable1)
                         .concurrentlyWith(executable2)
-                        .execute();
+                        .execute()
+                        .andStreamResults();
 
                 Error thrown = assertThrows(Error.class, results::toArray);
 
@@ -297,7 +307,8 @@ class ConcurrentRunnerTest {
 
                 Stream<Void> results = ConcurrentRunner.running(executable1)
                         .concurrentlyWith(executable2)
-                        .execute();
+                        .execute()
+                        .andStreamResults();
 
                 RuntimeException thrown = assertThrows(RuntimeException.class, results::toArray);
 
@@ -318,7 +329,8 @@ class ConcurrentRunnerTest {
 
                 Stream<Void> results = ConcurrentRunner.running(executable1)
                         .concurrentlyWith(executable2)
-                        .execute();
+                        .execute()
+                        .andStreamResults();
 
                 RuntimeException thrown = assertThrows(RuntimeException.class, results::toArray);
 
@@ -342,9 +354,10 @@ class ConcurrentRunnerTest {
 
                 Stream<Void> results = ConcurrentRunner.running(executable1)
                         .concurrentlyWith(executable2)
-                        .execute();
+                        .execute()
+                        .andStreamResults();
 
-                ConcurrentException thrown = assertThrows(ConcurrentException.class, results::toArray);
+                AssertionFailedError thrown = assertThrows(AssertionFailedError.class, results::toArray);
 
                 assertSame(exception1, thrown.getCause());
 
@@ -363,179 +376,15 @@ class ConcurrentRunnerTest {
 
                 Stream<Void> results = ConcurrentRunner.running(executable1)
                         .concurrentlyWith(executable2)
-                        .execute();
+                        .execute()
+                        .andStreamResults();
 
-                ConcurrentException thrown = assertThrows(ConcurrentException.class, results::toArray);
+                AssertionFailedError thrown = assertThrows(AssertionFailedError.class, results::toArray);
 
                 assertSame(exception, thrown.getCause());
 
                 verifyExecuted(executable1, 1);
                 verifyExecuted(executable2, 1);
-            }
-        }
-
-        @Nested
-        @DisplayName("with result handler")
-        class WithResultHandler {
-
-            @Test
-            @DisplayName("success")
-            void testSuccess() {
-                ThrowingSupplier<Integer> supplier1 = mockSupplier(1);
-                ThrowingSupplier<Integer> supplier2 = mockSupplier(2);
-
-                List<Object> results = ConcurrentRunner.running(supplier1)
-                        .concurrentlyWith(supplier2)
-                        .execute((result, thrown) -> thrown == null ? result : thrown)
-                        .collect(Collectors.toList());
-
-                List<Integer> expected = Arrays.asList(1, 2);
-
-                assertEquals(expected, results);
-
-                verifyCalled(supplier1, 1);
-                verifyCalled(supplier2, 1);
-            }
-
-            @Test
-            @DisplayName("throwing multiple errors")
-            void testThrowingMultipleErrors() {
-                ThrowingSupplier<Integer> supplier1 = mockSupplier(1);
-                ThrowingSupplier<Integer> supplier2 = mockSupplier(2);
-
-                Error error1 = new InternalError("test error");
-                mockThrowAlways(supplier1, error1);
-
-                Error error2 = new InternalError("test error");
-                mockThrowAlways(supplier2, error2);
-
-                List<Object> results = ConcurrentRunner.running(supplier1)
-                        .concurrentlyWith(supplier2)
-                        .execute((result, thrown) -> thrown == null ? result : thrown)
-                        .collect(Collectors.toList());
-
-                List<Error> expected = Arrays.asList(error1, error2);
-
-                assertEquals(expected, results);
-
-                verifyCalled(supplier1, 1);
-                verifyCalled(supplier2, 1);
-            }
-
-            @Test
-            @DisplayName("throwing single error")
-            void testThrowingSingleError() {
-                ThrowingSupplier<Integer> supplier1 = mockSupplier(1);
-                ThrowingSupplier<Integer> supplier2 = mockSupplier(2);
-
-                Error error = new InternalError("test error");
-                mockThrowAlways(supplier2, error);
-
-                List<Object> results = ConcurrentRunner.running(supplier1)
-                        .concurrentlyWith(supplier2)
-                        .execute((result, thrown) -> thrown == null ? result : thrown)
-                        .collect(Collectors.toList());
-
-                List<Object> expected = Arrays.asList(1, error);
-
-                assertEquals(expected, results);
-
-                verifyCalled(supplier1, 1);
-                verifyCalled(supplier2, 1);
-            }
-
-            @Test
-            @DisplayName("throwing multiple unchecked exceptions")
-            void testThrowingUncheckedExceptions() {
-                ThrowingSupplier<Integer> supplier1 = mockSupplier(1);
-                ThrowingSupplier<Integer> supplier2 = mockSupplier(2);
-
-                RuntimeException exception1 = new IllegalArgumentException("test exception");
-                mockThrowAlways(supplier1, exception1);
-
-                RuntimeException exception2 = new IllegalArgumentException("test exception");
-                mockThrowAlways(supplier2, exception2);
-
-                List<Object> results = ConcurrentRunner.running(supplier1)
-                        .concurrentlyWith(supplier2)
-                        .execute((result, thrown) -> thrown == null ? result : thrown)
-                        .collect(Collectors.toList());
-
-                List<Object> expected = Arrays.asList(exception1, exception2);
-
-                assertEquals(expected, results);
-
-                verifyCalled(supplier1, 1);
-                verifyCalled(supplier2, 1);
-            }
-
-            @Test
-            @DisplayName("throwing single unchecked exception")
-            void testThrowingUncheckedException() {
-                ThrowingSupplier<Integer> supplier1 = mockSupplier(1);
-                ThrowingSupplier<Integer> supplier2 = mockSupplier(2);
-
-                RuntimeException exception = new IllegalArgumentException("test exception");
-                mockThrowAlways(supplier2, exception);
-
-                List<Object> results = ConcurrentRunner.running(supplier1)
-                        .concurrentlyWith(supplier2)
-                        .execute((result, thrown) -> thrown == null ? result : thrown)
-                        .collect(Collectors.toList());
-
-                List<Object> expected = Arrays.asList(1, exception);
-
-                assertEquals(expected, results);
-
-                verifyCalled(supplier1, 1);
-                verifyCalled(supplier2, 1);
-            }
-
-            @Test
-            @DisplayName("throwing multiple checked exceptions")
-            void testThrowingCheckedExceptions() {
-                ThrowingSupplier<Integer> supplier1 = mockSupplier(1);
-                ThrowingSupplier<Integer> supplier2 = mockSupplier(2);
-
-                Exception exception1 = new IOException("test exception");
-                mockThrowAlways(supplier1, exception1);
-
-                Exception exception2 = new IOException("test exception");
-                mockThrowAlways(supplier2, exception2);
-
-                List<Object> results = ConcurrentRunner.running(supplier1)
-                        .concurrentlyWith(supplier2)
-                        .execute((result, thrown) -> thrown == null ? result : thrown)
-                        .collect(Collectors.toList());
-
-                List<Object> expected = Arrays.asList(exception1, exception2);
-
-                assertEquals(expected, results);
-
-                verifyCalled(supplier1, 1);
-                verifyCalled(supplier2, 1);
-            }
-
-            @Test
-            @DisplayName("throwing single checked exception")
-            void testThrowingCheckedException() {
-                ThrowingSupplier<Integer> supplier1 = mockSupplier(1);
-                ThrowingSupplier<Integer> supplier2 = mockSupplier(2);
-
-                Exception exception = new IOException("test exception");
-                mockThrowAlways(supplier2, exception);
-
-                List<Object> results = ConcurrentRunner.running(supplier1)
-                        .concurrentlyWith(supplier2)
-                        .execute((result, thrown) -> thrown == null ? result : thrown)
-                        .collect(Collectors.toList());
-
-                List<Object> expected = Arrays.asList(1, exception);
-
-                assertEquals(expected, results);
-
-                verifyCalled(supplier1, 1);
-                verifyCalled(supplier2, 1);
             }
         }
 
@@ -559,6 +408,7 @@ class ConcurrentRunnerTest {
             List<Integer> results = ConcurrentRunner.running(supplier, CONCURRENT_COUNT)
                     .withThreadCount(threadCount)
                     .execute()
+                    .andStreamResults()
                     .collect(Collectors.toList());
 
             List<Integer> expected = IntStream.range(0, CONCURRENT_COUNT)
@@ -607,9 +457,14 @@ class ConcurrentRunnerTest {
             Error error = new InternalError("test error");
             mockThrowAlways(executable, error);
 
-            Error thrown = assertThrows(Error.class, () -> ConcurrentRunner.runConcurrently(executable, CONCURRENT_COUNT));
+            MultipleFailuresError thrown = assertThrows(MultipleFailuresError.class,
+                    () -> ConcurrentRunner.runConcurrently(executable, CONCURRENT_COUNT));
 
-            assertSame(error, thrown);
+            List<Error> expected = IntStream.range(0, CONCURRENT_COUNT)
+                    .mapToObj(i -> error)
+                    .collect(Collectors.toList());
+
+            assertEquals(expected, thrown.getFailures());
 
             verifyExecuted(executable, CONCURRENT_COUNT);
         }
@@ -637,9 +492,14 @@ class ConcurrentRunnerTest {
             RuntimeException exception = new IllegalArgumentException("test exception");
             mockThrowAlways(executable, exception);
 
-            RuntimeException thrown = assertThrows(RuntimeException.class, () -> ConcurrentRunner.runConcurrently(executable, CONCURRENT_COUNT));
+            MultipleFailuresError thrown = assertThrows(MultipleFailuresError.class,
+                    () -> ConcurrentRunner.runConcurrently(executable, CONCURRENT_COUNT));
 
-            assertSame(exception, thrown);
+            List<RuntimeException> expected = IntStream.range(0, CONCURRENT_COUNT)
+                    .mapToObj(i -> exception)
+                    .collect(Collectors.toList());
+
+            assertEquals(expected, thrown.getFailures());
 
             verifyExecuted(executable, CONCURRENT_COUNT);
         }
@@ -667,10 +527,14 @@ class ConcurrentRunnerTest {
             Exception exception = new IOException("test exception");
             mockThrowAlways(executable, exception);
 
-            ConcurrentException thrown = assertThrows(ConcurrentException.class,
+            MultipleFailuresError thrown = assertThrows(MultipleFailuresError.class,
                     () -> ConcurrentRunner.runConcurrently(executable, CONCURRENT_COUNT));
 
-            assertSame(exception, thrown.getCause());
+            List<Exception> expected = IntStream.range(0, CONCURRENT_COUNT)
+                    .mapToObj(i -> exception)
+                    .collect(Collectors.toList());
+
+            assertEquals(expected, thrown.getFailures());
 
             verifyExecuted(executable, CONCURRENT_COUNT);
         }
@@ -683,7 +547,7 @@ class ConcurrentRunnerTest {
             Exception exception = new IOException("test exception");
             mockThrowOnce(executable, exception, CONCURRENT_COUNT);
 
-            ConcurrentException thrown = assertThrows(ConcurrentException.class,
+            AssertionFailedError thrown = assertThrows(AssertionFailedError.class,
                     () -> ConcurrentRunner.runConcurrently(executable, CONCURRENT_COUNT));
 
             assertSame(exception, thrown.getCause());
@@ -693,8 +557,8 @@ class ConcurrentRunnerTest {
     }
 
     @Nested
-    @DisplayName("runConcurrently(List<Executor>)")
-    class RunExecutorList {
+    @DisplayName("runConcurrently(Executor...)")
+    class RunExecutors {
 
         @Test
         @DisplayName("null executable")
@@ -706,8 +570,7 @@ class ConcurrentRunnerTest {
         @Test
         @DisplayName("no executables")
         void testNoExecutables() {
-            List<Executable> executables = Collections.emptyList();
-            assertDoesNotThrow(() -> ConcurrentRunner.runConcurrently(executables));
+            assertDoesNotThrow(() -> ConcurrentRunner.runConcurrently());
         }
 
         @Test
@@ -733,9 +596,13 @@ class ConcurrentRunnerTest {
             Error error = new InternalError("test error");
             executables.forEach(executable -> mockThrowAlways(executable, error));
 
-            Error thrown = assertThrows(Error.class, () -> ConcurrentRunner.runConcurrently(executables));
+            MultipleFailuresError thrown = assertThrows(MultipleFailuresError.class, () -> ConcurrentRunner.runConcurrently(executables));
 
-            assertSame(error, thrown);
+            List<Error> expected = IntStream.range(0, CONCURRENT_COUNT)
+                    .mapToObj(i -> error)
+                    .collect(Collectors.toList());
+
+            assertEquals(expected, thrown.getFailures());
 
             verifyEachExecutedOnce(executables);
         }
@@ -767,9 +634,13 @@ class ConcurrentRunnerTest {
             RuntimeException exception = new IllegalArgumentException("test exception");
             executables.forEach(executable -> mockThrowAlways(executable, exception));
 
-            RuntimeException thrown = assertThrows(RuntimeException.class, () -> ConcurrentRunner.runConcurrently(executables));
+            MultipleFailuresError thrown = assertThrows(MultipleFailuresError.class, () -> ConcurrentRunner.runConcurrently(executables));
 
-            assertSame(exception, thrown);
+            List<RuntimeException> expected = IntStream.range(0, CONCURRENT_COUNT)
+                    .mapToObj(i -> exception)
+                    .collect(Collectors.toList());
+
+            assertEquals(expected, thrown.getFailures());
 
             verifyEachExecutedOnce(executables);
         }
@@ -801,9 +672,13 @@ class ConcurrentRunnerTest {
             Exception exception = new IOException("test exception");
             executables.forEach(executable -> mockThrowAlways(executable, exception));
 
-            ConcurrentException thrown = assertThrows(ConcurrentException.class, () -> ConcurrentRunner.runConcurrently(executables));
+            MultipleFailuresError thrown = assertThrows(MultipleFailuresError.class, () -> ConcurrentRunner.runConcurrently(executables));
 
-            assertSame(exception, thrown.getCause());
+            List<Exception> expected = IntStream.range(0, CONCURRENT_COUNT)
+                    .mapToObj(i -> exception)
+                    .collect(Collectors.toList());
+
+            assertEquals(expected, thrown.getFailures());
 
             verifyEachExecutedOnce(executables);
         }
@@ -818,7 +693,7 @@ class ConcurrentRunnerTest {
             Exception exception = new IOException("test exception");
             mockThrowAlways(executables.get(CONCURRENT_COUNT / 2), exception);
 
-            ConcurrentException thrown = assertThrows(ConcurrentException.class, () -> ConcurrentRunner.runConcurrently(executables));
+            AssertionFailedError thrown = assertThrows(AssertionFailedError.class, () -> ConcurrentRunner.runConcurrently(executables));
 
             assertSame(exception, thrown.getCause());
 

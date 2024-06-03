@@ -17,37 +17,45 @@
 
 package com.github.robtimus.junit.support.concurrent;
 
-import java.util.function.BiFunction;
+import static org.junit.jupiter.api.AssertionFailureBuilder.assertionFailure;
 
+@SuppressWarnings("nls")
 final class ConcurrentResult<T> {
 
     private final T result;
-    private final Throwable throwable;
+    private final Throwable failure;
 
     ConcurrentResult(T result) {
         this.result = result;
-        this.throwable = null;
+        this.failure = null;
     }
 
-    ConcurrentResult(Throwable throwable) {
+    ConcurrentResult(Throwable failure) {
         this.result = null;
-        this.throwable = throwable;
+        this.failure = failure;
     }
 
     T getOrThrow() {
-        if (throwable instanceof Error) {
-            throw (Error) throwable;
-        }
-        if (throwable instanceof RuntimeException) {
-            throw (RuntimeException) throwable;
-        }
-        if (throwable != null) {
-            throw new ConcurrentException(throwable);
+        if (failure != null) {
+            throwUnchecked(failure);
         }
         return result;
     }
 
-    <R> R handle(BiFunction<? super T, ? super Throwable, ? extends R> handler) {
-        return handler.apply(result, throwable);
+    Throwable failure() {
+        return failure;
+    }
+
+    static void throwUnchecked(Throwable failure) {
+        if (failure instanceof Error) {
+            throw (Error) failure;
+        }
+        if (failure instanceof RuntimeException) {
+            throw (RuntimeException) failure;
+        }
+        throw assertionFailure()
+                .reason("Unexpected exception thrown: " + failure)
+                .cause(failure)
+                .build();
     }
 }
