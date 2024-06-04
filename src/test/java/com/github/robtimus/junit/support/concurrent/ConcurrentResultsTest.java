@@ -202,8 +202,8 @@ class ConcurrentResultsTest {
     }
 
     @Nested
-    @DisplayName("toList")
-    class ToList {
+    @DisplayName("resultCollector")
+    class ResultCollector {
 
         @StreamTest
         @DisplayName("success")
@@ -211,7 +211,7 @@ class ConcurrentResultsTest {
             Stream<ConcurrentResult<Integer>> resultStream = parallel(parallel, IntStream.range(0, 100)
                     .mapToObj(i -> new ConcurrentResult<>(i)));
 
-            List<Integer> resultList = resultStream.collect(ConcurrentResults.toList());
+            List<Integer> resultList = resultStream.collect(ConcurrentResults.resultCollector(Collectors.toList()));
 
             List<Integer> expected = IntStream.range(0, 100)
                     .boxed()
@@ -230,7 +230,7 @@ class ConcurrentResultsTest {
                     new ConcurrentResult<>(exception),
                     new ConcurrentResult<>(3)));
 
-            Collector<ConcurrentResult<Integer>, ?, List<Integer>> collector = ConcurrentResults.toList();
+            Collector<ConcurrentResult<Integer>, ?, List<Integer>> collector = ConcurrentResults.resultCollector(Collectors.toList());
 
             AssertionFailedError thrown = assertThrows(AssertionFailedError.class, () -> resultStream.collect(collector));
 
@@ -249,7 +249,7 @@ class ConcurrentResultsTest {
                     new ConcurrentResult<>(3),
                     new ConcurrentResult<>(exception2)));
 
-            Collector<ConcurrentResult<Integer>, ?, List<Integer>> collector = ConcurrentResults.toList();
+            Collector<ConcurrentResult<Integer>, ?, List<Integer>> collector = ConcurrentResults.resultCollector(Collectors.toList());
 
             MultipleFailuresError thrown = assertThrows(MultipleFailuresError.class, () -> resultStream.collect(collector));
 

@@ -21,6 +21,9 @@ import static com.github.robtimus.junit.support.concurrent.ConcurrentResult.thro
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -57,15 +60,31 @@ public final class ConcurrentResults<T> {
     }
 
     /**
-     * Returns a stream with the results produced by the {@link ConcurrentRunner} that created this object.
+     * Collects the results produced by the {@link ConcurrentRunner} that created this object.
      * <p>
-     * This method is similar to calling {@link #andStreamResults()} and the collecting the results to a list. The main difference is that this method
-     * will report <em>every</em> error and exception that was thrown instead of only the first.
+     * This method is similar to calling {@link #andStreamResults()} and the collecting the results using the given collector.
+     * The main difference is that this method will report <em>every</em> error and exception that was thrown instead of only the first.
+     *
+     * @param <R> The result type of the collector.
+     * @param collector The collector to use.
+     * @return The result of applying the given collector to the results produced by the {@link ConcurrentRunner} that created this object.
+     * @throws NullPointerException If the given collector is {@code null}.
+     */
+    public <R> R andCollectResults(Collector<T, ?, R> collector) {
+        Objects.requireNonNull(collector);
+        return results.collect(resultCollector(collector));
+    }
+
+    /**
+     * Returns a list with the results produced by the {@link ConcurrentRunner} that created this object.
+     * <p>
+     * This method is shorthand for calling {@link #andCollectResults(Collector)} with a collector that returns a list.
+     * Whether or not this list is modifiable is unspecified.
      *
      * @return A list with the results produced by the {@link ConcurrentRunner} that created this object.
      */
     public List<T> andListResults() {
-        return results.collect(toList());
+        return andCollectResults(Collectors.toList());
     }
 
     /**
@@ -81,38 +100,51 @@ public final class ConcurrentResults<T> {
         throwUnchecked(failures);
     }
 
-    static <T> Collector<ConcurrentResult<T>, ?, List<T>> toList() {
+    static <T, R> Collector<ConcurrentResult<T>, ?, R> resultCollector(Collector<T, ?, R> collector) {
         return Collector.of(
-                () -> new ResultCollector<T>(),
+                () -> new ResultCollector<>(collector),
                 ResultCollector::accumulate,
                 ResultCollector::combine,
                 ResultCollector::finish
         );
     }
 
-    static final class ResultCollector<T> {
+    static final class ResultCollector<T, A, R> {
 
-        private final List<T> results = new ArrayList<>();
+        private final BiConsumer<A, T> accumulator;
+        private final BinaryOperator<A> combiner;
+        private final Function<A, R> finisher;
+
         private final List<Throwable> failures = new ArrayList<>();
+
+        private A state;
+
+        private ResultCollector(Collector<T, A, R> collector) {
+            accumulator = collector.accumulator();
+            combiner = collector.combiner();
+            finisher = collector.finisher();
+
+            state = collector.supplier().get();
+        }
 
         private void accumulate(ConcurrentResult<T> result) {
             Throwable failure = result.failure();
             if (failure != null) {
                 failures.add(failure);
             } else {
-                results.add(result.result());
+                accumulator.accept(state, result.result());
             }
         }
 
-        private ResultCollector<T> combine(ResultCollector<T> other) {
-            results.addAll(other.results);
+        private ResultCollector<T, A, R> combine(ResultCollector<T, A, R> other) {
             failures.addAll(other.failures);
+            state = combiner.apply(state, other.state);
             return this;
         }
 
-        private List<T> finish() {
+        private R finish() {
             throwUnchecked(failures);
-            return results;
+            return finisher.apply(state);
         }
     }
 }
