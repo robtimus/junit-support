@@ -27,10 +27,13 @@ import org.junit.jupiter.api.Nested;
 import com.github.robtimus.junit.support.test.io.InputStreamTests;
 import com.github.robtimus.junit.support.test.io.InputStreamTests.AvailableTests;
 import com.github.robtimus.junit.support.test.io.InputStreamTests.MarkResetTests;
+import com.github.robtimus.junit.support.test.io.InputStreamTests.ReadAllBytesTests;
 import com.github.robtimus.junit.support.test.io.InputStreamTests.ReadByteTests;
 import com.github.robtimus.junit.support.test.io.InputStreamTests.ReadIntoByteArrayPortionTests;
 import com.github.robtimus.junit.support.test.io.InputStreamTests.ReadIntoByteArrayTests;
+import com.github.robtimus.junit.support.test.io.InputStreamTests.ReadNBytesIntoByteArrayPortionTests;
 import com.github.robtimus.junit.support.test.io.InputStreamTests.SkipTests;
+import com.github.robtimus.junit.support.test.io.InputStreamTests.TransferToTests;
 
 @SuppressWarnings("nls")
 class ByteArrayInputStreamTest {
@@ -49,6 +52,21 @@ class ByteArrayInputStreamTest {
 
     @Nested
     class ReadIntoByteArrayPortionTest extends InputStreamTestBase implements ReadIntoByteArrayPortionTests {
+        // no new tests
+    }
+
+    @Nested
+    class ReadAllBytesTest extends InputStreamTestBase implements ReadAllBytesTests {
+        // no new tests
+    }
+
+    @Nested
+    class ReadNBytesTest extends InputStreamTestBase implements ReadAllBytesTests {
+        // no new tests
+    }
+
+    @Nested
+    class ReadNBytesIntoByteArrayPortionTest extends InputStreamTestBase implements ReadNBytesIntoByteArrayPortionTests {
         // no new tests
     }
 
@@ -73,6 +91,11 @@ class ByteArrayInputStreamTest {
         public boolean hasDefaultMark() {
             return true;
         }
+    }
+
+    @Nested
+    class TransferToTest extends InputStreamTestBase implements TransferToTests {
+        // no new tests
     }
 
     abstract class InputStreamTestBase implements InputStreamTests {

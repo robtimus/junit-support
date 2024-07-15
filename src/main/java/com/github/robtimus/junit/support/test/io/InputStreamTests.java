@@ -32,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -260,6 +261,288 @@ public interface InputStreamTests {
                     // don't use 0 and 11, use 1 and 10
                     assertThrowsOneOf(Arrays.asList(IndexOutOfBoundsException.class, IllegalArgumentException.class, IOException.class),
                             () -> inputStream.read(buffer, 1, buffer.length));
+
+                    // assert that the read did not alter the input stream's state
+                    assertContainsContent(inputStream, expectedContent());
+                }
+            });
+        }
+    }
+
+    /**
+     * Contains tests for {@link InputStream#readAllBytes()}.
+     *
+     * @author Rob Spoor
+     * @since 3.0
+     */
+    @DisplayName("readAllBytes()")
+    interface ReadAllBytesTests extends InputStreamTests {
+
+        @Test
+        @DisplayName("readAllBytes() from the start")
+        default void testReadAllBytes() {
+            assertDoesNotThrowCheckedException(() -> {
+                try (InputStream inputStream = inputStream()) {
+                    byte[] expected = expectedContent();
+
+                    byte[] content = inputStream.readAllBytes();
+
+                    assertArrayEquals(expected, content);
+                }
+            });
+        }
+
+        @Test
+        @DisplayName("readAllBytes() after having read 10 bytes")
+        default void testReadAllBytesAfterReading10Bytes() {
+            assertDoesNotThrowCheckedException(() -> {
+                try (InputStream inputStream = inputStream()) {
+                    byte[] expected = expectedContent();
+                    expected = expected.length < 10 ? new byte[0] : Arrays.copyOfRange(expected, 10, expected.length);
+
+                    assertEquals(Math.min(10, expected.length), inputStream.read(new byte[10]));
+
+                    byte[] content = inputStream.readAllBytes();
+
+                    assertArrayEquals(expected, content);
+                }
+            });
+        }
+
+        @Test
+        @DisplayName("readAllBytes() after everything has already been consumed")
+        default void testReadAllBytesAfterConsumingStream() {
+            assertDoesNotThrowCheckedException(() -> {
+                try (InputStream inputStream = inputStream()) {
+                    assertContainsContent(inputStream, expectedContent());
+
+                    byte[] content = inputStream.readAllBytes();
+
+                    assertArrayEquals(new byte[0], content);
+                }
+            });
+        }
+    }
+
+    /**
+     * Contains tests for {@link InputStream#readNBytes(int)}.
+     *
+     * @author Rob Spoor
+     * @since 3.0
+     */
+    @DisplayName("readNBytes(int)")
+    interface ReadNBytesTests extends InputStreamTests {
+
+        @Test
+        @DisplayName("readNBytes(int) with expected length")
+        default void testReadNBytesWithExpectedLength() {
+            assertDoesNotThrowCheckedException(() -> {
+                try (InputStream inputStream = inputStream()) {
+                    byte[] expected = expectedContent();
+
+                    byte[] content = inputStream.readNBytes(expected.length);
+
+                    assertArrayEquals(expected, content);
+
+                    // assert everything was read
+                    assertEquals(-1, inputStream.read());
+                }
+            });
+        }
+
+        @Test
+        @DisplayName("readNBytes(int) with smaller length")
+        default void testReadNBytesWithSmallerLength() {
+            assertDoesNotThrowCheckedException(() -> {
+                try (InputStream inputStream = inputStream()) {
+                    byte[] expected = expectedContent();
+
+                    byte[] content = inputStream.readNBytes(expected.length / 2);
+
+                    assertArrayEquals(Arrays.copyOfRange(expected, 0, expected.length / 2), content);
+
+                    // assert that the read didn't read more then expected
+                    assertContainsContent(inputStream, Arrays.copyOfRange(expected, expected.length / 2, expected.length));
+                }
+            });
+        }
+
+        @Test
+        @DisplayName("readNBytes(int) with 0 length")
+        default void testReadNBytesWithZeroLength() {
+            assertDoesNotThrowCheckedException(() -> {
+                try (InputStream inputStream = inputStream()) {
+                    byte[] content = inputStream.readNBytes(0);
+
+                    assertArrayEquals(new byte[0], content);
+
+                    // assert that the read did not alter the input stream's state
+                    assertContainsContent(inputStream, expectedContent());
+                }
+            });
+        }
+
+        @Test
+        @DisplayName("read(byte[], int, int) with a negative length")
+        default void testReadNBytesWithNegativeLength() {
+            assertDoesNotThrowCheckedException(() -> {
+                try (InputStream inputStream = inputStream()) {
+                    assertThrowsOneOf(Arrays.asList(IndexOutOfBoundsException.class, IllegalArgumentException.class, IOException.class),
+                            () -> inputStream.readNBytes(-1));
+
+                    // assert that the read did not alter the input stream's state
+                    assertContainsContent(inputStream, expectedContent());
+                }
+            });
+        }
+
+        @Test
+        @DisplayName("readNBytes(int) with a length that exceeds the content length")
+        default void testReadNBytesWithLengthExceedingContentLength() {
+            assertDoesNotThrowCheckedException(() -> {
+                try (InputStream inputStream = inputStream()) {
+                    byte[] expected = expectedContent();
+
+                    byte[] content = inputStream.readNBytes(expected.length);
+
+                    assertArrayEquals(expected, content);
+
+                    // assert everything was read
+                    assertEquals(-1, inputStream.read());
+                }
+            });
+        }
+
+        @Test
+        @DisplayName("readNBytes(int) after everything has already been consumed")
+        default void testReadNBytesAfterConsumingStream() {
+            assertDoesNotThrowCheckedException(() -> {
+                try (InputStream inputStream = inputStream()) {
+                    assertContainsContent(inputStream, expectedContent());
+
+                    byte[] content = inputStream.readNBytes(1);
+
+                    assertArrayEquals(new byte[0], content);
+                }
+            });
+        }
+    }
+
+    /**
+     * Contains tests for {@link InputStream#readNBytes(byte[], int, int)}.
+     *
+     * @author Rob Spoor
+     * @since 3.0
+     */
+    @DisplayName("readNBytes(byte[], int, int)")
+    interface ReadNBytesIntoByteArrayPortionTests extends InputStreamTests {
+
+        @Test
+        @DisplayName("readNBytes(byte[], int, int)")
+        default void testReadNBytesIntoByteArrayPortion() {
+            assertDoesNotThrowCheckedException(() -> {
+                try (InputStream inputStream = inputStream()) {
+                    byte[] expected = expectedContent();
+                    int bufferSize = 10;
+
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream(expected.length);
+
+                    byte[] buffer = new byte[bufferSize + 10];
+                    int off = 5;
+                    int len;
+                    int remaining = expected.length;
+                    while ((len = inputStream.readNBytes(buffer, off, bufferSize)) != 0) {
+                        assertEquals(remaining < bufferSize ? remaining : bufferSize, len);
+                        remaining -= len;
+                        baos.write(buffer, off, len);
+                    }
+                    assertEquals(-1, inputStream.read());
+                    assertArrayEquals(expected, baos.toByteArray());
+                }
+            });
+        }
+
+        @Test
+        @DisplayName("readNBytes(byte[], int, int) with 0 length")
+        default void testReadNBytesIntoByteArrayPortionWithZeroLength() {
+            assertDoesNotThrowCheckedException(() -> {
+                try (InputStream inputStream = inputStream()) {
+                    byte[] buffer = new byte[10];
+                    assertEquals(0, inputStream.readNBytes(buffer, 5, 0));
+
+                    // assert that the read did not alter the input stream's state
+                    assertContainsContent(inputStream, expectedContent());
+                }
+            });
+        }
+
+        @Test
+        @DisplayName("readNBytes(byte[], int, int) with a null array")
+        default void testReadNBytesIntoByteArrayPortionWithNullArray() {
+            assertDoesNotThrowCheckedException(() -> {
+                try (InputStream inputStream = inputStream()) {
+                    byte[] buffer = null;
+                    assertThrows(NullPointerException.class, () -> inputStream.readNBytes(buffer, 0, 10));
+
+                    // assert that the read did not alter the input stream's state
+                    assertContainsContent(inputStream, expectedContent());
+                }
+            });
+        }
+
+        @Test
+        @DisplayName("readNBytes(byte[], int, int) with a negative offset")
+        default void testReadNBytesIntoByteArrayPortionWithNegativeOffset() {
+            assertDoesNotThrowCheckedException(() -> {
+                try (InputStream inputStream = inputStream()) {
+                    byte[] buffer = new byte[10];
+                    assertThrowsOneOf(Arrays.asList(IndexOutOfBoundsException.class, IllegalArgumentException.class, IOException.class),
+                            () -> inputStream.readNBytes(buffer, -1, 10));
+
+                    // assert that the read did not alter the input stream's state
+                    assertContainsContent(inputStream, expectedContent());
+                }
+            });
+        }
+
+        @Test
+        @DisplayName("readNBytes(byte[], int, int) with an offset that exceeds the array length")
+        default void testReadNBytesIntoByteArrayPortionWithTooHighOffset() {
+            assertDoesNotThrowCheckedException(() -> {
+                try (InputStream inputStream = inputStream()) {
+                    byte[] buffer = new byte[10];
+                    assertThrows(IndexOutOfBoundsException.class, () -> inputStream.readNBytes(buffer, buffer.length + 1, 0));
+
+                    // assert that the read did not alter the input stream's state
+                    assertContainsContent(inputStream, expectedContent());
+                }
+            });
+        }
+
+        @Test
+        @DisplayName("readNBytes(byte[], int, int) with a negative length")
+        default void testReadNBytesIntoByteArrayPortionWithNegativeLength() {
+            assertDoesNotThrowCheckedException(() -> {
+                try (InputStream inputStream = inputStream()) {
+                    byte[] buffer = new byte[10];
+                    assertThrowsOneOf(Arrays.asList(IndexOutOfBoundsException.class, IllegalArgumentException.class, IOException.class),
+                            () -> inputStream.readNBytes(buffer, 5, -1));
+
+                    // assert that the read did not alter the input stream's state
+                    assertContainsContent(inputStream, expectedContent());
+                }
+            });
+        }
+
+        @Test
+        @DisplayName("read(byte[], int, int) with a length that exceeds the array length")
+        default void testReadNBytesIntoByteArrayPortionWithTooHighLength() {
+            assertDoesNotThrowCheckedException(() -> {
+                try (InputStream inputStream = inputStream()) {
+                    byte[] buffer = new byte[10];
+                    // don't use 0 and 11, use 1 and 10
+                    assertThrowsOneOf(Arrays.asList(IndexOutOfBoundsException.class, IllegalArgumentException.class, IOException.class),
+                            () -> inputStream.readNBytes(buffer, 1, buffer.length));
 
                     // assert that the read did not alter the input stream's state
                     assertContainsContent(inputStream, expectedContent());
@@ -504,6 +787,64 @@ public interface InputStreamTests {
                     }
 
                     assertArrayEquals(expectedContent, baos.toByteArray());
+                }
+            });
+        }
+    }
+
+    /**
+     * Contains tests for {@link InputStream#transferTo(OutputStream)}.
+     *
+     * @author Rob Spoor
+     * @since 3.0
+     */
+    @DisplayName("transferTo(OutputStream)")
+    interface TransferToTests extends InputStreamTests {
+
+        @Test
+        @DisplayName("transferTo(OutputStream) from the start")
+        default void testTransferToReadAllBytes() {
+            assertDoesNotThrowCheckedException(() -> {
+                try (InputStream inputStream = inputStream()) {
+                    byte[] expected = expectedContent();
+
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    inputStream.transferTo(baos);
+
+                    assertArrayEquals(expected, baos.toByteArray());
+                }
+            });
+        }
+
+        @Test
+        @DisplayName("transferTo(OutputStream) after having read 10 bytes")
+        default void testTransferToAfterReading10Bytes() {
+            assertDoesNotThrowCheckedException(() -> {
+                try (InputStream inputStream = inputStream()) {
+                    byte[] expected = expectedContent();
+                    expected = expected.length < 10 ? new byte[0] : Arrays.copyOfRange(expected, 10, expected.length);
+
+                    assertEquals(Math.min(10, expected.length), inputStream.read(new byte[10]));
+
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    inputStream.transferTo(baos);
+
+                    assertArrayEquals(expected, baos.toByteArray());
+                }
+            });
+        }
+
+        @Test
+        @DisplayName("transferTo(OutputStream) after everything has already been consumed")
+        default void testTransferToAfterConsumingStream() {
+            assertDoesNotThrowCheckedException(() -> {
+                try (InputStream inputStream = inputStream()) {
+                    assertContainsContent(inputStream, expectedContent());
+
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    inputStream.transferTo(baos);
+
+                    assertArrayEquals(new byte[0], baos.toByteArray());
                 }
             });
         }
