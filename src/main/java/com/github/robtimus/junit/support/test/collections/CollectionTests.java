@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
@@ -213,6 +214,40 @@ public interface CollectionTests<T> extends IterableTests<T> {
             Collection<T> collection = iterable();
 
             assertThrows(NullPointerException.class, () -> collection.toArray((Object[]) null));
+        }
+    }
+
+    /**
+     * Contains tests for {@link Collection#toArray(IntFunction)}.
+     *
+     * @author Rob Spoor
+     * @param <T> The element type of the collection to test.
+     * @since 3.0
+     */
+    @DisplayName("toArray(IntFunction)")
+    interface ToArrayWithGeneratorTests<T> extends CollectionTests<T> {
+
+        @Test
+        @DisplayName("toArray(IntFunction)")
+        default void testToArrayWithGenerator() {
+            Collection<T> collection = iterable();
+
+            Collection<T> expectedElements = expectedElements();
+
+            Class<?> genericType = commonType(expectedElements);
+            IntFunction<Object[]> generator = length -> (Object[]) Array.newInstance(genericType, length);
+
+            Object[] array = collection.toArray(generator);
+
+            assertHasElements(array, expectedElements, fixedOrder());
+        }
+
+        @Test
+        @DisplayName("toArray(IntFunction) with null generator")
+        default void testToArrayWithNullGenerator() {
+            Collection<T> collection = iterable();
+
+            assertThrows(NullPointerException.class, () -> collection.toArray((IntFunction<Object[]>) null));
         }
     }
 

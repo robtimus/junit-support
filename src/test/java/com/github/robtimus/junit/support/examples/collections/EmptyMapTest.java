@@ -150,6 +150,11 @@ class EmptyMapTest {
         }
 
         @Nested
+        class ToArrayWithGeneratorTest extends KeySetTestBase implements KeySetTests.ToArrayWithGeneratorTests<Integer, String> {
+            // no additional tests
+        }
+
+        @Nested
         class AddTest extends KeySetTestBase implements KeySetTests.AddTests<Integer, String> {
             // no additional tests
         }
@@ -252,6 +257,11 @@ class EmptyMapTest {
         }
 
         @Nested
+        class ToArrayWithGeneratorTest extends ValuesTestBase implements ValuesTests.ToArrayWithGeneratorTests<Integer, String> {
+            // no additional tests
+        }
+
+        @Nested
         class AddTest extends ValuesTestBase implements ValuesTests.AddTests<Integer, String> {
             // no additional tests
         }
@@ -339,6 +349,11 @@ class EmptyMapTest {
             public void testToArrayWithSmallerLength() {
                 throw new UnsupportedOperationException();
             }
+        }
+
+        @Nested
+        class ToArrayWithGeneratorTest extends EntrySetTestBase implements EntrySetTests.ToArrayWithGeneratorTests<Integer, String> {
+            // no additional tests
         }
 
         @Nested

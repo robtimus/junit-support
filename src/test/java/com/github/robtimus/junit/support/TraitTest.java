@@ -45,6 +45,7 @@ import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.platform.commons.support.ReflectionSupport;
+import com.github.robtimus.junit.support.test.collections.CollectionTests;
 import com.github.robtimus.junit.support.test.collections.EnumerationTests;
 import com.github.robtimus.junit.support.test.collections.IteratorTests;
 import com.github.robtimus.junit.support.test.collections.ListIteratorTests;
@@ -65,6 +66,8 @@ class TraitTest {
     @SuppressWarnings("nls")
     private static Map<Class<?>, Set<String>> getAllowedMethodNames() {
         Map<Class<?>, Set<String>> result = new HashMap<>();
+
+        addAllowedMethodNames(result, CollectionTests.ToArrayWithGeneratorTests.class, "testToArrayWithNullGenerator");
 
         addAllowedMethodNames(result, EnumerationTests.IterationTests.class, "testNextElementWithoutHasMoreElements");
 

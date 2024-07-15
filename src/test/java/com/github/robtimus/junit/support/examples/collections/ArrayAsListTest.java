@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Nested;
 import com.github.robtimus.junit.support.test.collections.CollectionTests.ContainsAllTests;
 import com.github.robtimus.junit.support.test.collections.CollectionTests.ContainsTests;
 import com.github.robtimus.junit.support.test.collections.CollectionTests.ToArrayTests;
+import com.github.robtimus.junit.support.test.collections.CollectionTests.ToArrayWithGeneratorTests;
 import com.github.robtimus.junit.support.test.collections.CollectionTests.ToObjectArrayTests;
 import com.github.robtimus.junit.support.test.collections.IterableTests.ForEachTests;
 import com.github.robtimus.junit.support.test.collections.IteratorTests;
@@ -99,6 +100,11 @@ class ArrayAsListTest {
 
     @Nested
     class ToArrayTest extends ListTestBase implements ToArrayTests<String> {
+        // no additional tests
+    }
+
+    @Nested
+    class ToArrayWithGeneratorTest extends ListTestBase implements ToArrayWithGeneratorTests<String> {
         // no additional tests
     }
 

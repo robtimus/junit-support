@@ -145,6 +145,11 @@ class HashMapTest {
         }
 
         @Nested
+        class ToArrayWithGeneratorTest extends KeySetTestBase implements KeySetTests.ToArrayWithGeneratorTests<Integer, String> {
+            // no additional tests
+        }
+
+        @Nested
         class AddTest extends KeySetTestBase implements KeySetTests.AddTests<Integer, String> {
             // no additional tests
         }
@@ -245,6 +250,11 @@ class HashMapTest {
         }
 
         @Nested
+        class ToArrayWithGeneratorTest extends ValuesTestBase implements ValuesTests.ToArrayWithGeneratorTests<Integer, String> {
+            // no additional tests
+        }
+
+        @Nested
         class AddTest extends ValuesTestBase implements ValuesTests.AddTests<Integer, String> {
             // no additional tests
         }
@@ -326,6 +336,11 @@ class HashMapTest {
 
         @Nested
         class ToArrayTest extends EntrySetTestBase implements EntrySetTests.ToArrayTests<Integer, String> {
+            // no additional tests
+        }
+
+        @Nested
+        class ToArrayWithGeneratorTest extends EntrySetTestBase implements EntrySetTests.ToArrayWithGeneratorTests<Integer, String> {
             // no additional tests
         }
 

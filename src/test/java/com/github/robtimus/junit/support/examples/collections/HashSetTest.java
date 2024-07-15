@@ -36,6 +36,7 @@ import com.github.robtimus.junit.support.test.collections.CollectionTests.Remove
 import com.github.robtimus.junit.support.test.collections.CollectionTests.RemoveTests;
 import com.github.robtimus.junit.support.test.collections.CollectionTests.RetainAllTests;
 import com.github.robtimus.junit.support.test.collections.CollectionTests.ToArrayTests;
+import com.github.robtimus.junit.support.test.collections.CollectionTests.ToArrayWithGeneratorTests;
 import com.github.robtimus.junit.support.test.collections.CollectionTests.ToObjectArrayTests;
 import com.github.robtimus.junit.support.test.collections.IterableTests.ForEachTests;
 import com.github.robtimus.junit.support.test.collections.IteratorTests;
@@ -84,6 +85,11 @@ class HashSetTest {
 
     @Nested
     class ToArrayTest extends SetTestBase implements ToArrayTests<String> {
+        // no additional tests
+    }
+
+    @Nested
+    class ToArrayWithGeneratorTest extends SetTestBase implements ToArrayWithGeneratorTests<String> {
         // no additional tests
     }
 

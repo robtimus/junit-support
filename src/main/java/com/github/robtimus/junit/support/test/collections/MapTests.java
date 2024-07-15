@@ -41,6 +41,7 @@ import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
@@ -831,6 +832,19 @@ public interface MapTests<K, V> {
         }
 
         /**
+         * Contains tests for {@link Set#toArray(IntFunction)} for key sets.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         * @since 3.0
+         */
+        @DisplayName("toArray(IntFunction)")
+        interface ToArrayWithGeneratorTests<K, V> extends KeySetTests<K, V>, CollectionTests.ToArrayWithGeneratorTests<K> {
+            // no new tests needed
+        }
+
+        /**
          * Contains tests for {@link Set#add(Object)} for key sets.
          *
          * @author Rob Spoor
@@ -1518,6 +1532,19 @@ public interface MapTests<K, V> {
         }
 
         /**
+         * Contains tests for {@link Collection#toArray(IntFunction)} for values collections.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         * @since 3.0
+         */
+        @DisplayName("toArray(IntFunction)")
+        interface ToArrayWithGeneratorTests<K, V> extends ValuesTests<K, V>, CollectionTests.ToArrayWithGeneratorTests<V> {
+            // no new tests needed
+        }
+
+        /**
          * Contains tests for {@link Collection#add(Object)} for values collections.
          *
          * @author Rob Spoor
@@ -2169,6 +2196,19 @@ public interface MapTests<K, V> {
          */
         @DisplayName("toArray(Object[])")
         interface ToArrayTests<K, V> extends EntrySetTests<K, V>, CollectionTests.ToArrayTests<Map.Entry<K, V>> {
+            // no new tests needed
+        }
+
+        /**
+         * Contains tests for {@link Set#toArray(IntFunction)} for entry sets.
+         *
+         * @author Rob Spoor
+         * @param <K> The key type of the map to test.
+         * @param <V> The value type of the map to test.
+         * @since 3.0
+         */
+        @DisplayName("toArray(IntFunction)")
+        interface ToArrayWithGeneratorTests<K, V> extends EntrySetTests<K, V>, CollectionTests.ToArrayWithGeneratorTests<Map.Entry<K, V>> {
             // no new tests needed
         }
 
