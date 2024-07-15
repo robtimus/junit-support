@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
-@SuppressWarnings("javadoc")
+@SuppressWarnings({ "javadoc", "exports" })
 public class JdkTestHandler extends Handler {
 
     private final List<LogRecord> records = new ArrayList<>();

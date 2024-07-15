@@ -36,6 +36,7 @@ import org.apache.log4j.Logger;
  * @author Rob Spoor
  * @since 2.1
  */
+@SuppressWarnings("exports") // the dependency is static, and therefore needs to be repeated anyway
 public final class Reload4jLoggerContext extends LoggerContext {
 
     private final Helper helper;

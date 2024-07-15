@@ -27,7 +27,7 @@
   </parent>
 
   <artifactId>junit-support</artifactId>
-  <version>2.3-SNAPSHOT</version>
+  <version>3.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>junit-support</name>
@@ -62,13 +62,14 @@
   </issueManagement>
 
   <properties>
+    <version.java>11</version.java>
+
     <version.commons-io>2.16.1</version.commons-io>
     <version.io-functions>2.0</version.io-functions>
     <version.junit-testkit>1.10.2</version.junit-testkit>
     <version.log4j>2.23.1</version.log4j>
-    <!-- Don't use higher versions, those require Java 11 -->
-    <version.logback>1.3.14</version.logback>
-    <version.pioneer>1.9.1</version.pioneer>
+    <version.logback>1.5.6</version.logback>
+    <version.pioneer>2.2.0</version.pioneer>
     <version.reload4j>1.2.25</version.reload4j>
   </properties>
 
@@ -153,6 +154,7 @@
             <links>
               <link>https://commons.apache.org/proper/commons-io/javadocs/api-release/</link>
               <link>https://junit.org/junit5/docs/current/api/</link>
+              <link>https://ota4j-team.github.io/opentest4j/docs/current/api/</link>
               <link>https://logging.apache.org/log4j/2.x/log4j-api/apidocs/</link>
               <link>https://logging.apache.org/log4j/2.x/log4j-core/apidocs/</link>
               <link>https://logback.qos.ch/apidocs/</link>
@@ -200,11 +202,6 @@
       </plugin>
 
       <plugin>
-        <groupId>org.moditect</groupId>
-        <artifactId>moditect-maven-plugin</artifactId>
-      </plugin>
-
-      <plugin>
         <groupId>com.github.robtimus</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
       </plugin>
@@ -229,6 +226,36 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <!-- Allow JUnit to access the test classes -->
+          <argLine>
+            @{argLine}
+            --add-modules org.apache.logging.log4j
+            --add-modules ch.qos.logback.classic
+            --add-modules ch.qos.logback.core
+
+            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testlogger=java.logging
+            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testlogger=org.apache.logging.log4j.core
+            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testlogger=ch.qos.logback.core
+            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testlogger=ch.qos.reload4j
+
+            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support=org.junit.platform.commons
+            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.concurrent=org.junit.platform.commons
+            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension=org.junit.platform.commons
+            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testlogger=org.junit.platform.commons
+            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testresource=org.junit.platform.commons
+            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.params=org.junit.platform.commons
+            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.test=org.junit.platform.commons
+            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.test.collections=org.junit.platform.commons
+            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.test.io=org.junit.platform.commons
+
+            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.examples.collections=org.junit.platform.commons
+            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.examples.covariantreturn=org.junit.platform.commons
+            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.examples.delegation=org.junit.platform.commons
+            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.examples.io=org.junit.platform.commons
+
+            --add-opens org.junit.platform.commons/org.junit.platform.commons.logging=ALL-UNNAMED
+            --add-opens org.junit.platform.commons/org.junit.platform.commons.util=ALL-UNNAMED
+          </argLine>
           <systemPropertyVariables>
             <java.util.logging.config.class>com.github.robtimus.junit.support.extension.testlogger.JdkLoggerConfigurer</java.util.logging.config.class>
           </systemPropertyVariables>
@@ -278,81 +305,10 @@
       <properties>
         <version.junit>5.9.0</version.junit>
         <version.junit-testkit>1.9.0</version.junit-testkit>
-        <version.logback>1.2.11</version.logback>
+        <version.logback>1.3.14</version.logback>
+        <version.pioneer>1.9.1</version.pioneer>
+        <version.reload4j>1.2.25</version.reload4j>
       </properties>
-    </profile>
-
-    <profile>
-      <id>native-module</id>
-      <properties>
-        <version.java>11</version.java>
-        <version.logback>1.4.5</version.logback>
-      </properties>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <!-- Allow JUnit to fully access the test classes -->
-              <argLine>
-                @{argLine}
-                --add-modules org.apache.logging.log4j
-                --add-modules ch.qos.logback.classic
-                --add-modules ch.qos.logback.core
-
-                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testlogger=java.logging
-                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testlogger=org.apache.logging.log4j.core
-                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testlogger=ch.qos.logback.core
-                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testlogger=ch.qos.reload4j
-
-                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support=org.junit.platform.commons
-                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension=org.junit.platform.commons
-                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testlogger=org.junit.platform.commons
-                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testresource=org.junit.platform.commons
-                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.params=org.junit.platform.commons
-                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.test=org.junit.platform.commons
-                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.test.collections=org.junit.platform.commons
-                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.test.io=org.junit.platform.commons
-
-                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.examples.collections=org.junit.platform.commons
-                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.examples.covariantreturn=org.junit.platform.commons
-                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.examples.delegation=org.junit.platform.commons
-                --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.examples.io=org.junit.platform.commons
-
-                --add-opens org.junit.platform.commons/org.junit.platform.commons.logging=ALL-UNNAMED
-                --add-opens org.junit.platform.commons/org.junit.platform.commons.util=ALL-UNNAMED
-              </argLine>
-            </configuration>
-          </plugin>
-
-          <plugin>
-            <groupId>org.moditect</groupId>
-            <artifactId>moditect-maven-plugin</artifactId>
-            <configuration>
-              <skip>true</skip>
-            </configuration>
-          </plugin>
-
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>build-helper-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <phase>generate-sources</phase>
-                <goals>
-                  <goal>add-source</goal>
-                </goals>
-                <configuration>
-                  <sources>
-                    <source>${project.basedir}/src/moditect</source>
-                  </sources>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
     </profile>
   </profiles>
 </project>

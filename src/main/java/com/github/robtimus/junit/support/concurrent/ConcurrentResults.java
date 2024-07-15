@@ -37,7 +37,7 @@ import org.junit.jupiter.api.function.ThrowingSupplier;
  *
  * @author Rob Spoor
  * @param <T> The type of result.
- * @since 2.3
+ * @since 3.0
  */
 public final class ConcurrentResults<T> {
 
@@ -62,7 +62,7 @@ public final class ConcurrentResults<T> {
     /**
      * Collects the results produced by the {@link ConcurrentRunner} that created this object.
      * <p>
-     * This method is similar to calling {@link #andStreamResults()} and the collecting the results using the given collector.
+     * This method is similar to calling {@link #andStreamResults()} and then collecting the results using the given collector.
      * The main difference is that this method will report <em>every</em> error and exception that was thrown instead of only the first.
      *
      * @param <R> The result type of the collector.

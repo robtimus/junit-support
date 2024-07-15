@@ -31,7 +31,7 @@ import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
-@SuppressWarnings("javadoc")
+@SuppressWarnings({ "javadoc", "exports" })
 @Plugin(name = "Log4jTest", category = Core.CATEGORY_NAME, elementType = Appender.ELEMENT_TYPE)
 public class Log4jTestAppender extends AbstractAppender {
 

@@ -37,7 +37,7 @@ import org.junit.jupiter.api.function.ThrowingSupplier;
  *
  * @author Rob Spoor
  * @param <T> The type of result for instances.
- * @since 2.3
+ * @since 3.0
  */
 @SuppressWarnings("nls")
 public final class ConcurrentRunner<T> {
@@ -90,7 +90,7 @@ public final class ConcurrentRunner<T> {
     }
 
     /**
-     * Creates a new concurrent runner. This is equivalent to calling {@link #running(ThrowingSupplier)} with a supplier that calls
+     * Creates a new concurrent runner. This is equivalent to calling {@link #running(ThrowingSupplier, int)} with a supplier that calls
      * {@link Executable#execute() executable.execute()} and then returns {@code null}.
      *
      * @param executable The first executable to call.
@@ -148,8 +148,8 @@ public final class ConcurrentRunner<T> {
     }
 
     /**
-     * Adds an executable to call concurrently. This is equivalent to calling {@link #concurrentlyWith(ThrowingSupplier)} with a supplier that calls
-     * {@link Executable#execute() executable.execute()} and then returns {@code null}.
+     * Adds an executable to call concurrently. This is equivalent to calling {@link #concurrentlyWith(ThrowingSupplier, int)} with a supplier that
+     * calls {@link Executable#execute() executable.execute()} and then returns {@code null}.
      *
      * @param executable The additional executable to call.
      * @param count The number of times to call the supplier.

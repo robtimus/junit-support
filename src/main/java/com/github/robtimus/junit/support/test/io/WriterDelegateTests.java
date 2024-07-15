@@ -900,7 +900,7 @@ public interface WriterDelegateTests {
      * An arguments provider for {@link AppendCharSequenceTests} and {@link AppendCharSequencePortionTests}, it returns functions to transform
      * the test instance's {@link WriterDelegateTests#contentToWrite() content to write} or
      * {@link WriterDelegateTests#longContentToWrite() long content to write} into a {@code String} (identity transform), {@code StringBuilder},
-     * {@link StringBuffer} and a generic {@code CharSequence}.
+     * {@code StringBuffer} and a generic {@code CharSequence}.
      *
      * @author Rob Spoor
      */

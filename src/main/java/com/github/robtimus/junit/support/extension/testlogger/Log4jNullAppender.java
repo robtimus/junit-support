@@ -32,6 +32,7 @@ import org.apache.logging.log4j.core.config.Property;
  * @author Rob Spoor
  * @since 2.1
  */
+@SuppressWarnings("exports") // the dependency is static, and therefore needs to be repeated anyway
 public class Log4jNullAppender extends AbstractAppender {
 
     /**

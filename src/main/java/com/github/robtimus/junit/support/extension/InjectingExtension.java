@@ -79,7 +79,7 @@ public abstract class InjectingExtension implements BeforeAllCallback, BeforeEac
         try {
             Object value = resolveValue(target, context);
 
-            if (!field.isAccessible()) {
+            if (!field.canAccess(testInstance)) {
                 field.setAccessible(true);
             }
             field.set(testInstance, value);

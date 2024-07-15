@@ -64,7 +64,7 @@ import com.github.robtimus.junit.support.extension.InjectionTargetTest.Repeatabl
 @RepeatableAnnotation0(0)
 @RepeatableAnnotation0(1)
 @RepeatableAnnotation0(2)
-@SuppressWarnings({ "nls", "unused" })
+@SuppressWarnings({ "nls", "unused", "exports" })
 class InjectionTargetTest {
 
     @Nested

@@ -32,6 +32,7 @@ import java.util.stream.Stream;
  * @author Rob Spoor
  * @since 2.1
  */
+@SuppressWarnings("exports") // the dependency is static, and therefore needs to be repeated anyway
 public final class JdkLoggerContext extends LoggerContext {
 
     private final Helper helper;

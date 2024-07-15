@@ -1285,7 +1285,7 @@ class ArgumentsCombinerTest {
     private static Matcher<Arguments> hasArguments(Object... arguments) {
         Matcher<Object[]> valuesMatcher = arrayContaining(arguments);
 
-        return new TypeSafeMatcher<Arguments>(Arguments.class) {
+        return new TypeSafeMatcher<>(Arguments.class) {
 
             @Override
             protected boolean matchesSafely(Arguments item) {
