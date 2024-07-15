@@ -70,6 +70,7 @@ class TraitTest {
         addAllowedMethodNames(result, CollectionTests.ToArrayWithGeneratorTests.class, "testToArrayWithNullGenerator");
 
         addAllowedMethodNames(result, EnumerationTests.IterationTests.class, "testNextElementWithoutHasMoreElements");
+        addAllowedMethodNames(result, EnumerationTests.AsIteratorTests.class, "testNextWithoutHasNext");
 
         addAllowedMethodNames(result, IteratorTests.IterationTests.class, "testNextWithoutHasNext");
 
