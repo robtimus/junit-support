@@ -35,6 +35,7 @@ import com.github.robtimus.junit.support.test.io.ReaderTests.ReadIntoCharArrayTe
 import com.github.robtimus.junit.support.test.io.ReaderTests.ReadIntoCharBufferTests;
 import com.github.robtimus.junit.support.test.io.ReaderTests.ReadyTests;
 import com.github.robtimus.junit.support.test.io.ReaderTests.SkipTests;
+import com.github.robtimus.junit.support.test.io.ReaderTests.TransferToTests;
 
 @SuppressWarnings("nls")
 class BufferedReaderTest {
@@ -77,6 +78,11 @@ class BufferedReaderTest {
 
     @Nested
     class MarkResetTest extends ReaderTestBase implements MarkResetTests {
+        // no new tests
+    }
+
+    @Nested
+    class TransferToTest extends ReaderTestBase implements TransferToTests {
         // no new tests
     }
 

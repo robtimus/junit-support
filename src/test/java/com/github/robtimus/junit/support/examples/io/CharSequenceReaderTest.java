@@ -32,6 +32,7 @@ import com.github.robtimus.junit.support.test.io.ReaderTests.ReadIntoCharArrayTe
 import com.github.robtimus.junit.support.test.io.ReaderTests.ReadIntoCharBufferTests;
 import com.github.robtimus.junit.support.test.io.ReaderTests.ReadyTests;
 import com.github.robtimus.junit.support.test.io.ReaderTests.SkipTests;
+import com.github.robtimus.junit.support.test.io.ReaderTests.TransferToTests;
 
 @SuppressWarnings("nls")
 class CharSequenceReaderTest {
@@ -79,6 +80,11 @@ class CharSequenceReaderTest {
         public boolean hasDefaultMark() {
             return true;
         }
+    }
+
+    @Nested
+    class TransferToTest extends ReaderTestBase implements TransferToTests {
+        // no new tests
     }
 
     abstract static class ReaderTestBase implements ReaderTests {

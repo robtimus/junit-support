@@ -30,6 +30,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.nio.CharBuffer;
 import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
@@ -555,6 +557,64 @@ public interface ReaderTests {
                     }
 
                     assertEquals(expectedContent, sb.toString());
+                }
+            });
+        }
+    }
+
+    /**
+     * Contains tests for {@link Reader#transferTo(Writer)}.
+     *
+     * @author Rob Spoor
+     * @since 3.0
+     */
+    @DisplayName("transferTo(Writer)")
+    interface TransferToTests extends ReaderTests {
+
+        @Test
+        @DisplayName("transferTo(Writer) from the start")
+        default void testTransferToReadAllBytes() {
+            assertDoesNotThrowCheckedException(() -> {
+                try (Reader reader = reader()) {
+                    String expected = expectedContent();
+
+                    StringWriter sw = new StringWriter();
+                    reader.transferTo(sw);
+
+                    assertEquals(expected, sw.toString());
+                }
+            });
+        }
+
+        @Test
+        @DisplayName("transferTo(Writer) after having read 10 chars")
+        default void testTransferToAfterReading10Bytes() {
+            assertDoesNotThrowCheckedException(() -> {
+                try (Reader reader = reader()) {
+                    String expected = expectedContent();
+                    expected = expected.length() < 10 ? "" : expected.substring(10); //$NON-NLS-1$
+
+                    assertEquals(Math.min(10, expected.length()), reader.read(new char[10]));
+
+                    StringWriter sw = new StringWriter();
+                    reader.transferTo(sw);
+
+                    assertEquals(expected, sw.toString());
+                }
+            });
+        }
+
+        @Test
+        @DisplayName("transferTo(OutputStream) after everything has already been consumed")
+        default void testTransferToAfterConsumingStream() {
+            assertDoesNotThrowCheckedException(() -> {
+                try (Reader reader = reader()) {
+                    assertContainsContent(reader, expectedContent());
+
+                    StringWriter sw = new StringWriter();
+                    reader.transferTo(sw);
+
+                    assertEquals("", sw.toString()); //$NON-NLS-1$
                 }
             });
         }
