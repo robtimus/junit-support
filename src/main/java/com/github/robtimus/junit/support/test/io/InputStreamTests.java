@@ -809,7 +809,7 @@ public interface InputStreamTests {
                     byte[] expected = expectedContent();
 
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    inputStream.transferTo(baos);
+                    assertEquals(expected.length, inputStream.transferTo(baos));
 
                     assertArrayEquals(expected, baos.toByteArray());
                 }
@@ -827,7 +827,7 @@ public interface InputStreamTests {
                     assertEquals(Math.min(10, expected.length), inputStream.read(new byte[10]));
 
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    inputStream.transferTo(baos);
+                    assertEquals(expected.length, inputStream.transferTo(baos));
 
                     assertArrayEquals(expected, baos.toByteArray());
                 }
@@ -842,7 +842,7 @@ public interface InputStreamTests {
                     assertContainsContent(inputStream, expectedContent());
 
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    inputStream.transferTo(baos);
+                    assertEquals(0, inputStream.transferTo(baos));
 
                     assertArrayEquals(new byte[0], baos.toByteArray());
                 }

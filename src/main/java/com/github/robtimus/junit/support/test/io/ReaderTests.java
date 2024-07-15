@@ -579,7 +579,7 @@ public interface ReaderTests {
                     String expected = expectedContent();
 
                     StringWriter sw = new StringWriter();
-                    reader.transferTo(sw);
+                    assertEquals(expected.length(), reader.transferTo(sw));
 
                     assertEquals(expected, sw.toString());
                 }
@@ -597,7 +597,7 @@ public interface ReaderTests {
                     assertEquals(Math.min(10, expected.length()), reader.read(new char[10]));
 
                     StringWriter sw = new StringWriter();
-                    reader.transferTo(sw);
+                    assertEquals(expected.length(), reader.transferTo(sw));
 
                     assertEquals(expected, sw.toString());
                 }
@@ -612,7 +612,7 @@ public interface ReaderTests {
                     assertContainsContent(reader, expectedContent());
 
                     StringWriter sw = new StringWriter();
-                    reader.transferTo(sw);
+                    assertEquals(0, reader.transferTo(sw));
 
                     assertEquals("", sw.toString()); //$NON-NLS-1$
                 }
