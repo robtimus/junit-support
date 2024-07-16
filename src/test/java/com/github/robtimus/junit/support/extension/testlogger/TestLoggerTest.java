@@ -27,6 +27,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import java.util.Collections;
 import java.util.List;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.AfterAll;
@@ -48,13 +49,20 @@ import org.mockito.ArgumentCaptor;
 @SuppressWarnings("nls")
 final class TestLoggerTest {
 
-    private static final java.util.logging.Logger JDK_LOGGER = java.util.logging.Logger.getLogger(TestLogger.class.getName());
+    private static final String LOGGER_NAME = "com.github.robtimus.junit.support.extension.testlogger.TestLogger";
+    private static final String DISABLED_LOGGER_NAME = LOGGER_NAME + ".disabled";
+
+    private static final java.util.logging.Logger JDK_LOGGER = java.util.logging.Logger.getLogger(LOGGER_NAME);
+    private static final java.util.logging.Logger JDK_DISABLED_LOGGER = java.util.logging.Logger.getLogger(DISABLED_LOGGER_NAME);
 
     private static final org.apache.logging.log4j.Logger LOG4J_LOGGER = org.apache.logging.log4j.LogManager.getLogger(TestLogger.class);
+    private static final org.apache.logging.log4j.Logger LOG4J_DISABLED_LOGGER = org.apache.logging.log4j.LogManager.getLogger(DISABLED_LOGGER_NAME);
 
     private static final org.slf4j.Logger SLF4J_LOGGER = org.slf4j.LoggerFactory.getLogger(TestLogger.class);
+    private static final org.slf4j.Logger SLF4J_DISABLED_LOGGER = org.slf4j.LoggerFactory.getLogger(DISABLED_LOGGER_NAME);
 
     private static final org.apache.log4j.Logger RELOAD4J_LOGGER = org.apache.log4j.Logger.getLogger(TestLogger.class);
+    private static final org.apache.log4j.Logger RELOAD4J_DISABLED_LOGGER = org.apache.log4j.Logger.getLogger(DISABLED_LOGGER_NAME);
 
     private TestLoggerTest() {
     }
@@ -81,7 +89,7 @@ final class TestLoggerTest {
             @TestInstance(Lifecycle.PER_METHOD)
             class InstancePerMethod extends JdkLoggerTests {
 
-                @TestLogger("com.github.robtimus.junit.support.extension.testlogger.TestLogger")
+                @TestLogger(LOGGER_NAME)
                 private JdkLoggerContext logger;
 
                 @TestLogger.Root
@@ -103,7 +111,7 @@ final class TestLoggerTest {
             @TestInstance(Lifecycle.PER_CLASS)
             class InstancePerClass extends JdkLoggerTests {
 
-                @TestLogger("com.github.robtimus.junit.support.extension.testlogger.TestLogger")
+                @TestLogger(LOGGER_NAME)
                 private JdkLoggerContext logger;
 
                 @TestLogger.Root
@@ -169,6 +177,19 @@ final class TestLoggerTest {
                 }
             }
         }
+
+        @Test
+        @DisplayName("disabled logging")
+        void testDisabledLogging(@TestLogger(DISABLED_LOGGER_NAME) @DisableLogging JdkLoggerContext logger) {
+            JdkTestHandler testHandler = JdkLoggerTests.testHandler(logger);
+            testHandler.clearRecords();
+
+            JDK_DISABLED_LOGGER.log(java.util.logging.Level.WARNING, "warning message");
+            JDK_DISABLED_LOGGER.log(java.util.logging.Level.INFO, "info message");
+            JDK_DISABLED_LOGGER.log(java.util.logging.Level.FINE, "fine message");
+
+            assertEquals(Collections.emptyList(), testHandler.getRecords());
+        }
     }
 
     @Nested
@@ -184,7 +205,7 @@ final class TestLoggerTest {
             @TestInstance(Lifecycle.PER_METHOD)
             class InstancePerMethod extends Log4jLoggerTests {
 
-                @TestLogger("com.github.robtimus.junit.support.extension.testlogger.TestLogger")
+                @TestLogger(LOGGER_NAME)
                 private Log4jLoggerContext logger;
 
                 @TestLogger.Root
@@ -206,7 +227,7 @@ final class TestLoggerTest {
             @TestInstance(Lifecycle.PER_CLASS)
             class InstancePerClass extends Log4jLoggerTests {
 
-                @TestLogger("com.github.robtimus.junit.support.extension.testlogger.TestLogger")
+                @TestLogger(LOGGER_NAME)
                 private Log4jLoggerContext logger;
 
                 @TestLogger.Root
@@ -271,6 +292,19 @@ final class TestLoggerTest {
                     return rootLogger;
                 }
             }
+        }
+
+        @Test
+        @DisplayName("disabled logging")
+        void testDisabledLogging(@TestLogger(DISABLED_LOGGER_NAME) @DisableLogging Log4jLoggerContext logger) {
+            Log4jTestAppender testAppender = Log4jLoggerTests.testAppender(logger);
+            testAppender.clearEvents();
+
+            LOG4J_DISABLED_LOGGER.warn("warning message");
+            LOG4J_DISABLED_LOGGER.info("info message");
+            LOG4J_DISABLED_LOGGER.debug("debug message");
+
+            assertEquals(Collections.emptyList(), testAppender.getEvents());
         }
     }
 
@@ -287,7 +321,7 @@ final class TestLoggerTest {
             @TestInstance(Lifecycle.PER_METHOD)
             class InstancePerMethod extends LogbackLoggerTests {
 
-                @TestLogger("com.github.robtimus.junit.support.extension.testlogger.TestLogger")
+                @TestLogger(LOGGER_NAME)
                 private LogbackLoggerContext logger;
 
                 @TestLogger.Root
@@ -309,7 +343,7 @@ final class TestLoggerTest {
             @TestInstance(Lifecycle.PER_CLASS)
             class InstancePerClass extends LogbackLoggerTests {
 
-                @TestLogger("com.github.robtimus.junit.support.extension.testlogger.TestLogger")
+                @TestLogger(LOGGER_NAME)
                 private LogbackLoggerContext logger;
 
                 @TestLogger.Root
@@ -375,6 +409,19 @@ final class TestLoggerTest {
                 }
             }
         }
+
+        @Test
+        @DisplayName("disabled logging")
+        void testDisabledLogging(@TestLogger(DISABLED_LOGGER_NAME) @DisableLogging LogbackLoggerContext logger) {
+            LogbackTestAppender testAppender = LogbackLoggerTests.testAppender(logger);
+            testAppender.clearEvents();
+
+            SLF4J_DISABLED_LOGGER.warn("warning message");
+            SLF4J_DISABLED_LOGGER.info("info message");
+            SLF4J_DISABLED_LOGGER.debug("debug message");
+
+            assertEquals(Collections.emptyList(), testAppender.getEvents());
+        }
     }
 
     @Nested
@@ -390,7 +437,7 @@ final class TestLoggerTest {
             @TestInstance(Lifecycle.PER_METHOD)
             class InstancePerMethod extends Reload4jLoggerTests {
 
-                @TestLogger("com.github.robtimus.junit.support.extension.testlogger.TestLogger")
+                @TestLogger(LOGGER_NAME)
                 private Reload4jLoggerContext logger;
 
                 @TestLogger.Root
@@ -412,7 +459,7 @@ final class TestLoggerTest {
             @TestInstance(Lifecycle.PER_CLASS)
             class InstancePerClass extends Reload4jLoggerTests {
 
-                @TestLogger("com.github.robtimus.junit.support.extension.testlogger.TestLogger")
+                @TestLogger(LOGGER_NAME)
                 private Reload4jLoggerContext logger;
 
                 @TestLogger.Root
@@ -477,6 +524,19 @@ final class TestLoggerTest {
                     return rootLogger;
                 }
             }
+        }
+
+        @Test
+        @DisplayName("disabled logging")
+        void testDisabledLogging(@TestLogger(DISABLED_LOGGER_NAME) @DisableLogging Reload4jLoggerContext logger) {
+            Reload4jTestAppender testAppender = Reload4jLoggerTests.testAppender(logger);
+            testAppender.clearEvents();
+
+            RELOAD4J_DISABLED_LOGGER.warn("warning message");
+            RELOAD4J_DISABLED_LOGGER.info("info message");
+            RELOAD4J_DISABLED_LOGGER.debug("debug message");
+
+            assertEquals(Collections.emptyList(), testAppender.getEvents());
         }
     }
 
@@ -567,17 +627,18 @@ final class TestLoggerTest {
         void init() {
             validateLoggers();
 
-            testHandler = assertIsPresent(logger().streamHandlers()
-                    .filter(JdkTestHandler.class::isInstance)
-                    .map(JdkTestHandler.class::cast)
-                    .findAny());
+            testHandler = testHandler(logger());
             testHandler.clearRecords();
 
-            rootTestHandler = assertIsPresent(rootLogger().streamHandlers()
+            rootTestHandler = testHandler(rootLogger());
+            rootTestHandler.clearRecords();
+        }
+
+        private static JdkTestHandler testHandler(JdkLoggerContext logger) {
+            return assertIsPresent(logger.streamHandlers()
                     .filter(JdkTestHandler.class::isInstance)
                     .map(JdkTestHandler.class::cast)
                     .findAny());
-            rootTestHandler.clearRecords();
         }
 
         @Test
@@ -838,17 +899,18 @@ final class TestLoggerTest {
         void init() {
             validateLoggers();
 
-            testAppender = assertIsPresent(logger().streamAppenders()
-                    .filter(Log4jTestAppender.class::isInstance)
-                    .map(Log4jTestAppender.class::cast)
-                    .findAny());
+            testAppender = testAppender(logger());
             testAppender.clearEvents();
 
-            rootTestAppender = assertIsPresent(rootLogger().streamAppenders()
+            rootTestAppender = testAppender(rootLogger());
+            rootTestAppender.clearEvents();
+        }
+
+        private static Log4jTestAppender testAppender(Log4jLoggerContext logger) {
+            return assertIsPresent(logger.streamAppenders()
                     .filter(Log4jTestAppender.class::isInstance)
                     .map(Log4jTestAppender.class::cast)
                     .findAny());
-            rootTestAppender.clearEvents();
         }
 
         @Test
@@ -1114,17 +1176,18 @@ final class TestLoggerTest {
         void init() {
             validateLoggers();
 
-            testAppender = assertIsPresent(logger().streamAppenders()
-                    .filter(LogbackTestAppender.class::isInstance)
-                    .map(LogbackTestAppender.class::cast)
-                    .findAny());
+            testAppender = testAppender(logger());
             testAppender.clearEvents();
 
-            rootTestAppender = assertIsPresent(rootLogger().streamAppenders()
+            rootTestAppender = testAppender(rootLogger());
+            rootTestAppender.clearEvents();
+        }
+
+        private static LogbackTestAppender testAppender(LogbackLoggerContext logger) {
+            return assertIsPresent(logger.streamAppenders()
                     .filter(LogbackTestAppender.class::isInstance)
                     .map(LogbackTestAppender.class::cast)
                     .findAny());
-            rootTestAppender.clearEvents();
         }
 
         @Test
@@ -1395,17 +1458,18 @@ final class TestLoggerTest {
         void init() {
             validateLoggers();
 
-            testAppender = assertIsPresent(logger().streamAppenders()
-                    .filter(Reload4jTestAppender.class::isInstance)
-                    .map(Reload4jTestAppender.class::cast)
-                    .findAny());
+            testAppender = testAppender(logger());
             testAppender.clearEvents();
 
-            rootTestAppender = assertIsPresent(rootLogger().streamAppenders()
+            rootTestAppender = testAppender(rootLogger());
+            rootTestAppender.clearEvents();
+        }
+
+        private static Reload4jTestAppender testAppender(Reload4jLoggerContext logger) {
+            return assertIsPresent(logger.streamAppenders()
                     .filter(Reload4jTestAppender.class::isInstance)
                     .map(Reload4jTestAppender.class::cast)
                     .findAny());
-            rootTestAppender.clearEvents();
         }
 
         @Test
@@ -1661,6 +1725,11 @@ final class TestLoggerTest {
         }
 
         static final class UnsupportedContext extends LoggerContext {
+
+            @Override
+            void disable() {
+                // does nothing
+            }
 
             @Override
             void saveSettings() {

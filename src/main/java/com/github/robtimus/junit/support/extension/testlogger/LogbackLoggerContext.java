@@ -147,6 +147,11 @@ public final class LogbackLoggerContext extends LoggerContext {
     }
 
     @Override
+    void disable() {
+        setLevel(Level.OFF);
+    }
+
+    @Override
     void saveSettings() {
         helper.saveSettings();
     }

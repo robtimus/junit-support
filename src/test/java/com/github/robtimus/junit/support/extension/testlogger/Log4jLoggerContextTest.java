@@ -45,6 +45,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 final class Log4jLoggerContextTest {
 
     private static final Logger LOGGER = (Logger) LogManager.getLogger(TestLogger.class);
+    private static final Logger DISABLED_LOGGER = (Logger) LogManager.getLogger(TestLogger.class.getName() + ".disabled");
     private static final Logger ROOT_LOGGER = (Logger) LogManager.getRootLogger();
 
     private static final Comparator<Appender> APPENDER_COMPARATOR = Comparator.comparing(Appender::getName)
@@ -63,6 +64,14 @@ final class Log4jLoggerContextTest {
         assertEquals(1, appenders.size());
         assertInstanceOf(Log4jTestAppender.class, appenders.get(0));
         assertEquals("A2", appenders.get(0).getName());
+
+        assertEquals(Level.INFO, DISABLED_LOGGER.getLevel());
+        assertTrue(DISABLED_LOGGER.isAdditive());
+
+        List<Appender> disabledAppenders = getAppenders(DISABLED_LOGGER);
+        assertEquals(1, disabledAppenders.size());
+        assertInstanceOf(Log4jTestAppender.class, disabledAppenders.get(0));
+        assertEquals("A3", disabledAppenders.get(0).getName());
 
         assertEquals(Level.WARN, ROOT_LOGGER.getLevel());
         assertFalse(ROOT_LOGGER.isAdditive());

@@ -19,6 +19,8 @@ package com.github.robtimus.junit.support.extension.testlogger;
 
 abstract class LoggerContext {
 
+    abstract void disable();
+
     abstract void saveSettings();
 
     /**

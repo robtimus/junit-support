@@ -83,7 +83,11 @@ class TestLoggerExtension extends InjectingExtension {
     protected Object resolveValue(InjectionTarget target, ExtensionContext context) throws Exception {
         Class<?> targetType = target.type();
         ContextFactory<?> contextFactory = CONTEXT_FACTORIES.get(targetType);
-        return resolveContext(target, contextFactory, context);
+        LoggerContext loggerContext = resolveContext(target, contextFactory, context);
+        if (target.isAnnotated(DisableLogging.class)) {
+            loggerContext.disable();
+        }
+        return loggerContext;
     }
 
     private LoggerContext resolveContext(InjectionTarget target, ContextFactory<?> contextFactory, ExtensionContext context) {

@@ -2,6 +2,7 @@
   <Appenders>
     <Log4jTest name="A1" />
     <Log4jTest name="A2" />
+    <Log4jTest name="A3" />
   </Appenders>
 
   <Loggers>
@@ -11,6 +12,10 @@
 
     <Logger name="com.github.robtimus.junit.support.extension.testlogger.TestLogger" level="info">
       <AppenderRef ref="A2" />
+    </Logger>
+
+    <Logger name="com.github.robtimus.junit.support.extension.testlogger.TestLogger.disabled" level="info">
+      <AppenderRef ref="A3" />
     </Logger>
   </Loggers>
 </Configuration>

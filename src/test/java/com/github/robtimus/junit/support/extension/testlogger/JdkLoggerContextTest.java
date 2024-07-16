@@ -45,6 +45,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 final class JdkLoggerContextTest {
 
     private static final Logger LOGGER = Logger.getLogger(TestLogger.class.getName());
+    private static final Logger DISABLED_LOGGER = Logger.getLogger(TestLogger.class.getName() + ".disabled");
     private static final Logger ROOT_LOGGER = Logger.getLogger("");
 
     private static final Comparator<Handler> HANDLER_COMPARATOR = Comparator.comparing(Handler::getClass, Comparator.comparing(Class::getName));
@@ -61,6 +62,13 @@ final class JdkLoggerContextTest {
         List<Handler> handlers = getHandlers(LOGGER);
         assertEquals(1, handlers.size());
         assertInstanceOf(JdkTestHandler.class, handlers.get(0));
+
+        assertEquals(Level.INFO, DISABLED_LOGGER.getLevel());
+        assertTrue(DISABLED_LOGGER.getUseParentHandlers());
+
+        List<Handler> disabledHandlers = getHandlers(DISABLED_LOGGER);
+        assertEquals(1, disabledHandlers.size());
+        assertInstanceOf(JdkTestHandler.class, disabledHandlers.get(0));
 
         assertEquals(Level.WARNING, ROOT_LOGGER.getLevel());
         assertTrue(ROOT_LOGGER.getUseParentHandlers());
