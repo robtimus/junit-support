@@ -17,9 +17,6 @@
 
 package com.github.robtimus.junit.support.extension.testlogger;
 
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -189,12 +186,9 @@ public final class Reload4jLoggerContext extends LoggerContext {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         Iterable<Appender> appenders() {
-            List<Appender> appenders = new ArrayList<>();
-            for (@SuppressWarnings("unchecked") Enumeration<Appender> e = logger.getAllAppenders(); e.hasMoreElements(); ) {
-                appenders.add(e.nextElement());
-            }
-            return appenders;
+            return () -> logger.getAllAppenders().asIterator();
         }
 
         @Override
