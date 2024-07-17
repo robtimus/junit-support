@@ -23,6 +23,7 @@ import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -80,6 +81,12 @@ final class TestLoggerTest {
     @DisplayName("JDK")
     class JdkLogging {
 
+        @TestLogger(LOGGER_NAME)
+        private JdkLoggerContext contextWithName;
+
+        @TestLogger.ForClass(TestLogger.class)
+        private JdkLoggerContext contextWithClass;
+
         @Nested
         @DisplayName("With logger name")
         class WithLoggerName {
@@ -176,6 +183,16 @@ final class TestLoggerTest {
                     return rootLogger;
                 }
             }
+        }
+
+        @Test
+        @DisplayName("instance reuse")
+        void testInstanceReuse(@TestLogger(LOGGER_NAME) JdkLoggerContext contextWithName,
+                @TestLogger.ForClass(TestLogger.class) JdkLoggerContext contextWithClass) {
+
+            assertSame(this.contextWithName, this.contextWithClass);
+            assertSame(this.contextWithName, contextWithName);
+            assertSame(this.contextWithName, contextWithClass);
         }
 
         @Test
@@ -196,6 +213,12 @@ final class TestLoggerTest {
     @DisplayName("Log4j")
     class Log4jLogging {
 
+        @TestLogger(LOGGER_NAME)
+        private Log4jLoggerContext contextWithName;
+
+        @TestLogger.ForClass(TestLogger.class)
+        private Log4jLoggerContext contextWithClass;
+
         @Nested
         @DisplayName("With logger name")
         class WithLoggerName {
@@ -292,6 +315,16 @@ final class TestLoggerTest {
                     return rootLogger;
                 }
             }
+        }
+
+        @Test
+        @DisplayName("instance reuse")
+        void testInstanceReuse(@TestLogger(LOGGER_NAME) Log4jLoggerContext contextWithName,
+                @TestLogger.ForClass(TestLogger.class) Log4jLoggerContext contextWithClass) {
+
+            assertSame(this.contextWithName, this.contextWithClass);
+            assertSame(this.contextWithName, contextWithName);
+            assertSame(this.contextWithName, contextWithClass);
         }
 
         @Test
@@ -312,6 +345,12 @@ final class TestLoggerTest {
     @DisplayName("Logback")
     class LogbackLogging {
 
+        @TestLogger(LOGGER_NAME)
+        private LogbackLoggerContext contextWithName;
+
+        @TestLogger.ForClass(TestLogger.class)
+        private LogbackLoggerContext contextWithClass;
+
         @Nested
         @DisplayName("With logger name")
         class WithLoggerName {
@@ -411,6 +450,16 @@ final class TestLoggerTest {
         }
 
         @Test
+        @DisplayName("instance reuse")
+        void testInstanceReuse(@TestLogger(LOGGER_NAME) LogbackLoggerContext contextWithName,
+                @TestLogger.ForClass(TestLogger.class) LogbackLoggerContext contextWithClass) {
+
+            assertSame(this.contextWithName, this.contextWithClass);
+            assertSame(this.contextWithName, contextWithName);
+            assertSame(this.contextWithName, contextWithClass);
+        }
+
+        @Test
         @DisplayName("disabled logging")
         void testDisabledLogging(@TestLogger(DISABLED_LOGGER_NAME) @DisableLogging LogbackLoggerContext logger) {
             LogbackTestAppender testAppender = LogbackLoggerTests.testAppender(logger);
@@ -427,6 +476,12 @@ final class TestLoggerTest {
     @Nested
     @DisplayName("Reload4j")
     class Reload4jLogging {
+
+        @TestLogger(LOGGER_NAME)
+        private Reload4jLoggerContext contextWithName;
+
+        @TestLogger.ForClass(TestLogger.class)
+        private Reload4jLoggerContext contextWithClass;
 
         @Nested
         @DisplayName("With logger name")
@@ -524,6 +579,16 @@ final class TestLoggerTest {
                     return rootLogger;
                 }
             }
+        }
+
+        @Test
+        @DisplayName("instance reuse")
+        void testInstanceReuse(@TestLogger(LOGGER_NAME) Reload4jLoggerContext contextWithName,
+                @TestLogger.ForClass(TestLogger.class) Reload4jLoggerContext contextWithClass) {
+
+            assertSame(this.contextWithName, this.contextWithClass);
+            assertSame(this.contextWithName, contextWithName);
+            assertSame(this.contextWithName, contextWithClass);
         }
 
         @Test

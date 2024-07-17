@@ -62,6 +62,12 @@ public final class Log4jLoggerContext extends LoggerContext {
         return new Log4jLoggerContext(logger);
     }
 
+    static String className(Class<?> c) {
+        // Unlike the other logging frameworks, Log4j tries to use the canonical name first
+        String canonicalName = c.getCanonicalName();
+        return canonicalName != null ? canonicalName : c.getName();
+    }
+
     /**
      * Sets the new level for the logger.
      *

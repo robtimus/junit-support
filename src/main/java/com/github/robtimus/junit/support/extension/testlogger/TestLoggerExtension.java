@@ -48,13 +48,16 @@ class TestLoggerExtension extends InjectingExtension {
     static {
         Map<Class<? extends LoggerContext>, ContextFactory<?>> contextFactories = new HashMap<>();
         contextFactories.put(JdkLoggerContext.class,
-                new ContextFactory<>(JdkLoggerContext::forLogger, JdkLoggerContext::forLogger, JdkLoggerContext::forRootLogger));
+                new ContextFactory<>(JdkLoggerContext::forLogger, JdkLoggerContext::forLogger, JdkLoggerContext::forRootLogger, Class::getName));
         contextFactories.put(Log4jLoggerContext.class,
-                new ContextFactory<>(Log4jLoggerContext::forLogger, Log4jLoggerContext::forLogger, Log4jLoggerContext::forRootLogger));
+                new ContextFactory<>(Log4jLoggerContext::forLogger, Log4jLoggerContext::forLogger, Log4jLoggerContext::forRootLogger,
+                        Log4jLoggerContext::className));
         contextFactories.put(LogbackLoggerContext.class,
-                new ContextFactory<>(LogbackLoggerContext::forLogger, LogbackLoggerContext::forLogger, LogbackLoggerContext::forRootLogger));
+                new ContextFactory<>(LogbackLoggerContext::forLogger, LogbackLoggerContext::forLogger, LogbackLoggerContext::forRootLogger,
+                        Class::getName));
         contextFactories.put(Reload4jLoggerContext.class,
-                new ContextFactory<>(Reload4jLoggerContext::forLogger, Reload4jLoggerContext::forLogger, Reload4jLoggerContext::forRootLogger));
+                new ContextFactory<>(Reload4jLoggerContext::forLogger, Reload4jLoggerContext::forLogger, Reload4jLoggerContext::forRootLogger,
+                        Class::getName));
         CONTEXT_FACTORIES = Collections.unmodifiableMap(contextFactories);
     }
 
@@ -106,7 +109,8 @@ class TestLoggerExtension extends InjectingExtension {
         }
         if (testLoggerForClass != null) {
             Class<?> loggerClass = testLoggerForClass.value();
-            return context.getStore(NAMESPACE).getOrComputeIfAbsent(loggerClass, contextFactory::newContext, CloseableContext.class).context;
+            String key = contextFactory.classKeyExtractor.apply(loggerClass);
+            return context.getStore(NAMESPACE).getOrComputeIfAbsent(key, k -> contextFactory.newContext(loggerClass), CloseableContext.class).context;
         }
         return context.getStore(NAMESPACE).getOrComputeIfAbsent(ROOT_KEY, o -> contextFactory.newRootContext(), CloseableContext.class).context;
     }
@@ -125,11 +129,15 @@ class TestLoggerExtension extends InjectingExtension {
         private final Function<String, C> newContextFromName;
         private final Function<Class<?>, C> newContextFromClass;
         private final Supplier<C> newRootContext;
+        private final Function<Class<?>, String> classKeyExtractor;
 
-        private ContextFactory(Function<String, C> newContextFromName, Function<Class<?>, C> newContextFromClass, Supplier<C> newRootContext) {
+        private ContextFactory(Function<String, C> newContextFromName, Function<Class<?>, C> newContextFromClass, Supplier<C> newRootContext,
+                Function<Class<?>, String> classKeyExtractor) {
+
             this.newContextFromName = newContextFromName;
             this.newContextFromClass = newContextFromClass;
             this.newRootContext = newRootContext;
+            this.classKeyExtractor = classKeyExtractor;
         }
 
         private CloseableContext newContext(String loggerName) {
