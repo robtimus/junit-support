@@ -18,13 +18,9 @@
 package com.github.robtimus.junit.support.extension.testlogger;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
@@ -41,25 +37,12 @@ import com.github.robtimus.junit.support.extension.testlogger.TestLogger.Root;
 class TestLoggerExtension extends InjectingExtension {
 
     private static final Namespace NAMESPACE = Namespace.create(TestLoggerExtension.class);
-    private static final Object ROOT_KEY = true;
 
-    private static final Map<Class<? extends LoggerContext>, ContextFactory<?>> CONTEXT_FACTORIES;
-
-    static {
-        Map<Class<? extends LoggerContext>, ContextFactory<?>> contextFactories = new HashMap<>();
-        contextFactories.put(JdkLoggerContext.class,
-                new ContextFactory<>(JdkLoggerContext::forLogger, JdkLoggerContext::forLogger, JdkLoggerContext::forRootLogger, Class::getName));
-        contextFactories.put(Log4jLoggerContext.class,
-                new ContextFactory<>(Log4jLoggerContext::forLogger, Log4jLoggerContext::forLogger, Log4jLoggerContext::forRootLogger,
-                        Log4jLoggerContext::className));
-        contextFactories.put(LogbackLoggerContext.class,
-                new ContextFactory<>(LogbackLoggerContext::forLogger, LogbackLoggerContext::forLogger, LogbackLoggerContext::forRootLogger,
-                        Class::getName));
-        contextFactories.put(Reload4jLoggerContext.class,
-                new ContextFactory<>(Reload4jLoggerContext::forLogger, Reload4jLoggerContext::forLogger, Reload4jLoggerContext::forRootLogger,
-                        Class::getName));
-        CONTEXT_FACTORIES = Collections.unmodifiableMap(contextFactories);
-    }
+    private static final Map<Class<? extends LoggerContext>, ContextFactory<?>> CONTEXT_FACTORIES = Map.of(
+            JdkLoggerContext.class, new JdkLoggerContext.Factory(),
+            Log4jLoggerContext.class, new Log4jLoggerContext.Factory(),
+            LogbackLoggerContext.class, new LogbackLoggerContext.Factory(),
+            Reload4jLoggerContext.class, new Reload4jLoggerContext.Factory());
 
     TestLoggerExtension() {
         super(TestLoggerExtension::hasSupportedAnnotation);
@@ -105,14 +88,16 @@ class TestLoggerExtension extends InjectingExtension {
 
         if (testLogger != null) {
             String loggerName = testLogger.value();
-            return context.getStore(NAMESPACE).getOrComputeIfAbsent(loggerName, contextFactory::newContext, CloseableContext.class).context;
+            String key = contextFactory.key(loggerName);
+            return context.getStore(NAMESPACE).getOrComputeIfAbsent(key, k -> contextFactory.newContext(loggerName), CloseableContext.class).context;
         }
         if (testLoggerForClass != null) {
             Class<?> loggerClass = testLoggerForClass.value();
-            String key = contextFactory.classKeyExtractor.apply(loggerClass);
+            String key = contextFactory.key(loggerClass);
             return context.getStore(NAMESPACE).getOrComputeIfAbsent(key, k -> contextFactory.newContext(loggerClass), CloseableContext.class).context;
         }
-        return context.getStore(NAMESPACE).getOrComputeIfAbsent(ROOT_KEY, o -> contextFactory.newRootContext(), CloseableContext.class).context;
+        String key = contextFactory.rootKey();
+        return context.getStore(NAMESPACE).getOrComputeIfAbsent(key, o -> contextFactory.newRootContext(), CloseableContext.class).context;
     }
 
     private void validateAnnotations(TestLogger testLogger, ForClass testLoggerForClass, Root testLoggerRoot) {
@@ -124,35 +109,45 @@ class TestLoggerExtension extends InjectingExtension {
         }
     }
 
-    private static final class ContextFactory<C extends LoggerContext> {
-
-        private final Function<String, C> newContextFromName;
-        private final Function<Class<?>, C> newContextFromClass;
-        private final Supplier<C> newRootContext;
-        private final Function<Class<?>, String> classKeyExtractor;
-
-        private ContextFactory(Function<String, C> newContextFromName, Function<Class<?>, C> newContextFromClass, Supplier<C> newRootContext,
-                Function<Class<?>, String> classKeyExtractor) {
-
-            this.newContextFromName = newContextFromName;
-            this.newContextFromClass = newContextFromClass;
-            this.newRootContext = newRootContext;
-            this.classKeyExtractor = classKeyExtractor;
-        }
+    abstract static class ContextFactory<C extends LoggerContext> {
 
         private CloseableContext newContext(String loggerName) {
-            C context = newContextFromName.apply(loggerName);
+            C context = newLoggerContext(loggerName);
             return new CloseableContext(context);
         }
 
         private CloseableContext newContext(Class<?> loggerClass) {
-            C context = newContextFromClass.apply(loggerClass);
+            C context = newLoggerContext(loggerClass);
             return new CloseableContext(context);
         }
 
         private CloseableContext newRootContext() {
-            C context = newRootContext.get();
+            C context = newRootLoggerContext();
             return new CloseableContext(context);
+        }
+
+        abstract C newLoggerContext(String loggerName);
+
+        abstract C newLoggerContext(Class<?> loggerClass);
+
+        abstract C newRootLoggerContext();
+
+        abstract String keyPrefix();
+
+        abstract String loggerName(Class<?> loggerClass);
+
+        abstract String rootLoggerName();
+
+        private String key(String loggerName) {
+            return keyPrefix() + "." + loggerName;
+        }
+
+        private String key(Class<?> loggerClass) {
+            return key(loggerName(loggerClass));
+        }
+
+        private String rootKey() {
+            return key(rootLoggerName());
         }
     }
 

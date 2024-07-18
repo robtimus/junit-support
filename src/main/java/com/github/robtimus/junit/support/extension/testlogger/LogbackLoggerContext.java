@@ -21,6 +21,7 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.slf4j.LoggerFactory;
+import com.github.robtimus.junit.support.extension.testlogger.TestLoggerExtension.ContextFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -202,6 +203,39 @@ public final class LogbackLoggerContext extends LoggerContext {
         @Override
         void useParentAppenders(boolean useParentAppenders) {
             logger.setAdditive(useParentAppenders);
+        }
+    }
+
+    static final class Factory extends ContextFactory<LogbackLoggerContext> {
+
+        @Override
+        LogbackLoggerContext newLoggerContext(String loggerName) {
+            return forLogger(loggerName);
+        }
+
+        @Override
+        LogbackLoggerContext newLoggerContext(Class<?> loggerClass) {
+            return forLogger(loggerClass);
+        }
+
+        @Override
+        LogbackLoggerContext newRootLoggerContext() {
+            return forRootLogger();
+        }
+
+        @Override
+        String keyPrefix() {
+            return LogbackLoggerContext.class.getSimpleName();
+        }
+
+        @Override
+        String loggerName(Class<?> loggerClass) {
+            return loggerClass.getName();
+        }
+
+        @Override
+        String rootLoggerName() {
+            return org.slf4j.Logger.ROOT_LOGGER_NAME;
         }
     }
 }

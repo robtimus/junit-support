@@ -26,6 +26,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.Logger;
+import com.github.robtimus.junit.support.extension.testlogger.TestLoggerExtension.ContextFactory;
 
 /**
  * {@code Log4jLoggerContext} represents a Log4j {@link Logger} (2.x only). It can be injected using {@link TestLogger}, {@link TestLogger.ForClass}
@@ -232,6 +233,39 @@ public final class Log4jLoggerContext extends LoggerContext {
             }
 
             super.saveSettings();
+        }
+    }
+
+    static final class Factory extends ContextFactory<Log4jLoggerContext> {
+
+        @Override
+        Log4jLoggerContext newLoggerContext(String loggerName) {
+            return forLogger(loggerName);
+        }
+
+        @Override
+        Log4jLoggerContext newLoggerContext(Class<?> loggerClass) {
+            return forLogger(loggerClass);
+        }
+
+        @Override
+        Log4jLoggerContext newRootLoggerContext() {
+            return forRootLogger();
+        }
+
+        @Override
+        String keyPrefix() {
+            return Log4jLoggerContext.class.getSimpleName();
+        }
+
+        @Override
+        String loggerName(Class<?> loggerClass) {
+            return className(loggerClass);
+        }
+
+        @Override
+        String rootLoggerName() {
+            return LogManager.ROOT_LOGGER_NAME;
         }
     }
 }

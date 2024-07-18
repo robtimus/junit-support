@@ -24,6 +24,7 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
+import com.github.robtimus.junit.support.extension.testlogger.TestLoggerExtension.ContextFactory;
 
 /**
  * {@code JdkLoggerContext} represents a JDK {@link Logger}. It can be injected using {@link TestLogger}, {@link TestLogger.ForClass} or
@@ -34,6 +35,8 @@ import java.util.stream.Stream;
  */
 @SuppressWarnings("exports") // the dependency is static, and therefore needs to be repeated anyway
 public final class JdkLoggerContext extends LoggerContext {
+
+    private static final String ROOT_LOGGER_NAME = ""; //$NON-NLS-1$
 
     private final Helper helper;
 
@@ -51,7 +54,7 @@ public final class JdkLoggerContext extends LoggerContext {
     }
 
     static JdkLoggerContext forRootLogger() {
-        return forLogger(""); //$NON-NLS-1$
+        return forLogger(ROOT_LOGGER_NAME);
     }
 
     /**
@@ -200,6 +203,39 @@ public final class JdkLoggerContext extends LoggerContext {
         @Override
         void useParentAppenders(boolean useParentHandlers) {
             logger.setUseParentHandlers(useParentHandlers);
+        }
+    }
+
+    static final class Factory extends ContextFactory<JdkLoggerContext> {
+
+        @Override
+        JdkLoggerContext newLoggerContext(String loggerName) {
+            return forLogger(loggerName);
+        }
+
+        @Override
+        JdkLoggerContext newLoggerContext(Class<?> loggerClass) {
+            return forLogger(loggerClass);
+        }
+
+        @Override
+        JdkLoggerContext newRootLoggerContext() {
+            return forRootLogger();
+        }
+
+        @Override
+        String keyPrefix() {
+            return JdkLoggerContext.class.getSimpleName();
+        }
+
+        @Override
+        String loggerName(Class<?> loggerClass) {
+            return loggerClass.getName();
+        }
+
+        @Override
+        String rootLoggerName() {
+            return ROOT_LOGGER_NAME;
         }
     }
 }

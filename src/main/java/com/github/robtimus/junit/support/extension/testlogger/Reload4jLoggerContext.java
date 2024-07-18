@@ -18,11 +18,13 @@
 package com.github.robtimus.junit.support.extension.testlogger;
 
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import com.github.robtimus.junit.support.extension.testlogger.TestLoggerExtension.ContextFactory;
 
 /**
  * {@code Reload4jLoggerContext} represents a reload4j {@link Logger}. It can be injected using {@link TestLogger}, {@link TestLogger.ForClass} or
@@ -209,6 +211,43 @@ public final class Reload4jLoggerContext extends LoggerContext {
         @Override
         void useParentAppenders(boolean useParentAppenders) {
             logger.setAdditivity(useParentAppenders);
+        }
+    }
+
+    static final class Factory extends ContextFactory<Reload4jLoggerContext> {
+
+        // The root logger in reload4j has name "root", but a logger with name "root" is not the same.
+        // Therefore, use something unique instead.
+        private static final String ROOT_LOGGER_NAME = UUID.randomUUID().toString();
+
+        @Override
+        Reload4jLoggerContext newLoggerContext(String loggerName) {
+            return forLogger(loggerName);
+        }
+
+        @Override
+        Reload4jLoggerContext newLoggerContext(Class<?> loggerClass) {
+            return forLogger(loggerClass);
+        }
+
+        @Override
+        Reload4jLoggerContext newRootLoggerContext() {
+            return forRootLogger();
+        }
+
+        @Override
+        String keyPrefix() {
+            return Reload4jLoggerContext.class.getSimpleName();
+        }
+
+        @Override
+        String loggerName(Class<?> loggerClass) {
+            return loggerClass.getName();
+        }
+
+        @Override
+        String rootLoggerName() {
+            return ROOT_LOGGER_NAME;
         }
     }
 }
