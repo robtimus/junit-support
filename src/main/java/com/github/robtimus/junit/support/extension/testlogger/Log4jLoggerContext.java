@@ -17,7 +17,7 @@
 
 package com.github.robtimus.junit.support.extension.testlogger;
 
-import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import java.util.Objects;
@@ -29,7 +29,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.Logger;
-import org.mockito.ArgumentCaptor;
 import com.github.robtimus.junit.support.extension.testlogger.TestLoggerExtension.ContextFactory;
 
 /**
@@ -239,11 +238,9 @@ public final class Log4jLoggerContext extends LoggerContext {
         LogCaptor<LogEvent> logCaptor() {
             if (logCaptor == null) {
                 captorAppender = spy(Log4jNullAppender.create("LogCaptor-" + UUID.randomUUID().toString())); //$NON-NLS-1$
-                logCaptor = () -> {
-                    ArgumentCaptor<LogEvent> eventCaptor = ArgumentCaptor.forClass(LogEvent.class);
-                    verify(captorAppender, atLeast(0)).ignore(eventCaptor.capture());
-                    return eventCaptor.getAllValues();
-                };
+                logCaptor = new LogCaptor<>(LogEvent.class,
+                        (mode, eventCaptor) -> verify(captorAppender, mode).ignore(eventCaptor.capture()),
+                        () -> reset(captorAppender));
                 addAppender(captorAppender);
             }
             return logCaptor;

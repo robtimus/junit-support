@@ -17,8 +17,8 @@
 
 package com.github.robtimus.junit.support.extension.testlogger;
 
-import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import java.util.Arrays;
 import java.util.Objects;
@@ -28,7 +28,6 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
-import org.mockito.ArgumentCaptor;
 import com.github.robtimus.junit.support.extension.testlogger.TestLoggerExtension.ContextFactory;
 
 /**
@@ -228,14 +227,11 @@ public final class JdkLoggerContext extends LoggerContext {
         LogCaptor<LogRecord> logCaptor() {
             if (logCaptor == null) {
                 captorHandler = mock(Handler.class);
-                logCaptor = () -> {
-                    ArgumentCaptor<LogRecord> recordCaptor = ArgumentCaptor.forClass(LogRecord.class);
-                    verify(captorHandler, atLeast(0)).publish(recordCaptor.capture());
-                    return recordCaptor.getAllValues();
-                };
+                logCaptor = new LogCaptor<>(LogRecord.class,
+                        (mode, recordCaptor) -> verify(captorHandler, mode).publish(recordCaptor.capture()),
+                        () -> reset(captorHandler));
                 addAppender(captorHandler);
             }
-
             return logCaptor;
         }
     }

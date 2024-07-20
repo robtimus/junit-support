@@ -298,6 +298,12 @@ final class LogbackLoggerContextTest {
 
             LOGGER.info("fourth log");
             assertLoggedMessages(logCaptor, "first log", "second log", "third log", "fourth log");
+
+            logCaptor.reset();
+            assertLoggedMessages(logCaptor);
+
+            LOGGER.info("fifth log");
+            assertLoggedMessages(logCaptor, "fifth log");
         }
 
         private void assertLoggedMessages(LogCaptor<ILoggingEvent> logCaptor, String... messages) {

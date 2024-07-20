@@ -17,13 +17,12 @@
 
 package com.github.robtimus.junit.support.extension.testlogger;
 
-import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-import org.mockito.ArgumentCaptor;
 import org.slf4j.LoggerFactory;
 import com.github.robtimus.junit.support.extension.testlogger.TestLoggerExtension.ContextFactory;
 import ch.qos.logback.classic.Level;
@@ -228,11 +227,9 @@ public final class LogbackLoggerContext extends LoggerContext {
         LogCaptor<ILoggingEvent> logCaptor() {
             if (logCaptor == null) {
                 captorAppender = mock(Appender.class);
-                logCaptor = () -> {
-                    ArgumentCaptor<ILoggingEvent> eventCaptor = ArgumentCaptor.forClass(ILoggingEvent.class);
-                    verify(captorAppender, atLeast(0)).doAppend(eventCaptor.capture());
-                    return eventCaptor.getAllValues();
-                };
+                logCaptor = new LogCaptor<>(ILoggingEvent.class,
+                        (mode, eventCaptor) -> verify(captorAppender, mode).doAppend(eventCaptor.capture()),
+                        () -> reset(captorAppender));
                 addAppender(captorAppender);
             }
             return logCaptor;

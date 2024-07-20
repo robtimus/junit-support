@@ -17,8 +17,8 @@
 
 package com.github.robtimus.junit.support.extension.testlogger;
 
-import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import java.util.Objects;
 import java.util.UUID;
@@ -28,7 +28,6 @@ import org.apache.log4j.Appender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
-import org.mockito.ArgumentCaptor;
 import com.github.robtimus.junit.support.extension.testlogger.TestLoggerExtension.ContextFactory;
 
 /**
@@ -231,11 +230,9 @@ public final class Reload4jLoggerContext extends LoggerContext {
         LogCaptor<LoggingEvent> logCaptor() {
             if (logCaptor == null) {
                 captorAppender = mock(Appender.class);
-                logCaptor = () -> {
-                    ArgumentCaptor<LoggingEvent> eventCaptor = ArgumentCaptor.forClass(LoggingEvent.class);
-                    verify(captorAppender, atLeast(0)).doAppend(eventCaptor.capture());
-                    return eventCaptor.getAllValues();
-                };
+                logCaptor = new LogCaptor<>(LoggingEvent.class,
+                        (mode, eventCaptor) -> verify(captorAppender, mode).doAppend(eventCaptor.capture()),
+                        () -> reset(captorAppender));
                 addAppender(captorAppender);
             }
             return logCaptor;

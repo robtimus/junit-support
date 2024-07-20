@@ -17,7 +17,11 @@
 
 package com.github.robtimus.junit.support.extension.testlogger;
 
+import static org.mockito.Mockito.atLeast;
 import java.util.List;
+import java.util.function.BiConsumer;
+import org.mockito.ArgumentCaptor;
+import org.mockito.verification.VerificationMode;
 
 /**
  * An object that captures logged events or records.
@@ -25,12 +29,34 @@ import java.util.List;
  * @author Rob Spoor
  * @param <T> The type of logged event or record.
  */
-public interface LogCaptor<T> {
+public final class LogCaptor<T> {
+
+    private final Class<T> eventType;
+
+    private final BiConsumer<VerificationMode, ArgumentCaptor<T>> verifier;
+    private final Runnable resetter;
+
+    LogCaptor(Class<T> eventType, BiConsumer<VerificationMode, ArgumentCaptor<T>> verifier, Runnable resetter) {
+        this.eventType = eventType;
+        this.verifier = verifier;
+        this.resetter = resetter;
+    }
 
     /**
      * Returns all events or records that were logged.
      *
      * @return All events or records that were logged.
      */
-    List<T> logged();
+    public List<T> logged() {
+        ArgumentCaptor<T> eventCaptor = ArgumentCaptor.forClass(eventType);
+        verifier.accept(atLeast(0), eventCaptor);
+        return eventCaptor.getAllValues();
+    }
+
+    /**
+     * Resets the logged events or records. Afterwards {@link #logged()} will return an empty list until more logged events or records occur.
+     */
+    public void reset() {
+        resetter.run();
+    }
 }
