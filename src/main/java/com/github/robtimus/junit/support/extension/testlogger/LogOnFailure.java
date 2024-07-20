@@ -1,6 +1,6 @@
 /*
- * LoggerContext.java
- * Copyright 2022 Rob Spoor
+ * LogOnFailure.java
+ * Copyright 2024 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +17,20 @@
 
 package com.github.robtimus.junit.support.extension.testlogger;
 
-abstract class LoggerContext {
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-    abstract void disable();
-
-    abstract void startCapture();
-
-    abstract void logCaptured();
-
-    abstract void saveSettings();
-
-    /**
-     * Restores the original settings of the logger.
-     * <p>
-     * It should usually not be necessary to call this method, as it will be called automatically once this context goes out of scope.
-     */
-    public abstract void restore();
+/**
+ * {@code LogOnFailure} can be used in combination with {@link TestLogger} to suppress logging.
+ * However, if a test fails, all logging that had been suppressed will occur at the end of the failed test.
+ *
+ * @author Rob Spoor
+ * @since 3.0
+ */
+@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface LogOnFailure {
+    // no content
 }

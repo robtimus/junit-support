@@ -22,15 +22,20 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.LogRecord;
+import java.util.stream.Collectors;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -47,6 +52,7 @@ import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.testkit.engine.EngineExecutionResults;
 import org.junit.platform.testkit.engine.EngineTestKit;
 import org.mockito.ArgumentCaptor;
+import org.opentest4j.AssertionFailedError;
 
 @SuppressWarnings("nls")
 final class TestLoggerTest {
@@ -678,34 +684,6 @@ final class TestLoggerTest {
                         endsWith(": Exactly one of @TestLogger, @TestLogger.ForClass and @TestLogger.Root required"));
             }
         }
-
-        private void assertSingleTestFailure(Class<?> testClass, Class<? extends Throwable> errorType, Matcher<String> messageMatcher) {
-
-            EngineExecutionResults results = runTests(testClass);
-
-            assertEquals(0, results.testEvents().succeeded().count());
-            assertEquals(1, results.testEvents().failed().count());
-
-            Throwable throwable = getSingleTestFailure(results);
-            assertEquals(errorType, throwable.getClass());
-            assertThat(throwable.getMessage(), messageMatcher);
-        }
-
-        private EngineExecutionResults runTests(Class<?> testClass) {
-            return EngineTestKit.engine(new JupiterTestEngine())
-                    .selectors(DiscoverySelectors.selectClass(testClass))
-                    .execute();
-        }
-
-        private Throwable getSingleTestFailure(EngineExecutionResults results) {
-            TestExecutionResult result = assertIsPresent(results.testEvents().failed().stream()
-                    .map(event -> event.getPayload(TestExecutionResult.class))
-                    .findAny()
-                    .orElse(null));
-
-            Throwable throwable = assertIsPresent(result.getThrowable());
-            return throwable;
-        }
     }
 
     abstract static class JdkLoggerTests {
@@ -754,7 +732,7 @@ final class TestLoggerTest {
             assertEquals(java.util.logging.Level.WARNING, rootRecords.get(0).getLevel());
             assertEquals("warning message", rootRecords.get(0).getMessage());
             assertEquals(java.util.logging.Level.INFO, records.get(1).getLevel());
-            assertEquals("info message", records.get(1).getMessage());
+            assertEquals("info message", rootRecords.get(1).getMessage());
         }
 
         @Test
@@ -978,6 +956,79 @@ final class TestLoggerTest {
             assertEquals(java.util.logging.Level.INFO, capturedRecords.get(1).getLevel());
             assertEquals("info message", capturedRecords.get(1).getMessage());
         }
+
+        @Nested
+        @DisplayName("@LogOnFailure")
+        class LogOnFailureTest {
+
+            @Test
+            @DisplayName("without failures")
+            void testWithoutFailures() {
+                EngineExecutionResults results = runTests(TestLoggerTest.LogsAndFailures.WithoutFailures.class);
+
+                assertEquals(2, results.testEvents().succeeded().count());
+                assertEquals(0, results.testEvents().failed().count());
+
+                List<java.util.logging.LogRecord> records = testHandler.getRecords();
+                assertEquals(0, records.size());
+
+                List<java.util.logging.LogRecord> rootRecords = rootTestHandler.getRecords();
+                assertEquals(0, rootRecords.size());
+            }
+
+            @Test
+            @DisplayName("with failures")
+            void testWithFailures() {
+                EngineExecutionResults results = runTests(TestLoggerTest.LogsAndFailures.WithFailures.class);
+
+                assertEquals(1, results.testEvents().succeeded().count());
+                assertEquals(1, results.testEvents().failed().count());
+
+                Throwable throwable = getSingleTestFailure(results);
+                assertEquals(AssertionFailedError.class, throwable.getClass());
+                assertEquals("expected: <false> but was: <true>", throwable.getMessage());
+
+                List<java.util.logging.LogRecord> records = testHandler.getRecords();
+                assertEquals(2, records.size());
+                assertEquals(java.util.logging.Level.INFO, records.get(0).getLevel());
+                assertEquals("info before failure", records.get(0).getMessage());
+                assertEquals(java.util.logging.Level.SEVERE, records.get(1).getLevel());
+                assertEquals("severe before failure", records.get(1).getMessage());
+
+                List<java.util.logging.LogRecord> rootRecords = rootTestHandler.getRecords();
+                assertEquals(2, rootRecords.size());
+                assertEquals(java.util.logging.Level.INFO, rootRecords.get(0).getLevel());
+                assertEquals("info before failure", rootRecords.get(0).getMessage());
+                assertEquals(java.util.logging.Level.SEVERE, records.get(1).getLevel());
+                assertEquals("severe before failure", rootRecords.get(1).getMessage());
+            }
+
+            @Test
+            @DisplayName("with failures using parent handlers")
+            void testWithFailuresUsingParentHandlers() {
+                EngineExecutionResults results = runTests(TestLoggerTest.LogsAndFailures.WithFailuresUsingParentAppenders.class);
+
+                assertEquals(1, results.testEvents().succeeded().count());
+                assertEquals(1, results.testEvents().failed().count());
+
+                Throwable throwable = getSingleTestFailure(results);
+                assertEquals(AssertionFailedError.class, throwable.getClass());
+                assertEquals("expected: <false> but was: <true>", throwable.getMessage());
+
+                List<java.util.logging.LogRecord> records = testHandler.getRecords();
+                assertEquals(2, records.size());
+                assertEquals(java.util.logging.Level.INFO, records.get(0).getLevel());
+                assertEquals("info before failure", records.get(0).getMessage());
+                assertEquals(java.util.logging.Level.SEVERE, records.get(1).getLevel());
+                assertEquals("severe before failure", records.get(1).getMessage());
+
+                List<java.util.logging.LogRecord> rootRecords = rootTestHandler.getRecords();
+                assertEquals(5, rootRecords.size());
+                Map<String, Long> messageCounts = rootRecords.stream()
+                        .collect(Collectors.groupingBy(LogRecord::getMessage, Collectors.counting()));
+                assertEquals(Map.of("info", 1L, "info before failure", 2L, "severe before failure", 2L), messageCounts);
+            }
+        }
     }
 
     abstract static class Log4jLoggerTests {
@@ -1026,7 +1077,7 @@ final class TestLoggerTest {
             assertEquals(org.apache.logging.log4j.Level.WARN, rootEvents.get(0).getLevel());
             assertEquals("warning message", rootEvents.get(0).getMessage().getFormattedMessage());
             assertEquals(org.apache.logging.log4j.Level.INFO, events.get(1).getLevel());
-            assertEquals("info message", events.get(1).getMessage().getFormattedMessage());
+            assertEquals("info message", rootEvents.get(1).getMessage().getFormattedMessage());
         }
 
         @Test
@@ -1255,6 +1306,79 @@ final class TestLoggerTest {
             assertEquals(org.apache.logging.log4j.Level.INFO, capturedEvents.get(1).getLevel());
             assertEquals("info message", capturedEvents.get(1).getMessage().getFormattedMessage());
         }
+
+        @Nested
+        @DisplayName("@LogOnFailure")
+        class LogOnFailureTest {
+
+            @Test
+            @DisplayName("without failures")
+            void testWithoutFailures() {
+                EngineExecutionResults results = runTests(TestLoggerTest.LogsAndFailures.WithoutFailures.class);
+
+                assertEquals(2, results.testEvents().succeeded().count());
+                assertEquals(0, results.testEvents().failed().count());
+
+                List<org.apache.logging.log4j.core.LogEvent> events = testAppender.getEvents();
+                assertEquals(0, events.size());
+
+                List<org.apache.logging.log4j.core.LogEvent> rootEvents = rootTestAppender.getEvents();
+                assertEquals(0, rootEvents.size());
+            }
+
+            @Test
+            @DisplayName("with failures")
+            void testWithFailures() {
+                EngineExecutionResults results = runTests(TestLoggerTest.LogsAndFailures.WithFailures.class);
+
+                assertEquals(1, results.testEvents().succeeded().count());
+                assertEquals(1, results.testEvents().failed().count());
+
+                Throwable throwable = getSingleTestFailure(results);
+                assertEquals(AssertionFailedError.class, throwable.getClass());
+                assertEquals("expected: <false> but was: <true>", throwable.getMessage());
+
+                List<org.apache.logging.log4j.core.LogEvent> events = testAppender.getEvents();
+                assertEquals(2, events.size());
+                assertEquals(org.apache.logging.log4j.Level.INFO, events.get(0).getLevel());
+                assertEquals("info before failure", events.get(0).getMessage().getFormattedMessage());
+                assertEquals(org.apache.logging.log4j.Level.ERROR, events.get(1).getLevel());
+                assertEquals("error before failure", events.get(1).getMessage().getFormattedMessage());
+
+                List<org.apache.logging.log4j.core.LogEvent> rootEvents = rootTestAppender.getEvents();
+                assertEquals(2, rootEvents.size());
+                assertEquals(org.apache.logging.log4j.Level.INFO, rootEvents.get(0).getLevel());
+                assertEquals("info before failure", rootEvents.get(0).getMessage().getFormattedMessage());
+                assertEquals(org.apache.logging.log4j.Level.ERROR, events.get(1).getLevel());
+                assertEquals("error before failure", rootEvents.get(1).getMessage().getFormattedMessage());
+            }
+
+            @Test
+            @DisplayName("with failures using parent handlers")
+            void testWithFailuresUsingParentHandlers() {
+                EngineExecutionResults results = runTests(TestLoggerTest.LogsAndFailures.WithFailuresUsingParentAppenders.class);
+
+                assertEquals(1, results.testEvents().succeeded().count());
+                assertEquals(1, results.testEvents().failed().count());
+
+                Throwable throwable = getSingleTestFailure(results);
+                assertEquals(AssertionFailedError.class, throwable.getClass());
+                assertEquals("expected: <false> but was: <true>", throwable.getMessage());
+
+                List<org.apache.logging.log4j.core.LogEvent> events = testAppender.getEvents();
+                assertEquals(2, events.size());
+                assertEquals(org.apache.logging.log4j.Level.INFO, events.get(0).getLevel());
+                assertEquals("info before failure", events.get(0).getMessage().getFormattedMessage());
+                assertEquals(org.apache.logging.log4j.Level.ERROR, events.get(1).getLevel());
+                assertEquals("error before failure", events.get(1).getMessage().getFormattedMessage());
+
+                List<org.apache.logging.log4j.core.LogEvent> rootEvents = rootTestAppender.getEvents();
+                assertEquals(5, rootEvents.size());
+                Map<String, Long> messageCounts = rootEvents.stream()
+                        .collect(Collectors.groupingBy(event -> event.getMessage().getFormattedMessage(), Collectors.counting()));
+                assertEquals(Map.of("info", 1L, "info before failure", 2L, "error before failure", 2L), messageCounts);
+            }
+        }
     }
 
     abstract static class LogbackLoggerTests {
@@ -1303,7 +1427,7 @@ final class TestLoggerTest {
             assertEquals(ch.qos.logback.classic.Level.WARN, rootEvents.get(0).getLevel());
             assertEquals("warning message", rootEvents.get(0).getMessage());
             assertEquals(ch.qos.logback.classic.Level.INFO, events.get(1).getLevel());
-            assertEquals("info message", events.get(1).getMessage());
+            assertEquals("info message", rootEvents.get(1).getMessage());
         }
 
         @Test
@@ -1537,6 +1661,79 @@ final class TestLoggerTest {
             assertEquals(ch.qos.logback.classic.Level.INFO, capturedEvents.get(1).getLevel());
             assertEquals("info message", capturedEvents.get(1).getMessage());
         }
+
+        @Nested
+        @DisplayName("@LogOnFailure")
+        class LogOnFailureTest {
+
+            @Test
+            @DisplayName("without failures")
+            void testWithoutFailures() {
+                EngineExecutionResults results = runTests(TestLoggerTest.LogsAndFailures.WithoutFailures.class);
+
+                assertEquals(2, results.testEvents().succeeded().count());
+                assertEquals(0, results.testEvents().failed().count());
+
+                List<ch.qos.logback.classic.spi.ILoggingEvent> events = testAppender.getEvents();
+                assertEquals(0, events.size());
+
+                List<ch.qos.logback.classic.spi.ILoggingEvent> rootEvents = rootTestAppender.getEvents();
+                assertEquals(0, rootEvents.size());
+            }
+
+            @Test
+            @DisplayName("with failures")
+            void testWithFailures() {
+                EngineExecutionResults results = runTests(TestLoggerTest.LogsAndFailures.WithFailures.class);
+
+                assertEquals(1, results.testEvents().succeeded().count());
+                assertEquals(1, results.testEvents().failed().count());
+
+                Throwable throwable = getSingleTestFailure(results);
+                assertEquals(AssertionFailedError.class, throwable.getClass());
+                assertEquals("expected: <false> but was: <true>", throwable.getMessage());
+
+                List<ch.qos.logback.classic.spi.ILoggingEvent> events = testAppender.getEvents();
+                assertEquals(2, events.size());
+                assertEquals(ch.qos.logback.classic.Level.INFO, events.get(0).getLevel());
+                assertEquals("info before failure", events.get(0).getMessage());
+                assertEquals(ch.qos.logback.classic.Level.ERROR, events.get(1).getLevel());
+                assertEquals("error before failure", events.get(1).getMessage());
+
+                List<ch.qos.logback.classic.spi.ILoggingEvent> rootEvents = rootTestAppender.getEvents();
+                assertEquals(2, rootEvents.size());
+                assertEquals(ch.qos.logback.classic.Level.INFO, rootEvents.get(0).getLevel());
+                assertEquals("info before failure", rootEvents.get(0).getMessage());
+                assertEquals(ch.qos.logback.classic.Level.ERROR, events.get(1).getLevel());
+                assertEquals("error before failure", rootEvents.get(1).getMessage());
+            }
+
+            @Test
+            @DisplayName("with failures using parent handlers")
+            void testWithFailuresUsingParentHandlers() {
+                EngineExecutionResults results = runTests(TestLoggerTest.LogsAndFailures.WithFailuresUsingParentAppenders.class);
+
+                assertEquals(1, results.testEvents().succeeded().count());
+                assertEquals(1, results.testEvents().failed().count());
+
+                Throwable throwable = getSingleTestFailure(results);
+                assertEquals(AssertionFailedError.class, throwable.getClass());
+                assertEquals("expected: <false> but was: <true>", throwable.getMessage());
+
+                List<ch.qos.logback.classic.spi.ILoggingEvent> events = testAppender.getEvents();
+                assertEquals(2, events.size());
+                assertEquals(ch.qos.logback.classic.Level.INFO, events.get(0).getLevel());
+                assertEquals("info before failure", events.get(0).getMessage());
+                assertEquals(ch.qos.logback.classic.Level.ERROR, events.get(1).getLevel());
+                assertEquals("error before failure", events.get(1).getMessage());
+
+                List<ch.qos.logback.classic.spi.ILoggingEvent> rootEvents = rootTestAppender.getEvents();
+                assertEquals(5, rootEvents.size());
+                Map<String, Long> messageCounts = rootEvents.stream()
+                        .collect(Collectors.groupingBy(ch.qos.logback.classic.spi.ILoggingEvent::getMessage, Collectors.counting()));
+                assertEquals(Map.of("info", 1L, "info before failure", 2L, "error before failure", 2L), messageCounts);
+            }
+        }
     }
 
     abstract static class Reload4jLoggerTests {
@@ -1585,7 +1782,7 @@ final class TestLoggerTest {
             assertEquals(org.apache.log4j.Level.WARN, rootEvents.get(0).getLevel());
             assertEquals("warning message", rootEvents.get(0).getMessage());
             assertEquals(org.apache.log4j.Level.INFO, events.get(1).getLevel());
-            assertEquals("info message", events.get(1).getMessage());
+            assertEquals("info message", rootEvents.get(1).getMessage());
         }
 
         @Test
@@ -1809,6 +2006,106 @@ final class TestLoggerTest {
             assertEquals(org.apache.log4j.Level.INFO, capturedEvents.get(1).getLevel());
             assertEquals("info message", capturedEvents.get(1).getMessage());
         }
+
+        @Nested
+        @DisplayName("@LogOnFailure")
+        class LogOnFailureTest {
+
+            @Test
+            @DisplayName("without failures")
+            void testWithoutFailures() {
+                EngineExecutionResults results = runTests(TestLoggerTest.LogsAndFailures.WithoutFailures.class);
+
+                assertEquals(2, results.testEvents().succeeded().count());
+                assertEquals(0, results.testEvents().failed().count());
+
+                List<org.apache.log4j.spi.LoggingEvent> events = testAppender.getEvents();
+                assertEquals(0, events.size());
+
+                List<org.apache.log4j.spi.LoggingEvent> rootEvents = rootTestAppender.getEvents();
+                assertEquals(0, rootEvents.size());
+            }
+
+            @Test
+            @DisplayName("with failures")
+            void testWithFailures() {
+                EngineExecutionResults results = runTests(TestLoggerTest.LogsAndFailures.WithFailures.class);
+
+                assertEquals(1, results.testEvents().succeeded().count());
+                assertEquals(1, results.testEvents().failed().count());
+
+                Throwable throwable = getSingleTestFailure(results);
+                assertEquals(AssertionFailedError.class, throwable.getClass());
+                assertEquals("expected: <false> but was: <true>", throwable.getMessage());
+
+                List<org.apache.log4j.spi.LoggingEvent> events = testAppender.getEvents();
+                assertEquals(2, events.size());
+                assertEquals(org.apache.log4j.Level.INFO, events.get(0).getLevel());
+                assertEquals("info before failure", events.get(0).getMessage());
+                assertEquals(org.apache.log4j.Level.ERROR, events.get(1).getLevel());
+                assertEquals("error before failure", events.get(1).getMessage());
+
+                List<org.apache.log4j.spi.LoggingEvent> rootEvents = rootTestAppender.getEvents();
+                assertEquals(2, rootEvents.size());
+                assertEquals(org.apache.log4j.Level.INFO, rootEvents.get(0).getLevel());
+                assertEquals("info before failure", rootEvents.get(0).getMessage());
+                assertEquals(org.apache.log4j.Level.ERROR, events.get(1).getLevel());
+                assertEquals("error before failure", rootEvents.get(1).getMessage());
+            }
+
+            @Test
+            @DisplayName("with failures using parent handlers")
+            void testWithFailuresUsingParentHandlers() {
+                EngineExecutionResults results = runTests(TestLoggerTest.LogsAndFailures.WithFailuresUsingParentAppenders.class);
+
+                assertEquals(1, results.testEvents().succeeded().count());
+                assertEquals(1, results.testEvents().failed().count());
+
+                Throwable throwable = getSingleTestFailure(results);
+                assertEquals(AssertionFailedError.class, throwable.getClass());
+                assertEquals("expected: <false> but was: <true>", throwable.getMessage());
+
+                List<org.apache.log4j.spi.LoggingEvent> events = testAppender.getEvents();
+                assertEquals(2, events.size());
+                assertEquals(org.apache.log4j.Level.INFO, events.get(0).getLevel());
+                assertEquals("info before failure", events.get(0).getMessage());
+                assertEquals(org.apache.log4j.Level.ERROR, events.get(1).getLevel());
+                assertEquals("error before failure", events.get(1).getMessage());
+
+                List<org.apache.log4j.spi.LoggingEvent> rootEvents = rootTestAppender.getEvents();
+                assertEquals(5, rootEvents.size());
+                Map<String, Long> messageCounts = rootEvents.stream()
+                        .collect(Collectors.groupingBy(event -> event.getMessage().toString(), Collectors.counting()));
+                assertEquals(Map.of("info", 1L, "info before failure", 2L, "error before failure", 2L), messageCounts);
+            }
+        }
+    }
+
+    private static EngineExecutionResults runTests(Class<?> testClass) {
+        return EngineTestKit.engine(new JupiterTestEngine())
+                .selectors(DiscoverySelectors.selectClass(testClass))
+                .execute();
+    }
+
+    private static void assertSingleTestFailure(Class<?> testClass, Class<? extends Throwable> errorType, Matcher<String> messageMatcher) {
+        EngineExecutionResults results = runTests(testClass);
+
+        assertEquals(0, results.testEvents().succeeded().count());
+        assertEquals(1, results.testEvents().failed().count());
+
+        Throwable throwable = getSingleTestFailure(results);
+        assertEquals(errorType, throwable.getClass());
+        assertThat(throwable.getMessage(), messageMatcher);
+    }
+
+    private static Throwable getSingleTestFailure(EngineExecutionResults results) {
+        TestExecutionResult result = assertIsPresent(results.testEvents().failed().stream()
+                .map(event -> event.getPayload(TestExecutionResult.class))
+                .findAny()
+                .orElse(null));
+
+        Throwable throwable = assertIsPresent(result.getThrowable());
+        return throwable;
     }
 
     static final class UnsupportedContextType {
@@ -1822,6 +2119,16 @@ final class TestLoggerTest {
 
             @Override
             void disable() {
+                // does nothing
+            }
+
+            @Override
+            void startCapture() {
+                // does nothing
+            }
+
+            @Override
+            void logCaptured() {
                 // does nothing
             }
 
@@ -1868,6 +2175,170 @@ final class TestLoggerTest {
             @Test
             void testMultipleAnnotations(@TestLogger("test") @TestLogger.ForClass(TestLogger.class) @TestLogger.Root JdkLoggerContext context) {
                 assertNotNull(context);
+            }
+        }
+    }
+
+    static final class LogsAndFailures {
+
+        static final class WithoutFailures {
+
+            @TestLogger.ForClass(TestLogger.class)
+            @LogOnFailure
+            private JdkLoggerContext jdkContext;
+
+            @TestLogger.ForClass(TestLogger.class)
+            @LogOnFailure
+            private Log4jLoggerContext log4jContext;
+
+            @TestLogger.ForClass(TestLogger.class)
+            @LogOnFailure
+            private LogbackLoggerContext logbackContext;
+
+            @TestLogger.ForClass(TestLogger.class)
+            @LogOnFailure
+            private Reload4jLoggerContext reload4jContext;
+
+            @Test
+            void testSuccess1() {
+                JDK_LOGGER.info("info1");
+
+                LOG4J_LOGGER.info("info1");
+
+                SLF4J_LOGGER.info("info1");
+
+                RELOAD4J_LOGGER.info("info1");
+
+                assertTrue(true);
+            }
+
+            @Test
+            void testSuccess2() {
+                JDK_LOGGER.info("info2");
+
+                LOG4J_LOGGER.info("info2");
+
+                SLF4J_LOGGER.info("info2");
+
+                RELOAD4J_LOGGER.info("info2");
+
+                assertTrue(true);
+            }
+        }
+
+        static final class WithFailures {
+
+            @TestLogger.ForClass(TestLogger.class)
+            @LogOnFailure
+            private JdkLoggerContext jdkContext;
+
+            @TestLogger.ForClass(TestLogger.class)
+            @LogOnFailure
+            private Log4jLoggerContext log4jContext;
+
+            @TestLogger.ForClass(TestLogger.class)
+            @LogOnFailure
+            private LogbackLoggerContext logbackContext;
+
+            @TestLogger.ForClass(TestLogger.class)
+            @LogOnFailure
+            private Reload4jLoggerContext reload4jContext;
+
+            @Test
+            void testSuccess() {
+                JDK_LOGGER.info("info");
+
+                LOG4J_LOGGER.info("info");
+
+                SLF4J_LOGGER.info("info");
+
+                RELOAD4J_LOGGER.info("info");
+
+                assertTrue(true);
+            }
+
+            @Test
+            void testFailure() {
+                JDK_LOGGER.fine("fine before failure");
+                JDK_LOGGER.info("info before failure");
+                JDK_LOGGER.severe("severe before failure");
+
+                LOG4J_LOGGER.debug("debug before failure");
+                LOG4J_LOGGER.info("info before failure");
+                LOG4J_LOGGER.error("error before failure");
+
+                SLF4J_LOGGER.debug("debug before failure");
+                SLF4J_LOGGER.info("info before failure");
+                SLF4J_LOGGER.error("error before failure");
+
+                RELOAD4J_LOGGER.debug("debug before failure");
+                RELOAD4J_LOGGER.info("info before failure");
+                RELOAD4J_LOGGER.error("error before failure");
+
+                assertFalse(true);
+            }
+        }
+
+        static final class WithFailuresUsingParentAppenders {
+
+            @TestLogger.ForClass(TestLogger.class)
+            @LogOnFailure
+            private JdkLoggerContext jdkContext;
+
+            @TestLogger.ForClass(TestLogger.class)
+            @LogOnFailure
+            private Log4jLoggerContext log4jContext;
+
+            @TestLogger.ForClass(TestLogger.class)
+            @LogOnFailure
+            private LogbackLoggerContext logbackContext;
+
+            @TestLogger.ForClass(TestLogger.class)
+            @LogOnFailure
+            private Reload4jLoggerContext reload4jContext;
+
+            @Test
+            void testSuccess() {
+                jdkContext.useParentHandlers(true);
+                log4jContext.useParentAppenders(true);
+                logbackContext.useParentAppenders(true);
+                reload4jContext.useParentAppenders(true);
+
+                JDK_LOGGER.info("info");
+
+                LOG4J_LOGGER.info("info");
+
+                SLF4J_LOGGER.info("info");
+
+                RELOAD4J_LOGGER.info("info");
+
+                assertTrue(true);
+            }
+
+            @Test
+            void testFailure() {
+                jdkContext.useParentHandlers(true);
+                log4jContext.useParentAppenders(true);
+                logbackContext.useParentAppenders(true);
+                reload4jContext.useParentAppenders(true);
+
+                JDK_LOGGER.fine("fine before failure");
+                JDK_LOGGER.info("info before failure");
+                JDK_LOGGER.severe("severe before failure");
+
+                LOG4J_LOGGER.debug("debug before failure");
+                LOG4J_LOGGER.info("info before failure");
+                LOG4J_LOGGER.error("error before failure");
+
+                SLF4J_LOGGER.debug("debug before failure");
+                SLF4J_LOGGER.info("info before failure");
+                SLF4J_LOGGER.error("error before failure");
+
+                RELOAD4J_LOGGER.debug("debug before failure");
+                RELOAD4J_LOGGER.info("info before failure");
+                RELOAD4J_LOGGER.error("error before failure");
+
+                assertFalse(true);
             }
         }
     }

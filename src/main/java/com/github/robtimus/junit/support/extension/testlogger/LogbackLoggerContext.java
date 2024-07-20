@@ -20,9 +20,13 @@ package com.github.robtimus.junit.support.extension.testlogger;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
+import java.util.List;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import org.mockito.ArgumentCaptor;
+import org.mockito.verification.VerificationMode;
 import org.slf4j.LoggerFactory;
 import com.github.robtimus.junit.support.extension.testlogger.TestLoggerExtension.ContextFactory;
 import ch.qos.logback.classic.Level;
@@ -165,6 +169,16 @@ public final class LogbackLoggerContext extends LoggerContext {
     }
 
     @Override
+    void startCapture() {
+        helper.startCapture();
+    }
+
+    @Override
+    void logCaptured() {
+        helper.logCaptured();
+    }
+
+    @Override
     void saveSettings() {
         helper.saveSettings();
     }
@@ -180,6 +194,8 @@ public final class LogbackLoggerContext extends LoggerContext {
 
         private Appender<ILoggingEvent> captorAppender;
         private LogCaptor<ILoggingEvent> logCaptor;
+
+        private Appender<ILoggingEvent> captureAppender;
 
         private Helper(Logger logger) {
             this.logger = logger;
@@ -207,9 +223,13 @@ public final class LogbackLoggerContext extends LoggerContext {
 
         @Override
         void removeAppender(Appender<ILoggingEvent> appender, boolean force) {
-            if (force || appender != captorAppender) {
+            if (force || isNonHelperAppender(appender)) {
                 logger.detachAppender(appender);
             }
+        }
+
+        private boolean isNonHelperAppender(Appender<ILoggingEvent> appender) {
+            return appender != captorAppender && appender != captureAppender;
         }
 
         @Override
@@ -228,11 +248,36 @@ public final class LogbackLoggerContext extends LoggerContext {
             if (logCaptor == null) {
                 captorAppender = mock(Appender.class);
                 logCaptor = new LogCaptor<>(ILoggingEvent.class,
-                        (mode, eventCaptor) -> verify(captorAppender, mode).doAppend(eventCaptor.capture()),
+                        verifier(captorAppender),
                         () -> reset(captorAppender));
                 addAppender(captorAppender);
             }
             return logCaptor;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        void startCapture() {
+            captureAppender = mock(Appender.class);
+            setAppender(captureAppender);
+            useParentAppenders(false);
+        }
+
+        @Override
+        void logCaptured() {
+            if (captureAppender != null) {
+                List<ILoggingEvent> events = LogCaptor.captured(ILoggingEvent.class, verifier(captureAppender));
+                for (ILoggingEvent event : events) {
+                    // logger.log takes a different type of event
+                    if (logger.isEnabledFor(event.getLevel())) {
+                        logger.callAppenders(event);
+                    }
+                }
+            }
+        }
+
+        private BiConsumer<VerificationMode, ArgumentCaptor<ILoggingEvent>> verifier(Appender<ILoggingEvent> appender) {
+            return (mode, eventCaptor) -> verify(appender, mode).doAppend(eventCaptor.capture());
         }
     }
 

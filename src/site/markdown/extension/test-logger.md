@@ -19,6 +19,14 @@ When the logger context goes out of scope (when injected as a field or method pa
 
 Combine `@TestLogger`, `@TestLogger.ForClass` or `@TestLogger.Root` with [@DisableLogging](../apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/extension/testlogger/DisableLogging.html) to easily disable logging for a logger without having to call any method.
 
+Note that the logger context can still be updated inside tests, including re-enabling logging.
+
+### Logging on test failures
+
+Combine `@TestLogger`, `@TestLogger.ForClass` or `@TestLogger.Root` with [@LogOnFailure](../apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/extension/testlogger/LogOnFailure.html) to easily disable logging for successful tests but keep it enabled for failed tests.
+
+Note that the annotation only applies to the original logging settings, and the logger context can still be updated inside tests. If parent appenders / handlers are re-enabled, inherited appenders / handlers will still be called - once for successful tests, and twice for failed tests.
+
 ### Supported logging frameworks
 
 The following logging framework implementations are supported:

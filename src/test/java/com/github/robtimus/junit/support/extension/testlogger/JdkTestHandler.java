@@ -28,9 +28,9 @@ public class JdkTestHandler extends Handler {
     private final List<LogRecord> records = new ArrayList<>();
 
     @Override
-    public void publish(LogRecord record) {
-        if (isLoggable(record)) {
-            records.add(record);
+    public void publish(LogRecord logRecord) {
+        if (isLoggable(logRecord)) {
+            records.add(logRecord);
         }
     }
 

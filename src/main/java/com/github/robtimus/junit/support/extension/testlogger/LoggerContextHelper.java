@@ -44,11 +44,6 @@ abstract class LoggerContextHelper<L, E, A> {
         addAppender(appender);
     }
 
-    final void setAppenders(List<A> appenders) {
-        removeAppenders();
-        addAppenders(appenders);
-    }
-
     final void removeAppenders() {
         removeAppenders(false);
     }
@@ -94,6 +89,10 @@ abstract class LoggerContextHelper<L, E, A> {
     abstract void useParentAppenders(boolean useParentAppenders);
 
     abstract LogCaptor<E> logCaptor();
+
+    abstract void startCapture();
+
+    abstract void logCaptured();
 
     void saveSettings() {
         originalLevel = getLevel();
