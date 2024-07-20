@@ -17,13 +17,18 @@
 
 package com.github.robtimus.junit.support.extension.testlogger;
 
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.logging.Handler;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
+import org.mockito.ArgumentCaptor;
 import com.github.robtimus.junit.support.extension.testlogger.TestLoggerExtension.ContextFactory;
 
 /**
@@ -143,6 +148,15 @@ public final class JdkLoggerContext extends LoggerContext {
         return this;
     }
 
+    /**
+     * Returns an object that captures logged records. This can be used instead of having to append a capturing handler manually.
+     *
+     * @return An object that captures logged records.
+     */
+    public LogCaptor<LogRecord> capture() {
+        return helper.logCaptor();
+    }
+
     Stream<Handler> streamHandlers() {
         return helper.streamAppenders();
     }
@@ -162,9 +176,12 @@ public final class JdkLoggerContext extends LoggerContext {
         helper.restore();
     }
 
-    private static final class Helper extends LoggerContextHelper<Level, Handler> {
+    private static final class Helper extends LoggerContextHelper<Level, LogRecord, Handler> {
 
         private final Logger logger;
+
+        private Handler captorHandler;
+        private LogCaptor<LogRecord> logCaptor;
 
         private Helper(Logger logger) {
             this.logger = logger;
@@ -191,8 +208,10 @@ public final class JdkLoggerContext extends LoggerContext {
         }
 
         @Override
-        void removeAppender(Handler handler) {
-            logger.removeHandler(handler);
+        void removeAppender(Handler handler, boolean force) {
+            if (force || handler != captorHandler) {
+                logger.removeHandler(handler);
+            }
         }
 
         @Override
@@ -203,6 +222,21 @@ public final class JdkLoggerContext extends LoggerContext {
         @Override
         void useParentAppenders(boolean useParentHandlers) {
             logger.setUseParentHandlers(useParentHandlers);
+        }
+
+        @Override
+        LogCaptor<LogRecord> logCaptor() {
+            if (logCaptor == null) {
+                captorHandler = mock(Handler.class);
+                logCaptor = () -> {
+                    ArgumentCaptor<LogRecord> recordCaptor = ArgumentCaptor.forClass(LogRecord.class);
+                    verify(captorHandler, atLeast(0)).publish(recordCaptor.capture());
+                    return recordCaptor.getAllValues();
+                };
+                addAppender(captorHandler);
+            }
+
+            return logCaptor;
         }
     }
 

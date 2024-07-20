@@ -29,8 +29,6 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,6 +43,7 @@ import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.platform.commons.support.ReflectionSupport;
+import com.github.robtimus.junit.support.extension.testlogger.LogCaptor;
 import com.github.robtimus.junit.support.test.collections.CollectionTests;
 import com.github.robtimus.junit.support.test.collections.EnumerationTests;
 import com.github.robtimus.junit.support.test.collections.IteratorTests;
@@ -54,37 +53,21 @@ import com.github.robtimus.junit.support.test.io.ReaderTests;
 
 class TraitTest {
 
-    private static final Set<Class<?>> IGNORED_CLASSES = getIgnoredClasses();
-
-    private static final Map<Class<?>, Set<String>> ALLOWED_METHOD_NAMES = getAllowedMethodNames();
-
-    private static Set<Class<?>> getIgnoredClasses() {
-        Set<Class<?>> result = new HashSet<>();
-        return Collections.unmodifiableSet(result);
-    }
+    private static final Set<Class<?>> IGNORED_CLASSES = Set.of(LogCaptor.class);
 
     @SuppressWarnings("nls")
-    private static Map<Class<?>, Set<String>> getAllowedMethodNames() {
-        Map<Class<?>, Set<String>> result = new HashMap<>();
+    private static final Map<Class<?>, Set<String>> ALLOWED_METHOD_NAMES = Map.of(
+            CollectionTests.ToArrayWithGeneratorTests.class, Set.of("testToArrayWithNullGenerator"),
 
-        addAllowedMethodNames(result, CollectionTests.ToArrayWithGeneratorTests.class, "testToArrayWithNullGenerator");
+            EnumerationTests.IterationTests.class, Set.of("testNextElementWithoutHasMoreElements"),
+            EnumerationTests.AsIteratorTests.class, Set.of("testNextWithoutHasNext"),
 
-        addAllowedMethodNames(result, EnumerationTests.IterationTests.class, "testNextElementWithoutHasMoreElements");
-        addAllowedMethodNames(result, EnumerationTests.AsIteratorTests.class, "testNextWithoutHasNext");
+            IteratorTests.IterationTests.class, Set.of("testNextWithoutHasNext"),
 
-        addAllowedMethodNames(result, IteratorTests.IterationTests.class, "testNextWithoutHasNext");
+            ListIteratorTests.IterationTests.class, Set.of("testNextWithoutHasNext", "testPreviousWithoutHasPrevious"),
 
-        addAllowedMethodNames(result, ListIteratorTests.IterationTests.class, "testNextWithoutHasNext", "testPreviousWithoutHasPrevious");
-
-        addAllowedMethodNames(result, InputStreamTests.MarkResetTests.class, "testMarkSupported", "testMarkAndReset", "testResetWithoutMark");
-        addAllowedMethodNames(result, ReaderTests.MarkResetTests.class, "testMarkSupported", "testMarkAndReset", "testResetWithoutMark");
-
-        return Collections.unmodifiableMap(result);
-    }
-
-    private static void addAllowedMethodNames(Map<Class<?>, Set<String>> result, Class<?> testClass, String... allowedNames) {
-        result.put(testClass, new HashSet<>(Arrays.asList(allowedNames)));
-    }
+            InputStreamTests.MarkResetTests.class, Set.of("testMarkSupported", "testMarkAndReset", "testResetWithoutMark"),
+            ReaderTests.MarkResetTests.class, Set.of("testMarkSupported", "testMarkAndReset", "testResetWithoutMark"));
 
     @TestFactory
     @DisplayName("Traits are implemented correctly")

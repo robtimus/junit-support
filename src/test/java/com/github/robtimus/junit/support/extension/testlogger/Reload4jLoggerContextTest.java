@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -30,6 +31,7 @@ import java.util.function.Supplier;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.spi.LoggingEvent;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -266,6 +268,42 @@ final class Reload4jLoggerContextTest {
             context.useParentAppenders(useParentAppenders);
 
             assertEquals(useParentAppenders, LOGGER.getAdditivity());
+        }
+
+        @Test
+        @DisplayName("capture()")
+        void testCapture() {
+            LogCaptor<LoggingEvent> logCaptor = context.capture();
+            assertLoggedMessages(logCaptor);
+
+            assertSame(logCaptor, context.capture());
+
+            LOGGER.info("first log");
+            assertLoggedMessages(logCaptor, "first log");
+
+            context.removeAppenders();
+
+            LOGGER.info("second log");
+            assertLoggedMessages(logCaptor, "first log", "second log");
+
+            context.removeAppenders(handler -> true);
+
+            LOGGER.info("third log");
+            assertLoggedMessages(logCaptor, "first log", "second log", "third log");
+
+            context.setAppender(mock(Appender.class));
+
+            LOGGER.info("fourth log");
+            assertLoggedMessages(logCaptor, "first log", "second log", "third log", "fourth log");
+        }
+
+        private void assertLoggedMessages(LogCaptor<LoggingEvent> logCaptor, String... messages) {
+            List<LoggingEvent> logged = logCaptor.logged();
+            assertEquals(messages.length, logged.size());
+
+            for (int i = 0; i < messages.length; i++) {
+                assertEquals(messages[i], logged.get(i).getMessage());
+            }
         }
     }
 

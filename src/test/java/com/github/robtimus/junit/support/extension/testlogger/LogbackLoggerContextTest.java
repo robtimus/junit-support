@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -268,6 +269,44 @@ final class LogbackLoggerContextTest {
             context.useParentAppenders(useParentAppenders);
 
             assertEquals(useParentAppenders, LOGGER.isAdditive());
+        }
+
+        @Test
+        @DisplayName("capture()")
+        void testCapture() {
+            LogCaptor<ILoggingEvent> logCaptor = context.capture();
+            assertLoggedMessages(logCaptor);
+
+            assertSame(logCaptor, context.capture());
+
+            LOGGER.info("first log");
+            assertLoggedMessages(logCaptor, "first log");
+
+            context.removeAppenders();
+
+            LOGGER.info("second log");
+            assertLoggedMessages(logCaptor, "first log", "second log");
+
+            context.removeAppenders(appender -> true);
+
+            LOGGER.info("third log");
+            assertLoggedMessages(logCaptor, "first log", "second log", "third log");
+
+            @SuppressWarnings("unchecked")
+            Appender<ILoggingEvent> appender = mock(Appender.class);
+            context.setAppender(appender);
+
+            LOGGER.info("fourth log");
+            assertLoggedMessages(logCaptor, "first log", "second log", "third log", "fourth log");
+        }
+
+        private void assertLoggedMessages(LogCaptor<ILoggingEvent> logCaptor, String... messages) {
+            List<ILoggingEvent> logged = logCaptor.logged();
+            assertEquals(messages.length, logged.size());
+
+            for (int i = 0; i < messages.length; i++) {
+                assertEquals(messages[i], logged.get(i).getMessage());
+            }
         }
     }
 

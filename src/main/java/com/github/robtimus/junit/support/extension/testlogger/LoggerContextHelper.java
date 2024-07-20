@@ -23,7 +23,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-abstract class LoggerContextHelper<L, A> {
+abstract class LoggerContextHelper<L, E, A> {
 
     private L originalLevel;
     private List<A> originalAppenders;
@@ -33,37 +33,41 @@ abstract class LoggerContextHelper<L, A> {
 
     abstract void setLevel(L level);
 
-    void addAppenders(List<A> appenders) {
+    final void addAppenders(List<A> appenders) {
         for (A appender : appenders) {
             addAppender(appender);
         }
     }
 
-    void setAppender(A appender) {
+    final void setAppender(A appender) {
         removeAppenders();
         addAppender(appender);
     }
 
-    void setAppenders(List<A> appenders) {
+    final void setAppenders(List<A> appenders) {
         removeAppenders();
         addAppenders(appenders);
     }
 
-    void removeAppenders() {
+    final void removeAppenders() {
+        removeAppenders(false);
+    }
+
+    private void removeAppenders(boolean force) {
         for (A appender : appenders()) {
-            removeAppender(appender);
+            removeAppender(appender, force);
         }
     }
 
-    void removeAppenders(Predicate<? super A> filter) {
+    final void removeAppenders(Predicate<? super A> filter) {
         for (A existingAppender : appenders()) {
             if (filter.test(existingAppender)) {
-                removeAppender(existingAppender);
+                removeAppender(existingAppender, false);
             }
         }
     }
 
-    Stream<A> streamAppenders() {
+    final Stream<A> streamAppenders() {
         return StreamSupport.stream(appenders().spliterator(), false);
     }
 
@@ -79,11 +83,17 @@ abstract class LoggerContextHelper<L, A> {
 
     abstract void addAppender(A appender);
 
-    abstract void removeAppender(A appender);
+    final void removeAppender(A appender) {
+        removeAppender(appender, false);
+    }
+
+    abstract void removeAppender(A appender, boolean force);
 
     abstract boolean useParentAppenders();
 
     abstract void useParentAppenders(boolean useParentAppenders);
+
+    abstract LogCaptor<E> logCaptor();
 
     void saveSettings() {
         originalLevel = getLevel();
@@ -93,7 +103,8 @@ abstract class LoggerContextHelper<L, A> {
 
     void restore() {
         setLevel(originalLevel);
-        setAppenders(originalAppenders);
+        removeAppenders(true);
+        addAppenders(originalAppenders);
         useParentAppenders(originalUseParentAppenders);
     }
 }

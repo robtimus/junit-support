@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.logging.Handler;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -258,6 +260,42 @@ final class JdkLoggerContextTest {
             context.useParentHandlers(useParentHandlers);
 
             assertEquals(useParentHandlers, LOGGER.getUseParentHandlers());
+        }
+
+        @Test
+        @DisplayName("capture()")
+        void testCapture() {
+            LogCaptor<LogRecord> logCaptor = context.capture();
+            assertLoggedMessages(logCaptor);
+
+            assertSame(logCaptor, context.capture());
+
+            LOGGER.info("first log");
+            assertLoggedMessages(logCaptor, "first log");
+
+            context.removeHandlers();
+
+            LOGGER.info("second log");
+            assertLoggedMessages(logCaptor, "first log", "second log");
+
+            context.removeHandlers(handler -> true);
+
+            LOGGER.info("third log");
+            assertLoggedMessages(logCaptor, "first log", "second log", "third log");
+
+            context.setHandler(mock(Handler.class));
+
+            LOGGER.info("fourth log");
+            assertLoggedMessages(logCaptor, "first log", "second log", "third log", "fourth log");
+        }
+
+        private void assertLoggedMessages(LogCaptor<LogRecord> logCaptor, String... messages) {
+            List<LogRecord> logged = logCaptor.logged();
+            assertEquals(messages.length, logged.size());
+
+            for (int i = 0; i < messages.length; i++) {
+                assertEquals(messages[i], logged.get(i).getMessage());
+            }
         }
     }
 

@@ -17,9 +17,13 @@
 
 package com.github.robtimus.junit.support.extension.testlogger;
 
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import org.mockito.ArgumentCaptor;
 import org.slf4j.LoggerFactory;
 import com.github.robtimus.junit.support.extension.testlogger.TestLoggerExtension.ContextFactory;
 import ch.qos.logback.classic.Level;
@@ -143,6 +147,15 @@ public final class LogbackLoggerContext extends LoggerContext {
         return this;
     }
 
+    /**
+     * Returns an object that captures logged events. This can be used instead of having to append a capturing appender manually.
+     *
+     * @return An object that captures logged events.
+     */
+    public LogCaptor<ILoggingEvent> capture() {
+        return helper.logCaptor();
+    }
+
     Stream<Appender<ILoggingEvent>> streamAppenders() {
         return helper.streamAppenders();
     }
@@ -162,9 +175,12 @@ public final class LogbackLoggerContext extends LoggerContext {
         helper.restore();
     }
 
-    private static final class Helper extends LoggerContextHelper<Level, Appender<ILoggingEvent>> {
+    private static final class Helper extends LoggerContextHelper<Level, ILoggingEvent, Appender<ILoggingEvent>> {
 
         private final Logger logger;
+
+        private Appender<ILoggingEvent> captorAppender;
+        private LogCaptor<ILoggingEvent> logCaptor;
 
         private Helper(Logger logger) {
             this.logger = logger;
@@ -191,8 +207,10 @@ public final class LogbackLoggerContext extends LoggerContext {
         }
 
         @Override
-        void removeAppender(Appender<ILoggingEvent> appender) {
-            logger.detachAppender(appender);
+        void removeAppender(Appender<ILoggingEvent> appender, boolean force) {
+            if (force || appender != captorAppender) {
+                logger.detachAppender(appender);
+            }
         }
 
         @Override
@@ -203,6 +221,21 @@ public final class LogbackLoggerContext extends LoggerContext {
         @Override
         void useParentAppenders(boolean useParentAppenders) {
             logger.setAdditive(useParentAppenders);
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        LogCaptor<ILoggingEvent> logCaptor() {
+            if (logCaptor == null) {
+                captorAppender = mock(Appender.class);
+                logCaptor = () -> {
+                    ArgumentCaptor<ILoggingEvent> eventCaptor = ArgumentCaptor.forClass(ILoggingEvent.class);
+                    verify(captorAppender, atLeast(0)).doAppend(eventCaptor.capture());
+                    return eventCaptor.getAllValues();
+                };
+                addAppender(captorAppender);
+            }
+            return logCaptor;
         }
     }
 

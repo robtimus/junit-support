@@ -17,6 +17,9 @@
 
 package com.github.robtimus.junit.support.extension.testlogger;
 
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -24,6 +27,8 @@ import java.util.stream.Stream;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.spi.LoggingEvent;
+import org.mockito.ArgumentCaptor;
 import com.github.robtimus.junit.support.extension.testlogger.TestLoggerExtension.ContextFactory;
 
 /**
@@ -145,6 +150,15 @@ public final class Reload4jLoggerContext extends LoggerContext {
         return this;
     }
 
+    /**
+     * Returns an object that captures logged events. This can be used instead of having to append a capturing appender manually.
+     *
+     * @return An object that captures logged events.
+     */
+    public LogCaptor<LoggingEvent> capture() {
+        return helper.logCaptor();
+    }
+
     Stream<Appender> streamAppenders() {
         return helper.streamAppenders();
     }
@@ -164,9 +178,12 @@ public final class Reload4jLoggerContext extends LoggerContext {
         helper.restore();
     }
 
-    private static final class Helper extends LoggerContextHelper<Level, Appender> {
+    private static final class Helper extends LoggerContextHelper<Level, LoggingEvent, Appender> {
 
         private final Logger logger;
+
+        private Appender captorAppender;
+        private LogCaptor<LoggingEvent> logCaptor;
 
         private Helper(Logger logger) {
             this.logger = logger;
@@ -183,11 +200,6 @@ public final class Reload4jLoggerContext extends LoggerContext {
         }
 
         @Override
-        void removeAppenders() {
-            logger.removeAllAppenders();
-        }
-
-        @Override
         @SuppressWarnings("unchecked")
         Iterable<Appender> appenders() {
             return () -> logger.getAllAppenders().asIterator();
@@ -199,8 +211,10 @@ public final class Reload4jLoggerContext extends LoggerContext {
         }
 
         @Override
-        void removeAppender(Appender appender) {
-            logger.removeAppender(appender);
+        void removeAppender(Appender appender, boolean force) {
+            if (force || appender != captorAppender) {
+                logger.removeAppender(appender);
+            }
         }
 
         @Override
@@ -211,6 +225,20 @@ public final class Reload4jLoggerContext extends LoggerContext {
         @Override
         void useParentAppenders(boolean useParentAppenders) {
             logger.setAdditivity(useParentAppenders);
+        }
+
+        @Override
+        LogCaptor<LoggingEvent> logCaptor() {
+            if (logCaptor == null) {
+                captorAppender = mock(Appender.class);
+                logCaptor = () -> {
+                    ArgumentCaptor<LoggingEvent> eventCaptor = ArgumentCaptor.forClass(LoggingEvent.class);
+                    verify(captorAppender, atLeast(0)).doAppend(eventCaptor.capture());
+                    return eventCaptor.getAllValues();
+                };
+                addAppender(captorAppender);
+            }
+            return logCaptor;
         }
     }
 
