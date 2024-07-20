@@ -11,8 +11,13 @@ Using [@TestLogger](../apidocs/com/github/robtimus/junit/support/extension/testl
 * Setting the level
 * Add, remove or replace appenders / handlers
 * Enable or disable inheriting appenders / handlers from the parent logger
+* Capturing logging events / records
 
 When the logger context goes out of scope (when injected as a field or method parameter, this is when the test ends), all original settings are restored.
+
+### Disabling logging
+
+Combine `@TestLogger`, `@TestLogger.ForClass` or `@TestLogger.Root` with [@DisableLogging](../apidocs/com/github/robtimus/junit/support/extension/testlogger/DisableLogging.html) to easily disable logging for a logger without having to call any method.
 
 ### Supported logging frameworks
 
@@ -107,6 +112,23 @@ void testLogging() {
     ArgumentCaptor<LoggingEvent> eventCaptor = ArgumentCaptor.forClass(LoggingEvent.class);
     verify(appender, atLeastOnce()).doAppend(eventCaptor.capture());
     List<LoggingEvent> events = eventCaptor.getAllValues();
+    // perform assertions on events
+}
+```
+
+The above can also be achieved as follows:
+
+```java
+@Test
+void testLogging(@TestLogger.ForClass(MyClass.class) Reload4jLoggerContext loggerContext) {
+    LogCaptor<LoggingEvent> logCaptor = loggerContext
+            .setLevel(Level.INFO)
+            .useParentAppenders(false)
+            .capture();
+
+    // perform calls that trigger the logger
+
+    List<LoggingEvent> events = logCaptor.logged();
     // perform assertions on events
 }
 ```
