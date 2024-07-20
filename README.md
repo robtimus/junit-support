@@ -36,16 +36,16 @@ If you want to write a JUnit extension that can inject values into fields, const
 
 This library mainly contains several [pre-defined tests](https://robtimus.github.io/junit-support/pre-defined-tests.html), defined in interfaces that each test one small aspect of a class or interface, often a single method. This makes it easier to test custom implementations of various common interfaces or base classes. The currently supported list is:
 
-* [Collection](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/test/collections/CollectionTests.html), both modifiable and unmodifiable
-* [Iterable](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/test/collections/IterableTests.html)
-* [Iterator](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/test/collections/IteratorTests.html), both modifiable and unmodifiable
-* [List](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/test/collections/ListTests.html) and [ListIterator](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/test/collections/ListIteratorTests.html), both modifiable and unmodifiable
-* [Map](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/test/collections/MapTests.html) and [Map.Entry](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/test/collections/MapEntryTests.html), both modifiable and unmodifiable
-* [Set](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/test/collections/SetTests.html), both modifiable and unmodifiable
-* [Spliterator](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/test/collections/SpliteratorTests.html)
-* [InputStream, OutputStream, Reader and Writer](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/test/io/package-summary.html)
+* [Collection](https://robtimus.github.io/junit-support/apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/test/collections/CollectionTests.html), both modifiable and unmodifiable
+* [Iterable](https://robtimus.github.io/junit-support/apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/test/collections/IterableTests.html)
+* [Iterator](https://robtimus.github.io/junit-support/apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/test/collections/IteratorTests.html), both modifiable and unmodifiable
+* [List](https://robtimus.github.io/junit-support/apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/test/collections/ListTests.html) and [ListIterator](https://robtimus.github.io/junit-support/apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/test/collections/ListIteratorTests.html), both modifiable and unmodifiable
+* [Map](https://robtimus.github.io/junit-support/apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/test/collections/MapTests.html) and [Map.Entry](https://robtimus.github.io/junit-support/apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/test/collections/MapEntryTests.html), both modifiable and unmodifiable
+* [Set](https://robtimus.github.io/junit-support/apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/test/collections/SetTests.html), both modifiable and unmodifiable
+* [Spliterator](https://robtimus.github.io/junit-support/apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/test/collections/SpliteratorTests.html)
+* [InputStream, OutputStream, Reader and Writer](https://robtimus.github.io/junit-support/apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/test/io/package-summary.html)
 
-In addition, there are pre-defined tests for [MethodDelegation](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/test/DelegateTests.html) and [covariant return types](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/test/CovariantReturnTests.html).
+In addition, there are pre-defined tests for [MethodDelegation](https://robtimus.github.io/junit-support/apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/test/DelegateTests.html) and [covariant return types](https://robtimus.github.io/junit-support/apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/test/CovariantReturnTests.html).
 
 ## Additional assertions
 
@@ -60,7 +60,7 @@ Several [additional assertions](https://robtimus.github.io/junit-support/additio
 
 ## Parameterized test support
 
-[JUnit Pioneer](https://junit-pioneer.org/) has [@CartesianTest](https://junit-pioneer.org/docs/cartesian-product/) to provide the Cartesian product of sets of arguments. Using `@CartesianTest.MethodFactory` allows you to create argument sets programmatically. It does not provide the possibility to filter out combinations though. Class [ArgumentsCombiner](https://robtimus.github.io/junit-support/apidocs/com/github/robtimus/junit/support/params/ArgumentsCombiner.html) works like JUnit Pioneer's `ArgumentSets` class but allows filtering out combinations.
+[JUnit Pioneer](https://junit-pioneer.org/) has [@CartesianTest](https://junit-pioneer.org/docs/cartesian-product/) to provide the Cartesian product of sets of arguments. Using `@CartesianTest.MethodFactory` allows you to create argument sets programmatically. It does not provide the possibility to filter out combinations though. Class [ArgumentsCombiner](https://robtimus.github.io/junit-support/apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/params/ArgumentsCombiner.html) works like JUnit Pioneer's `ArgumentSets` class but allows filtering out combinations.
 
 ## Testing concurrent code
 

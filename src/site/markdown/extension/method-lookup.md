@@ -4,7 +4,7 @@
 
 ## MethodLookup
 
-Class [MethodLookup](../apidocs/com/github/robtimus/junit/support/extension/MethodLookup.html) can be used to find methods from references, in a similar way as [@MethodSource](https://junit.org/junit5/docs/current/api/org.junit.jupiter.params/org/junit/jupiter/params/provider/MethodSource.html).
+Class [MethodLookup](../apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/extension/MethodLookup.html) can be used to find methods from references, in a similar way as [@MethodSource](https://junit.org/junit5/docs/current/api/org.junit.jupiter.params/org/junit/jupiter/params/provider/MethodSource.html).
 
 Method references can come in the following formats:
 

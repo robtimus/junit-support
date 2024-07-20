@@ -22,7 +22,7 @@ private static String readResource(String name) {
 }
 ```
 
-Instead of having to write this boilerplate code for every project (and sometimes for multiple test classes inside the same project), annotate fields, constructor parameters or method parameters with [@TestResource](../apidocs/com/github/robtimus/junit/support/extension/testresource/TestResource.html) to inject a Java resource into the field, constructor parameter or method parameter.
+Instead of having to write this boilerplate code for every project (and sometimes for multiple test classes inside the same project), annotate fields, constructor parameters or method parameters with [@TestResource](../apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/extension/testresource/TestResource.html) to inject a Java resource into the field, constructor parameter or method parameter.
 
 Note that the resource name is relative to the class that defines the method. Use a leading `/` to start from the root of the class path.
 
@@ -45,7 +45,7 @@ Injecting into a field, constructor parameter or method parameter of type `Strin
 
 By default, resources are loaded as UTF-8. In some cases this may not be the correct encoding. There are two ways to specify the encoding to use:
 
-* Use [@Encoding](../apidocs/com/github/robtimus/junit/support/extension/testresource/Encoding.html). This annotation can be placed on the injection target, or any enclosing element. For instance, for a method parameter, it can be placed on the method parameter itself, the method, or the class that defines the method. If that class is nested inside another class, that class is also checked, up to the root class.
+* Use [@Encoding](../apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/extension/testresource/Encoding.html). This annotation can be placed on the injection target, or any enclosing element. For instance, for a method parameter, it can be placed on the method parameter itself, the method, or the class that defines the method. If that class is nested inside another class, that class is also checked, up to the root class.
 * Use the `com.github.robtimus.junit.support.extension.testresource.encoding` JUnit configuration parameter to define the default encoding, in case no `@Encoding` annotation is found. This configuration parameter can have the following values:
     * `DEFAULT` for `Charset.defaultCharset()`
     * `SYSTEM` for system property `file.encoding`; if this system property is not set, an error will be thrown
@@ -66,7 +66,7 @@ void testWithResource(@TestResource("my-file.txt") @Encoding("ISO-8859-1") Strin
 
 By default, the resource is loaded as-is. This may cause issues when tests are run on platforms with different line separators, for example Linux and Windows. There are two ways to specify the line separator to use:
 
-* Use [@EOL](../apidocs/com/github/robtimus/junit/support/extension/testresource/EOL.html). This annotation can be placed on the injection target, or any enclosing element. For instance, for a method parameter, it can be placed on the method parameter itself, the method, or the class that defines the method. If that class is nested inside another class, that class is also checked, up to the root class.
+* Use [@EOL](../apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/extension/testresource/EOL.html). This annotation can be placed on the injection target, or any enclosing element. For instance, for a method parameter, it can be placed on the method parameter itself, the method, or the class that defines the method. If that class is nested inside another class, that class is also checked, up to the root class.
 * Use the `com.github.robtimus.junit.support.extension.testresource.lineSeparator` JUnit configuration parameter to define the default line separator, in case no `@EOL` annotation is found. This configuration parameter can have the following values:
     * `LF` for `\n`
     * `CR` for `\r`
@@ -87,7 +87,7 @@ void testWithResource(@TestResource("my-file.txt") @EOL(EOL.LF) String myFile) {
 
 ### Custom resource-to-object conversion
 
-Combine `@TestResource` with [@LoadWith](../apidocs/com/github/robtimus/junit/support/extension/testresource/LoadWith.html) to provide your own resource-to-object conversion. For instance:
+Combine `@TestResource` with [@LoadWith](../apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/extension/testresource/LoadWith.html) to provide your own resource-to-object conversion. For instance:
 
 ```java
 @Test
@@ -117,7 +117,7 @@ The parameter types can be one of the following combination; if they are not giv
 * `java.io.InputStream`, `java.lang.Class`
 * `java.io.InputStream`
 
-The [InjectionTarget](../apidocs/com/github/robtimus/junit/support/extension/InjectionTarget.html) or `Class` arguments represents the target or target type respectively, and can be used for dynamic conversion methods. For instance:
+The [InjectionTarget](../apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/extension/InjectionTarget.html) or `Class` arguments represents the target or target type respectively, and can be used for dynamic conversion methods. For instance:
 
 ```java
 @Test
@@ -142,7 +142,7 @@ When using a method that takes a `Reader`, the encoding can be specified in the 
 
 ### Injecting lines
 
-Two specialized versions of `@LoadWith` are provided for lines, [@AsLines](../apidocs/com/github/robtimus/junit/support/extension/testresource/AsLines.html) and [@AsLinesArray](../apidocs/com/github/robtimus/junit/support/extension/testresource/AsLinesArray.html):
+Two specialized versions of `@LoadWith` are provided for lines, [@AsLines](../apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/extension/testresource/AsLines.html) and [@AsLinesArray](../apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/extension/testresource/AsLinesArray.html):
 
 ```java
 // inject as a static field
@@ -156,7 +156,7 @@ private static String[] testLinesArray;
 
 ### Injecting Properties
 
-A specialized version of `@LoadWith` is provided for `Properties` objects, [@AsProperties](../apidocs/com/github/robtimus/junit/support/extension/testresource/AsProperties.html):
+A specialized version of `@LoadWith` is provided for `Properties` objects, [@AsProperties](../apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/extension/testresource/AsProperties.html):
 
 ```java
 // inject as a static field

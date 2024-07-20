@@ -4,7 +4,7 @@
 
 ## ConcurrentRunner
 
-Class [ConcurrentRunner](apidocs/com/github/robtimus/junit/support/concurrent/ConcurrentRunner.html) provides an easy-to-use API for running code concurrently.
+Class [ConcurrentRunner](apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/concurrent/ConcurrentRunner.html) provides an easy-to-use API for running code concurrently.
 It can work with both [Executable](https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/function/Executable.html) and [ThrowingSupplier](https://junit.org/junit5/docs/current/api/org.junit.jupiter.api/org/junit/jupiter/api/function/ThrowingSupplier.html) for the code to run concurrently.
 
 ### Working with ThrowingSupplier

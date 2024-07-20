@@ -4,7 +4,7 @@
 
 ## Injecting extensions
 
-Class [InjectingExtension](../apidocs/com/github/robtimus/junit/support/extension/InjectingExtension.html) can be used as base class for JUnit extensions that can inject objects into fields, constructor parameters or method parameters.
+Class [InjectingExtension](../apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/extension/InjectingExtension.html) can be used as base class for JUnit extensions that can inject objects into fields, constructor parameters or method parameters.
 
 To create such an extension:
 
@@ -12,11 +12,11 @@ To create such an extension:
 * Implement `validateTarget`. This method takes the injection target (see below) and the extension context, and should return an empty `Optional` if the injection target is valid, or an `Optional` with a `JUnitException` otherwise. The exception should be provided by one of the injection target argument's `createException` methods.
 * Implement `resolveValue`. This method takes the injection target and the extension context, and should return the value to inject.
 
-The injection target is provided as an instance of class [InjectionTarget](../apidocs/com/github/robtimus/junit/support/extension/InjectionTarget.html), and provides an abstraction of the field, constructor parameter or method parameter. It offers methods to provide the injection target's type, find annotations, or create exceptions without having to know whether the target is a field, a constructor parameter or a method parameter.
+The injection target is provided as an instance of class [InjectionTarget](../apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/extension/InjectionTarget.html), and provides an abstraction of the field, constructor parameter or method parameter. It offers methods to provide the injection target's type, find annotations, or create exceptions without having to know whether the target is a field, a constructor parameter or a method parameter.
 
 ### Annotation based injection
 
-Class [AnnotationBasedInjectingExtension](../apidocs/com/github/robtimus/junit/support/extension/AnnotationBasedInjectingExtension.html) extends `InjectingExtension` and allows injection based on an annotation.
+Class [AnnotationBasedInjectingExtension](../apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/extension/AnnotationBasedInjectingExtension.html) extends `InjectingExtension` and allows injection based on an annotation.
 
 To create such an extension:
 
