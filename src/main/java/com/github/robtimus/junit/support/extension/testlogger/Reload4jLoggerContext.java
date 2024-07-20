@@ -157,6 +157,7 @@ public final class Reload4jLoggerContext extends LoggerContext {
      * Returns an object that captures logged events. This can be used instead of having to append a capturing appender manually.
      *
      * @return An object that captures logged events.
+     * @since 3.0
      */
     public LogCaptor<LoggingEvent> capture() {
         return helper.logCaptor();

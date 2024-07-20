@@ -28,6 +28,7 @@ import org.mockito.verification.VerificationMode;
  *
  * @author Rob Spoor
  * @param <T> The type of logged event or record.
+ * @since 3.0
  */
 public final class LogCaptor<T> {
 

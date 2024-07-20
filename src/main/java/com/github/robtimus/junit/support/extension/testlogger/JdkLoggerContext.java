@@ -155,6 +155,7 @@ public final class JdkLoggerContext extends LoggerContext {
      * Returns an object that captures logged records. This can be used instead of having to append a capturing handler manually.
      *
      * @return An object that captures logged records.
+     * @since 3.0
      */
     public LogCaptor<LogRecord> capture() {
         return helper.logCaptor();
