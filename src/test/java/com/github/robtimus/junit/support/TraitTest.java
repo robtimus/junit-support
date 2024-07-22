@@ -43,7 +43,6 @@ import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.platform.commons.support.ReflectionSupport;
-import com.github.robtimus.junit.support.extension.testlogger.LogCaptor;
 import com.github.robtimus.junit.support.test.collections.CollectionTests;
 import com.github.robtimus.junit.support.test.collections.EnumerationTests;
 import com.github.robtimus.junit.support.test.collections.IteratorTests;
@@ -53,7 +52,7 @@ import com.github.robtimus.junit.support.test.io.ReaderTests;
 
 class TraitTest {
 
-    private static final Set<Class<?>> IGNORED_CLASSES = Set.of(LogCaptor.class);
+    private static final Set<Class<?>> IGNORED_CLASSES = Set.of();
 
     @SuppressWarnings("nls")
     private static final Map<Class<?>, Set<String>> ALLOWED_METHOD_NAMES = Map.of(
@@ -84,6 +83,8 @@ class TraitTest {
                 c.isInterface()
                 && !c.isAnnotation()
                 && !Modifier.isPrivate(c.getModifiers())
+                // Ignore all interfaces that are part of extensions, as those are not traits
+                && !c.getName().startsWith(TraitTest.class.getPackageName() + ".extension.")
                 && !IGNORED_CLASSES.contains(c);
         Predicate<String> nameFilter = n -> !n.endsWith(".package-info");
 

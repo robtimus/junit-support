@@ -1,4 +1,4 @@
-<Configuration packages="com.github.robtimus.junit.support.extension.testlogger">
+<Configuration packages="com.github.robtimus.junit.support.extension.util">
   <Appenders>
     <Log4jTest name="A1" />
     <Log4jTest name="A2" />

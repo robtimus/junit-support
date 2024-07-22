@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.extension.testlogger;
+package com.github.robtimus.junit.support.extension.util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,11 +34,11 @@ public class LogbackTestAppender extends AppenderBase<ILoggingEvent> {
         }
     }
 
-    List<ILoggingEvent> getEvents() {
+    public List<ILoggingEvent> getEvents() {
         return events;
     }
 
-    void clearEvents() {
+    public void clearEvents() {
         events.clear();
     }
 }

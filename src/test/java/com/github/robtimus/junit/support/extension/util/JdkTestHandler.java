@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.extension.testlogger;
+package com.github.robtimus.junit.support.extension.util;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
-@SuppressWarnings({ "javadoc", "exports" })
+@SuppressWarnings("javadoc")
 public class JdkTestHandler extends Handler {
 
     private final List<LogRecord> records = new ArrayList<>();
@@ -44,11 +44,11 @@ public class JdkTestHandler extends Handler {
         // does nothing
     }
 
-    List<LogRecord> getRecords() {
+    public List<LogRecord> getRecords() {
         return records;
     }
 
-    void clearRecords() {
+    public void clearRecords() {
         records.clear();
     }
 }

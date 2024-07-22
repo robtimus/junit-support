@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.extension.testlogger;
+package com.github.robtimus.junit.support.extension.util;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import com.github.robtimus.junit.support.extension.testlogger.TestLogger;
 
 @SuppressWarnings({ "nls", "javadoc" })
 public class JdkLoggerConfigurer {

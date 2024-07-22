@@ -17,7 +17,9 @@
 
 package com.github.robtimus.junit.support.extension.testresource;
 
-import static com.github.robtimus.junit.support.OptionalAssertions.assertIsPresent;
+import static com.github.robtimus.junit.support.extension.util.TestUtils.getSingleContainerFailure;
+import static com.github.robtimus.junit.support.extension.util.TestUtils.getSingleTestFailure;
+import static com.github.robtimus.junit.support.extension.util.TestUtils.runTests;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -43,13 +45,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionConfigurationException;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
-import org.junit.jupiter.engine.JupiterTestEngine;
 import org.junit.platform.commons.JUnitException;
 import org.junit.platform.commons.PreconditionViolationException;
-import org.junit.platform.engine.TestExecutionResult;
-import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.testkit.engine.EngineExecutionResults;
-import org.junit.platform.testkit.engine.EngineTestKit;
 import org.opentest4j.AssertionFailedError;
 import com.github.robtimus.junit.support.extension.InjectionTarget;
 
@@ -531,12 +529,12 @@ final class TestResourceTest {
                 }
 
                 @SuppressWarnings("unused")
-                private InjectionTarget loadResource(InputStream inputStream, InjectionTarget target) throws IOException {
+                private InjectionTarget loadResource(InputStream inputStream, InjectionTarget target) {
                     return target;
                 }
 
                 @SuppressWarnings("unused")
-                private Class<?> loadResource(InputStream inputStream, Class<?> targetType) throws IOException {
+                private Class<?> loadResource(InputStream inputStream, Class<?> targetType) {
                     return targetType;
                 }
 
@@ -546,12 +544,12 @@ final class TestResourceTest {
                 }
 
                 @SuppressWarnings("unused")
-                private InjectionTarget loadResource(Reader reader, InjectionTarget target) throws IOException {
+                private InjectionTarget loadResource(Reader reader, InjectionTarget target) {
                     return target;
                 }
 
                 @SuppressWarnings("unused")
-                private Class<?> loadResource(Reader reader, Class<?> targetType) throws IOException {
+                private Class<?> loadResource(Reader reader, Class<?> targetType) {
                     return targetType;
                 }
             }
@@ -1090,32 +1088,6 @@ final class TestResourceTest {
             Throwable throwable = getSingleContainerFailure(results);
             assertEquals(errorType, throwable.getClass());
             assertThat(throwable.getMessage(), messageMatcher);
-        }
-
-        private EngineExecutionResults runTests(Class<?> testClass) {
-            return EngineTestKit.engine(new JupiterTestEngine())
-                    .selectors(DiscoverySelectors.selectClass(testClass))
-                    .execute();
-        }
-
-        private Throwable getSingleTestFailure(EngineExecutionResults results) {
-            TestExecutionResult result = assertIsPresent(results.testEvents().failed().stream()
-                    .map(event -> event.getPayload(TestExecutionResult.class))
-                    .findAny()
-                    .orElse(null));
-
-            Throwable throwable = assertIsPresent(result.getThrowable());
-            return throwable;
-        }
-
-        private Throwable getSingleContainerFailure(EngineExecutionResults results) {
-            TestExecutionResult result = assertIsPresent(results.containerEvents().failed().stream()
-                    .map(event -> event.getPayload(TestExecutionResult.class))
-                    .findAny()
-                    .orElse(null));
-
-            Throwable throwable = assertIsPresent(result.getThrowable());
-            return throwable;
         }
     }
 

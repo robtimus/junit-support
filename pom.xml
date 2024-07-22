@@ -159,6 +159,7 @@
               <link>https://logging.apache.org/log4j/2.x/log4j-core/apidocs/</link>
               <link>https://logback.qos.ch/apidocs/</link>
               <link>https://reload4j.qos.ch/apidocs/</link>
+              <link>https://www.slf4j.org/apidocs/</link>
             </links>
           </configuration>
         </plugin>
@@ -233,14 +234,15 @@
             --add-modules ch.qos.logback.classic
             --add-modules ch.qos.logback.core
 
-            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testlogger=java.logging
-            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testlogger=org.apache.logging.log4j.core
-            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testlogger=ch.qos.logback.core
-            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testlogger=ch.qos.reload4j
+            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.util=java.logging
+            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.util=org.apache.logging.log4j.core
+            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.util=ch.qos.logback.core
+            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.util=ch.qos.reload4j
 
             --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support=org.junit.platform.commons
             --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.concurrent=org.junit.platform.commons
             --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension=org.junit.platform.commons
+            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.logonfailure=org.junit.platform.commons
             --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testlogger=org.junit.platform.commons
             --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testresource=org.junit.platform.commons
             --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.params=org.junit.platform.commons
@@ -257,7 +259,7 @@
             --add-opens org.junit.platform.commons/org.junit.platform.commons.util=ALL-UNNAMED
           </argLine>
           <systemPropertyVariables>
-            <java.util.logging.config.class>com.github.robtimus.junit.support.extension.testlogger.JdkLoggerConfigurer</java.util.logging.config.class>
+            <java.util.logging.config.class>com.github.robtimus.junit.support.extension.util.JdkLoggerConfigurer</java.util.logging.config.class>
           </systemPropertyVariables>
         </configuration>
       </plugin>

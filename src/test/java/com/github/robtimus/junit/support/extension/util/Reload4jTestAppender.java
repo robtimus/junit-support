@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.extension.testlogger;
+package com.github.robtimus.junit.support.extension.util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,11 +42,11 @@ public class Reload4jTestAppender extends AppenderSkeleton {
         // does nothing
     }
 
-    List<LoggingEvent> getEvents() {
+    public List<LoggingEvent> getEvents() {
         return events;
     }
 
-    void clearEvents() {
+    public void clearEvents() {
         events.clear();
     }
 }

@@ -49,7 +49,9 @@ public final class LogCaptor<T> {
      * @return All events or records that were logged.
      */
     public List<T> logged() {
-        return captured(eventType, verifier);
+        ArgumentCaptor<T> eventCaptor = ArgumentCaptor.forClass(eventType);
+        verifier.accept(atLeast(0), eventCaptor);
+        return eventCaptor.getAllValues();
     }
 
     /**
@@ -57,11 +59,5 @@ public final class LogCaptor<T> {
      */
     public void reset() {
         resetter.run();
-    }
-
-    static <T> List<T> captured(Class<T> eventType, BiConsumer<VerificationMode, ArgumentCaptor<T>> verifier) {
-        ArgumentCaptor<T> eventCaptor = ArgumentCaptor.forClass(eventType);
-        verifier.accept(atLeast(0), eventCaptor);
-        return eventCaptor.getAllValues();
     }
 }

@@ -21,17 +21,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
-import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
-import org.mockito.ArgumentCaptor;
-import org.mockito.verification.VerificationMode;
 import com.github.robtimus.junit.support.extension.testlogger.TestLoggerExtension.ContextFactory;
 
 /**
@@ -171,16 +167,6 @@ public final class JdkLoggerContext extends LoggerContext {
     }
 
     @Override
-    void startCapture() {
-        helper.startCapture();
-    }
-
-    @Override
-    void logCaptured() {
-        helper.logCaptured();
-    }
-
-    @Override
     void saveSettings() {
         helper.saveSettings();
     }
@@ -196,8 +182,6 @@ public final class JdkLoggerContext extends LoggerContext {
 
         private Handler captorHandler;
         private LogCaptor<LogRecord> logCaptor;
-
-        private Handler captureHandler;
 
         private Helper(Logger logger) {
             this.logger = logger;
@@ -231,7 +215,7 @@ public final class JdkLoggerContext extends LoggerContext {
         }
 
         private boolean isNonHelperHandler(Handler handler) {
-            return handler != captorHandler && handler != captureHandler;
+            return handler != captorHandler;
         }
 
         @Override
@@ -249,32 +233,11 @@ public final class JdkLoggerContext extends LoggerContext {
             if (logCaptor == null) {
                 captorHandler = mock(Handler.class);
                 logCaptor = new LogCaptor<>(LogRecord.class,
-                        verifier(captorHandler),
+                        (mode, recordCaptor) -> verify(captorHandler, mode).publish(recordCaptor.capture()),
                         () -> reset(captorHandler));
                 addAppender(captorHandler);
             }
             return logCaptor;
-        }
-
-        @Override
-        void startCapture() {
-            captureHandler = mock(Handler.class);
-            setAppender(captureHandler);
-            useParentAppenders(false);
-        }
-
-        @Override
-        void logCaptured() {
-            if (captureHandler != null) {
-                List<LogRecord> logRecords = LogCaptor.captured(LogRecord.class, verifier(captureHandler));
-                for (LogRecord logRecord : logRecords) {
-                    logger.log(logRecord);
-                }
-            }
-        }
-
-        private BiConsumer<VerificationMode, ArgumentCaptor<LogRecord>> verifier(Handler handler) {
-            return (mode, recordCaptor) -> verify(handler, mode).publish(recordCaptor.capture());
         }
     }
 

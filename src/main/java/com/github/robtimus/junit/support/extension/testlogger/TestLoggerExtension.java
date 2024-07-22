@@ -73,9 +73,6 @@ class TestLoggerExtension extends InjectingExtension {
         if (target.isAnnotated(DisableLogging.class)) {
             loggerContext.disable();
         }
-        if (target.isAnnotated(LogOnFailure.class)) {
-            loggerContext.startCapture();
-        }
         return loggerContext;
     }
 
@@ -92,18 +89,15 @@ class TestLoggerExtension extends InjectingExtension {
         if (testLogger != null) {
             String loggerName = testLogger.value();
             String key = contextFactory.key(loggerName);
-            return context.getStore(NAMESPACE).getOrComputeIfAbsent(key, k -> contextFactory.newContext(loggerName, context), CloseableContext.class)
-                    .loggerContext;
+            return context.getStore(NAMESPACE).getOrComputeIfAbsent(key, k -> contextFactory.newContext(loggerName), CloseableContext.class).context;
         }
         if (testLoggerForClass != null) {
             Class<?> loggerClass = testLoggerForClass.value();
             String key = contextFactory.key(loggerClass);
-            return context.getStore(NAMESPACE).getOrComputeIfAbsent(key, k -> contextFactory.newContext(loggerClass, context), CloseableContext.class)
-                    .loggerContext;
+            return context.getStore(NAMESPACE).getOrComputeIfAbsent(key, k -> contextFactory.newContext(loggerClass), CloseableContext.class).context;
         }
         String key = contextFactory.rootKey();
-        return context.getStore(NAMESPACE).getOrComputeIfAbsent(key, o -> contextFactory.newRootContext(context), CloseableContext.class)
-                .loggerContext;
+        return context.getStore(NAMESPACE).getOrComputeIfAbsent(key, o -> contextFactory.newRootContext(), CloseableContext.class).context;
     }
 
     private void validateAnnotations(TestLogger testLogger, ForClass testLoggerForClass, Root testLoggerRoot) {
@@ -117,19 +111,19 @@ class TestLoggerExtension extends InjectingExtension {
 
     abstract static class ContextFactory<C extends LoggerContext> {
 
-        private CloseableContext newContext(String loggerName, ExtensionContext context) {
-            C loggerContext = newLoggerContext(loggerName);
-            return new CloseableContext(loggerContext, context);
+        private CloseableContext newContext(String loggerName) {
+            C context = newLoggerContext(loggerName);
+            return new CloseableContext(context);
         }
 
-        private CloseableContext newContext(Class<?> loggerClass, ExtensionContext context) {
-            C loggerContext = newLoggerContext(loggerClass);
-            return new CloseableContext(loggerContext, context);
+        private CloseableContext newContext(Class<?> loggerClass) {
+            C context = newLoggerContext(loggerClass);
+            return new CloseableContext(context);
         }
 
-        private CloseableContext newRootContext(ExtensionContext context) {
-            C loggerContext = newRootLoggerContext();
-            return new CloseableContext(loggerContext, context);
+        private CloseableContext newRootContext() {
+            C context = newRootLoggerContext();
+            return new CloseableContext(context);
         }
 
         abstract C newLoggerContext(String loggerName);
@@ -159,19 +153,16 @@ class TestLoggerExtension extends InjectingExtension {
 
     private static final class CloseableContext implements CloseableResource {
 
-        private final LoggerContext loggerContext;
-        private final ExtensionContext context;
+        private final LoggerContext context;
 
-        private CloseableContext(LoggerContext loggerContext, ExtensionContext context) {
-            this.loggerContext = loggerContext;
+        private CloseableContext(LoggerContext context) {
             this.context = context;
-            loggerContext.saveSettings();
+            context.saveSettings();
         }
 
         @Override
         public void close() throws Throwable {
-            loggerContext.restore();
-            context.getExecutionException().ifPresent(t -> loggerContext.logCaptured());
+            context.restore();
         }
     }
 }

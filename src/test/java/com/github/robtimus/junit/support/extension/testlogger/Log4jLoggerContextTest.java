@@ -17,22 +17,19 @@
 
 package com.github.robtimus.junit.support.extension.testlogger;
 
+import static com.github.robtimus.junit.support.extension.util.Log4jUtils.LOGGER;
+import static com.github.robtimus.junit.support.extension.util.Log4jUtils.ROOT_LOGGER;
+import static com.github.robtimus.junit.support.extension.util.Log4jUtils.getAppenders;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.spy;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
 import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LogEvent;
-import org.apache.logging.log4j.core.Logger;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -42,16 +39,11 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import com.github.robtimus.junit.support.extension.util.Log4jTestAppender;
+import com.github.robtimus.junit.support.extension.util.Log4jUtils;
 
 @SuppressWarnings("nls")
 final class Log4jLoggerContextTest {
-
-    private static final Logger LOGGER = (Logger) LogManager.getLogger(TestLogger.class);
-    private static final Logger DISABLED_LOGGER = (Logger) LogManager.getLogger(TestLogger.class.getName() + ".disabled");
-    private static final Logger ROOT_LOGGER = (Logger) LogManager.getRootLogger();
-
-    private static final Comparator<Appender> APPENDER_COMPARATOR = Comparator.comparing(Appender::getName)
-            .thenComparing(Appender::getClass, Comparator.comparing(Class::getName));
 
     private Log4jLoggerContextTest() {
     }
@@ -59,38 +51,7 @@ final class Log4jLoggerContextTest {
     @BeforeAll
     @AfterAll
     static void validateLoggers() {
-        assertEquals(Level.INFO, LOGGER.getLevel());
-        assertTrue(LOGGER.isAdditive());
-
-        List<Appender> appenders = getAppenders(LOGGER);
-        assertEquals(1, appenders.size());
-        assertInstanceOf(Log4jTestAppender.class, appenders.get(0));
-        assertEquals("A2", appenders.get(0).getName());
-
-        assertEquals(Level.INFO, DISABLED_LOGGER.getLevel());
-        assertTrue(DISABLED_LOGGER.isAdditive());
-
-        List<Appender> disabledAppenders = getAppenders(DISABLED_LOGGER);
-        assertEquals(1, disabledAppenders.size());
-        assertInstanceOf(Log4jTestAppender.class, disabledAppenders.get(0));
-        assertEquals("A3", disabledAppenders.get(0).getName());
-
-        assertEquals(Level.WARN, ROOT_LOGGER.getLevel());
-        assertFalse(ROOT_LOGGER.isAdditive());
-
-        List<Appender> rootAppenders = getAppenders(ROOT_LOGGER);
-        assertEquals(1, rootAppenders.size());
-        assertInstanceOf(Log4jTestAppender.class, rootAppenders.get(0));
-        assertEquals("A1", rootAppenders.get(0).getName());
-    }
-
-    private static List<Appender> getAppenders(Logger logger) {
-        List<Appender> appenders = new ArrayList<>();
-        for (Appender appender : logger.getAppenders().values()) {
-            appenders.add(appender);
-        }
-        appenders.sort(APPENDER_COMPARATOR);
-        return appenders;
+        Log4jUtils.validateLoggers();
     }
 
     @Nested

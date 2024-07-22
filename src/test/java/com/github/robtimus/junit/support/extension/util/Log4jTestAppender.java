@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.extension.testlogger;
+package com.github.robtimus.junit.support.extension.util;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
-@SuppressWarnings({ "javadoc", "exports" })
+@SuppressWarnings("javadoc")
 @Plugin(name = "Log4jTest", category = Core.CATEGORY_NAME, elementType = Appender.ELEMENT_TYPE)
 public class Log4jTestAppender extends AbstractAppender {
 
@@ -57,11 +57,11 @@ public class Log4jTestAppender extends AbstractAppender {
         }
     }
 
-    List<LogEvent> getEvents() {
+    public List<LogEvent> getEvents() {
         return events;
     }
 
-    void clearEvents() {
+    public void clearEvents() {
         events.clear();
     }
 }

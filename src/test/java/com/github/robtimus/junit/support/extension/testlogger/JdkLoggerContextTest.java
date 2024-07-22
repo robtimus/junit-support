@@ -17,22 +17,20 @@
 
 package com.github.robtimus.junit.support.extension.testlogger;
 
+import static com.github.robtimus.junit.support.extension.util.JdkLoggingUtils.LOGGER;
+import static com.github.robtimus.junit.support.extension.util.JdkLoggingUtils.ROOT_LOGGER;
+import static com.github.robtimus.junit.support.extension.util.JdkLoggingUtils.getHandlers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -42,15 +40,11 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import com.github.robtimus.junit.support.extension.util.JdkLoggingUtils;
+import com.github.robtimus.junit.support.extension.util.JdkTestHandler;
 
 @SuppressWarnings("nls")
 final class JdkLoggerContextTest {
-
-    private static final Logger LOGGER = Logger.getLogger(TestLogger.class.getName());
-    private static final Logger DISABLED_LOGGER = Logger.getLogger(TestLogger.class.getName() + ".disabled");
-    private static final Logger ROOT_LOGGER = Logger.getLogger("");
-
-    private static final Comparator<Handler> HANDLER_COMPARATOR = Comparator.comparing(Handler::getClass, Comparator.comparing(Class::getName));
 
     private JdkLoggerContextTest() {
     }
@@ -58,33 +52,7 @@ final class JdkLoggerContextTest {
     @BeforeAll
     @AfterAll
     static void validateLoggers() {
-        assertEquals(Level.INFO, LOGGER.getLevel());
-        assertTrue(LOGGER.getUseParentHandlers());
-
-        List<Handler> handlers = getHandlers(LOGGER);
-        assertEquals(1, handlers.size());
-        assertInstanceOf(JdkTestHandler.class, handlers.get(0));
-
-        assertEquals(Level.INFO, DISABLED_LOGGER.getLevel());
-        assertTrue(DISABLED_LOGGER.getUseParentHandlers());
-
-        List<Handler> disabledHandlers = getHandlers(DISABLED_LOGGER);
-        assertEquals(1, disabledHandlers.size());
-        assertInstanceOf(JdkTestHandler.class, disabledHandlers.get(0));
-
-        assertEquals(Level.WARNING, ROOT_LOGGER.getLevel());
-        assertTrue(ROOT_LOGGER.getUseParentHandlers());
-
-        List<Handler> rootHandlers = getHandlers(ROOT_LOGGER);
-        assertEquals(1, rootHandlers.size());
-        assertInstanceOf(JdkTestHandler.class, rootHandlers.get(0));
-    }
-
-    private static List<Handler> getHandlers(Logger logger) {
-        List<Handler> handlers = new ArrayList<>();
-        Collections.addAll(handlers, logger.getHandlers());
-        handlers.sort(HANDLER_COMPARATOR);
-        return handlers;
+        JdkLoggingUtils.validateLoggers();
     }
 
     @Nested

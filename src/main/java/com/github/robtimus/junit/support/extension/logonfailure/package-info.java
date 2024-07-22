@@ -1,6 +1,6 @@
 /*
- * LoggerContext.java
- * Copyright 2022 Rob Spoor
+ * package-info.java
+ * Copyright 2024 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,7 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.extension.testlogger;
-
-abstract class LoggerContext {
-
-    abstract void disable();
-
-    abstract void saveSettings();
-
-    /**
-     * Restores the original settings of the logger.
-     * <p>
-     * It should usually not be necessary to call this method, as it will be called automatically once this context goes out of scope.
-     */
-    public abstract void restore();
-}
+/**
+ * Provides interfaces and classes for the {@link com.github.robtimus.junit.support.extension.logonfailure.LogOnFailure LogOnFailure} extension.
+ */
+package com.github.robtimus.junit.support.extension.logonfailure;

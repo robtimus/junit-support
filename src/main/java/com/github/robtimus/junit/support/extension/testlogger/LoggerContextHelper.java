@@ -90,10 +90,6 @@ abstract class LoggerContextHelper<L, E, A> {
 
     abstract LogCaptor<E> logCaptor();
 
-    abstract void startCapture();
-
-    abstract void logCaptured();
-
     void saveSettings() {
         originalLevel = getLevel();
         originalAppenders = listAppenders();

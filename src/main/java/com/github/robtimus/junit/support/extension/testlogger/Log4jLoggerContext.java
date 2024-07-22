@@ -20,10 +20,8 @@ package com.github.robtimus.junit.support.extension.testlogger;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.apache.logging.log4j.Level;
@@ -31,8 +29,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.Logger;
-import org.mockito.ArgumentCaptor;
-import org.mockito.verification.VerificationMode;
 import com.github.robtimus.junit.support.extension.testlogger.TestLoggerExtension.ContextFactory;
 
 /**
@@ -182,16 +178,6 @@ public final class Log4jLoggerContext extends LoggerContext {
     }
 
     @Override
-    void startCapture() {
-        helper.startCapture();
-    }
-
-    @Override
-    void logCaptured() {
-        helper.logCaptured();
-    }
-
-    @Override
     void saveSettings() {
         helper.saveSettings();
     }
@@ -207,8 +193,6 @@ public final class Log4jLoggerContext extends LoggerContext {
 
         private Log4jNullAppender captorAppender;
         private LogCaptor<LogEvent> logCaptor;
-
-        private Log4jNullAppender captureAppender;
 
         private Helper(Logger logger) {
             this.logger = logger;
@@ -242,7 +226,7 @@ public final class Log4jLoggerContext extends LoggerContext {
         }
 
         private boolean isNonHelperAppender(Appender appender) {
-            return appender != captorAppender && appender != captureAppender;
+            return appender != captorAppender;
         }
 
         @Override
@@ -260,32 +244,11 @@ public final class Log4jLoggerContext extends LoggerContext {
             if (logCaptor == null) {
                 captorAppender = spy(Log4jNullAppender.create("LogCaptor-" + UUID.randomUUID().toString())); //$NON-NLS-1$
                 logCaptor = new LogCaptor<>(LogEvent.class,
-                        verifier(captorAppender),
+                        (mode, eventCaptor) -> verify(captorAppender, mode).ignore(eventCaptor.capture()),
                         () -> reset(captorAppender));
                 addAppender(captorAppender);
             }
             return logCaptor;
-        }
-
-        @Override
-        void startCapture() {
-            captureAppender = spy(Log4jNullAppender.create("Capture-" + UUID.randomUUID().toString())); //$NON-NLS-1$
-            setAppender(captureAppender);
-            useParentAppenders(false);
-        }
-
-        @Override
-        void logCaptured() {
-            if (captureAppender != null) {
-                List<LogEvent> events = LogCaptor.captured(LogEvent.class, verifier(captureAppender));
-                for (LogEvent event : events) {
-                    logger.get().log(event);
-                }
-            }
-        }
-
-        private BiConsumer<VerificationMode, ArgumentCaptor<LogEvent>> verifier(Log4jNullAppender appender) {
-            return (mode, eventCaptor) -> verify(appender, mode).ignore(eventCaptor.capture());
         }
 
         @Override

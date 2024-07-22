@@ -29,6 +29,7 @@
     <menu name="Extensions">
       <item name="@TestResource" href="extension/test-resource.html" />
       <item name="@TestLogger" href="extension/test-logger.html" />
+      <item name="@LogOnFailure" href="extension/log-on-failure.html" />
     </menu>
     <menu name="Extension Support">
       <item name="MethodLookup" href="extension/method-lookup.html" />

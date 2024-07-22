@@ -26,6 +26,10 @@ See [@TestResource](https://robtimus.github.io/junit-support/extension/test-reso
 
 Loggers are often defined as `private static final` fields. That makes them difficult to mock. Using [@TestLogger](https://robtimus.github.io/junit-support/extension/test-logger.html) allows you to reconfigure these for test purposes.
 
+## Disable logging for successful tests
+
+[@LogOnFailure](https://robtimus.github.io/junit-support/extension/log-on-failure.html) allows you to suppress logging for successful tests but not for failed tests.
+
 ## Simplify writing JUnit extensions
 
 If you want to write a JUnit extension that performs method lookups like [@MethodSource](https://junit.org/junit5/docs/current/api/org.junit.jupiter.params/org/junit/jupiter/params/provider/MethodSource.html), [MethodLookup](https://robtimus.github.io/junit-support/extension/method-lookup.html) provides an easy to use API.
