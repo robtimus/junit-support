@@ -31,7 +31,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtensionConfigurationException;
+import org.junit.platform.commons.PreconditionViolationException;
 import org.junit.platform.testkit.engine.EngineExecutionResults;
 import org.opentest4j.AssertionFailedError;
 import com.github.robtimus.junit.support.extension.testlogger.TestLogger;
@@ -273,9 +273,16 @@ final class LogOnFailureTest {
 
         @Test
         @DisplayName("unsupported logger type")
-        void testUnsupportedContextType() {
-            assertSingleTestFailure(LogOnFailureTest.UnsupportedLoggerType.class, ExtensionConfigurationException.class,
+        void testUnsupportedLoggerType() {
+            assertSingleTestFailure(LogOnFailureTest.UnsupportedLoggerType.class, PreconditionViolationException.class,
                     equalTo("Object type not supported: java.lang.String"));
+        }
+
+        @Test
+        @DisplayName("null logger")
+        void testNullLogger() {
+            assertSingleTestFailure(LogOnFailureTest.NullLogger.class, PreconditionViolationException.class,
+                    equalTo("null not supported"));
         }
     }
 
@@ -283,6 +290,17 @@ final class LogOnFailureTest {
 
         @LogOnFailure
         private static final String TEST = "test";
+
+        @Test
+        void testUnsupportedType() {
+            assertTrue(true);
+        }
+    }
+
+    static final class NullLogger {
+
+        @LogOnFailure
+        private static final java.util.logging.Logger LOGGER = null;
 
         @Test
         void testUnsupportedType() {

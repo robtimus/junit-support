@@ -25,9 +25,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
-import org.junit.jupiter.api.extension.ExtensionConfigurationException;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
+import org.junit.platform.commons.JUnitException;
+import org.junit.platform.commons.PreconditionViolationException;
 import org.junit.platform.commons.support.AnnotationSupport;
 import org.junit.platform.commons.support.HierarchyTraversalMode;
 import org.junit.platform.commons.support.ReflectionSupport;
@@ -72,6 +73,13 @@ class LogOnFailureExtension implements BeforeEachCallback {
                 .filter(Optional::isPresent)
                 .map(Optional::orElseThrow)
                 .findAny()
-                .orElseThrow(() -> new ExtensionConfigurationException("Object type not supported: " + logger.getClass().getName()));
+                .orElseThrow(() -> unsupportedLoggerException(logger));
+    }
+
+    private JUnitException unsupportedLoggerException(Object logger) {
+        if (logger == null) {
+            return new PreconditionViolationException("null not supported");
+        }
+        return new PreconditionViolationException("Object type not supported: " + logger.getClass().getName());
     }
 }
