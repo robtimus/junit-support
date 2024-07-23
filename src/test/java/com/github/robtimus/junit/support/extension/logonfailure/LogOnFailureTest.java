@@ -316,13 +316,13 @@ final class LogOnFailureTest {
             private static final java.util.logging.Logger JDK_LOGGER = java.util.logging.Logger.getLogger(TestLogger.class.getName());
 
             @LogOnFailure
-            private static final org.apache.logging.log4j.Logger LOG4J_LOGGER = org.apache.logging.log4j.LogManager.getLogger(TestLogger.class);
+            public static final org.apache.logging.log4j.Logger LOG4J_LOGGER = org.apache.logging.log4j.LogManager.getLogger(TestLogger.class);
 
             @LogOnFailure
-            private static final org.slf4j.Logger SLF4J_LOGGER = org.slf4j.LoggerFactory.getLogger(TestLogger.class);
+            private final org.slf4j.Logger slf4jLogger = org.slf4j.LoggerFactory.getLogger(TestLogger.class);
 
             @LogOnFailure
-            private static final org.apache.log4j.Logger RELOAD4J_LOGGER = org.apache.log4j.Logger.getLogger(TestLogger.class);
+            public final org.apache.log4j.Logger reload4jLogger = org.apache.log4j.Logger.getLogger(TestLogger.class);
 
             @Test
             void testSuccess1() {
@@ -330,9 +330,9 @@ final class LogOnFailureTest {
 
                 LOG4J_LOGGER.info("info1");
 
-                SLF4J_LOGGER.info("info1");
+                slf4jLogger.info("info1");
 
-                RELOAD4J_LOGGER.info("info1");
+                reload4jLogger.info("info1");
 
                 assertTrue(true);
             }
@@ -343,9 +343,9 @@ final class LogOnFailureTest {
 
                 LOG4J_LOGGER.info("info2");
 
-                SLF4J_LOGGER.info("info2");
+                slf4jLogger.info("info2");
 
-                RELOAD4J_LOGGER.info("info2");
+                reload4jLogger.info("info2");
 
                 assertTrue(true);
             }
@@ -357,13 +357,13 @@ final class LogOnFailureTest {
             private static final java.util.logging.Logger JDK_LOGGER = java.util.logging.Logger.getLogger(TestLogger.class.getName());
 
             @LogOnFailure
-            private static final org.apache.logging.log4j.Logger LOG4J_LOGGER = org.apache.logging.log4j.LogManager.getLogger(TestLogger.class);
+            public static final org.apache.logging.log4j.Logger LOG4J_LOGGER = org.apache.logging.log4j.LogManager.getLogger(TestLogger.class);
 
             @LogOnFailure
-            private static final org.slf4j.Logger SLF4J_LOGGER = org.slf4j.LoggerFactory.getLogger(TestLogger.class);
+            private final org.slf4j.Logger slf4jLogger = org.slf4j.LoggerFactory.getLogger(TestLogger.class);
 
             @LogOnFailure
-            private static final org.apache.log4j.Logger RELOAD4J_LOGGER = org.apache.log4j.Logger.getLogger(TestLogger.class);
+            public final org.apache.log4j.Logger reload4jLogger = org.apache.log4j.Logger.getLogger(TestLogger.class);
 
             @Test
             void testSuccess() {
@@ -371,9 +371,9 @@ final class LogOnFailureTest {
 
                 LOG4J_LOGGER.info("info");
 
-                SLF4J_LOGGER.info("info");
+                slf4jLogger.info("info");
 
-                RELOAD4J_LOGGER.info("info");
+                reload4jLogger.info("info");
 
                 assertTrue(true);
             }
@@ -388,13 +388,13 @@ final class LogOnFailureTest {
                 LOG4J_LOGGER.info("info before failure");
                 LOG4J_LOGGER.error("error before failure");
 
-                SLF4J_LOGGER.debug("debug before failure");
-                SLF4J_LOGGER.info("info before failure");
-                SLF4J_LOGGER.error("error before failure");
+                slf4jLogger.debug("debug before failure");
+                slf4jLogger.info("info before failure");
+                slf4jLogger.error("error before failure");
 
-                RELOAD4J_LOGGER.debug("debug before failure");
-                RELOAD4J_LOGGER.info("info before failure");
-                RELOAD4J_LOGGER.error("error before failure");
+                reload4jLogger.debug("debug before failure");
+                reload4jLogger.info("info before failure");
+                reload4jLogger.error("error before failure");
 
                 assertFalse(true);
             }

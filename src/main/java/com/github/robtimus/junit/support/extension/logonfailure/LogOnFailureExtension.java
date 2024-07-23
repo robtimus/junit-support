@@ -58,9 +58,13 @@ class LogOnFailureExtension implements BeforeEachCallback {
     }
 
     private void startCapture(Field field, ExtensionContext context) throws ReflectiveOperationException {
-        MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(field.getDeclaringClass(), MethodHandles.lookup());
+        int modifiers = field.getModifiers();
 
-        Object logger = Modifier.isStatic(field.getModifiers())
+        MethodHandles.Lookup lookup = Modifier.isPublic(modifiers)
+                ? MethodHandles.lookup()
+                : MethodHandles.privateLookupIn(field.getDeclaringClass(), MethodHandles.lookup());
+
+        Object logger = Modifier.isStatic(modifiers)
                 ? lookup.findStaticVarHandle(field.getDeclaringClass(), field.getName(), field.getType()).get()
                 : lookup.findVarHandle(field.getDeclaringClass(), field.getName(), field.getType()).get(context.getRequiredTestInstance());
 
