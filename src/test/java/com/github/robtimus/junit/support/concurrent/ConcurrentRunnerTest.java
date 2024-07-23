@@ -52,6 +52,9 @@ class ConcurrentRunnerTest {
 
     private static final int CONCURRENT_COUNT = 100;
 
+    private static final ConcurrencySettings CONCURRENCY_SETTINGS = ConcurrencySettings.withCount(CONCURRENT_COUNT)
+            .withThreadCount(CONCURRENT_COUNT / 2);
+
     @Nested
     @DisplayName("execute()")
     class Execute {
@@ -549,6 +552,142 @@ class ConcurrentRunnerTest {
 
             AssertionFailedError thrown = assertThrows(AssertionFailedError.class,
                     () -> ConcurrentRunner.runConcurrently(executable, CONCURRENT_COUNT));
+
+            assertSame(exception, thrown.getCause());
+
+            verifyExecuted(executable, CONCURRENT_COUNT);
+        }
+    }
+
+    @Nested
+    @DisplayName("runConcurrently(Executable, ConcurrencySettings)")
+    class RunExecutableWithConcurrencySettings {
+
+        @Test
+        @DisplayName("null executable")
+        void testNullExecutable() {
+            Executable executable = null;
+            ConcurrencySettings settings = ConcurrencySettings.withCount(1);
+            assertThrows(NullPointerException.class, () -> ConcurrentRunner.runConcurrently(executable, settings));
+        }
+
+        @Test
+        @DisplayName("null settings")
+        void testNullSettings() {
+            Executable executable = mock(Executable.class);
+            assertThrows(NullPointerException.class, () -> ConcurrentRunner.runConcurrently(executable, null));
+        }
+
+        @Test
+        @DisplayName("success")
+        void testSuccess() {
+            Executable executable = mock(Executable.class);
+
+            ConcurrentRunner.runConcurrently(executable, CONCURRENCY_SETTINGS);
+
+            verifyExecuted(executable, CONCURRENT_COUNT);
+        }
+
+        @Test
+        @DisplayName("throwing multiple errors")
+        void testThrowingMultipleErrors() {
+            Executable executable = mock(Executable.class);
+
+            Error error = new InternalError("test error");
+            mockThrowAlways(executable, error);
+
+            MultipleFailuresError thrown = assertThrows(MultipleFailuresError.class,
+                    () -> ConcurrentRunner.runConcurrently(executable, CONCURRENCY_SETTINGS));
+
+            List<Error> expected = IntStream.range(0, CONCURRENT_COUNT)
+                    .mapToObj(i -> error)
+                    .collect(Collectors.toList());
+
+            assertEquals(expected, thrown.getFailures());
+
+            verifyExecuted(executable, CONCURRENT_COUNT);
+        }
+
+        @Test
+        @DisplayName("throwing single error")
+        void testThrowingSingleError() {
+            Executable executable = mock(Executable.class);
+
+            Error error = new InternalError("test error");
+            mockThrowOnce(executable, error, CONCURRENT_COUNT);
+
+            Error thrown = assertThrows(Error.class, () -> ConcurrentRunner.runConcurrently(executable, CONCURRENCY_SETTINGS));
+
+            assertSame(error, thrown);
+
+            verifyExecuted(executable, CONCURRENT_COUNT);
+        }
+
+        @Test
+        @DisplayName("throwing multiple unchecked exceptions")
+        void testThrowingUncheckedExceptions() {
+            Executable executable = mock(Executable.class);
+
+            RuntimeException exception = new IllegalArgumentException("test exception");
+            mockThrowAlways(executable, exception);
+
+            MultipleFailuresError thrown = assertThrows(MultipleFailuresError.class,
+                    () -> ConcurrentRunner.runConcurrently(executable, CONCURRENCY_SETTINGS));
+
+            List<RuntimeException> expected = IntStream.range(0, CONCURRENT_COUNT)
+                    .mapToObj(i -> exception)
+                    .collect(Collectors.toList());
+
+            assertEquals(expected, thrown.getFailures());
+
+            verifyExecuted(executable, CONCURRENT_COUNT);
+        }
+
+        @Test
+        @DisplayName("throwing single unchecked exception")
+        void testThrowingUncheckedException() {
+            Executable executable = mock(Executable.class);
+
+            RuntimeException exception = new IllegalArgumentException("test exception");
+            mockThrowOnce(executable, exception, CONCURRENT_COUNT);
+
+            RuntimeException thrown = assertThrows(RuntimeException.class, () -> ConcurrentRunner.runConcurrently(executable, CONCURRENCY_SETTINGS));
+
+            assertSame(exception, thrown);
+
+            verifyExecuted(executable, CONCURRENT_COUNT);
+        }
+
+        @Test
+        @DisplayName("throwing multiple checked exceptions")
+        void testThrowingCheckedExceptions() {
+            Executable executable = mock(Executable.class);
+
+            Exception exception = new IOException("test exception");
+            mockThrowAlways(executable, exception);
+
+            MultipleFailuresError thrown = assertThrows(MultipleFailuresError.class,
+                    () -> ConcurrentRunner.runConcurrently(executable, CONCURRENCY_SETTINGS));
+
+            List<Exception> expected = IntStream.range(0, CONCURRENT_COUNT)
+                    .mapToObj(i -> exception)
+                    .collect(Collectors.toList());
+
+            assertEquals(expected, thrown.getFailures());
+
+            verifyExecuted(executable, CONCURRENT_COUNT);
+        }
+
+        @Test
+        @DisplayName("throwing single checked exception")
+        void testThrowingCheckedException() {
+            Executable executable = mock(Executable.class);
+
+            Exception exception = new IOException("test exception");
+            mockThrowOnce(executable, exception, CONCURRENT_COUNT);
+
+            AssertionFailedError thrown = assertThrows(AssertionFailedError.class,
+                    () -> ConcurrentRunner.runConcurrently(executable, CONCURRENCY_SETTINGS));
 
             assertSame(exception, thrown.getCause());
 

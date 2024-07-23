@@ -126,9 +126,7 @@ public final class ConcurrentRunner<T> {
      */
     public ConcurrentRunner<T> concurrentlyWith(ThrowingSupplier<? extends T> supplier, int count) {
         Objects.requireNonNull(supplier);
-        if (count < 1) {
-            throw new IllegalArgumentException(count + " < 1");
-        }
+        validateCount(count);
         for (int i = 0; i < count; i++) {
             suppliers.add(supplier);
         }
@@ -170,9 +168,7 @@ public final class ConcurrentRunner<T> {
      * @throws IllegalArgumentException If the given thread count is not at least 2.
      */
     public ConcurrentRunner<T> withThreadCount(int threadCount) {
-        if (threadCount < 2) {
-            throw new IllegalArgumentException(threadCount + " < 2");
-        }
+        validateThreadCount(threadCount);
         this.threadCount = threadCount;
         return this;
     }
@@ -247,6 +243,23 @@ public final class ConcurrentRunner<T> {
     }
 
     /**
+     * Runs a block of code several times concurrently. Each block of code will start at approximately the same time.
+     * <p>
+     * This method assumes that each block of code does not throw any exception, including failed assertions.
+     * If any block of code does, this method will throw an error or exception.
+     *
+     * @param executable The block of code to run concurrently.
+     * @param settings The concurrency settings, including the number of times to run the block of code.
+     * @throws NullPointerException If the given executable or settings object is {@code null}.
+     */
+    public static void runConcurrently(Executable executable, ConcurrencySettings settings) {
+        running(executable, settings.count())
+                .withThreadCount(settings.threadCount())
+                .execute()
+                .andAssertNoFailures();
+    }
+
+    /**
      * Runs several blocks of code concurrently. Each block of code will start at approximately the same time.
      * <p>
      * This method assumes that each block of code does not throw any exception, including failed assertions.
@@ -285,5 +298,17 @@ public final class ConcurrentRunner<T> {
             executable.execute();
             return null;
         };
+    }
+
+    static void validateCount(int count) {
+        if (count < 1) {
+            throw new IllegalArgumentException(count + " < 1");
+        }
+    }
+
+    static void validateThreadCount(int threadCount) {
+        if (threadCount < 2) {
+            throw new IllegalArgumentException(threadCount + " < 2");
+        }
     }
 }
