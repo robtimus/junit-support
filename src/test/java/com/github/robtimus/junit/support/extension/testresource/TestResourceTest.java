@@ -55,7 +55,7 @@ import com.github.robtimus.junit.support.extension.InjectionTarget;
 final class TestResourceTest {
 
     @TestResource("lorem.txt")
-    private static String resourceAsString;
+    public static String resourceAsString;
     @TestResource("lorem.txt")
     private static CharSequence resourceAsCharSequence;
     @TestResource("lorem.txt")
@@ -196,7 +196,7 @@ final class TestResourceTest {
     class InstanceFieldInjection {
 
         @TestResource("lorem.txt")
-        private String resourceAsString;
+        public String resourceAsString;
         @TestResource("lorem.txt")
         private CharSequence resourceAsCharSequence;
         @TestResource("lorem.txt")
@@ -883,14 +883,14 @@ final class TestResourceTest {
                 @DisplayName("with InputStream")
                 void testWithInputStream() {
                     assertSingleContainerFailure(TestResourceTest.LoadWithErrors.TargetTypeMismatch.WithInputStream.class,
-                            IllegalArgumentException.class, startsWith("Can not set static java.lang.String field"));
+                            ClassCastException.class, startsWith("Cannot cast [B to java.lang.String"));
                 }
 
                 @Test
                 @DisplayName("with Reader")
                 void testWithReader() {
                     assertSingleContainerFailure(TestResourceTest.LoadWithErrors.TargetTypeMismatch.WithReader.class,
-                            IllegalArgumentException.class, startsWith("Can not set static [B field"));
+                            ClassCastException.class, startsWith("Cannot cast java.lang.String to [B"));
                 }
             }
 

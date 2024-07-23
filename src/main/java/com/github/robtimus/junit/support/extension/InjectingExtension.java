@@ -17,7 +17,9 @@
 
 package com.github.robtimus.junit.support.extension;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -79,13 +81,20 @@ public abstract class InjectingExtension implements BeforeAllCallback, BeforeEac
         try {
             Object value = resolveValue(target, context);
 
-            if (!field.canAccess(testInstance)) {
-                field.setAccessible(true);
+            if (Modifier.isStatic(field.getModifiers())) {
+                getLookup(field, null).findStaticVarHandle(field.getDeclaringClass(), field.getName(), field.getType()).set(value);
+            } else {
+                getLookup(field, testInstance).findVarHandle(field.getDeclaringClass(), field.getName(), field.getType()).set(testInstance, value);
             }
-            field.set(testInstance, value);
         } catch (Exception e) {
             throwAsUncheckedException(e);
         }
+    }
+
+    private MethodHandles.Lookup getLookup(Field field, Object target) throws IllegalAccessException {
+        return field.canAccess(target)
+                ? MethodHandles.lookup()
+                : MethodHandles.privateLookupIn(field.getDeclaringClass(), MethodHandles.lookup());
     }
 
     @Override

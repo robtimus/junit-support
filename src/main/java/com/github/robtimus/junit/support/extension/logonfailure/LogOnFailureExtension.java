@@ -58,17 +58,27 @@ class LogOnFailureExtension implements BeforeEachCallback {
     }
 
     private void startCapture(Field field, ExtensionContext context) throws ReflectiveOperationException {
-        int modifiers = field.getModifiers();
-
-        MethodHandles.Lookup lookup = Modifier.isPublic(modifiers)
-                ? MethodHandles.lookup()
-                : MethodHandles.privateLookupIn(field.getDeclaringClass(), MethodHandles.lookup());
-
-        Object logger = Modifier.isStatic(modifiers)
-                ? lookup.findStaticVarHandle(field.getDeclaringClass(), field.getName(), field.getType()).get()
-                : lookup.findVarHandle(field.getDeclaringClass(), field.getName(), field.getType()).get(context.getRequiredTestInstance());
+        Object logger = getLogger(field, context);
 
         context.getStore(NAMESPACE).getOrComputeIfAbsent(field, k -> getLogCaptor(logger, context), LogCaptor.class);
+    }
+
+    private Object getLogger(Field field, ExtensionContext context) throws ReflectiveOperationException {
+        if (Modifier.isStatic(field.getModifiers())) {
+            return getLookup(field, null)
+                    .findStaticVarHandle(field.getDeclaringClass(), field.getName(), field.getType())
+                    .get();
+        }
+        Object target = context.getRequiredTestInstance();
+        return getLookup(field, target)
+                .findVarHandle(field.getDeclaringClass(), field.getName(), field.getType())
+                .get(target);
+    }
+
+    private MethodHandles.Lookup getLookup(Field field, Object target) throws IllegalAccessException {
+        return field.canAccess(target)
+                ? MethodHandles.lookup()
+                : MethodHandles.privateLookupIn(field.getDeclaringClass(), MethodHandles.lookup());
     }
 
     private LogCaptor getLogCaptor(Object logger, ExtensionContext context) {
