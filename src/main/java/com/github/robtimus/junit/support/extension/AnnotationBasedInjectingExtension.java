@@ -18,6 +18,7 @@
 package com.github.robtimus.junit.support.extension;
 
 import java.lang.annotation.Annotation;
+import java.lang.invoke.MethodHandles;
 import java.util.Objects;
 import java.util.Optional;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -50,12 +51,16 @@ public abstract class AnnotationBasedInjectingExtension<A extends Annotation> ex
 
     /**
      * Creates a new extension.
+     * <p>
+     * Concrete sub classes should call {@link MethodHandles#lookup()} and pass the result to this constructor.
+     * This prevents extensions piggy-backing on access granted to this class' module.
      *
      * @param annotationType The annotation type to check for.
-     * @throws NullPointerException If the given annotation type is {@code null}.
+     * @param lookup The object to use for looking up the objects that are necessary for setting field values.
+     * @throws NullPointerException If the given annotation type or lookup is {@code null}.
      */
-    protected AnnotationBasedInjectingExtension(Class<A> annotationType) {
-        super(field -> AnnotationSupport.isAnnotated(field, annotationType));
+    protected AnnotationBasedInjectingExtension(Class<A> annotationType, MethodHandles.Lookup lookup) {
+        super(field -> AnnotationSupport.isAnnotated(field, annotationType), lookup);
         this.annotationType = Objects.requireNonNull(annotationType);
     }
 

@@ -42,15 +42,21 @@ import org.junit.platform.commons.support.ReflectionSupport;
 public abstract class InjectingExtension implements BeforeAllCallback, BeforeEachCallback, ParameterResolver {
 
     private final Predicate<Field> fieldPredicate;
+    private final MethodHandles.Lookup lookup;
 
     /**
      * Creates a new extension.
+     * <p>
+     * Concrete sub classes should call {@link MethodHandles#lookup()} and pass the result to this constructor.
+     * This prevents extensions piggy-backing on access granted to this class' module.
      *
      * @param fieldPredicate A predicate that determines which fields are eligible for injection.
-     * @throws NullPointerException If the given predicate is {@code null}.
+     * @param lookup The object to use for looking up the objects that are necessary for setting field values.
+     * @throws NullPointerException If the given predicate or lookup is {@code null}.
      */
-    protected InjectingExtension(Predicate<Field> fieldPredicate) {
+    protected InjectingExtension(Predicate<Field> fieldPredicate, MethodHandles.Lookup lookup) {
         this.fieldPredicate = Objects.requireNonNull(fieldPredicate);
+        this.lookup = Objects.requireNonNull(lookup);
     }
 
     @Override
@@ -78,6 +84,9 @@ public abstract class InjectingExtension implements BeforeAllCallback, BeforeEac
             throw e;
         });
 
+        // addReads is necessary to allow accessing the class using var handles
+        InjectingExtension.class.getModule().addReads(field.getDeclaringClass().getModule());
+
         try {
             Object value = resolveValue(target, context);
 
@@ -93,8 +102,8 @@ public abstract class InjectingExtension implements BeforeAllCallback, BeforeEac
 
     private MethodHandles.Lookup getLookup(Field field, Object target) throws IllegalAccessException {
         return field.canAccess(target)
-                ? MethodHandles.lookup()
-                : MethodHandles.privateLookupIn(field.getDeclaringClass(), MethodHandles.lookup());
+                ? lookup
+                : MethodHandles.privateLookupIn(field.getDeclaringClass(), lookup);
     }
 
     @Override

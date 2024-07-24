@@ -17,6 +17,7 @@
 
 package com.github.robtimus.junit.support.extension.testlogger;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Objects;
@@ -45,7 +46,7 @@ class TestLoggerExtension extends InjectingExtension {
             Reload4jLoggerContext.class, new Reload4jLoggerContext.Factory());
 
     TestLoggerExtension() {
-        super(TestLoggerExtension::hasSupportedAnnotation);
+        super(TestLoggerExtension::hasSupportedAnnotation, MethodHandles.lookup());
     }
 
     private static boolean hasSupportedAnnotation(Field field) {

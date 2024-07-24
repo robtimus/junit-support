@@ -46,6 +46,8 @@ class LogOnFailureExtension implements BeforeEachCallback {
             .filter(LogCaptor.Factory::isAvailable)
             .collect(Collectors.toUnmodifiableList());
 
+    private final MethodHandles.Lookup lookup = MethodHandles.lookup();
+
     @Override
     public void beforeEach(ExtensionContext context) throws Exception {
         for (Field field : ReflectionSupport.findFields(context.getRequiredTestClass(), this::isAnnotated, HierarchyTraversalMode.TOP_DOWN)) {
@@ -64,6 +66,9 @@ class LogOnFailureExtension implements BeforeEachCallback {
     }
 
     private Object getLogger(Field field, ExtensionContext context) throws ReflectiveOperationException {
+        // addReads is necessary to allow accessing the class using var handles
+        LogOnFailure.class.getModule().addReads(field.getDeclaringClass().getModule());
+
         if (Modifier.isStatic(field.getModifiers())) {
             return getLookup(field, null)
                     .findStaticVarHandle(field.getDeclaringClass(), field.getName(), field.getType())
@@ -77,8 +82,8 @@ class LogOnFailureExtension implements BeforeEachCallback {
 
     private MethodHandles.Lookup getLookup(Field field, Object target) throws IllegalAccessException {
         return field.canAccess(target)
-                ? MethodHandles.lookup()
-                : MethodHandles.privateLookupIn(field.getDeclaringClass(), MethodHandles.lookup());
+                ? lookup
+                : MethodHandles.privateLookupIn(field.getDeclaringClass(), lookup);
     }
 
     private LogCaptor getLogCaptor(Object logger, ExtensionContext context) {

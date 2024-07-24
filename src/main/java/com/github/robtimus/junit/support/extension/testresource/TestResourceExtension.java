@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.Collections;
@@ -75,7 +76,7 @@ class TestResourceExtension extends AnnotationBasedInjectingExtension<TestResour
     }
 
     TestResourceExtension() {
-        super(TestResource.class);
+        super(TestResource.class, MethodHandles.lookup());
     }
 
     @Override
