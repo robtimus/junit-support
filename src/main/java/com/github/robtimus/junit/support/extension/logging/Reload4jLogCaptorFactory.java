@@ -1,5 +1,5 @@
 /*
- * LogbackLogCaptorFactory.java
+ * Reload4jLogCaptorFactory.java
  * Copyright 2024 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,29 +15,29 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.extension.logonfailure;
+package com.github.robtimus.junit.support.extension.logging;
 
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
+import org.apache.log4j.Appender;
+import org.apache.log4j.Logger;
+import org.apache.log4j.spi.LoggingEvent;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.mockito.ArgumentCaptor;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.Appender;
 
-final class LogbackLogCaptorFactory extends LogCaptor.Factory {
+final class Reload4jLogCaptorFactory extends LogCaptor.Factory {
 
     @Override
     Optional<LogCaptor> newLogCaptor(Object logger, ExtensionContext context) {
         return Factory.newLogCaptor(logger, context);
     }
 
-    // Use a separate nested class to prevent class loading errors if logback is not available.
+    // Use a separate nested class to prevent class loading errors if reload4j is not available.
     // This nested class is only loaded when newLogCaptor is called.
 
     private static final class Factory {
@@ -53,43 +53,41 @@ final class LogbackLogCaptorFactory extends LogCaptor.Factory {
         }
 
         private static LogCaptor newLogCaptor(Logger logger, ExtensionContext context) {
-            List<Appender<ILoggingEvent>> originalAppenders = listAppenders(logger);
-            boolean originalAdditive = logger.isAdditive();
+            List<Appender> originalAppenders = listAppenders(logger);
+            boolean originalAdditivity = logger.getAdditivity();
 
-            originalAppenders.forEach(logger::detachAppender);
-            logger.setAdditive(false);
+            logger.removeAllAppenders();
+            logger.setAdditivity(false);
 
-            @SuppressWarnings("unchecked")
-            Appender<ILoggingEvent> capturingAppender = mock(Appender.class);
+            Appender capturingAppender = mock(Appender.class);
             logger.addAppender(capturingAppender);
 
             return () -> {
-                restoreSettings(logger, originalAppenders, originalAdditive);
+                restoreSettings(logger, originalAppenders, originalAdditivity);
                 context.getExecutionException().ifPresent(t -> logCaptured(logger, capturingAppender));
             };
         }
 
-        private static List<Appender<ILoggingEvent>> listAppenders(Logger logger) {
-            List<Appender<ILoggingEvent>> appenders = new ArrayList<>();
-            for (Iterator<Appender<ILoggingEvent>> i = logger.iteratorForAppenders(); i.hasNext(); ) {
-                appenders.add(i.next());
+        private static List<Appender> listAppenders(Logger logger) {
+            List<Appender> appenders = new ArrayList<>();
+            // getAllAppenders uses raw types...
+            for (Enumeration<?> e = logger.getAllAppenders(); e.hasMoreElements(); ) {
+                appenders.add((Appender) e.nextElement());
             }
             return appenders;
         }
 
-        private static void restoreSettings(Logger logger, List<Appender<ILoggingEvent>> originalAppenders, boolean originalAdditive) {
-            List<Appender<ILoggingEvent>> appenders = listAppenders(logger);
-            appenders.forEach(logger::detachAppender);
+        private static void restoreSettings(Logger logger, List<Appender> originalAppenders, boolean originalAdditivity) {
+            logger.removeAllAppenders();
 
             originalAppenders.forEach(logger::addAppender);
-            logger.setAdditive(originalAdditive);
+            logger.setAdditivity(originalAdditivity);
         }
 
-        private static void logCaptured(Logger logger, Appender<ILoggingEvent> capturingAppender) {
-            ArgumentCaptor<ILoggingEvent> eventCaptor = ArgumentCaptor.forClass(ILoggingEvent.class);
+        private static void logCaptured(Logger logger, Appender capturingAppender) {
+            ArgumentCaptor<LoggingEvent> eventCaptor = ArgumentCaptor.forClass(LoggingEvent.class);
             verify(capturingAppender, atLeast(0)).doAppend(eventCaptor.capture());
-            List<ILoggingEvent> events = eventCaptor.getAllValues();
-            // logger.log takes a different type of event
+            List<LoggingEvent> events = eventCaptor.getAllValues();
             events.stream()
                     .filter(event -> logger.isEnabledFor(event.getLevel()))
                     .forEach(logger::callAppenders);

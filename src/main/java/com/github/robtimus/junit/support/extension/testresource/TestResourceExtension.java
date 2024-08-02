@@ -24,8 +24,6 @@ import java.io.Reader;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -40,9 +38,24 @@ import com.github.robtimus.junit.support.extension.MethodLookup;
 @SuppressWarnings("nls")
 class TestResourceExtension extends AnnotationBasedInjectingExtension<TestResource> {
 
-    private static final Map<Class<?>, ResourceConverter> RESOURCE_CONVERTERS;
-    private static final Map<String, String> EOL_VALUES;
-    private static final Map<String, Supplier<String>> ENCODING_LOOKUPS;
+    private static final Map<Class<?>, ResourceConverter> RESOURCE_CONVERTERS = Map.of(
+            String.class, TestResourceExtension::readContentAsString,
+            CharSequence.class, TestResourceExtension::readContentAsCharSequence,
+            StringBuilder.class, TestResourceExtension::readContentAsStringBuilder,
+            byte[].class, (inputStream, target, context) -> readContentAsBytes(inputStream, target));
+
+    private static final Map<String, String> EOL_VALUES = Map.of(
+            "LF", EOL.LF,
+            "CR", EOL.CR,
+            "CRLF", EOL.CRLF,
+            "SYSTEM", System.lineSeparator(),
+            "ORIGINAL", EOL.ORIGINAL,
+            "NONE", EOL.NONE);
+
+    private static final Map<String, Supplier<String>> ENCODING_LOOKUPS = Map.of(
+            "DEFAULT", () -> Charset.defaultCharset().name(),
+            "SYSTEM", TestResourceExtension::lookupSystemEncoding,
+            "NATIVE", TestResourceExtension::lookupNativeEncoding);
 
     private static final MethodLookup LOAD_AS_LOOKUP = MethodLookup.withParameterTypes(Reader.class, InjectionTarget.class)
             .orParameterTypes(Reader.class, Class.class)
@@ -50,30 +63,6 @@ class TestResourceExtension extends AnnotationBasedInjectingExtension<TestResour
             .orParameterTypes(InputStream.class, InjectionTarget.class)
             .orParameterTypes(InputStream.class, Class.class)
             .orParameterTypes(InputStream.class);
-
-    static {
-        Map<Class<?>, ResourceConverter> resourceConverters = new HashMap<>();
-        resourceConverters.put(String.class, TestResourceExtension::readContentAsString);
-        resourceConverters.put(CharSequence.class, TestResourceExtension::readContentAsCharSequence);
-        resourceConverters.put(StringBuilder.class, TestResourceExtension::readContentAsStringBuilder);
-        resourceConverters.put(byte[].class, (inputStream, target, context) -> readContentAsBytes(inputStream, target));
-        RESOURCE_CONVERTERS = Collections.unmodifiableMap(resourceConverters);
-
-        Map<String, String> eolValues = new HashMap<>();
-        eolValues.put("LF", EOL.LF);
-        eolValues.put("CR", EOL.CR);
-        eolValues.put("CRLF", EOL.CRLF);
-        eolValues.put("SYSTEM", System.lineSeparator());
-        eolValues.put("ORIGINAL", EOL.ORIGINAL);
-        eolValues.put("NONE", EOL.NONE);
-        EOL_VALUES = Collections.unmodifiableMap(eolValues);
-
-        Map<String, Supplier<String>> encodingLookups = new HashMap<>();
-        encodingLookups.put("DEFAULT", () -> Charset.defaultCharset().name());
-        encodingLookups.put("SYSTEM", TestResourceExtension::lookupSystemEncoding);
-        encodingLookups.put("NATIVE", TestResourceExtension::lookupNativeEncoding);
-        ENCODING_LOOKUPS = Collections.unmodifiableMap(encodingLookups);
-    }
 
     TestResourceExtension() {
         super(TestResource.class, MethodHandles.lookup());

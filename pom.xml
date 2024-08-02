@@ -242,7 +242,7 @@
             --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support=org.junit.platform.commons
             --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.concurrent=org.junit.platform.commons
             --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension=org.junit.platform.commons
-            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.logonfailure=org.junit.platform.commons
+            --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.logging=org.junit.platform.commons
             --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testlogger=org.junit.platform.commons
             --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.testresource=org.junit.platform.commons
             --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.params=org.junit.platform.commons

@@ -25,8 +25,6 @@ import static org.mockito.Mockito.verify;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -233,20 +231,15 @@ public interface DelegateTests<T> {
      */
     final class Parameter {
 
-        private static final Map<Class<?>, Object> DEFAULT_VALUES;
-
-        static {
-            Map<Class<?>, Object> defaultValues = new HashMap<>();
-            defaultValues.put(boolean.class, false);
-            defaultValues.put(char.class, '\0');
-            defaultValues.put(byte.class, (byte) 0);
-            defaultValues.put(short.class, (short) 0);
-            defaultValues.put(int.class, 0);
-            defaultValues.put(long.class, 0L);
-            defaultValues.put(float.class, 0F);
-            defaultValues.put(double.class, 0D);
-            DEFAULT_VALUES = Collections.unmodifiableMap(defaultValues);
-        }
+        private static final Map<Class<?>, Object> DEFAULT_VALUES = Map.of(
+                boolean.class, false,
+                char.class, '\0',
+                byte.class, (byte) 0,
+                short.class, (short) 0,
+                int.class, 0,
+                long.class, 0L,
+                float.class, 0F,
+                double.class, 0D);
 
         private final Class<?> type;
         private final Object value;

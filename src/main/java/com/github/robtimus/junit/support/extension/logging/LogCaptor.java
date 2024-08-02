@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.extension.logonfailure;
+package com.github.robtimus.junit.support.extension.logging;
 
 import java.util.Optional;
 import org.junit.jupiter.api.extension.ExtensionContext;

@@ -4,7 +4,7 @@
 
 ## Logging on test failures
 
-Use [@LogOnFailure](../apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/extension/logonfailure/LogOnFailure.html) to easily suppress logging for successful tests but not for failed tests.
+Use [@LogOnFailure](../apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/extension/logging/LogOnFailure.html) to easily suppress logging for successful tests but not for failed tests.
 
 ### Supported logging frameworks
 

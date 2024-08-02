@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.github.robtimus.junit.support.extension.logonfailure;
+package com.github.robtimus.junit.support.extension.logging;
 
 import static com.github.robtimus.junit.support.extension.util.TestUtils.assertSingleTestFailure;
 import static com.github.robtimus.junit.support.extension.util.TestUtils.getSingleTestFailure;

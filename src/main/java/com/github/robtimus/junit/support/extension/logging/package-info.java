@@ -16,6 +16,7 @@
  */
 
 /**
- * Provides interfaces and classes for the {@link com.github.robtimus.junit.support.extension.logonfailure.LogOnFailure LogOnFailure} extension.
+ * Provides interfaces and classes for miscellaneous logging extensions like
+ * {@link com.github.robtimus.junit.support.extension.logging.LogOnFailure LogOnFailure}.
  */
-package com.github.robtimus.junit.support.extension.logonfailure;
+package com.github.robtimus.junit.support.extension.logging;
