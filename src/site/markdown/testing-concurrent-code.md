@@ -69,3 +69,16 @@ Besides the `andListResults()` and `andAssertNoFailures()` methods mentioned ear
 ### Thread count
 
 By default, one thread for each provided `Executable` or `ThrowingSupplier` is used, and each is called at approximately the same time. By calling `withThreadCount` it's possible to use a lower number of threads. This allows testing that code that uses lazy initialization works fine if initialization has already taken place; some of the provided `Executables` or `ThrowingSuppliers` will be called after at least one other has already finished.
+
+If you want to call `ConcurrentRunner.runConcurrently` in your tests with the same concurrency settings that include a custom thread count, you can use the overloaded version that takes shared a [ConcurrencySettings](apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/concurrent/ConcurrencySettings.html) instance:
+
+```java
+private static final ConcurrencySettings CONCURRENCY_SETTINGS = ConcurrencySettings.withCount(100).withThreadCount(50);
+
+@Test
+void testMyCode() {
+    runConcurrently(() -> {
+        // perform the actual test
+    }, CONCURRENCY_SETTINGS);
+}
+```
