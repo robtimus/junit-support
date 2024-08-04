@@ -1,7 +1,6 @@
 <configuration>
   <appender name="A1" class="com.github.robtimus.junit.support.extension.util.LogbackTestAppender" />
   <appender name="A2" class="com.github.robtimus.junit.support.extension.util.LogbackTestAppender" />
-  <appender name="A3" class="com.github.robtimus.junit.support.extension.util.LogbackTestAppender" />
 
   <root level="warn">
     <appender-ref ref="A1" />
@@ -9,9 +8,5 @@
 
   <logger name="com.github.robtimus.junit.support.extension.testlogger.TestLogger" level="info">
     <appender-ref ref="A2" />
-  </logger>
-
-  <logger name="com.github.robtimus.junit.support.extension.testlogger.TestLogger.disabled" level="info">
-    <appender-ref ref="A3" />
   </logger>
 </configuration>

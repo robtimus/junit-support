@@ -28,7 +28,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -53,19 +52,14 @@ import com.github.robtimus.junit.support.extension.util.Reload4jUtils;
 final class TestLoggerTest {
 
     private static final String LOGGER_NAME = "com.github.robtimus.junit.support.extension.testlogger.TestLogger";
-    private static final String DISABLED_LOGGER_NAME = LOGGER_NAME + ".disabled";
 
     private static final java.util.logging.Logger JDK_LOGGER = java.util.logging.Logger.getLogger(LOGGER_NAME);
-    private static final java.util.logging.Logger JDK_DISABLED_LOGGER = java.util.logging.Logger.getLogger(DISABLED_LOGGER_NAME);
 
     private static final org.apache.logging.log4j.Logger LOG4J_LOGGER = org.apache.logging.log4j.LogManager.getLogger(TestLogger.class);
-    private static final org.apache.logging.log4j.Logger LOG4J_DISABLED_LOGGER = org.apache.logging.log4j.LogManager.getLogger(DISABLED_LOGGER_NAME);
 
     private static final org.slf4j.Logger SLF4J_LOGGER = org.slf4j.LoggerFactory.getLogger(TestLogger.class);
-    private static final org.slf4j.Logger SLF4J_DISABLED_LOGGER = org.slf4j.LoggerFactory.getLogger(DISABLED_LOGGER_NAME);
 
     private static final org.apache.log4j.Logger RELOAD4J_LOGGER = org.apache.log4j.Logger.getLogger(TestLogger.class);
-    private static final org.apache.log4j.Logger RELOAD4J_DISABLED_LOGGER = org.apache.log4j.Logger.getLogger(DISABLED_LOGGER_NAME);
 
     private TestLoggerTest() {
     }
@@ -203,19 +197,6 @@ final class TestLoggerTest {
             assertSame(this.rootContext, rootContext);
             assertNotSame(this.contextWithName, this.rootContext);
         }
-
-        @Test
-        @DisplayName("disabled logging")
-        void testDisabledLogging(@TestLogger(DISABLED_LOGGER_NAME) @DisableLogging JdkLoggerContext logger) {
-            JdkTestHandler testHandler = JdkLoggerTests.testHandler(logger);
-            testHandler.clearRecords();
-
-            JDK_DISABLED_LOGGER.log(java.util.logging.Level.WARNING, "warning message");
-            JDK_DISABLED_LOGGER.log(java.util.logging.Level.INFO, "info message");
-            JDK_DISABLED_LOGGER.log(java.util.logging.Level.FINE, "fine message");
-
-            assertEquals(Collections.emptyList(), testHandler.getRecords());
-        }
     }
 
     @Nested
@@ -341,19 +322,6 @@ final class TestLoggerTest {
 
             assertSame(this.rootContext, rootContext);
             assertNotSame(this.contextWithName, this.rootContext);
-        }
-
-        @Test
-        @DisplayName("disabled logging")
-        void testDisabledLogging(@TestLogger(DISABLED_LOGGER_NAME) @DisableLogging Log4jLoggerContext logger) {
-            Log4jTestAppender testAppender = Log4jLoggerTests.testAppender(logger);
-            testAppender.clearEvents();
-
-            LOG4J_DISABLED_LOGGER.warn("warning message");
-            LOG4J_DISABLED_LOGGER.info("info message");
-            LOG4J_DISABLED_LOGGER.debug("debug message");
-
-            assertEquals(Collections.emptyList(), testAppender.getEvents());
         }
     }
 
@@ -481,19 +449,6 @@ final class TestLoggerTest {
             assertSame(this.rootContext, rootContext);
             assertNotSame(this.contextWithName, this.rootContext);
         }
-
-        @Test
-        @DisplayName("disabled logging")
-        void testDisabledLogging(@TestLogger(DISABLED_LOGGER_NAME) @DisableLogging LogbackLoggerContext logger) {
-            LogbackTestAppender testAppender = LogbackLoggerTests.testAppender(logger);
-            testAppender.clearEvents();
-
-            SLF4J_DISABLED_LOGGER.warn("warning message");
-            SLF4J_DISABLED_LOGGER.info("info message");
-            SLF4J_DISABLED_LOGGER.debug("debug message");
-
-            assertEquals(Collections.emptyList(), testAppender.getEvents());
-        }
     }
 
     @Nested
@@ -619,19 +574,6 @@ final class TestLoggerTest {
 
             assertSame(this.rootContext, rootContext);
             assertNotSame(this.contextWithName, this.rootContext);
-        }
-
-        @Test
-        @DisplayName("disabled logging")
-        void testDisabledLogging(@TestLogger(DISABLED_LOGGER_NAME) @DisableLogging Reload4jLoggerContext logger) {
-            Reload4jTestAppender testAppender = Reload4jLoggerTests.testAppender(logger);
-            testAppender.clearEvents();
-
-            RELOAD4J_DISABLED_LOGGER.warn("warning message");
-            RELOAD4J_DISABLED_LOGGER.info("info message");
-            RELOAD4J_DISABLED_LOGGER.debug("debug message");
-
-            assertEquals(Collections.emptyList(), testAppender.getEvents());
         }
     }
 
@@ -1780,11 +1722,6 @@ final class TestLoggerTest {
         }
 
         static final class UnsupportedContext extends LoggerContext {
-
-            @Override
-            void disable() {
-                // does nothing
-            }
 
             @Override
             void saveSettings() {

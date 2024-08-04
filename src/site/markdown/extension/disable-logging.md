@@ -1,10 +1,10 @@
 <head>
-  <title>@LogOnFailure</title>
+  <title>@DisableLogging</title>
 </head>
 
-## Logging on test failures
+## @DisableLogging
 
-Use [@LogOnFailure](../apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/extension/logging/LogOnFailure.html) to easily suppress logging for successful tests but not for failed tests.
+Use [@DisableLogging](../apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/extension/logging/DisableLogging.html) to easily disable logging for tests only.
 
 ### Supported logging frameworks
 

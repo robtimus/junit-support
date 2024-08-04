@@ -36,7 +36,6 @@ import com.github.robtimus.junit.support.extension.testlogger.TestLogger;
 public final class JdkLoggingUtils {
 
     public static final Logger LOGGER = Logger.getLogger(TestLogger.class.getName());
-    public static final Logger DISABLED_LOGGER = Logger.getLogger(TestLogger.class.getName() + ".disabled");
     public static final Logger ROOT_LOGGER = Logger.getLogger("");
 
     private static final Comparator<Handler> HANDLER_COMPARATOR = Comparator.comparing(Handler::getClass, Comparator.comparing(Class::getName));
@@ -51,13 +50,6 @@ public final class JdkLoggingUtils {
         List<Handler> handlers = getHandlers(LOGGER);
         assertEquals(1, handlers.size());
         assertInstanceOf(JdkTestHandler.class, handlers.get(0));
-
-        assertEquals(Level.INFO, DISABLED_LOGGER.getLevel());
-        assertTrue(DISABLED_LOGGER.getUseParentHandlers());
-
-        List<Handler> disabledHandlers = getHandlers(DISABLED_LOGGER);
-        assertEquals(1, disabledHandlers.size());
-        assertInstanceOf(JdkTestHandler.class, disabledHandlers.get(0));
 
         assertEquals(Level.WARNING, ROOT_LOGGER.getLevel());
         assertTrue(ROOT_LOGGER.getUseParentHandlers());

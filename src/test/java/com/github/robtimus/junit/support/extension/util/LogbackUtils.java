@@ -39,7 +39,6 @@ import ch.qos.logback.core.Appender;
 public final class LogbackUtils {
 
     public static final Logger LOGGER = (Logger) LoggerFactory.getLogger(TestLogger.class);
-    public static final Logger DISABLED_LOGGER = (Logger) LoggerFactory.getLogger(TestLogger.class.getName() + ".disabled");
     public static final Logger ROOT_LOGGER = (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
 
     private static final Comparator<Appender<ILoggingEvent>> APPENDER_COMPARATOR = Comparator.comparing((Appender<ILoggingEvent> a) -> a.getName())
@@ -56,14 +55,6 @@ public final class LogbackUtils {
         assertEquals(1, appenders.size());
         assertInstanceOf(LogbackTestAppender.class, appenders.get(0));
         assertEquals("A2", appenders.get(0).getName());
-
-        assertEquals(Level.INFO, DISABLED_LOGGER.getLevel());
-        assertTrue(DISABLED_LOGGER.isAdditive());
-
-        List<Appender<ILoggingEvent>> disabledAppenders = getAppenders(DISABLED_LOGGER);
-        assertEquals(1, disabledAppenders.size());
-        assertInstanceOf(LogbackTestAppender.class, disabledAppenders.get(0));
-        assertEquals("A3", disabledAppenders.get(0).getName());
 
         assertEquals(Level.WARN, ROOT_LOGGER.getLevel());
         assertTrue(ROOT_LOGGER.isAdditive());

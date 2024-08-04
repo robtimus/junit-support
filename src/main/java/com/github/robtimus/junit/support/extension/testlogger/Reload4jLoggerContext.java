@@ -164,11 +164,6 @@ public final class Reload4jLoggerContext extends LoggerContext {
     }
 
     @Override
-    void disable() {
-        setLevel(Level.OFF);
-    }
-
-    @Override
     void saveSettings() {
         helper.saveSettings();
     }

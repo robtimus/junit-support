@@ -26,6 +26,10 @@ See [@TestResource](https://robtimus.github.io/junit-support/extension/test-reso
 
 Loggers are often defined as `private static final` fields. That makes them difficult to mock. Using [@TestLogger](https://robtimus.github.io/junit-support/extension/test-logger.html) allows you to reconfigure these for test purposes.
 
+## Disable logging for tests
+
+[@DisableLogging](https://robtimus.github.io/junit-support/extension/disable-logging.html) allows you to suppress logging for tests.
+
 ## Disable logging for successful tests
 
 [@LogOnFailure](https://robtimus.github.io/junit-support/extension/log-on-failure.html) allows you to suppress logging for successful tests but not for failed tests.

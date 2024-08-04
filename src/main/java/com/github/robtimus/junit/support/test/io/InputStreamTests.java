@@ -383,7 +383,7 @@ public interface InputStreamTests {
         }
 
         @Test
-        @DisplayName("read(byte[], int, int) with a negative length")
+        @DisplayName("readNBytes(byte[], int, int) with a negative length")
         default void testReadNBytesWithNegativeLength() {
             assertDoesNotThrowCheckedException(() -> {
                 try (InputStream inputStream = inputStream()) {

@@ -1,5 +1,5 @@
 /*
- * LogbackLogCaptorFactory.java
+ * LogbackLogResourceFactory.java
  * Copyright 2024 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,33 +26,39 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.mockito.ArgumentCaptor;
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 
-final class LogbackLogCaptorFactory extends LogCaptor.Factory {
+final class LogbackLogResourceFactory extends LogResourceFactory {
 
     @Override
-    Optional<LogCaptor> newLogCaptor(Object logger, ExtensionContext context) {
-        return Factory.newLogCaptor(logger, context);
+    Optional<LogCaptor> startCapture(Object logger, ExtensionContext context) {
+        return Factory.startCapture(logger, context);
+    }
+
+    @Override
+    Optional<LogDisabler> disableLogging(Object logger) {
+        return Factory.disableLogging(logger);
     }
 
     // Use a separate nested class to prevent class loading errors if logback is not available.
-    // This nested class is only loaded when newLogCaptor is called.
+    // This nested class is only loaded when newLogCaptor or newLogDisabler is called.
 
     private static final class Factory {
 
         private Factory() {
         }
 
-        private static Optional<LogCaptor> newLogCaptor(Object logger, ExtensionContext context) {
+        private static Optional<LogCaptor> startCapture(Object logger, ExtensionContext context) {
             if (logger instanceof Logger) {
-                return Optional.of(newLogCaptor((Logger) logger, context));
+                return Optional.of(startCapture((Logger) logger, context));
             }
             return Optional.empty();
         }
 
-        private static LogCaptor newLogCaptor(Logger logger, ExtensionContext context) {
+        private static LogCaptor startCapture(Logger logger, ExtensionContext context) {
             List<Appender<ILoggingEvent>> originalAppenders = listAppenders(logger);
             boolean originalAdditive = logger.isAdditive();
 
@@ -93,6 +99,20 @@ final class LogbackLogCaptorFactory extends LogCaptor.Factory {
             events.stream()
                     .filter(event -> logger.isEnabledFor(event.getLevel()))
                     .forEach(logger::callAppenders);
+        }
+
+        private static Optional<LogDisabler> disableLogging(Object logger) {
+            if (logger instanceof Logger) {
+                return Optional.of(disableLogging((Logger) logger));
+            }
+            return Optional.empty();
+        }
+
+        private static LogDisabler disableLogging(Logger logger) {
+            Level originalLevel = logger.getLevel();
+            logger.setLevel(Level.OFF);
+
+            return () -> logger.setLevel(originalLevel);
         }
     }
 }

@@ -27,17 +27,12 @@ import com.github.robtimus.junit.support.extension.testlogger.TestLogger;
 public class JdkLoggerConfigurer {
 
     private static final Logger LOGGER = Logger.getLogger(TestLogger.class.getName());
-    private static final Logger DISABLED_LOGGER = Logger.getLogger(TestLogger.class.getName() + ".disabled");
     private static final Logger ROOT_LOGGER = Logger.getLogger("");
 
     public JdkLoggerConfigurer() {
         LOGGER.setLevel(Level.INFO);
         assertArrayEquals(new Handler[0], LOGGER.getHandlers());
         LOGGER.addHandler(new JdkTestHandler());
-
-        DISABLED_LOGGER.setLevel(Level.INFO);
-        assertArrayEquals(new Handler[0], DISABLED_LOGGER.getHandlers());
-        DISABLED_LOGGER.addHandler(new JdkTestHandler());
 
         ROOT_LOGGER.setLevel(Level.WARNING);
         assertArrayEquals(new Handler[0], ROOT_LOGGER.getHandlers());

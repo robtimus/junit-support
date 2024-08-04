@@ -15,12 +15,6 @@ Using [@TestLogger](../apidocs/com.github.robtimus.junit.support/com/github/robt
 
 When the logger context goes out of scope (when injected as a field or method parameter, this is when the test ends), all original settings are restored.
 
-### Disabling logging
-
-Combine `@TestLogger`, `@TestLogger.ForClass` or `@TestLogger.Root` with [@DisableLogging](../apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/extension/testlogger/DisableLogging.html) to easily disable logging for a logger without having to call any method.
-
-Note that the logger context can still be updated inside tests, including re-enabling logging.
-
 ### Supported logging frameworks
 
 The following logging framework implementations are supported:

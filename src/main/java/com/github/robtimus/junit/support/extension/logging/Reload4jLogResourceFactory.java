@@ -1,5 +1,5 @@
 /*
- * Reload4jLogCaptorFactory.java
+ * Reload4jLogResourceFactory.java
  * Copyright 2024 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,34 +25,40 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
 import org.apache.log4j.Appender;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.mockito.ArgumentCaptor;
 
-final class Reload4jLogCaptorFactory extends LogCaptor.Factory {
+final class Reload4jLogResourceFactory extends LogResourceFactory {
 
     @Override
-    Optional<LogCaptor> newLogCaptor(Object logger, ExtensionContext context) {
-        return Factory.newLogCaptor(logger, context);
+    Optional<LogCaptor> startCapture(Object logger, ExtensionContext context) {
+        return Factory.startCapture(logger, context);
+    }
+
+    @Override
+    Optional<LogDisabler> disableLogging(Object logger) {
+        return Factory.disableLogging(logger);
     }
 
     // Use a separate nested class to prevent class loading errors if reload4j is not available.
-    // This nested class is only loaded when newLogCaptor is called.
+    // This nested class is only loaded when newLogCaptor or newLogDisabler is called.
 
     private static final class Factory {
 
         private Factory() {
         }
 
-        private static Optional<LogCaptor> newLogCaptor(Object logger, ExtensionContext context) {
+        private static Optional<LogCaptor> startCapture(Object logger, ExtensionContext context) {
             if (logger instanceof Logger) {
-                return Optional.of(newLogCaptor((Logger) logger, context));
+                return Optional.of(startCapture((Logger) logger, context));
             }
             return Optional.empty();
         }
 
-        private static LogCaptor newLogCaptor(Logger logger, ExtensionContext context) {
+        private static LogCaptor startCapture(Logger logger, ExtensionContext context) {
             List<Appender> originalAppenders = listAppenders(logger);
             boolean originalAdditivity = logger.getAdditivity();
 
@@ -91,6 +97,20 @@ final class Reload4jLogCaptorFactory extends LogCaptor.Factory {
             events.stream()
                     .filter(event -> logger.isEnabledFor(event.getLevel()))
                     .forEach(logger::callAppenders);
+        }
+
+        private static Optional<LogDisabler> disableLogging(Object logger) {
+            if (logger instanceof Logger) {
+                return Optional.of(disableLogging((Logger) logger));
+            }
+            return Optional.empty();
+        }
+
+        private static LogDisabler disableLogging(Logger logger) {
+            Level originalLevel = logger.getLevel();
+            logger.setLevel(Level.OFF);
+
+            return () -> logger.setLevel(originalLevel);
         }
     }
 }

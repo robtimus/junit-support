@@ -1,5 +1,5 @@
 /*
- * LogOnFailureExtension.java
+ * DisableLoggingExtension.java
  * Copyright 2024 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,11 +18,12 @@
 package com.github.robtimus.junit.support.extension.logging;
 
 import org.junit.platform.commons.support.AnnotationSupport;
-import com.github.robtimus.junit.support.extension.logging.LogResourceFactory.LogCaptor;
+import com.github.robtimus.junit.support.extension.logging.LogResourceFactory.LogDisabler;
 
-class LogOnFailureExtension extends LoggingExtension<LogCaptor> {
+class DisableLoggingExtension extends LoggingExtension<LogDisabler> {
 
-    LogOnFailureExtension() {
-        super(field -> AnnotationSupport.isAnnotated(field, LogOnFailure.class), LogCaptor.class, LogResourceFactory::startCapture);
+    DisableLoggingExtension() {
+        super(field -> AnnotationSupport.isAnnotated(field, DisableLogging.class),
+                LogDisabler.class, (factory, logger, context) -> factory.disableLogging(logger));
     }
 }

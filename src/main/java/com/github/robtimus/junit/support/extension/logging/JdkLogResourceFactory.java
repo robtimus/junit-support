@@ -1,5 +1,5 @@
 /*
- * JdkLogCaptorFactory.java
+ * JdkLogResourceFactory.java
  * Copyright 2024 Rob Spoor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,34 +25,40 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.mockito.ArgumentCaptor;
 
-final class JdkLogCaptorFactory extends LogCaptor.Factory {
+final class JdkLogResourceFactory extends LogResourceFactory {
 
     @Override
-    Optional<LogCaptor> newLogCaptor(Object logger, ExtensionContext context) {
-        return Factory.newLogCaptor(logger, context);
+    Optional<LogCaptor> startCapture(Object logger, ExtensionContext context) {
+        return Factory.startCapture(logger, context);
+    }
+
+    @Override
+    Optional<LogDisabler> disableLogging(Object logger) {
+        return Factory.disableLogging(logger);
     }
 
     // Use a separate nested class to prevent class loading errors if the java.logging module is not available.
-    // This nested class is only loaded when newLogCaptor is called.
+    // This nested class is only loaded when newLogCaptor or newLogDisabler is called.
 
     private static final class Factory {
 
         private Factory() {
         }
 
-        private static Optional<LogCaptor> newLogCaptor(Object logger, ExtensionContext context) {
+        private static Optional<LogCaptor> startCapture(Object logger, ExtensionContext context) {
             if (logger instanceof Logger) {
-                return Optional.of(newLogCaptor((Logger) logger, context));
+                return Optional.of(startCapture((Logger) logger, context));
             }
             return Optional.empty();
         }
 
-        private static LogCaptor newLogCaptor(Logger logger, ExtensionContext context) {
+        private static LogCaptor startCapture(Logger logger, ExtensionContext context) {
             List<Handler> originalHandlers = listHandlers(logger);
             boolean originalUseParentHandlers = logger.getUseParentHandlers();
 
@@ -85,6 +91,20 @@ final class JdkLogCaptorFactory extends LogCaptor.Factory {
             verify(capturingHandler, atLeast(0)).publish(recordCaptor.capture());
             List<LogRecord> logRecords = recordCaptor.getAllValues();
             logRecords.forEach(logger::log);
+        }
+
+        private static Optional<LogDisabler> disableLogging(Object logger) {
+            if (logger instanceof Logger) {
+                return Optional.of(disableLogging((Logger) logger));
+            }
+            return Optional.empty();
+        }
+
+        private static LogDisabler disableLogging(Logger logger) {
+            Level originalLevel = logger.getLevel();
+            logger.setLevel(Level.OFF);
+
+            return () -> logger.setLevel(originalLevel);
         }
     }
 }

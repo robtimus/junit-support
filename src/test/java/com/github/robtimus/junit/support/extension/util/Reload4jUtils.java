@@ -38,7 +38,6 @@ import com.github.robtimus.junit.support.extension.testlogger.TestLogger;
 public final class Reload4jUtils {
 
     public static final Logger LOGGER = Logger.getLogger(TestLogger.class);
-    public static final Logger DISABLED_LOGGER = Logger.getLogger(TestLogger.class.getName() + ".disabled");
     public static final Logger ROOT_LOGGER = Logger.getRootLogger();
 
     private static final Comparator<Appender> APPENDER_COMPARATOR = Comparator.comparing(Appender::getName)
@@ -55,14 +54,6 @@ public final class Reload4jUtils {
         assertEquals(1, appenders.size());
         assertInstanceOf(Reload4jTestAppender.class, appenders.get(0));
         assertEquals("A2", appenders.get(0).getName());
-
-        assertEquals(Level.INFO, DISABLED_LOGGER.getLevel());
-        assertTrue(DISABLED_LOGGER.getAdditivity());
-
-        List<Appender> disabledAppenders = getAppenders(DISABLED_LOGGER);
-        assertEquals(1, disabledAppenders.size());
-        assertInstanceOf(Reload4jTestAppender.class, disabledAppenders.get(0));
-        assertEquals("A3", disabledAppenders.get(0).getName());
 
         assertEquals(Level.WARN, ROOT_LOGGER.getLevel());
         assertTrue(ROOT_LOGGER.getAdditivity());

@@ -173,11 +173,6 @@ public final class Log4jLoggerContext extends LoggerContext {
     }
 
     @Override
-    void disable() {
-        setLevel(Level.OFF);
-    }
-
-    @Override
     void saveSettings() {
         helper.saveSettings();
     }
