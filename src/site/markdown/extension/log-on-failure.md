@@ -16,11 +16,11 @@ Any field with a value of type [java.util.logging.Logger](https://docs.oracle.co
 
 #### Log4j
 
-Any field with a value of type [org.apache.logging.log4j.core.Logger](https://logging.apache.org/log4j/2.x/javadoc/log4j-core/org/apache/logging/log4j/core/Logger.html) is supported. This means that using [Log4j 2.x](https://logging.apache.org/log4j/2.x/) with `org.apache.logging.log4j:log4j-core` as implementation allows you to simply use [LogManager](https://logging.apache.org/log4j/2.x/javadoc/log4j-api/org/apache/logging/log4j/LogManager.html)` to assign the value. Using different implementations (e.g. `org.apache.logging.log4j:log4j-jul`) is **not** supported.
+Any field with a value of type [org.apache.logging.log4j.core.Logger](https://logging.apache.org/log4j/2.x/javadoc/log4j-core/org/apache/logging/log4j/core/Logger.html) is supported. This means that using [Log4j 2.x](https://logging.apache.org/log4j/2.x/) with `org.apache.logging.log4j:log4j-core` as implementation allows you to simply use [LogManager](https://logging.apache.org/log4j/2.x/javadoc/log4j-api/org/apache/logging/log4j/LogManager.html) to assign the value. Using different implementations (e.g. `org.apache.logging.log4j:log4j-jul`) is **not** supported.
 
 #### Logback
 
-Any field with a value of type [ch.qos.logback.classic.Logger](https://logback.qos.ch/apidocs/ch.qos.logback.classic/ch/qos/logback/classic/Logger.html) is supported. Since logback is a native SLF4J implementation, this allows you to simply use [LoggerFactory](https://www.slf4j.org/apidocs/org/slf4j/LoggerFactory.html)` to assign the value. Using different bindings is **not** supported.
+Any field with a value of type [ch.qos.logback.classic.Logger](https://logback.qos.ch/apidocs/ch.qos.logback.classic/ch/qos/logback/classic/Logger.html) is supported. Since logback is a native SLF4J implementation, this allows you to simply use [LoggerFactory](https://www.slf4j.org/apidocs/org/slf4j/LoggerFactory.html) to assign the value. Using different bindings is **not** supported.
 
 #### Reload4j
 

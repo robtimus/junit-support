@@ -24,7 +24,7 @@ private static String readResource(String name) {
 
 Instead of having to write this boilerplate code for every project (and sometimes for multiple test classes inside the same project), annotate fields, constructor parameters or method parameters with [@TestResource](../apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/extension/testresource/TestResource.html) to inject a Java resource into the field, constructor parameter or method parameter.
 
-Note that the resource name is relative to the class that defines the method. Use a leading `/` to start from the root of the class path.
+Note that the resource name is relative to the class that defines the field, constructor or method. Use a leading `/` to start from the root of the class path.
 
 ### Injecting byte[]
 
