@@ -18,6 +18,7 @@
 package com.github.robtimus.junit.support.concurrent;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -27,6 +28,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.function.Executable;
@@ -188,6 +190,9 @@ public final class ConcurrentRunner<T> {
             return execute(executor, poolSize);
         } finally {
             executor.shutdown();
+            // Since all futures are already joined when this method is called, a 5 second grace period should be more than enough
+            boolean isTerminated = assertDoesNotThrow(() -> executor.awaitTermination(5, TimeUnit.SECONDS));
+            assertTrue(isTerminated, "The executor should have terminated within 5 seconds");
         }
     }
 
@@ -202,10 +207,13 @@ public final class ConcurrentRunner<T> {
         assertDoesNotThrow(() -> readyLatch.await()); // NOSONAR, a method reference gives an ambiguity error
         startLatch.countDown();
 
-        // The call to future.get() should not throw any exception unless the current thread gets interrupted.
-        // as any failure from the future itself is wrapped in the returned ConcurrentResult instance.
+        // Collect and stream, so the futures will all have completed when this method ends.
+        // Without collecting, futures may still be active when this method ends because of lazy evaluation of join.
+        // The final call to stream is to keep ConcurrentResults simpler.
         Stream<ConcurrentResult<T>> results = futures.stream()
-                .map(future -> assertDoesNotThrow(() -> future.get())); // NOSONAR, a method reference gives an ambiguity error
+                .map(CompletableFuture::join)
+                .collect(Collectors.toList())
+                .stream();
 
         return new ConcurrentResults<>(results);
     }
