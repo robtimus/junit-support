@@ -85,7 +85,7 @@ public abstract class InjectingExtension implements BeforeAllCallback, BeforeEac
         });
 
         // addReads is necessary to allow accessing the class using var handles
-        InjectingExtension.class.getModule().addReads(field.getDeclaringClass().getModule());
+        getClass().getModule().addReads(field.getDeclaringClass().getModule());
 
         try {
             Object value = resolveValue(target, context);
