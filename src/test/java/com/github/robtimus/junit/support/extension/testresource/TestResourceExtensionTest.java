@@ -1374,51 +1374,53 @@ class TestResourceExtensionTest {
         @Encoding("ASCII")
         String fieldWithCustomEncoding;
 
-        void methodWithNoAnnotations(String parameter) {
+        // Sonar does not see that the parameters of the following methods are used in tests through reflection, suppress those warnings
+
+        void methodWithNoAnnotations(String parameter) { // NOSONAR
             // no body
         }
 
-        void methodWithParameterWithLfEOL(@EOL(EOL.LF) String parameter) {
+        void methodWithParameterWithLfEOL(@EOL(EOL.LF) String parameter) { // NOSONAR
             // no body
         }
 
-        void methodWithParameterWithCrEOL(@EOL(EOL.CR) String parameter) {
+        void methodWithParameterWithCrEOL(@EOL(EOL.CR) String parameter) { // NOSONAR
             // no body
         }
 
-        void methodWithParameterWithCrlfEOL(@EOL(EOL.CRLF) String parameter) {
+        void methodWithParameterWithCrlfEOL(@EOL(EOL.CRLF) String parameter) { // NOSONAR
             // no body
         }
 
-        void methodWithParameterWithSystemEOL(@EOL(EOL.SYSTEM) String parameter) {
+        void methodWithParameterWithSystemEOL(@EOL(EOL.SYSTEM) String parameter) { // NOSONAR
             // no body
         }
 
-        void methodWithParameterWithOriginalEOL(@EOL(EOL.ORIGINAL) String parameter) {
+        void methodWithParameterWithOriginalEOL(@EOL(EOL.ORIGINAL) String parameter) { // NOSONAR
             // no body
         }
 
-        void methodWithParameterWithEmptyEOL(@EOL(EOL.NONE) String parameter) {
+        void methodWithParameterWithEmptyEOL(@EOL(EOL.NONE) String parameter) { // NOSONAR
             // no body
         }
 
-        void methodWithParameterWithCustomEOL(@EOL("--") String parameter) {
+        void methodWithParameterWithCustomEOL(@EOL("--") String parameter) { // NOSONAR
             // no body
         }
 
-        void methodWithParameterWithDefaultEncoding(@Encoding(Encoding.DEFAULT) String parameter) {
+        void methodWithParameterWithDefaultEncoding(@Encoding(Encoding.DEFAULT) String parameter) { // NOSONAR
             // no body
         }
 
-        void methodWithParameterWithSystemEncoding(@Encoding(Encoding.SYSTEM) String parameter) {
+        void methodWithParameterWithSystemEncoding(@Encoding(Encoding.SYSTEM) String parameter) { // NOSONAR
             // no body
         }
 
-        void methodWithParameterWithNativeEncoding(@Encoding(Encoding.NATIVE) String parameter) {
+        void methodWithParameterWithNativeEncoding(@Encoding(Encoding.NATIVE) String parameter) { // NOSONAR
             // no body
         }
 
-        void methodWithParameterWithCustomEncoding(@Encoding("ASCII") String parameter) {
+        void methodWithParameterWithCustomEncoding(@Encoding("ASCII") String parameter) { // NOSONAR
             // no body
         }
 
@@ -1515,51 +1517,53 @@ class TestResourceExtensionTest {
         @Encoding("ASCII")
         String fieldWithCustomEncoding;
 
-        void methodWithNoAnnotations(String parameter) {
+        // Sonar does not see that the parameters of the following methods are used in tests through reflection, suppress those warnings
+
+        void methodWithNoAnnotations(String parameter) { // NOSONAR
             // no body
         }
 
-        void methodWithParameterWithLfEOL(@EOL(EOL.LF) String parameter) {
+        void methodWithParameterWithLfEOL(@EOL(EOL.LF) String parameter) { // NOSONAR
             // no body
         }
 
-        void methodWithParameterWithCrEOL(@EOL(EOL.CR) String parameter) {
+        void methodWithParameterWithCrEOL(@EOL(EOL.CR) String parameter) { // NOSONAR
             // no body
         }
 
-        void methodWithParameterWithCrlfEOL(@EOL(EOL.CRLF) String parameter) {
+        void methodWithParameterWithCrlfEOL(@EOL(EOL.CRLF) String parameter) { // NOSONAR
             // no body
         }
 
-        void methodWithParameterWithSystemEOL(@EOL(EOL.SYSTEM) String parameter) {
+        void methodWithParameterWithSystemEOL(@EOL(EOL.SYSTEM) String parameter) { // NOSONAR
             // no body
         }
 
-        void methodWithParameterWithOriginalEOL(@EOL(EOL.ORIGINAL) String parameter) {
+        void methodWithParameterWithOriginalEOL(@EOL(EOL.ORIGINAL) String parameter) { // NOSONAR
             // no body
         }
 
-        void methodWithParameterWithEmptyEOL(@EOL(EOL.NONE) String parameter) {
+        void methodWithParameterWithEmptyEOL(@EOL(EOL.NONE) String parameter) { // NOSONAR
             // no body
         }
 
-        void methodWithParameterWithCustomEOL(@EOL("--") String parameter) {
+        void methodWithParameterWithCustomEOL(@EOL("--") String parameter) { // NOSONAR
             // no body
         }
 
-        void methodWithParameterWithDefaultEncoding(@Encoding(Encoding.DEFAULT) String parameter) {
+        void methodWithParameterWithDefaultEncoding(@Encoding(Encoding.DEFAULT) String parameter) { // NOSONAR
             // no body
         }
 
-        void methodWithParameterWithSystemEncoding(@Encoding(Encoding.SYSTEM) String parameter) {
+        void methodWithParameterWithSystemEncoding(@Encoding(Encoding.SYSTEM) String parameter) { // NOSONAR
             // no body
         }
 
-        void methodWithParameterWithNativeEncoding(@Encoding(Encoding.NATIVE) String parameter) {
+        void methodWithParameterWithNativeEncoding(@Encoding(Encoding.NATIVE) String parameter) { // NOSONAR
             // no body
         }
 
-        void methodWithParameterWithCustomEncoding(@Encoding("ASCII") String parameter) {
+        void methodWithParameterWithCustomEncoding(@Encoding("ASCII") String parameter) { // NOSONAR
             // no body
         }
 

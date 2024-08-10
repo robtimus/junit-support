@@ -142,11 +142,10 @@ class TraitTest {
 
     @SuppressWarnings("nls")
     private String getMethodNameAndArguments(Method method) {
-        String methodNameAndArguments = Arrays.stream(method.getGenericParameterTypes())
+        return Arrays.stream(method.getGenericParameterTypes())
                 .map(Type::toString)
                 .map(s -> s.replaceAll("^(class|enum|interface) ", ""))
                 .collect(Collectors.joining(", ", method.getName() + "(", ")"));
-        return methodNameAndArguments;
     }
 
     @SuppressWarnings("nls")

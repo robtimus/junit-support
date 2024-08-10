@@ -215,15 +215,15 @@ class MethodOverrideTest {
         }
 
         private DynamicContainer testInterface(Class<?> i, Class<?> subInterface) {
-            Optional<Class<?>> sub = Arrays.stream(subInterface.getDeclaredClasses())
+            Optional<Class<?>> actualSub = Arrays.stream(subInterface.getDeclaredClasses())
                     .filter(c -> c.getSimpleName().equals(i.getSimpleName()))
                     .findAny();
 
             Stream<DynamicTest> interfaceTests = Stream.of(dynamicTest("interface exists", () -> {
-                assertDoesNotThrow(sub::get, String.format("Cannot find nested interface %s in interface %s", i.getSimpleName(), subInterface));
+                assertDoesNotThrow(actualSub::get, String.format("Cannot find nested interface %s in interface %s", i.getSimpleName(), subInterface));
             }));
 
-            Stream<DynamicNode> subTests = sub.map(c -> testInterfaces(i, c))
+            Stream<DynamicNode> subTests = actualSub.map(c -> testInterfaces(i, c))
                     .orElse(Stream.empty());
 
             return dynamicContainer(i.getSimpleName(), Stream.concat(interfaceTests, subTests));

@@ -56,8 +56,7 @@ public final class TestUtils {
                 .findAny()
                 .orElse(null));
 
-        Throwable throwable = assertIsPresent(result.getThrowable());
-        return throwable;
+        return assertIsPresent(result.getThrowable());
     }
 
     public static Throwable getSingleContainerFailure(EngineExecutionResults results) {
@@ -66,7 +65,6 @@ public final class TestUtils {
                 .findAny()
                 .orElse(null));
 
-        Throwable throwable = assertIsPresent(result.getThrowable());
-        return throwable;
+        return assertIsPresent(result.getThrowable());
     }
 }

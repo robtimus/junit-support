@@ -120,18 +120,16 @@ final class MethodLookupTest {
             @ValueSource(strings = { "3init", "o-f", "method name" })
             @DisplayName("with invalid method name")
             void testWithInvalidMethodName(String methodName) {
-                Matcher matcher = METHOD_REFERENCE_PATTERN.matcher(methodName);
-                assertFalse(matcher.matches());
+                testInvalidInput(methodName);
             }
 
             @CartesianTest(name = "{0}{1}")
             @DisplayName("with invalid method name and parameters")
-            void testWithMethodNameAndParameters(
+            void testWithInvalidMethodNameAndParameters(
                     @CartesianTest.Values(strings = { "3init", "o-f", "method name" }) String methodName,
                     @CartesianTest.Values(strings = { "()", "(int)", "(java.lang.String)", "(int, java.lang.String)" }) String arguments) {
 
-                Matcher matcher = METHOD_REFERENCE_PATTERN.matcher(methodName + arguments);
-                assertFalse(matcher.matches());
+                testWithoutClassName(methodName, arguments);
             }
 
             @CartesianTest(name = "{0}{1}")
@@ -140,8 +138,7 @@ final class MethodLookupTest {
                     @CartesianTest.Values(strings = { "init", "of", "UPPERCASE", "x", "x1", "_x", "$" }) String methodName,
                     @CartesianTest.Values(strings = { "(", "(3int)", "(java lang String)", "(int; java.lang.String)" }) String arguments) {
 
-                Matcher matcher = METHOD_REFERENCE_PATTERN.matcher(methodName + arguments);
-                assertFalse(matcher.matches());
+                testWithoutClassName(methodName, arguments);
             }
 
             @CartesianTest(name = "{0}#{1}")
@@ -150,8 +147,7 @@ final class MethodLookupTest {
                     @CartesianTest.Values(strings = { "3int", "java lang String" }) String className,
                     @CartesianTest.Values(strings = { "init", "of", "UPPERCASE", "x", "x1", "_x", "$" }) String methodName) {
 
-                Matcher matcher = METHOD_REFERENCE_PATTERN.matcher(className + "#" + methodName);
-                assertFalse(matcher.matches());
+                testWithClassName(className, methodName);
             }
 
             @CartesianTest(name = "{0}#{1}")
@@ -160,8 +156,7 @@ final class MethodLookupTest {
                     @CartesianTest.Values(strings = { "int", "java.lang.String" }) String className,
                     @CartesianTest.Values(strings = { "3init", "o-f", "method name" }) String methodName) {
 
-                Matcher matcher = METHOD_REFERENCE_PATTERN.matcher(className + "#" + methodName);
-                assertFalse(matcher.matches());
+                testWithClassName(className, methodName);
             }
 
             @CartesianTest(name = "{0}#{1}{2}")
@@ -171,8 +166,7 @@ final class MethodLookupTest {
                     @CartesianTest.Values(strings = { "init", "of", "UPPERCASE", "x", "x1", "_x", "$" }) String methodName,
                     @CartesianTest.Values(strings = { "()", "(int)", "(java.lang.String)", "(int, java.lang.String)" }) String arguments) {
 
-                Matcher matcher = METHOD_REFERENCE_PATTERN.matcher(className + "#" + methodName + arguments);
-                assertFalse(matcher.matches());
+                testWithClassName(className, methodName, arguments);
             }
 
             @CartesianTest(name = "{0}#{1}{2}")
@@ -182,18 +176,33 @@ final class MethodLookupTest {
                     @CartesianTest.Values(strings = { "3init", "o-f", "method name" }) String methodName,
                     @CartesianTest.Values(strings = { "()", "(int)", "(java.lang.String)", "(int, java.lang.String)" }) String arguments) {
 
-                Matcher matcher = METHOD_REFERENCE_PATTERN.matcher(className + "#" + methodName + arguments);
-                assertFalse(matcher.matches());
+                testWithClassName(className, methodName, arguments);
             }
 
             @CartesianTest(name = "{0}#{1}{2}")
             @DisplayName("with class name, method name and invalid parameters")
-            void testWithClassNameAndMethodNameAndParameters(
+            void testWithClassNameAndMethodNameAndInvalidParameters(
                     @CartesianTest.Values(strings = { "int", "java.lang.String" }) String className,
                     @CartesianTest.Values(strings = { "init", "of", "UPPERCASE", "x", "x1", "_x", "$" }) String methodName,
                     @CartesianTest.Values(strings = { "(", "(3int)", "(java lang String)", "(int; java.lang.String)" }) String arguments) {
 
-                Matcher matcher = METHOD_REFERENCE_PATTERN.matcher(className + "#" + methodName + arguments);
+                testWithClassName(className, methodName, arguments);
+            }
+
+            private void testWithoutClassName(String methodName, String arguments) {
+                testInvalidInput(methodName + arguments);
+            }
+
+            private void testWithClassName(String className, String methodName) {
+                testInvalidInput(className + "#" + methodName);
+            }
+
+            private void testWithClassName(String className, String methodName, String arguments) {
+                testInvalidInput(className + "#" + methodName + arguments);
+            }
+
+            private void testInvalidInput(String reference) {
+                Matcher matcher = METHOD_REFERENCE_PATTERN.matcher(reference);
                 assertFalse(matcher.matches());
             }
         }

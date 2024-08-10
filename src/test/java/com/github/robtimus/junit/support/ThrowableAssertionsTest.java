@@ -130,7 +130,7 @@ class ThrowableAssertionsTest {
 
                 String expectedMessage = String.format("%s ==> expected: caused by <%s> but was: <%s>",
                         message,
-                        IOException.class.getName(), intermediate, root);
+                        IOException.class.getName(), intermediate);
                 assertEquals(expectedMessage, error.getMessage());
             }
 
@@ -181,7 +181,7 @@ class ThrowableAssertionsTest {
 
                 String expectedMessage = String.format("%s ==> expected: caused by <%s> but was: <%s>",
                         message,
-                        IOException.class.getName(), intermediate, root);
+                        IOException.class.getName(), intermediate);
                 assertEquals(expectedMessage, error.getMessage());
             }
 
