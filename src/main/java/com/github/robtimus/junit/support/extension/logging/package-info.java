@@ -17,6 +17,7 @@
 
 /**
  * Provides interfaces and classes for miscellaneous logging extensions like
- * {@link com.github.robtimus.junit.support.extension.logging.LogOnFailure LogOnFailure}.
+ * {@link com.github.robtimus.junit.support.extension.logging.LogOnFailure LogOnFailure} and
+ * {@link com.github.robtimus.junit.support.extension.logging.DisableLogging DisableLogging}.
  */
 package com.github.robtimus.junit.support.extension.logging;

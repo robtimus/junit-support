@@ -16,7 +16,7 @@
  */
 
 /**
- * Contains interfaces and classes that make it easier to write tests with JUnit
+ * Contains interfaces and classes that make it easier to write tests with JUnit.
  */
 module com.github.robtimus.junit.support {
     requires transitive org.junit.jupiter.api;
