@@ -72,7 +72,8 @@ public @interface EOL {
 
     /**
      * A marker that indicates the line separators from the original file should be used.
-     * This can be useful in case an enclosing member or class defines a different line separator, or if
+     * This can be useful in case an enclosing member or class defines a different line separator,
+     * or if a different line separator is defined via the {@value #DEFAULT_EOL_PROPERTY_NAME} configuration parameter.
      */
     String ORIGINAL = "##original##";
 
