@@ -39,6 +39,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.mockito.ArgumentCaptor;
+import com.github.robtimus.junit.support.extension.logging.capture.CapturingJdkHandler;
 import com.github.robtimus.junit.support.extension.util.JdkLoggingUtils;
 import com.github.robtimus.junit.support.extension.util.JdkTestHandler;
 import com.github.robtimus.junit.support.extension.util.Log4jTestAppender;
@@ -720,7 +721,7 @@ final class TestLoggerTest {
         @Test
         @DisplayName("handler added")
         void testHandlerAdded() {
-            java.util.logging.Handler handler = mock(java.util.logging.Handler.class);
+            CapturingJdkHandler handler = new CapturingJdkHandler();
             logger().addHandler(handler);
 
             JDK_LOGGER.log(java.util.logging.Level.WARNING, "warning message");
@@ -741,11 +742,7 @@ final class TestLoggerTest {
             assertEquals(java.util.logging.Level.INFO, rootRecords.get(1).getLevel());
             assertEquals("info message", rootRecords.get(1).getMessage());
 
-            ArgumentCaptor<java.util.logging.LogRecord> logRecordCaptor = ArgumentCaptor.forClass(java.util.logging.LogRecord.class);
-
-            verify(handler, times(2)).publish(logRecordCaptor.capture());
-
-            List<java.util.logging.LogRecord> capturedRecords = logRecordCaptor.getAllValues();
+            List<java.util.logging.LogRecord> capturedRecords = handler.getRecords();
             assertEquals(2, capturedRecords.size());
             assertEquals(java.util.logging.Level.WARNING, capturedRecords.get(0).getLevel());
             assertEquals("warning message", capturedRecords.get(0).getMessage());
@@ -756,7 +753,7 @@ final class TestLoggerTest {
         @Test
         @DisplayName("root handler added")
         void testRootHandlerAdded() {
-            java.util.logging.Handler handler = mock(java.util.logging.Handler.class);
+            CapturingJdkHandler handler = new CapturingJdkHandler();
             rootLogger().addHandler(handler);
 
             JDK_LOGGER.log(java.util.logging.Level.WARNING, "warning message");
@@ -777,11 +774,7 @@ final class TestLoggerTest {
             assertEquals(java.util.logging.Level.INFO, rootRecords.get(1).getLevel());
             assertEquals("info message", rootRecords.get(1).getMessage());
 
-            ArgumentCaptor<java.util.logging.LogRecord> logRecordCaptor = ArgumentCaptor.forClass(java.util.logging.LogRecord.class);
-
-            verify(handler, times(2)).publish(logRecordCaptor.capture());
-
-            List<java.util.logging.LogRecord> capturedRecords = logRecordCaptor.getAllValues();
+            List<java.util.logging.LogRecord> capturedRecords = handler.getRecords();
             assertEquals(2, capturedRecords.size());
             assertEquals(java.util.logging.Level.WARNING, capturedRecords.get(0).getLevel());
             assertEquals("warning message", capturedRecords.get(0).getMessage());
@@ -792,7 +785,7 @@ final class TestLoggerTest {
         @Test
         @DisplayName("handler replaced")
         void testHandlerReplaced() {
-            java.util.logging.Handler handler = mock(java.util.logging.Handler.class);
+            CapturingJdkHandler handler = new CapturingJdkHandler();
             logger().setHandler(handler);
 
             JDK_LOGGER.log(java.util.logging.Level.WARNING, "warning message");
@@ -809,11 +802,7 @@ final class TestLoggerTest {
             assertEquals(java.util.logging.Level.INFO, rootRecords.get(1).getLevel());
             assertEquals("info message", rootRecords.get(1).getMessage());
 
-            ArgumentCaptor<java.util.logging.LogRecord> logRecordCaptor = ArgumentCaptor.forClass(java.util.logging.LogRecord.class);
-
-            verify(handler, times(2)).publish(logRecordCaptor.capture());
-
-            List<java.util.logging.LogRecord> capturedRecords = logRecordCaptor.getAllValues();
+            List<java.util.logging.LogRecord> capturedRecords = handler.getRecords();
             assertEquals(2, capturedRecords.size());
             assertEquals(java.util.logging.Level.WARNING, capturedRecords.get(0).getLevel());
             assertEquals("warning message", capturedRecords.get(0).getMessage());
@@ -824,7 +813,7 @@ final class TestLoggerTest {
         @Test
         @DisplayName("root handler replaced")
         void testRootHandlerReplaced() {
-            java.util.logging.Handler handler = mock(java.util.logging.Handler.class);
+            CapturingJdkHandler handler = new CapturingJdkHandler();
             rootLogger().setHandler(handler);
 
             JDK_LOGGER.log(java.util.logging.Level.WARNING, "warning message");
@@ -841,11 +830,7 @@ final class TestLoggerTest {
             List<java.util.logging.LogRecord> rootRecords = rootTestHandler.getRecords();
             assertEquals(0, rootRecords.size());
 
-            ArgumentCaptor<java.util.logging.LogRecord> logRecordCaptor = ArgumentCaptor.forClass(java.util.logging.LogRecord.class);
-
-            verify(handler, times(2)).publish(logRecordCaptor.capture());
-
-            List<java.util.logging.LogRecord> capturedRecords = logRecordCaptor.getAllValues();
+            List<java.util.logging.LogRecord> capturedRecords = handler.getRecords();
             assertEquals(2, capturedRecords.size());
             assertEquals(java.util.logging.Level.WARNING, capturedRecords.get(0).getLevel());
             assertEquals("warning message", capturedRecords.get(0).getMessage());
@@ -856,7 +841,7 @@ final class TestLoggerTest {
         @Test
         @DisplayName("parent logger configured")
         void testParentConfigured(@TestLogger("com.github.robtimus.junit.support.extension.testlogger") JdkLoggerContext parentLogger) {
-            java.util.logging.Handler handler = mock(java.util.logging.Handler.class);
+            CapturingJdkHandler handler = new CapturingJdkHandler();
             parentLogger.setLevel(java.util.logging.Level.ALL)
                     .setHandler(handler)
                     .useParentHandlers(true);
@@ -879,11 +864,7 @@ final class TestLoggerTest {
             assertEquals(java.util.logging.Level.INFO, rootRecords.get(1).getLevel());
             assertEquals("info message", rootRecords.get(1).getMessage());
 
-            ArgumentCaptor<java.util.logging.LogRecord> logRecordCaptor = ArgumentCaptor.forClass(java.util.logging.LogRecord.class);
-
-            verify(handler, times(2)).publish(logRecordCaptor.capture());
-
-            List<java.util.logging.LogRecord> capturedRecords = logRecordCaptor.getAllValues();
+            List<java.util.logging.LogRecord> capturedRecords = handler.getRecords();
             assertEquals(2, capturedRecords.size());
             assertEquals(java.util.logging.Level.WARNING, capturedRecords.get(0).getLevel());
             assertEquals("warning message", capturedRecords.get(0).getMessage());

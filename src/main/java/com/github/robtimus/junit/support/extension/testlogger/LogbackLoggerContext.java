@@ -17,13 +17,11 @@
 
 package com.github.robtimus.junit.support.extension.testlogger;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.slf4j.LoggerFactory;
+import com.github.robtimus.junit.support.extension.logging.capture.CapturingLogbackAppender;
 import com.github.robtimus.junit.support.extension.testlogger.TestLoggerExtension.ContextFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -174,7 +172,7 @@ public final class LogbackLoggerContext extends LoggerContext {
 
         private final Logger logger;
 
-        private Appender<ILoggingEvent> captorAppender;
+        private CapturingLogbackAppender captorAppender;
         private LogCaptor<ILoggingEvent> logCaptor;
 
         private Helper(Logger logger) {
@@ -223,13 +221,11 @@ public final class LogbackLoggerContext extends LoggerContext {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         LogCaptor<ILoggingEvent> logCaptor() {
             if (logCaptor == null) {
-                captorAppender = mock(Appender.class);
-                logCaptor = new LogCaptor<>(ILoggingEvent.class,
-                        (mode, eventCaptor) -> verify(captorAppender, mode).doAppend(eventCaptor.capture()),
-                        () -> reset(captorAppender));
+                captorAppender = new CapturingLogbackAppender();
+                captorAppender.start();
+                logCaptor = new LogCaptor<>(captorAppender::getEvents, captorAppender::clearEvents);
                 addAppender(captorAppender);
             }
             return logCaptor;

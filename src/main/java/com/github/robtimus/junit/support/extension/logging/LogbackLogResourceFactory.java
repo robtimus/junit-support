@@ -17,15 +17,12 @@
 
 package com.github.robtimus.junit.support.extension.logging;
 
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.mockito.ArgumentCaptor;
+import com.github.robtimus.junit.support.extension.logging.capture.CapturingLogbackAppender;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -65,8 +62,8 @@ final class LogbackLogResourceFactory extends LogResourceFactory {
             originalAppenders.forEach(logger::detachAppender);
             logger.setAdditive(false);
 
-            @SuppressWarnings("unchecked")
-            Appender<ILoggingEvent> capturingAppender = mock(Appender.class);
+            CapturingLogbackAppender capturingAppender = new CapturingLogbackAppender();
+            capturingAppender.start();
             logger.addAppender(capturingAppender);
 
             return () -> {
@@ -91,10 +88,8 @@ final class LogbackLogResourceFactory extends LogResourceFactory {
             logger.setAdditive(originalAdditive);
         }
 
-        private static void logCaptured(Logger logger, Appender<ILoggingEvent> capturingAppender) {
-            ArgumentCaptor<ILoggingEvent> eventCaptor = ArgumentCaptor.forClass(ILoggingEvent.class);
-            verify(capturingAppender, atLeast(0)).doAppend(eventCaptor.capture());
-            List<ILoggingEvent> events = eventCaptor.getAllValues();
+        private static void logCaptured(Logger logger, CapturingLogbackAppender capturingAppender) {
+            List<ILoggingEvent> events = capturingAppender.getEvents();
             // logger.log takes a different type of event
             events.stream()
                     .filter(event -> logger.isEnabledFor(event.getLevel()))

@@ -17,9 +17,6 @@
 
 package com.github.robtimus.junit.support.extension.logging;
 
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -29,7 +26,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.mockito.ArgumentCaptor;
+import com.github.robtimus.junit.support.extension.logging.capture.CapturingReload4jAppender;
 
 final class Reload4jLogResourceFactory extends LogResourceFactory {
 
@@ -65,7 +62,7 @@ final class Reload4jLogResourceFactory extends LogResourceFactory {
             logger.removeAllAppenders();
             logger.setAdditivity(false);
 
-            Appender capturingAppender = mock(Appender.class);
+            CapturingReload4jAppender capturingAppender = new CapturingReload4jAppender();
             logger.addAppender(capturingAppender);
 
             return () -> {
@@ -90,10 +87,8 @@ final class Reload4jLogResourceFactory extends LogResourceFactory {
             logger.setAdditivity(originalAdditivity);
         }
 
-        private static void logCaptured(Logger logger, Appender capturingAppender) {
-            ArgumentCaptor<LoggingEvent> eventCaptor = ArgumentCaptor.forClass(LoggingEvent.class);
-            verify(capturingAppender, atLeast(0)).doAppend(eventCaptor.capture());
-            List<LoggingEvent> events = eventCaptor.getAllValues();
+        private static void logCaptured(Logger logger, CapturingReload4jAppender capturingAppender) {
+            List<LoggingEvent> events = capturingAppender.getEvents();
             events.stream()
                     .filter(event -> logger.isEnabledFor(event.getLevel()))
                     .forEach(logger::callAppenders);

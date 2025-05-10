@@ -77,7 +77,8 @@ class TraitTest {
                 .map(this::testTrait);
     }
 
-    @SuppressWarnings("nls")
+    // keep using JRE.currentVersion() instead of JRE.currentJre() to keep supporting JUnit before 5.12
+    @SuppressWarnings({ "deprecation", "nls" })
     private List<Class<?>> findAllClasses() {
         Predicate<Class<?>> classFilter = c ->
                 c.isInterface()

@@ -17,9 +17,6 @@
 
 package com.github.robtimus.junit.support.extension.logging;
 
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -30,8 +27,7 @@ import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.mockito.ArgumentCaptor;
-import com.github.robtimus.junit.support.extension.testlogger.Log4jNullAppender;
+import com.github.robtimus.junit.support.extension.logging.capture.CapturingLog4jAppender;
 
 final class Log4jLogResourceFactory extends LogResourceFactory {
 
@@ -67,7 +63,8 @@ final class Log4jLogResourceFactory extends LogResourceFactory {
             originalAppenders.forEach(logger::removeAppender);
             logger.setAdditive(false);
 
-            Log4jNullAppender capturingAppender = spy(Log4jNullAppender.create("LogOnFailure-" + UUID.randomUUID().toString())); //$NON-NLS-1$
+            CapturingLog4jAppender capturingAppender = new CapturingLog4jAppender("LogOnFailure-" + UUID.randomUUID().toString()); //$NON-NLS-1$
+            capturingAppender.start();
             logger.addAppender(capturingAppender);
 
             return () -> {
@@ -88,10 +85,8 @@ final class Log4jLogResourceFactory extends LogResourceFactory {
             logger.setAdditive(originalAdditive);
         }
 
-        private static void logCaptured(Logger logger, Log4jNullAppender capturingAppender) {
-            ArgumentCaptor<LogEvent> eventCaptor = ArgumentCaptor.forClass(LogEvent.class);
-            verify(capturingAppender, atLeast(0)).ignore(eventCaptor.capture());
-            List<LogEvent> events = eventCaptor.getAllValues();
+        private static void logCaptured(Logger logger, CapturingLog4jAppender capturingAppender) {
+            List<LogEvent> events = capturingAppender.getEvents();
             LoggerConfig loggerConfig = logger.get();
             events.forEach(loggerConfig::log);
         }

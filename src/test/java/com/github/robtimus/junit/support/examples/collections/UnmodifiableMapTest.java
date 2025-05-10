@@ -318,6 +318,8 @@ class UnmodifiableMapTest {
             class ForEachRemainingTest extends EntrySetTestBase implements EntrySetTests.IteratorTests.ForEachRemainingTests<Integer, String> {
 
                 @Override
+                // keep using JRE.currentVersion() instead of JRE.currentJre() to keep supporting JUnit before 5.12
+                @SuppressWarnings("deprecation")
                 public boolean hasFailFastNullCheck() {
                     // Since Java 11, iterator.forEachRemaining does not perform a null check. This has been fixed in Java 20.
                     return !EnumSet.range(JRE.JAVA_11, JRE.JAVA_19).contains(JRE.currentVersion());

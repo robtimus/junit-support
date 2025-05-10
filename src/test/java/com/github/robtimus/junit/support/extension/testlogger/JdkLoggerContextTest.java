@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.logging.Handler;
@@ -40,6 +39,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import com.github.robtimus.junit.support.extension.logging.capture.CapturingJdkHandler;
 import com.github.robtimus.junit.support.extension.util.JdkLoggingUtils;
 import com.github.robtimus.junit.support.extension.util.JdkTestHandler;
 
@@ -251,7 +251,7 @@ final class JdkLoggerContextTest {
             LOGGER.info("third log");
             assertLoggedMessages(logCaptor, "first log", "second log", "third log");
 
-            context.setHandler(mock(Handler.class));
+            context.setHandler(new CapturingJdkHandler());
 
             LOGGER.info("fourth log");
             assertLoggedMessages(logCaptor, "first log", "second log", "third log", "fourth log");

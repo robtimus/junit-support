@@ -17,9 +17,6 @@
 
 package com.github.robtimus.junit.support.extension.testlogger;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -28,6 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
+import com.github.robtimus.junit.support.extension.logging.capture.CapturingJdkHandler;
 import com.github.robtimus.junit.support.extension.testlogger.TestLoggerExtension.ContextFactory;
 
 /**
@@ -175,7 +173,7 @@ public final class JdkLoggerContext extends LoggerContext {
 
         private final Logger logger;
 
-        private Handler captorHandler;
+        private CapturingJdkHandler captorHandler;
         private LogCaptor<LogRecord> logCaptor;
 
         private Helper(Logger logger) {
@@ -226,10 +224,8 @@ public final class JdkLoggerContext extends LoggerContext {
         @Override
         LogCaptor<LogRecord> logCaptor() {
             if (logCaptor == null) {
-                captorHandler = mock(Handler.class);
-                logCaptor = new LogCaptor<>(LogRecord.class,
-                        (mode, recordCaptor) -> verify(captorHandler, mode).publish(recordCaptor.capture()),
-                        () -> reset(captorHandler));
+                captorHandler = new CapturingJdkHandler();
+                logCaptor = new LogCaptor<>(captorHandler::getRecords, captorHandler::clearRecords);
                 addAppender(captorHandler);
             }
             return logCaptor;

@@ -17,9 +17,6 @@
 
 package com.github.robtimus.junit.support.extension.logging;
 
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.mockito.ArgumentCaptor;
+import com.github.robtimus.junit.support.extension.logging.capture.CapturingJdkHandler;
 
 final class JdkLogResourceFactory extends LogResourceFactory {
 
@@ -65,7 +62,7 @@ final class JdkLogResourceFactory extends LogResourceFactory {
             originalHandlers.forEach(logger::removeHandler);
             logger.setUseParentHandlers(false);
 
-            Handler capturingHandler = mock(Handler.class);
+            CapturingJdkHandler capturingHandler = new CapturingJdkHandler();
             logger.addHandler(capturingHandler);
 
             return () -> {
@@ -86,10 +83,8 @@ final class JdkLogResourceFactory extends LogResourceFactory {
             logger.setUseParentHandlers(originalUseParentHandlers);
         }
 
-        private static void logCaptured(Logger logger, Handler capturingHandler) {
-            ArgumentCaptor<LogRecord> recordCaptor = ArgumentCaptor.forClass(LogRecord.class);
-            verify(capturingHandler, atLeast(0)).publish(recordCaptor.capture());
-            List<LogRecord> logRecords = recordCaptor.getAllValues();
+        private static void logCaptured(Logger logger, CapturingJdkHandler capturingHandler) {
+            List<LogRecord> logRecords = capturingHandler.getRecords();
             logRecords.forEach(logger::log);
         }
 
