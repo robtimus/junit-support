@@ -235,7 +235,8 @@ public final class Log4jLoggerContext extends LoggerContext {
         @Override
         LogCaptor<LogEvent> logCaptor() {
             if (logCaptor == null) {
-                captorAppender = new CapturingLog4jAppender("Logcaptor-" + UUID.randomUUID().toString()); //$NON-NLS-1$
+                captorAppender = new CapturingLog4jAppender("LogCaptor-" + UUID.randomUUID().toString()); //$NON-NLS-1$
+                captorAppender.start();
                 logCaptor = new LogCaptor<>(captorAppender::getEvents, captorAppender::clearEvents);
                 addAppender(captorAppender);
             }
