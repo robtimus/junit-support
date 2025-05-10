@@ -30,7 +30,7 @@ import org.junit.jupiter.api.extension.ExtensionContext.Store.CloseableResource;
 @FunctionalInterface
 public interface AutoCloseableResource extends AutoCloseable, CloseableResource {
 
-    // AutoCloseable defines void close() throws Throwable
-    // CloseableResource defines void close() throws Exception
+    // AutoCloseable defines void close() throws Exception
+    // CloseableResource defines void close() throws Throwable
     // this interface therefore defines one method: void close() throws Exception
 }
