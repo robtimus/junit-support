@@ -897,7 +897,7 @@ class ArgumentsCombinerTest {
             @Test
             @DisplayName("providing empty stream")
             void testEmptyStream() {
-                Supplier<Stream<?>> argumentsProvider = () -> Stream.empty();
+                Supplier<Stream<?>> argumentsProvider = Stream::empty;
 
                 assertSame(combiner, combiner.crossJoin(argumentsProvider));
 

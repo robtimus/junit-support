@@ -112,7 +112,7 @@ class TraitTest {
         Stream<DynamicTest> interfaceTests = Stream.of(testInterfaceNamedCorrectly(traitInterface));
 
         Stream<DynamicNode> methodTests = Arrays.stream(traitInterface.getMethods())
-                .filter(m -> isTestMethod(m))
+                .filter(this::isTestMethod)
                 .map(this::testMethod);
 
         Stream<DynamicNode> nodes = Stream.concat(interfaceTests, methodTests);

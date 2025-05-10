@@ -216,7 +216,7 @@ class MethodOverrideTest {
 
         private DynamicContainer testInterface(Class<?> i, Class<?> subInterface) {
             Optional<Class<?>> actualSub = Arrays.stream(subInterface.getDeclaredClasses())
-                    .filter(c -> c.getSimpleName().equals(i.getSimpleName()))
+                    .filter(c -> c.getSimpleName().equals(i.getSimpleName())) // NOSONAR, isAssignableFrom will not do the same
                     .findAny();
 
             Stream<DynamicTest> interfaceTests = Stream.of(dynamicTest("interface exists", () -> {

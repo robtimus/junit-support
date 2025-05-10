@@ -2855,7 +2855,7 @@ class AssertionFailedErrorBuilderTest {
         @Test
         @DisplayName("Supplier supplying non-null")
         void testSupplierSupplyingNonNull() {
-            Supplier<?> supplier = () -> "foo".toCharArray();
+            Supplier<?> supplier = "foo"::toCharArray;
             assertEquals("[f, o, o]", nullSafeGet(supplier));
         }
 
