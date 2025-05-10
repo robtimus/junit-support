@@ -48,6 +48,7 @@ final class Reload4jLogResourceFactory extends LogResourceFactory {
         private Factory() {
         }
 
+        @SuppressWarnings("resource")
         private static Optional<LogCaptor> startCapture(Object logger, ExtensionContext context) {
             if (logger instanceof Logger) {
                 return Optional.of(startCapture((Logger) logger, context));
@@ -94,6 +95,7 @@ final class Reload4jLogResourceFactory extends LogResourceFactory {
                     .forEach(logger::callAppenders);
         }
 
+        @SuppressWarnings("resource")
         private static Optional<LogDisabler> disableLogging(Object logger) {
             if (logger instanceof Logger) {
                 return Optional.of(disableLogging((Logger) logger));

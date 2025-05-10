@@ -32,9 +32,10 @@ import org.junit.platform.commons.JUnitException;
 import org.junit.platform.commons.PreconditionViolationException;
 import org.junit.platform.commons.support.HierarchyTraversalMode;
 import org.junit.platform.commons.support.ReflectionSupport;
+import com.github.robtimus.junit.support.extension.AutoCloseableResource;
 
 @SuppressWarnings("nls")
-abstract class LoggingExtension<R> implements BeforeEachCallback {
+abstract class LoggingExtension<R extends AutoCloseableResource> implements BeforeEachCallback {
 
     private static final Namespace NAMESPACE = Namespace.create(LoggingExtension.class);
 
@@ -67,6 +68,7 @@ abstract class LoggingExtension<R> implements BeforeEachCallback {
         }
     }
 
+    @SuppressWarnings("resource")
     private void configureLogging(Field field, ExtensionContext context) throws ReflectiveOperationException {
         Object logger = getLogger(field, context);
 
@@ -110,7 +112,7 @@ abstract class LoggingExtension<R> implements BeforeEachCallback {
         return new PreconditionViolationException("Object type not supported: " + logger.getClass().getName());
     }
 
-    interface ResourceFactory<R> {
+    interface ResourceFactory<R extends AutoCloseableResource> {
 
         Optional<R> newResource(LogResourceFactory resourceFactory, Object logger, ExtensionContext context);
     }

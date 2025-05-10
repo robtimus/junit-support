@@ -48,6 +48,7 @@ final class JdkLogResourceFactory extends LogResourceFactory {
         private Factory() {
         }
 
+        @SuppressWarnings("resource")
         private static Optional<LogCaptor> startCapture(Object logger, ExtensionContext context) {
             if (logger instanceof Logger) {
                 return Optional.of(startCapture((Logger) logger, context));
@@ -88,6 +89,7 @@ final class JdkLogResourceFactory extends LogResourceFactory {
             logRecords.forEach(logger::log);
         }
 
+        @SuppressWarnings("resource")
         private static Optional<LogDisabler> disableLogging(Object logger) {
             if (logger instanceof Logger) {
                 return Optional.of(disableLogging((Logger) logger));

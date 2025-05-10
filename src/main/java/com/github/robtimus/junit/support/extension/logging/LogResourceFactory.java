@@ -19,7 +19,7 @@ package com.github.robtimus.junit.support.extension.logging;
 
 import java.util.Optional;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.api.extension.ExtensionContext.Store.CloseableResource;
+import com.github.robtimus.junit.support.extension.AutoCloseableResource;
 
 abstract class LogResourceFactory {
 
@@ -39,11 +39,11 @@ abstract class LogResourceFactory {
 
     abstract Optional<LogDisabler> disableLogging(Object logger);
 
-    interface LogCaptor extends CloseableResource {
+    interface LogCaptor extends AutoCloseableResource {
         // no additional methods necessary
     }
 
-    interface LogDisabler extends CloseableResource {
+    interface LogDisabler extends AutoCloseableResource {
         // no additional methods necessary
     }
 }

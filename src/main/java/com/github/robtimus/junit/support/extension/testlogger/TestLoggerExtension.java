@@ -25,10 +25,10 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
-import org.junit.jupiter.api.extension.ExtensionContext.Store.CloseableResource;
 import org.junit.platform.commons.JUnitException;
 import org.junit.platform.commons.PreconditionViolationException;
 import org.junit.platform.commons.support.AnnotationSupport;
+import com.github.robtimus.junit.support.extension.AutoCloseableResource;
 import com.github.robtimus.junit.support.extension.InjectingExtension;
 import com.github.robtimus.junit.support.extension.InjectionTarget;
 import com.github.robtimus.junit.support.extension.testlogger.TestLogger.ForClass;
@@ -73,6 +73,7 @@ class TestLoggerExtension extends InjectingExtension {
         return resolveContext(target, contextFactory, context);
     }
 
+    @SuppressWarnings("resource")
     private LoggerContext resolveContext(InjectionTarget target, ContextFactory<?> contextFactory, ExtensionContext context) {
         TestLogger testLogger = target.findAnnotation(TestLogger.class)
                 .orElse(null);
@@ -148,7 +149,7 @@ class TestLoggerExtension extends InjectingExtension {
         }
     }
 
-    private static final class CloseableContext implements CloseableResource {
+    private static final class CloseableContext implements AutoCloseableResource {
 
         private final LoggerContext context;
 
@@ -158,7 +159,7 @@ class TestLoggerExtension extends InjectingExtension {
         }
 
         @Override
-        public void close() throws Throwable {
+        public void close() {
             context.restore();
         }
     }
