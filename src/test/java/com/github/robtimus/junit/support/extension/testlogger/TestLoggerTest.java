@@ -1196,7 +1196,7 @@ final class TestLoggerTest {
         @Test
         @DisplayName("level changed")
         void testLevelChanged() {
-            logger().setLevel(ch.qos.logback.classic.Level.ALL);
+            logger().setLevel(ch.qos.logback.classic.Level.TRACE);
 
             SLF4J_LOGGER.warn("warning message");
             SLF4J_LOGGER.info("info message");
