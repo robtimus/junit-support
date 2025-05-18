@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -37,7 +38,6 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -45,15 +45,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.ToIntFunction;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.ExtensionConfigurationException;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.platform.commons.JUnitException;
 import org.junit.platform.commons.support.AnnotationSupport;
@@ -69,23 +72,11 @@ class InjectionTargetTest {
 
     @Nested
     @DisplayName("forParameter(ParameterContext)")
+    @TestInstance(Lifecycle.PER_CLASS)
     class ForParameter {
 
-        private InjectionTarget target;
-
-        @BeforeEach
-        void initTarget() {
-            Method method = assertDoesNotThrow(() -> Level1.Level2.class.getDeclaredMethod("method", List.class));
-            Parameter parameter = method.getParameters()[0];
-
-            ParameterContext context = mock(ParameterContext.class);
-            when(context.getParameter()).thenReturn(parameter);
-            when(context.getDeclaringExecutable()).thenReturn(method);
-            when(context.findAnnotation(any())).thenAnswer(i -> AnnotationSupport.findAnnotation(parameter, i.getArgument(0)));
-            when(context.findRepeatableAnnotations(any())).thenAnswer(i -> AnnotationSupport.findRepeatableAnnotations(parameter, i.getArgument(0)));
-
-            target = forParameter(context);
-        }
+        private Parameter parameter = assertDoesNotThrow(() -> Level1.Level2.class.getDeclaredMethod("method", List.class)).getParameters()[0];
+        private InjectionTarget target = forParameter(mockParameterContext(parameter));
 
         @Test
         @DisplayName("declaringClass()")
@@ -225,20 +216,67 @@ class InjectionTargetTest {
             assertEquals("foo", exception.getMessage());
             assertSame(cause, exception.getCause());
         }
+
+        @ParameterizedTest
+        @DisplayName("equals({0})")
+        @MethodSource("equalsArguments")
+        void testEquals(Object o, boolean expected) {
+            assertEquals(expected, target.equals(o));
+            if (o != null) {
+                assertEquals(expected, o.equals(target));
+            }
+        }
+
+        Arguments[] equalsArguments() {
+            Parameter equalParameter = assertDoesNotThrow(() -> Level1.Level2.class.getDeclaredMethod("method", List.class)).getParameters()[0];
+            Parameter unEqualParameter = assertDoesNotThrow(() -> getClass().getDeclaredMethod("testEquals", Object.class, boolean.class))
+                    .getParameters()[0];
+            Field field = assertDoesNotThrow(() -> Level1.Level2.class.getDeclaredField("field"));
+
+            return new Arguments[] {
+                    arguments(target, true),
+                    arguments(InjectionTarget.forParameter(mockParameterContext(equalParameter)), true),
+                    arguments(InjectionTarget.forParameter(mockParameterContext(unEqualParameter)), false),
+                    arguments(InjectionTarget.forField(field), false),
+                    arguments(null, false),
+            };
+        }
+
+        @Test
+        @DisplayName("hashCode()")
+        void testHashCode() {
+            assertEquals(parameter.hashCode(), target.hashCode());
+        }
+
+        @Nested
+        @DisplayName("toString()")
+        class ToString {
+
+            @Test
+            @DisplayName("for method()")
+            void testForMethod() {
+                assertEquals(String.format("%s#method(List)[%s]", Level1.Level2.class.getName(), parameter.getName()), target.toString());
+            }
+
+            @Test
+            @DisplayName("for constructor()")
+            void testForConstructor() {
+                Parameter constructorParameteer = assertDoesNotThrow(() -> Level1.Level2.class.getDeclaredConstructor(Object.class))
+                        .getParameters()[0];
+
+                assertEquals(String.format("%s(Object)[%s]", Level1.Level2.class.getName(), constructorParameteer.getName()),
+                        InjectionTarget.forParameter(mockParameterContext(constructorParameteer)).toString());
+            }
+        }
     }
 
     @Nested
     @DisplayName("forField(Field")
+    @TestInstance(Lifecycle.PER_CLASS)
     class ForField {
 
-        private InjectionTarget target;
-
-        @BeforeEach
-        void initTarget() {
-            Field field = assertDoesNotThrow(() -> Level1.Level2.class.getDeclaredField("field"));
-
-            target = forField(field);
-        }
+        private Field field = assertDoesNotThrow(() -> Level1.Level2.class.getDeclaredField("field"));
+        private InjectionTarget target = forField(field);
 
         @Test
         @DisplayName("declaringClass()")
@@ -381,6 +419,51 @@ class InjectionTargetTest {
             assertEquals("foo", exception.getMessage());
             assertSame(cause, exception.getCause());
         }
+
+        @ParameterizedTest
+        @DisplayName("equals({0})")
+        @MethodSource("equalsArguments")
+        void testEquals(Object o, boolean expected) {
+            assertEquals(expected, target.equals(o));
+            if (o != null) {
+                assertEquals(expected, o.equals(target));
+            }
+        }
+
+        Arguments[] equalsArguments() {
+            Field equalField = assertDoesNotThrow(() -> Level1.Level2.class.getDeclaredField("field"));
+            Field unEqualField = assertDoesNotThrow(() -> getClass().getDeclaredField("target"));
+            Parameter parameter = assertDoesNotThrow(() -> Level1.Level2.class.getDeclaredMethod("method", List.class)).getParameters()[0];
+
+            return new Arguments[] {
+                    arguments(target, true),
+                    arguments(InjectionTarget.forField(equalField), true),
+                    arguments(InjectionTarget.forField(unEqualField), false),
+                    arguments(InjectionTarget.forParameter(mockParameterContext(parameter)), false),
+                    arguments(null, false),
+            };
+        }
+
+        @Test
+        @DisplayName("hashCode()")
+        void testHashCode() {
+            assertEquals(field.hashCode(), target.hashCode());
+        }
+
+        @Test
+        @DisplayName("toString()")
+        void testToString() {
+            assertEquals(String.format("%s#field", Level1.Level2.class.getName()), target.toString());
+        }
+    }
+
+    private static ParameterContext mockParameterContext(Parameter parameter) {
+        ParameterContext context = mock(ParameterContext.class);
+        when(context.getParameter()).thenReturn(parameter);
+        when(context.getDeclaringExecutable()).thenReturn(parameter.getDeclaringExecutable());
+        when(context.findAnnotation(any())).thenAnswer(i -> AnnotationSupport.findAnnotation(parameter, i.getArgument(0)));
+        when(context.findRepeatableAnnotations(any())).thenAnswer(i -> AnnotationSupport.findRepeatableAnnotations(parameter, i.getArgument(0)));
+        return context;
     }
 
     private static <A extends Annotation> void assertHasValues(List<A> annotations, ToIntFunction<A> value, int... expected) {
@@ -407,6 +490,10 @@ class InjectionTargetTest {
             @RepeatableAnnotation3(1)
             @RepeatableAnnotation3(2)
             private Set<Integer> field;
+
+            private Level2(Object ignored) { // NOSONAR
+                // does nothing
+            }
 
             @Annotation3
             @RepeatableAnnotation3(0)

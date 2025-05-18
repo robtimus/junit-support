@@ -18,16 +18,18 @@
 package com.github.robtimus.junit.support.extension;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiFunction;
-import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.extension.ExtensionConfigurationException;
+import org.junit.jupiter.api.extension.ExtensionContext.Store;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.platform.commons.JUnitException;
@@ -40,35 +42,17 @@ import org.junit.platform.commons.support.AnnotationSupport;
  * called with {@code true} for the {@code includeDeclaringElements} argument, the declaring elements are checked if the target itself is not
  * annotated. The declaring elements are the constructor or method (for parameters only) and the class the field, constructor or method is declared
  * in. If the class is a nested class, its declaring class is also checked; this continues until a top-level class is found.
+ * <p>
+ * Since version 3.1, injection targets implement {@link Object#equals(Object)} and {@link Object#hashCode()} and can therefore be used as keys to
+ * {@link Store}. They also implement {@link Object#toString()} to return a unique representation for the injection target. This can be used as basis
+ * for keys to {@link Store}.
  *
  * @author Rob Spoor
  * @since 2.0
  */
-public final class InjectionTarget {
+public abstract class InjectionTarget {
 
-    private final Class<?> declaringClass;
-    private final Class<?> type;
-    private final Type genericType;
-
-    private final BiFunction<Class<? extends Annotation>, Boolean, Optional<? extends Annotation>> annotationFinder;
-    private final BiFunction<Class<? extends Annotation>, Boolean, List<? extends Annotation>> repeatableAnnotationFinder;
-
-    private final Function<String, JUnitException> exceptionWithMessage;
-    private final BiFunction<String, Throwable, JUnitException> exceptionWithMessageAndCause;
-
-    private InjectionTarget(Class<?> declaringClass, Class<?> type, Type genericType,
-            BiFunction<Class<? extends Annotation>, Boolean, Optional<? extends Annotation>> annotationFinder,
-            BiFunction<Class<? extends Annotation>, Boolean, List<? extends Annotation>> repeatableAnnotationFinder,
-            Function<String, JUnitException> exceptionWithMessage,
-            BiFunction<String, Throwable, JUnitException> exceptionWithMessageAndCause) {
-
-        this.declaringClass = declaringClass;
-        this.type = type;
-        this.genericType = genericType;
-        this.annotationFinder = annotationFinder;
-        this.repeatableAnnotationFinder = repeatableAnnotationFinder;
-        this.exceptionWithMessage = exceptionWithMessage;
-        this.exceptionWithMessageAndCause = exceptionWithMessageAndCause;
+    private InjectionTarget() {
     }
 
     /**
@@ -79,9 +63,7 @@ public final class InjectionTarget {
      * @see Parameter#getDeclaringExecutable()
      * @see Executable#getDeclaringClass()
      */
-    public Class<?> declaringClass() {
-        return declaringClass;
-    }
+    public abstract Class<?> declaringClass();
 
     /**
      * Returns the target type.
@@ -90,9 +72,7 @@ public final class InjectionTarget {
      * @see Field#getType()
      * @see Parameter#getType()
      */
-    public Class<?> type() {
-        return type;
-    }
+    public abstract Class<?> type();
 
     /**
      * Returns the generic target type.
@@ -101,9 +81,7 @@ public final class InjectionTarget {
      * @see Field#getGenericType()
      * @see Parameter#getParameterizedType()
      */
-    public Type genericType() {
-        return genericType;
-    }
+    public abstract Type genericType();
 
     /**
      * Checks whether or not an annotation of a specific type is either <em>present</em> or <em>meta-present</em> on the injection target.
@@ -145,10 +123,7 @@ public final class InjectionTarget {
      * @param includeDeclaringElements If {@code true}, the injection targets declaring elements are checked if the target itself is not annotated.
      * @return An {@link Optional} describing the first annotation of the given type, or {@link Optional#empty()} if the annotation is not present.
      */
-    @SuppressWarnings("unchecked")
-    public <A extends Annotation> Optional<A> findAnnotation(Class<A> annotationType, boolean includeDeclaringElements) {
-        return (Optional<A>) annotationFinder.apply(annotationType, includeDeclaringElements);
-    }
+    public abstract <A extends Annotation> Optional<A> findAnnotation(Class<A> annotationType, boolean includeDeclaringElements);
 
     /**
      * Finds all <em>repeatable</em> annotations of a specific type that are either <em>present</em> or <em>meta-present</em> on the injection target.
@@ -169,10 +144,7 @@ public final class InjectionTarget {
      * @param includeDeclaringElements If {@code true}, the injection targets declaring elements are checked if the target itself is not annotated.
      * @return A list with all annotations of the given type; possibly empty but never {@code null}.
      */
-    @SuppressWarnings("unchecked")
-    public <A extends Annotation> List<A> findRepeatableAnnotations(Class<A> annotationType, boolean includeDeclaringElements) {
-        return (List<A>) repeatableAnnotationFinder.apply(annotationType, includeDeclaringElements);
-    }
+    public abstract <A extends Annotation> List<A> findRepeatableAnnotations(Class<A> annotationType, boolean includeDeclaringElements);
 
     /**
      * Creates a {@link JUnitException} with a message.
@@ -180,9 +152,7 @@ public final class InjectionTarget {
      * @param message The message for the exception.
      * @return The created exception.
      */
-    public JUnitException createException(String message) {
-        return exceptionWithMessage.apply(message);
-    }
+    public abstract JUnitException createException(String message);
 
     /**
      * Creates a {@link JUnitException} with a message and a cause.
@@ -191,9 +161,7 @@ public final class InjectionTarget {
      * @param cause The cause of the exception.
      * @return The created exception.
      */
-    public JUnitException createException(String message, Throwable cause) {
-        return exceptionWithMessageAndCause.apply(message, cause);
-    }
+    public abstract JUnitException createException(String message, Throwable cause);
 
     /**
      * Creates an injection target for a constructor or method parameter.
@@ -203,13 +171,7 @@ public final class InjectionTarget {
      * @throws NullPointerException If the given parameter context is {@code null}.
      */
     public static InjectionTarget forParameter(ParameterContext parameterContext) {
-        Parameter parameter = parameterContext.getParameter();
-        Class<?> declaringClass = parameterContext.getDeclaringExecutable().getDeclaringClass();
-        return new InjectionTarget(declaringClass, parameter.getType(), parameter.getParameterizedType(),
-                (annotationType, includeDeclaringElements) -> findAnnotation(parameterContext, annotationType, includeDeclaringElements),
-                (annotationType, includeDeclaringElements) -> findRepeatableAnnotations(parameterContext, annotationType, includeDeclaringElements),
-                ParameterResolutionException::new,
-                ParameterResolutionException::new);
+        return new ParameterInjectionTarget(parameterContext);
     }
 
     /**
@@ -220,34 +182,7 @@ public final class InjectionTarget {
      * @throws NullPointerException If the given parameter context is {@code null}.
      */
     public static InjectionTarget forField(Field field) {
-        return new InjectionTarget(field.getDeclaringClass(), field.getType(), field.getGenericType(),
-                (annotationType, includeDeclaringElements) -> findAnnotation(field, annotationType, includeDeclaringElements),
-                (annotationType, includeDeclaringElements) -> findRepeatableAnnotations(field, annotationType, includeDeclaringElements),
-                ExtensionConfigurationException::new,
-                ExtensionConfigurationException::new);
-    }
-
-    private static <A extends Annotation> Optional<A> findAnnotation(ParameterContext parameterContext, Class<A> annotationType,
-            boolean includeDeclaringElements) {
-
-        Optional<A> annotation = parameterContext.findAnnotation(annotationType);
-        if (annotation.isPresent() || !includeDeclaringElements) {
-            return annotation;
-        }
-        Executable executable = parameterContext.getDeclaringExecutable();
-        annotation = AnnotationSupport.findAnnotation(executable, annotationType);
-        if (annotation.isPresent()) {
-            return annotation;
-        }
-        return findAnnotation(executable.getDeclaringClass(), annotationType);
-    }
-
-    private static <A extends Annotation> Optional<A> findAnnotation(Field field, Class<A> annotationType, boolean includeDeclaringElements) {
-        Optional<A> annotation = AnnotationSupport.findAnnotation(field, annotationType);
-        if (annotation.isPresent() || !includeDeclaringElements) {
-            return annotation;
-        }
-        return findAnnotation(field.getDeclaringClass(), annotationType);
+        return new FieldInjectionTarget(field);
     }
 
     private static <A extends Annotation> Optional<A> findAnnotation(Class<?> clazz, Class<A> annotationType) {
@@ -262,29 +197,6 @@ public final class InjectionTarget {
         return Optional.empty();
     }
 
-    private static <A extends Annotation> List<A> findRepeatableAnnotations(ParameterContext parameterContext, Class<A> annotationType,
-            boolean includeDeclaringElements) {
-
-        List<A> annotations = parameterContext.findRepeatableAnnotations(annotationType);
-        if (!annotations.isEmpty() || !includeDeclaringElements) {
-            return annotations;
-        }
-        Executable executable = parameterContext.getDeclaringExecutable();
-        annotations = AnnotationSupport.findRepeatableAnnotations(executable, annotationType);
-        if (!annotations.isEmpty()) {
-            return annotations;
-        }
-        return findRepeatableAnnotations(executable.getDeclaringClass(), annotationType);
-    }
-
-    private static <A extends Annotation> List<A> findRepeatableAnnotations(Field field, Class<A> annotationType, boolean includeDeclaringElements) {
-        List<A> annotations = AnnotationSupport.findRepeatableAnnotations(field, annotationType);
-        if (!annotations.isEmpty() || !includeDeclaringElements) {
-            return annotations;
-        }
-        return findRepeatableAnnotations(field.getDeclaringClass(), annotationType);
-    }
-
     private static <A extends Annotation> List<A> findRepeatableAnnotations(Class<?> clazz, Class<A> annotationType) {
         Class<?> iterator = clazz;
         while (iterator != null) {
@@ -295,5 +207,174 @@ public final class InjectionTarget {
             iterator = iterator.getDeclaringClass();
         }
         return Collections.emptyList();
+    }
+
+    private static final class ParameterInjectionTarget extends InjectionTarget {
+
+        private final ParameterContext parameterContext;
+        private final Parameter parameter;
+
+        private ParameterInjectionTarget(ParameterContext parameterContext) {
+            this.parameterContext = parameterContext;
+            this.parameter = parameterContext.getParameter();
+        }
+
+        @Override
+        public Class<?> declaringClass() {
+            return parameter.getDeclaringExecutable().getDeclaringClass();
+        }
+
+        @Override
+        public Class<?> type() {
+            return parameter.getType();
+        }
+
+        @Override
+        public Type genericType() {
+            return parameter.getParameterizedType();
+        }
+
+        @Override
+        public <A extends Annotation> Optional<A> findAnnotation(Class<A> annotationType, boolean includeDeclaringElements) {
+            Optional<A> annotation = parameterContext.findAnnotation(annotationType);
+            if (annotation.isPresent() || !includeDeclaringElements) {
+                return annotation;
+            }
+            Executable executable = parameterContext.getDeclaringExecutable();
+            annotation = AnnotationSupport.findAnnotation(executable, annotationType);
+            if (annotation.isPresent()) {
+                return annotation;
+            }
+            return InjectionTarget.findAnnotation(executable.getDeclaringClass(), annotationType);
+        }
+
+        @Override
+        public <A extends Annotation> List<A> findRepeatableAnnotations(Class<A> annotationType, boolean includeDeclaringElements) {
+            List<A> annotations = parameterContext.findRepeatableAnnotations(annotationType);
+            if (!annotations.isEmpty() || !includeDeclaringElements) {
+                return annotations;
+            }
+            Executable executable = parameterContext.getDeclaringExecutable();
+            annotations = AnnotationSupport.findRepeatableAnnotations(executable, annotationType);
+            if (!annotations.isEmpty()) {
+                return annotations;
+            }
+            return InjectionTarget.findRepeatableAnnotations(executable.getDeclaringClass(), annotationType);
+        }
+
+        @Override
+        public JUnitException createException(String message) {
+            return new ParameterResolutionException(message);
+        }
+
+        @Override
+        public JUnitException createException(String message, Throwable cause) {
+            return new ParameterResolutionException(message, cause);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || o.getClass() != getClass()) {
+                return false;
+            }
+            ParameterInjectionTarget other = (ParameterInjectionTarget) o;
+            return parameter.equals(other.parameter);
+        }
+
+        @Override
+        public int hashCode() {
+            return parameter.hashCode();
+        }
+
+        @Override
+        @SuppressWarnings("nls")
+        public String toString() {
+            Executable executable = parameter.getDeclaringExecutable();
+            Class<?> declaringClass = executable.getDeclaringClass();
+            String parameterString = Arrays.stream(executable.getParameterTypes())
+                    .map(Class::getSimpleName)
+                    .collect(Collectors.joining(", ")); //$NON-NLS-1$
+            return executable instanceof Constructor<?>
+                    ? String.format("%s(%s)[%s]", declaringClass.getName(), parameterString, parameter.getName())
+                    : String.format("%s#%s(%s)[%s]", declaringClass.getName(), executable.getName(), parameterString, parameter.getName());
+        }
+    }
+
+    private static final class FieldInjectionTarget extends InjectionTarget {
+
+        private final Field field;
+
+        private FieldInjectionTarget(Field field) {
+            this.field = field;
+        }
+
+        @Override
+        public Class<?> declaringClass() {
+            return field.getDeclaringClass();
+        }
+
+        @Override
+        public Class<?> type() {
+            return field.getType();
+        }
+
+        @Override
+        public Type genericType() {
+            return field.getGenericType();
+        }
+
+        @Override
+        public <A extends Annotation> Optional<A> findAnnotation(Class<A> annotationType, boolean includeDeclaringElements) {
+            Optional<A> annotation = AnnotationSupport.findAnnotation(field, annotationType);
+            if (annotation.isPresent() || !includeDeclaringElements) {
+                return annotation;
+            }
+            return InjectionTarget.findAnnotation(field.getDeclaringClass(), annotationType);
+        }
+
+        @Override
+        public <A extends Annotation> List<A> findRepeatableAnnotations(Class<A> annotationType, boolean includeDeclaringElements) {
+            List<A> annotations = AnnotationSupport.findRepeatableAnnotations(field, annotationType);
+            if (!annotations.isEmpty() || !includeDeclaringElements) {
+                return annotations;
+            }
+            return InjectionTarget.findRepeatableAnnotations(field.getDeclaringClass(), annotationType);
+        }
+
+        @Override
+        public JUnitException createException(String message) {
+            return new ExtensionConfigurationException(message);
+        }
+
+        @Override
+        public JUnitException createException(String message, Throwable cause) {
+            return new ExtensionConfigurationException(message, cause);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || o.getClass() != getClass()) {
+                return false;
+            }
+            FieldInjectionTarget other = (FieldInjectionTarget) o;
+            return field.equals(other.field);
+        }
+
+        @Override
+        public int hashCode() {
+            return field.hashCode();
+        }
+
+        @Override
+        @SuppressWarnings("nls")
+        public String toString() {
+            return field.getDeclaringClass().getName() + "#" + field.getName();
+        }
     }
 }
