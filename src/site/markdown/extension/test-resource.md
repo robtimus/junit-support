@@ -164,3 +164,9 @@ A specialized version of `@LoadWith` is provided for `Properties` objects, [@AsP
 @AsProperties
 private static Properties testProperties;
 ```
+
+### Injecting raw streams
+
+Injecting into a method parameter of type `InputStream` or `BufferedInputStream` works the same as for `byte[]`. Similarly, injecting into a method parameter of type `Reader` or `BufferedReader` works almost the same as for `String`, `CharSequence` or `StringBuilder`. The main difference is that the resource is not fully loaded into memory yet. The stream will be closed automatically when the method ends.
+
+Because the resource is not loaded, it also cannot be modified. It's therefore not allowed to use [@EOL](../apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/extension/testresource/EOL.html).

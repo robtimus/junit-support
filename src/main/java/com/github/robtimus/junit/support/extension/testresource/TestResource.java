@@ -29,8 +29,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * {@code TestResource} can be used to annotate a field or a parameter in a lifecycle method or test method that should be resolved into the contents
- * of a (test) resource. The resource will be loaded relative to the class where the field, constructor or method is defined. The following field /
- * parameter types are supported by default:
+ * of a (test) resource. The resource will be loaded relative to the class where the field, constructor or method is defined.
+ * <p>
+ * The following field / parameter types are supported by default:
  * <ul>
  * <li>{@link String}</li>
  * <li>{@link CharSequence}</li>
