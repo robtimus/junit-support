@@ -17,6 +17,8 @@
 
 package com.github.robtimus.junit.support.extension.testresource;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -82,6 +84,15 @@ class TestResourceExtension extends AnnotationBasedInjectingExtension<TestResour
         }
 
         Class<?> targetType = target.type();
+        if (targetType == InputStream.class
+                || targetType == BufferedInputStream.class
+                || targetType == Reader.class
+                || targetType == BufferedReader.class) {
+
+            // don't validate EOL and/or Encoding yet
+            return Optional.empty();
+        }
+
         return RESOURCE_CONVERTERS.containsKey(targetType)
                 ? Optional.empty()
                 : Optional.of(target.createException("Target type not supported: " + targetType));
@@ -116,9 +127,7 @@ class TestResourceExtension extends AnnotationBasedInjectingExtension<TestResour
     private Object resolveValueFromInputStream(TestResource resource, Method factoryMethod, InjectionTarget target, Object additionalMethodArgument,
             ExtensionContext context) throws IOException {
 
-        try (InputStream inputStream = target.declaringClass().getResourceAsStream(resource.value())) {
-            validateResource(resource, target, inputStream);
-
+        try (InputStream inputStream = readResource(resource, target)) {
             validateNoEncoding(target, "@Encoding not allowed when using InputStream");
 
             Object testInstance = context.getTestInstance().orElse(null);
@@ -133,9 +142,7 @@ class TestResourceExtension extends AnnotationBasedInjectingExtension<TestResour
     private Object resolveValueFromReader(TestResource resource, Method factoryMethod, InjectionTarget target, Object additionalMethodArgument,
             ExtensionContext context) throws IOException {
 
-        try (InputStream inputStream = target.declaringClass().getResourceAsStream(resource.value())) {
-            validateResource(resource, target, inputStream);
-
+        try (InputStream inputStream = readResource(resource, target)) {
             String encoding = lookupEncoding(target, context);
             try (Reader reader = new InputStreamReader(inputStream, encoding)) {
                 Object testInstance = context.getTestInstance().orElse(null);
@@ -150,19 +157,44 @@ class TestResourceExtension extends AnnotationBasedInjectingExtension<TestResour
 
     private Object resolveValueFromInputStream(TestResource resource, InjectionTarget target, ExtensionContext context) throws IOException {
         Class<?> targetType = target.type();
-        try (InputStream inputStream = target.declaringClass().getResourceAsStream(resource.value())) {
-            validateResource(resource, target, inputStream);
 
+        if (targetType == InputStream.class || targetType == BufferedInputStream.class) {
+            validateNoEOL(target, "@EOL not allowed for " + targetType.getSimpleName());
+            validateNoEncoding(target, "@Encoding not allowed for " + targetType.getSimpleName());
+
+            InputStream inputStream = readResource(resource, target);
+            if (targetType == BufferedInputStream.class) {
+                inputStream = new BufferedInputStream(inputStream);
+            }
+            store(inputStream, context);
+            return inputStream;
+        }
+
+        if (targetType == Reader.class || targetType == BufferedReader.class) {
+            validateNoEOL(target, "@EOL not allowed for " + targetType.getSimpleName());
+
+            String encoding = lookupEncoding(target, context);
+            Reader reader = new InputStreamReader(readResource(resource, target), encoding);
+            if (targetType == BufferedReader.class) {
+                reader = new BufferedReader(reader);
+            }
+            store(reader, context);
+            return reader;
+        }
+
+        try (InputStream inputStream = readResource(resource, target)) {
             ResourceConverter resourceConverter = RESOURCE_CONVERTERS.get(targetType);
 
             return resourceConverter.convert(inputStream, target, context);
         }
     }
 
-    private void validateResource(TestResource resource, InjectionTarget target, InputStream inputStream) {
+    private InputStream readResource(TestResource resource, InjectionTarget target) {
+        InputStream inputStream = target.declaringClass().getResourceAsStream(resource.value());
         if (inputStream == null) {
             throw target.createException("Resource not found: " + resource.value());
         }
+        return inputStream;
     }
 
     private static String readContentAsString(InputStream inputStream, InjectionTarget target, ExtensionContext context) throws IOException {
@@ -278,7 +310,6 @@ class TestResourceExtension extends AnnotationBasedInjectingExtension<TestResour
         }
     }
 
-    @SuppressWarnings("resource")
     private static void storeIfNecessary(Object value, ExtensionContext context) {
         if (value instanceof CloseableResource) {
             // This includes AutoCloseableResource
@@ -286,9 +317,14 @@ class TestResourceExtension extends AnnotationBasedInjectingExtension<TestResour
         } else if (value instanceof AutoCloseable) {
             boolean closeAutoCloseable = context.getConfigurationParameter(LoadWith.CLOSE_AUTO_CLOSEABLE, Boolean::parseBoolean).orElse(true);
             if (closeAutoCloseable) {
-                context.getStore(NAMESPACE).put(UUID.randomUUID(), AutoCloseableResource.Wrapper.forAutoCloseable((AutoCloseable) value));
+                store((AutoCloseable) value, context);
             }
         }
+    }
+
+    @SuppressWarnings("resource")
+    private static void store(AutoCloseable closeable, ExtensionContext context) {
+        context.getStore(NAMESPACE).put(UUID.randomUUID(), AutoCloseableResource.Wrapper.forAutoCloseable(closeable));
     }
 
     private interface ResourceConverter {

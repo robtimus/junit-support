@@ -17,7 +17,10 @@
 
 package com.github.robtimus.junit.support.extension.testresource;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.Reader;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -26,24 +29,36 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * {@code TestResource} can be used to annotate a field or a parameter in a lifecycle method or test method that should be resolved into the contents
- * of a (test) resource. The resource will be loaded relative to the class where the field, constructor or method is defined.
- *
- * The following field / parameter types are supported by default:
+ * of a (test) resource. The resource will be loaded relative to the class where the field, constructor or method is defined. The following field /
+ * parameter types are supported by default:
  * <ul>
- * <li>{@code String}</li>
- * <li>{@code CharSequence}</li>
- * <li>{@code StringBuilder}</li>
+ * <li>{@link String}</li>
+ * <li>{@link CharSequence}</li>
+ * <li>{@link StringBuilder}</li>
  * <li>{@code byte[]}</li>
+ * <li>{@link InputStream}</li>
+ * <li>{@link BufferedInputStream}</li>
+ * <li>{@link Reader}</li>
+ * <li>{@link BufferedReader}</li>
  * </ul>
- * When the type is not {@code byte[]}, {@link Encoding} can be used to change the encoding to use (defaults to UTF-8).
+ * When the type is {@link InputStream}, {@link BufferedInputStream}, {@link Reader} or {@link BufferedReader} the contents can only be read once.
+ * It is therefore advised to only use this for test method parameters.
+ * When the injected stream or reader goes out of scope it will be automatically closed.
  * <p>
- * In addition, {@link LoadWith} can be used to specify a method that is used to load the contents of the resource into an object, or {@link EOL}
- * can be used to define the line separator to use for {@code String}, {@code CharSequence} and {@code StringBuilder}. This can be useful to create
- * tests that work on different operating systems. It is illegal to:
+ * When the type is not {@code byte[]}, {@link InputStream} or {@link BufferedInputStream}, {@link Encoding} can be used to change the encoding to use
+ * (defaults to UTF-8).
+ * <p>
+ * In addition, {@link LoadWith} can be used to specify a method that is used to load the contents of the resource into an object, or {@link EOL} can
+ * be used to define the line separator to use for {@code String}, {@code CharSequence} and {@code StringBuilder}. This can be useful to create tests
+ * that work on different operating systems.
+ * <p>
+ * It is illegal to:
  * <ul>
- * <li>use both {@link LoadWith} and {@link EOL}</li>
+ * <li>use {@link EOL} for automatic loading to {@code byte[]}, {@link InputStream}, {@link BufferedInputStream}, {@link Reader} or
+ *     {@link BufferedReader}</li>
+ * <li>use {@link EOL} in combination with {@link LoadWith}</li>
  * <li>use {@link Encoding} in combination with {@link LoadWith} when {@link LoadWith} defines a method that uses an {@link InputStream}</li>
- * <li>use {@link Encoding} for automatic loading to {@code byte[]}</li>
+ * <li>use {@link Encoding} for automatic loading to {@code byte[]}, {@link InputStream} or {@link BufferedInputStream}</li>
  * </ul>
  *
  * @author Rob Spoor

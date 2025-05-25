@@ -23,6 +23,7 @@ import static com.github.robtimus.junit.support.extension.util.TestUtils.getSing
 import static com.github.robtimus.junit.support.extension.util.TestUtils.runTests;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.matchesRegex;
 import static org.hamcrest.Matchers.startsWith;
@@ -35,6 +36,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,6 +47,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
+import org.apache.commons.io.IOUtils;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -442,6 +446,30 @@ final class TestResourceTest {
         void testAsStringBuilderWithCustomEOL(@TestResource("test.properties") @EOL(EOL.NONE) StringBuilder resource) {
             assertEquals(new String(readResource("test.properties")).replaceAll("[\r\n]", ""), resource.toString());
         }
+
+        @Test
+        @DisplayName("as InputStream")
+        void testAsInputStream(@TestResource("lorem.txt") InputStream inputStream) throws IOException {
+            assertArrayEquals(readResource("lorem.txt"), inputStream.readAllBytes());
+        }
+
+        @Test
+        @DisplayName("as BufferedInputStream")
+        void testAsBufferedInputStream(@TestResource("lorem.txt") BufferedInputStream inputStream) throws IOException {
+            assertArrayEquals(readResource("lorem.txt"), inputStream.readAllBytes());
+        }
+
+        @Test
+        @DisplayName("as Reader")
+        void testAsReader(@TestResource("lorem.txt") Reader reader) throws IOException {
+            assertEquals(new String(readResource("lorem.txt")), IOUtils.toString(reader));
+        }
+
+        @Test
+        @DisplayName("as BufferedReader")
+        void testAsBufferedReader(@TestResource("lorem.txt") BufferedReader reader) throws IOException {
+            assertEquals(new String(readResource("lorem.txt")), IOUtils.toString(reader));
+        }
     }
 
     @Nested
@@ -839,11 +867,57 @@ final class TestResourceTest {
             }
 
             @Test
+            @DisplayName("@EOL used with InputStream")
+            void testEOLWithInputStream() {
+                assertSingleTestFailure(TestResourceTest.InvalidAnnotationCombinations.EOLWithInputStream.class, ParameterResolutionException.class,
+                        endsWith(": @EOL not allowed for InputStream"));
+            }
+
+            @Test
+            @DisplayName("@EOL used with BufferedInputStream")
+            void testEOLWithBufferedInputStream() {
+                assertSingleTestFailure(TestResourceTest.InvalidAnnotationCombinations.EOLWithBufferedInputStream.class,
+                        ParameterResolutionException.class,
+                        endsWith(": @EOL not allowed for BufferedInputStream"));
+            }
+
+            @Test
+            @DisplayName("@EOL used with Reader")
+            void testEOLWithReader() {
+                assertSingleTestFailure(TestResourceTest.InvalidAnnotationCombinations.EOLWithReader.class, ParameterResolutionException.class,
+                        endsWith(": @EOL not allowed for Reader"));
+            }
+
+            @Test
+            @DisplayName("@EOL used with BufferedReader")
+            void testEOLWithBufferedReader() {
+                assertSingleTestFailure(TestResourceTest.InvalidAnnotationCombinations.EOLWithBufferedReader.class,
+                        ParameterResolutionException.class,
+                        endsWith(": @EOL not allowed for BufferedReader"));
+            }
+
+            @Test
             @DisplayName("@Encoding used with byte[]")
             void testEncodingWithBytes() {
                 assertSingleContainerFailure(TestResourceTest.InvalidAnnotationCombinations.EncodingWithBytes.class,
                         PreconditionViolationException.class,
                         equalTo("@Encoding not allowed for byte[]"));
+            }
+
+            @Test
+            @DisplayName("@Encoding used with InputStream")
+            void testEncodingWithInputStream() {
+                assertSingleTestFailure(TestResourceTest.InvalidAnnotationCombinations.EncodingWithInputStream.class,
+                        ParameterResolutionException.class,
+                        endsWith(": @Encoding not allowed for InputStream"));
+            }
+
+            @Test
+            @DisplayName("@Encoding used with BufferedInputStream")
+            void testEncodingWithBufferedInputStream() {
+                assertSingleTestFailure(TestResourceTest.InvalidAnnotationCombinations.EncodingWithBufferedInputStream.class,
+                        ParameterResolutionException.class,
+                        endsWith(": @Encoding not allowed for BufferedInputStream"));
             }
 
             @Test
@@ -1346,6 +1420,38 @@ final class TestResourceTest {
             }
         }
 
+        static class EOLWithInputStream {
+
+            @Test
+            void testMethod(@TestResource("lorem.txt") @EOL(EOL.ORIGINAL) InputStream resource) {
+                assertNotNull(resource);
+            }
+        }
+
+        static class EOLWithBufferedInputStream {
+
+            @Test
+            void testMethod(@TestResource("lorem.txt") @EOL(EOL.ORIGINAL) BufferedInputStream resource) {
+                assertNotNull(resource);
+            }
+        }
+
+        static class EOLWithReader {
+
+            @Test
+            void testMethod(@TestResource("lorem.txt") @EOL(EOL.ORIGINAL) Reader resource) {
+                assertNotNull(resource);
+            }
+        }
+
+        static class EOLWithBufferedReader {
+
+            @Test
+            void testMethod(@TestResource("lorem.txt") @EOL(EOL.ORIGINAL) BufferedReader resource) {
+                assertNotNull(resource);
+            }
+        }
+
         static class EncodingWithBytes {
 
             @TestResource("lorem.txt")
@@ -1354,6 +1460,22 @@ final class TestResourceTest {
 
             @Test
             void testMethod() {
+                assertNotNull(resource);
+            }
+        }
+
+        static class EncodingWithInputStream {
+
+            @Test
+            void testMethod(@TestResource("lorem.txt") @Encoding("UTF-8") InputStream resource) {
+                assertNotNull(resource);
+            }
+        }
+
+        static class EncodingWithBufferedInputStream {
+
+            @Test
+            void testMethod(@TestResource("lorem.txt") @Encoding("UTF-8") BufferedInputStream resource) {
                 assertNotNull(resource);
             }
         }
