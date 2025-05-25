@@ -80,7 +80,7 @@ public interface AutoCloseableResource extends AutoCloseable, CloseableResource 
         @SuppressWarnings("resource")
         public static <T extends AutoCloseable> Wrapper<T> forAutoCloseable(T closeable) {
             Objects.requireNonNull(closeable);
-            return new Wrapper<>(closeable, closeable::close);
+            return new Wrapper<>(closeable, closeable);
         }
 
         /**
