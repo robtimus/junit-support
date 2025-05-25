@@ -26,17 +26,23 @@ import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
+import org.junit.jupiter.api.extension.ExtensionContext.Store.CloseableResource;
 import org.junit.platform.commons.JUnitException;
 import org.junit.platform.commons.PreconditionViolationException;
 import org.junit.platform.commons.support.ReflectionSupport;
 import com.github.robtimus.junit.support.extension.AnnotationBasedInjectingExtension;
+import com.github.robtimus.junit.support.extension.AutoCloseableResource;
 import com.github.robtimus.junit.support.extension.InjectionTarget;
 import com.github.robtimus.junit.support.extension.MethodLookup;
 
 @SuppressWarnings("nls")
 class TestResourceExtension extends AnnotationBasedInjectingExtension<TestResource> {
+
+    private static final Namespace NAMESPACE = Namespace.create(TestResourceExtension.class);
 
     private static final Map<Class<?>, ResourceConverter> RESOURCE_CONVERTERS = Map.of(
             String.class, TestResourceExtension::readContentAsString,
@@ -116,9 +122,11 @@ class TestResourceExtension extends AnnotationBasedInjectingExtension<TestResour
             validateNoEncoding(target, "@Encoding not allowed when using InputStream");
 
             Object testInstance = context.getTestInstance().orElse(null);
-            return factoryMethod.getParameterCount() == 1
+            Object result = factoryMethod.getParameterCount() == 1
                     ? ReflectionSupport.invokeMethod(factoryMethod, testInstance, inputStream)
                     : ReflectionSupport.invokeMethod(factoryMethod, testInstance, inputStream, additionalMethodArgument);
+            storeIfNecessary(result, context);
+            return result;
         }
     }
 
@@ -131,9 +139,11 @@ class TestResourceExtension extends AnnotationBasedInjectingExtension<TestResour
             String encoding = lookupEncoding(target, context);
             try (Reader reader = new InputStreamReader(inputStream, encoding)) {
                 Object testInstance = context.getTestInstance().orElse(null);
-                return factoryMethod.getParameterCount() == 1
+                Object result = factoryMethod.getParameterCount() == 1
                         ? ReflectionSupport.invokeMethod(factoryMethod, testInstance, reader)
                         : ReflectionSupport.invokeMethod(factoryMethod, testInstance, reader, additionalMethodArgument);
+                storeIfNecessary(result, context);
+                return result;
             }
         }
     }
@@ -265,6 +275,19 @@ class TestResourceExtension extends AnnotationBasedInjectingExtension<TestResour
         Encoding encoding = target.findAnnotation(Encoding.class).orElse(null);
         if (encoding != null) {
             throw new PreconditionViolationException(message);
+        }
+    }
+
+    @SuppressWarnings("resource")
+    private static void storeIfNecessary(Object value, ExtensionContext context) {
+        if (value instanceof CloseableResource) {
+            // This includes AutoCloseableResource
+            context.getStore(NAMESPACE).put(UUID.randomUUID(), value);
+        } else if (value instanceof AutoCloseable) {
+            boolean closeAutoCloseable = context.getConfigurationParameter(LoadWith.CLOSE_AUTO_CLOSEABLE, Boolean::parseBoolean).orElse(true);
+            if (closeAutoCloseable) {
+                context.getStore(NAMESPACE).put(UUID.randomUUID(), AutoCloseableResource.Wrapper.forAutoCloseable((AutoCloseable) value));
+            }
         }
     }
 

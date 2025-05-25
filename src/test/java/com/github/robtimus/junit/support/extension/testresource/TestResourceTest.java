@@ -17,6 +17,7 @@
 
 package com.github.robtimus.junit.support.extension.testresource;
 
+import static com.github.robtimus.junit.support.ThrowableAssertions.assertDoesNotThrowCheckedException;
 import static com.github.robtimus.junit.support.extension.util.TestUtils.getSingleContainerFailure;
 import static com.github.robtimus.junit.support.extension.util.TestUtils.getSingleTestFailure;
 import static com.github.robtimus.junit.support.extension.util.TestUtils.runTests;
@@ -30,6 +31,10 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,11 +49,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionConfigurationException;
+import org.junit.jupiter.api.extension.ExtensionContext.Store.CloseableResource;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.platform.commons.JUnitException;
 import org.junit.platform.commons.PreconditionViolationException;
 import org.junit.platform.testkit.engine.EngineExecutionResults;
 import org.opentest4j.AssertionFailedError;
+import com.github.robtimus.junit.support.extension.AutoCloseableResource;
 import com.github.robtimus.junit.support.extension.InjectionTarget;
 
 @SuppressWarnings("nls")
@@ -80,6 +87,9 @@ final class TestResourceTest {
     @TestResource("test.properties")
     @EOL(EOL.NONE)
     private static StringBuilder resourceAsStringBuilderWithCustomEOL;
+
+    private static CloseableResource closeableResource = mock(CloseableResource.class);
+    private static AutoCloseable autoCloseable = mock(AutoCloseable.class);
 
     private TestResourceTest() {
     }
@@ -630,6 +640,83 @@ final class TestResourceTest {
                             return TestResourceLoaders.toString(reader);
                         }
                     }
+                }
+            }
+
+            @Nested
+            @DisplayName("Closeable results")
+            class CloseableResults {
+
+                @Test
+                @DisplayName("CloseableResource")
+                void testCloseableResource() {
+                    reset(closeableResource);
+
+                    EngineExecutionResults results = runTests(LoadWithCloseableResourceResults.class);
+
+                    assertEquals(0, results.testEvents().failed().count());
+                    assertEquals(0, results.containerEvents().failed().count());
+
+                    assertDoesNotThrowCheckedException(() -> verify(closeableResource).close());
+                }
+
+                @Nested
+                @DisplayName("AutoCloseable")
+                class AutoCloseableResults {
+
+                    @Test
+                    @DisplayName("close AutoCloseable enabled by default")
+                    void testCloseAutoCloseableEnabledByDefault() {
+                        reset(autoCloseable);
+
+                        EngineExecutionResults results = runTests(LoadWithAutoCloseableResults.class);
+
+                        assertEquals(0, results.testEvents().failed().count());
+                        assertEquals(0, results.containerEvents().failed().count());
+
+                        assertDoesNotThrowCheckedException(() -> verify(autoCloseable).close());
+                    }
+
+                    @Test
+                    @DisplayName("close AutoCloseable enabled")
+                    void testCloseAutoCloseableEnabled() {
+                        reset(autoCloseable);
+
+                        EngineExecutionResults results = runTests(LoadWithAutoCloseableResults.class, builder -> builder
+                                .configurationParameter(LoadWith.CLOSE_AUTO_CLOSEABLE, "true"));
+
+                        assertEquals(0, results.testEvents().failed().count());
+                        assertEquals(0, results.containerEvents().failed().count());
+
+                        assertDoesNotThrowCheckedException(() -> verify(autoCloseable).close());
+                    }
+
+                    @Test
+                    @DisplayName("close AutoCloseable disabled")
+                    void testCloseAutoCloseableDisabled() {
+                        reset(autoCloseable);
+
+                        EngineExecutionResults results = runTests(LoadWithAutoCloseableResults.class, builder -> builder
+                                .configurationParameter(LoadWith.CLOSE_AUTO_CLOSEABLE, "false"));
+
+                        assertEquals(0, results.testEvents().failed().count());
+                        assertEquals(0, results.containerEvents().failed().count());
+
+                        assertDoesNotThrowCheckedException(() -> verify(autoCloseable, never()).close());
+                    }
+                }
+
+                @Test
+                @DisplayName("AutoCloseableResource")
+                void testAutoCloseableResource() {
+                    reset(autoCloseable);
+
+                    EngineExecutionResults results = runTests(LoadWithAutoCloseableResourceResults.class);
+
+                    assertEquals(0, results.testEvents().failed().count());
+                    assertEquals(0, results.containerEvents().failed().count());
+
+                    assertDoesNotThrowCheckedException(() -> verify(autoCloseable).close());
                 }
             }
         }
@@ -1694,6 +1781,42 @@ final class TestResourceTest {
                     }
                 }
             }
+        }
+    }
+
+    static final class LoadWithCloseableResourceResults {
+
+        @Test
+        void testMethod(@TestResource("lorem.txt") @LoadWith("returnCloseableResource") CloseableResource resource) {
+            assertNotNull(resource);
+        }
+
+        CloseableResource returnCloseableResource(@SuppressWarnings("unused") InputStream inputStream) {
+            return closeableResource;
+        }
+    }
+
+    static final class LoadWithAutoCloseableResults {
+
+        @Test
+        void testMethod(@TestResource("lorem.txt") @LoadWith("returnAutoCloseable") AutoCloseable resource) {
+            assertNotNull(resource);
+        }
+
+        AutoCloseable returnAutoCloseable(@SuppressWarnings("unused") InputStream inputStream) {
+            return autoCloseable;
+        }
+    }
+
+    static final class LoadWithAutoCloseableResourceResults {
+
+        @Test
+        void testMethod(@TestResource("lorem.txt") @LoadWith("returnAutoCloseableResource") AutoCloseableResource resource) {
+            assertNotNull(resource);
+        }
+
+        AutoCloseableResource returnAutoCloseableResource(@SuppressWarnings("unused") InputStream inputStream) {
+            return AutoCloseableResource.Wrapper.forAutoCloseable(autoCloseable);
         }
     }
 }

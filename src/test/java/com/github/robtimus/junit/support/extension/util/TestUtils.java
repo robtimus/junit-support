@@ -20,6 +20,7 @@ package com.github.robtimus.junit.support.extension.util;
 import static com.github.robtimus.junit.support.OptionalAssertions.assertIsPresent;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.function.UnaryOperator;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.engine.JupiterTestEngine;
 import org.junit.platform.engine.TestExecutionResult;
@@ -34,9 +35,14 @@ public final class TestUtils {
     }
 
     public static EngineExecutionResults runTests(Class<?> testClass) {
-        return EngineTestKit.engine(new JupiterTestEngine())
-                .selectors(DiscoverySelectors.selectClass(testClass))
-                .execute();
+        return runTests(testClass, UnaryOperator.identity());
+    }
+
+    public static EngineExecutionResults runTests(Class<?> testClass, UnaryOperator<EngineTestKit.Builder> builderConfigurer) {
+        EngineTestKit.Builder builder = EngineTestKit.engine(new JupiterTestEngine())
+                .selectors(DiscoverySelectors.selectClass(testClass));
+        builder = builderConfigurer.apply(builder);
+        return builder.execute();
     }
 
     public static void assertSingleTestFailure(Class<?> testClass, Class<? extends Throwable> errorType, Matcher<String> messageMatcher) {

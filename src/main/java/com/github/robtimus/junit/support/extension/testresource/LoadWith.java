@@ -23,11 +23,18 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.junit.jupiter.api.extension.ExtensionContext.Store.CloseableResource;
 import com.github.robtimus.junit.support.extension.InjectionTarget;
 
 /**
  * {@code LoadWith} can be used in combination with {@link TestResource} to specify a factory method to load the contents of a resource into an
  * object.
+ * <p>
+ * By default, any {@link AutoCloseable} or {@link CloseableResource} return value of the factory method is automatically closed once it goes out of
+ * scope. To turn this off for {@link AutoCloseable}, set the {@value #CLOSE_AUTO_CLOSEABLE} <em>configuration parameter</em> to {@code false}.
+ * This can be done via the JUnit {@code Launcher} API, build tools (e.g., Gradle and Maven), a JVM system property, or the JUnit Platform
+ * configuration file (i.e., a file named {@code junit-platform.properties} in the root of the class path). Consult the JUnit User Guide for further
+ * information.
  *
  * @author Rob Spoor
  * @since 2.0
@@ -76,4 +83,8 @@ public @interface LoadWith {
      * </ul>
      */
     String value();
+
+    /** The property that can be used to enable or disable automatically closing {@link AutoCloseable} return values of factory methods. */
+    @SuppressWarnings("nls")
+    String CLOSE_AUTO_CLOSEABLE = "com.github.robtimus.junit.support.extension.testresource.closeAutoCloseable";
 }
