@@ -27,6 +27,7 @@ import org.apache.log4j.spi.LoggingEvent;
  * An {@link Appender} that captures the logged events.
  *
  * @author Rob Spoor
+ * @since 3.1
  */
 public final class CapturingReload4jAppender extends AppenderSkeleton {
 

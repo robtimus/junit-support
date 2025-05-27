@@ -26,6 +26,7 @@ import java.util.logging.LogRecord;
  * A {@link Handler} that captures the logged records.
  *
  * @author Rob Spoor
+ * @since 3.1
  */
 public final class CapturingJdkHandler extends Handler {
 

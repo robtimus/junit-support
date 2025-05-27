@@ -27,6 +27,7 @@ import ch.qos.logback.core.AppenderBase;
  * An {@link Appender} that captures the logged events.
  *
  * @author Rob Spoor
+ * @since 3.1
  */
 public final class CapturingLogbackAppender extends AppenderBase<ILoggingEvent> {
 

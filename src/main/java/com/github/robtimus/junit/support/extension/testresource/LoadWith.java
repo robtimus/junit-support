@@ -84,7 +84,11 @@ public @interface LoadWith {
      */
     String value();
 
-    /** The property that can be used to enable or disable automatically closing {@link AutoCloseable} return values of factory methods. */
+    /**
+     * The property that can be used to enable or disable automatically closing {@link AutoCloseable} return values of factory methods.
+     *
+     * @since 3.1
+     */
     @SuppressWarnings("nls")
     String CLOSE_AUTO_CLOSEABLE = "com.github.robtimus.junit.support.extension.testresource.closeAutoCloseable";
 }

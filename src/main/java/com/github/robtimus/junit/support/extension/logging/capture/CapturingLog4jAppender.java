@@ -28,6 +28,7 @@ import org.apache.logging.log4j.core.config.Property;
  * An {@link Appender} that captures the logged events.
  *
  * @author Rob Spoor
+ * @since 3.1
  */
 public final class CapturingLog4jAppender extends AbstractAppender {
 
