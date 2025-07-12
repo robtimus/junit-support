@@ -951,7 +951,7 @@ public interface ListTests<T> extends CollectionTests<T> {
                 elements.add(element);
             }
 
-            assertEquals(expectedElements(), list);
+            assertEquals(expectedElements(), elements);
         }
 
         @Test

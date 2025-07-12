@@ -90,7 +90,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
             assertThrows(NoSuchElementException.class, iterator::next);
             assertEquals(index, iterator.nextIndex());
 
-            assertEquals(expectedElements, list);
+            assertEquals(expectedElements, elements);
         }
 
         @Test
@@ -117,7 +117,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
             assertThrows(NoSuchElementException.class, iterator::previous);
             assertEquals(index, iterator.previousIndex());
 
-            assertEquals(expectedElements, list);
+            assertEquals(expectedElements, elements);
         }
 
         @Test
@@ -135,7 +135,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
             }
             assertThrows(NoSuchElementException.class, iterator::next);
 
-            assertEquals(expectedElements, list);
+            assertEquals(expectedElements, elements);
         }
 
         @Test
@@ -153,7 +153,7 @@ public interface ListIteratorTests<T> extends IteratorTests<T> {
             }
             assertThrows(NoSuchElementException.class, iterator::previous);
 
-            assertEquals(expectedElements, list);
+            assertEquals(expectedElements, elements);
         }
     }
 
