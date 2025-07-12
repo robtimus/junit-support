@@ -34,6 +34,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.junit.jupiter.params.support.ParameterDeclarations;
 
 @SuppressWarnings("nls")
 class CollectionUtilsTest {
@@ -47,7 +48,7 @@ class CollectionUtilsTest {
     private static final class CommonTypeArgumentProvider implements ArgumentsProvider {
 
         @Override
-        public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+        public Stream<? extends Arguments> provideArguments(ParameterDeclarations parameters, ExtensionContext context) {
             Map<Integer, String> hashMap = createMap(HashMap::new, 0, 10);
             Map<Integer, String> treeMap = createMap(TreeMap::new, 0, 10);
             return Stream.of(

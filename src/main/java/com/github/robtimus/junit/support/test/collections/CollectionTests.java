@@ -639,7 +639,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
     final class RemoveArgumentsProvider implements ArgumentsProvider {
 
         @Override
-        public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+        public Stream<? extends Arguments> provideArguments(ExtensionContext context) { // NOSONAR, keep supporting JUnit versions before 5.13
             RemoveTests<?> instance = (RemoveTests<?>) context.getRequiredTestInstance();
 
             Stream<Arguments> expected = instance.expectedElements().stream()
@@ -660,7 +660,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
     final class RemoveAllArgumentsProvider implements ArgumentsProvider {
 
         @Override
-        public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+        public Stream<? extends Arguments> provideArguments(ExtensionContext context) { // NOSONAR, keep supporting JUnit versions before 5.13
             RemoveAllTests<?> instance = (RemoveAllTests<?>) context.getRequiredTestInstance();
 
             List<?> expected = new ArrayList<>(instance.expectedElements());
@@ -687,7 +687,7 @@ public interface CollectionTests<T> extends IterableTests<T> {
     final class RetainAllArgumentsProvider implements ArgumentsProvider {
 
         @Override
-        public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+        public Stream<? extends Arguments> provideArguments(ExtensionContext context) { // NOSONAR, keep supporting JUnit versions before 5.13
             RetainAllTests<?> instance = (RetainAllTests<?>) context.getRequiredTestInstance();
 
             List<?> expected = new ArrayList<>(instance.expectedElements());

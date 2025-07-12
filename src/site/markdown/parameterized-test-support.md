@@ -10,7 +10,7 @@
 class MonthDayArgumentsProvider implements ArgumentsProvider {
 
     @Override
-    public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
+    public Stream<? extends Arguments> provideArguments(ParameterDeclarations parameters, ExtensionContext context) {
         return ArgumentsCombiner.with(EnumSet.allOf(Month.class))
                 .crossJoin(() -> IntStream.rangeClosed(1, 31).boxed())
                 .excludeCombinations(arguments -> Month.FEBRUARY.equals(arguments[0]) && (int) arguments[1] > 28)

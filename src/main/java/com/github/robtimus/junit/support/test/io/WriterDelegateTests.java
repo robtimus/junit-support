@@ -907,7 +907,7 @@ public interface WriterDelegateTests {
     class CharSequenceTransformationProvider implements ArgumentsProvider {
 
         @Override
-        public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+        public Stream<? extends Arguments> provideArguments(ExtensionContext context) { // NOSONAR, keep supporting JUnit versions before 5.13
             return Stream.of(
                     createArguments(String.class, Function.identity()),
                     createArguments(StringBuilder.class, StringBuilder::new),

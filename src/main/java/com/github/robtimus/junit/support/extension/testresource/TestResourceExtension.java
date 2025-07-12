@@ -310,6 +310,7 @@ class TestResourceExtension extends AnnotationBasedInjectingExtension<TestResour
         }
     }
 
+    @SuppressWarnings("deprecation")
     private static void storeIfNecessary(Object value, ExtensionContext context) {
         if (value instanceof CloseableResource) {
             // This includes AutoCloseableResource

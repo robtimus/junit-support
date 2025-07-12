@@ -57,6 +57,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.junit.jupiter.params.support.ParameterDeclarations;
 
 @SuppressWarnings("nls")
 class ArgumentsCombinerTest {
@@ -436,7 +437,8 @@ class ArgumentsCombinerTest {
 
     @Nested
     @DisplayName("with(ArgumentsProvider, ExtensionContext)")
-    class WithArgumentsProvider {
+    @SuppressWarnings({ "removal", "deprecation" })
+    class WithArgumentsProviderWithoutParameters {
 
         @Test
         @DisplayName("null arguments provider")
@@ -505,6 +507,99 @@ class ArgumentsCombinerTest {
             assertSame(exception, thrown);
 
             verify(argumentsProvider).provideArguments(context);
+            verifyNoMoreInteractions(argumentsProvider, context);
+        }
+    }
+
+    @Nested
+    @DisplayName("with(ArgumentsProvider, ParameterDeclarations, ExtensionContext)")
+    class WithArgumentsProviderWithParameters {
+
+        @Test
+        @DisplayName("null arguments provider")
+        void testNullArgumentsProvider() {
+            ArgumentsProvider argumentsProvider = null;
+            ParameterDeclarations parameters = mock(ParameterDeclarations.class);
+            ExtensionContext context = mock(ExtensionContext.class);
+
+            assertThrows(NullPointerException.class, () -> ArgumentsCombiner.with(argumentsProvider, parameters, context));
+
+            verifyNoInteractions(context);
+        }
+
+        @Test
+        @DisplayName("null parameter declarations")
+        void testNullParameterDeclarations() {
+            ArgumentsProvider argumentsProvider = mock(ArgumentsProvider.class);
+            ParameterDeclarations parameters = null;
+            ExtensionContext context = mock(ExtensionContext.class);
+
+            assertThrows(NullPointerException.class, () -> ArgumentsCombiner.with(argumentsProvider, parameters, context));
+
+            verifyNoInteractions(context);
+        }
+
+        @Test
+        @DisplayName("null context")
+        void testNullContext() {
+            ArgumentsProvider argumentsProvider = mock(ArgumentsProvider.class);
+            ParameterDeclarations parameters = mock(ParameterDeclarations.class);
+            ExtensionContext context = null;
+
+            assertThrows(NullPointerException.class, () -> ArgumentsCombiner.with(argumentsProvider, parameters, context));
+
+            verifyNoInteractions(argumentsProvider);
+        }
+
+        @Test
+        @DisplayName("arguments provider providing empty stream")
+        void testProvidingEmptyStream() throws Exception {
+            ArgumentsProvider argumentsProvider = mock(ArgumentsProvider.class);
+            ParameterDeclarations parameters = mock(ParameterDeclarations.class);
+            ExtensionContext context = mock(ExtensionContext.class);
+
+            when(argumentsProvider.provideArguments(parameters, context)).thenAnswer(i -> Stream.empty());
+
+            ArgumentsCombiner combiner = ArgumentsCombiner.with(argumentsProvider, parameters, context);
+
+            assertArguments(combiner);
+
+            verify(argumentsProvider).provideArguments(parameters, context);
+            verifyNoMoreInteractions(argumentsProvider, context);
+        }
+
+        @Test
+        @DisplayName("arguments provider providing non-empty stream")
+        void testProvidingNonEmptyStream() throws Exception {
+            ArgumentsProvider argumentsProvider = mock(ArgumentsProvider.class);
+            ParameterDeclarations parameters = mock(ParameterDeclarations.class);
+            ExtensionContext context = mock(ExtensionContext.class);
+
+            when(argumentsProvider.provideArguments(parameters, context))
+                    .thenAnswer(i -> Stream.of(arguments("foo"), arguments("bar"), arguments(0)));
+
+            ArgumentsCombiner combiner = ArgumentsCombiner.with(argumentsProvider, parameters, context);
+
+            assertArguments(combiner, arguments("foo"), arguments("bar"), arguments(0));
+
+            verify(argumentsProvider).provideArguments(parameters, context);
+            verifyNoMoreInteractions(argumentsProvider, context);
+        }
+
+        @Test
+        @DisplayName("arguments provider throwing exception")
+        void testThrowingException() throws Exception {
+            ArgumentsProvider argumentsProvider = mock(ArgumentsProvider.class);
+            ParameterDeclarations parameters = mock(ParameterDeclarations.class);
+            ExtensionContext context = mock(ExtensionContext.class);
+            IOException exception = new IOException();
+
+            when(argumentsProvider.provideArguments(parameters, context)).thenThrow(exception);
+
+            IOException thrown = assertThrows(IOException.class, () -> ArgumentsCombiner.with(argumentsProvider, parameters, context));
+            assertSame(exception, thrown);
+
+            verify(argumentsProvider).provideArguments(parameters, context);
             verifyNoMoreInteractions(argumentsProvider, context);
         }
     }
@@ -919,7 +1014,8 @@ class ArgumentsCombinerTest {
 
         @Nested
         @DisplayName("crossJoin(ArgumentsProvider, ExtensionContext)")
-        class WithArgumentsProvider {
+        @SuppressWarnings({ "removal", "deprecation" })
+        class WithArgumentsProviderWithoutArguments {
 
             @Test
             @DisplayName("null arguments provider")
@@ -965,7 +1061,8 @@ class ArgumentsCombinerTest {
                 ArgumentsProvider argumentsProvider = mock(ArgumentsProvider.class);
                 ExtensionContext context = mock(ExtensionContext.class);
 
-                when(argumentsProvider.provideArguments(context)).thenAnswer(i -> Stream.of(arguments("foo"), arguments("bar"), arguments(0)));
+                when(argumentsProvider.provideArguments(context))
+                        .thenAnswer(i -> Stream.of(arguments("foo"), arguments("bar"), arguments(0)));
 
                 assertSame(combiner, combiner.crossJoin(argumentsProvider, context));
 
@@ -994,6 +1091,105 @@ class ArgumentsCombinerTest {
                 assertSame(exception, thrown);
 
                 verify(argumentsProvider).provideArguments(context);
+                verifyNoMoreInteractions(argumentsProvider, context);
+            }
+        }
+
+        @Nested
+        @DisplayName("crossJoin(ArgumentsProvider, ParameterDeclarations, ExtensionContext)")
+        class WithArgumentsProviderWithArguments {
+
+            @Test
+            @DisplayName("null arguments provider")
+            void testNullArgumentsProvider() {
+                ArgumentsProvider argumentsProvider = null;
+                ParameterDeclarations parameters = mock(ParameterDeclarations.class);
+                ExtensionContext context = mock(ExtensionContext.class);
+
+                assertThrows(NullPointerException.class, () -> combiner.crossJoin(argumentsProvider, parameters, context));
+
+                verifyNoInteractions(context);
+            }
+
+            @Test
+            @DisplayName("null parameter declarations")
+            void testNullParameterDeclarations() {
+                ArgumentsProvider argumentsProvider = mock(ArgumentsProvider.class);
+                ParameterDeclarations parameters = null;
+                ExtensionContext context = mock(ExtensionContext.class);
+
+                assertThrows(NullPointerException.class, () -> combiner.crossJoin(argumentsProvider, parameters, context));
+
+                verifyNoInteractions(context);
+            }
+
+            @Test
+            @DisplayName("null context")
+            void testNullContext() {
+                ArgumentsProvider argumentsProvider = mock(ArgumentsProvider.class);
+                ParameterDeclarations parameters = mock(ParameterDeclarations.class);
+                ExtensionContext context = null;
+
+                assertThrows(NullPointerException.class, () -> combiner.crossJoin(argumentsProvider, parameters, context));
+
+                verifyNoInteractions(argumentsProvider);
+            }
+
+            @Test
+            @DisplayName("arguments provider providing empty stream")
+            void testProvidingEmptyStream() throws Exception {
+                ArgumentsProvider argumentsProvider = mock(ArgumentsProvider.class);
+                ParameterDeclarations parameters = mock(ParameterDeclarations.class);
+                ExtensionContext context = mock(ExtensionContext.class);
+
+                when(argumentsProvider.provideArguments(parameters, context)).thenAnswer(i -> Stream.empty());
+
+                assertSame(combiner, combiner.crossJoin(argumentsProvider, parameters, context));
+
+                assertArguments(combiner);
+
+                verify(argumentsProvider, times(2)).provideArguments(parameters, context);
+                verifyNoMoreInteractions(argumentsProvider, context);
+            }
+
+            @Test
+            @DisplayName("arguments provider providing non-empty stream")
+            void testProvidingNonEmptyStream() throws Exception {
+                ArgumentsProvider argumentsProvider = mock(ArgumentsProvider.class);
+                ParameterDeclarations parameters = mock(ParameterDeclarations.class);
+                ExtensionContext context = mock(ExtensionContext.class);
+
+                when(argumentsProvider.provideArguments(parameters, context))
+                        .thenAnswer(i -> Stream.of(arguments("foo"), arguments("bar"), arguments(0)));
+
+                assertSame(combiner, combiner.crossJoin(argumentsProvider, parameters, context));
+
+                assertArguments(combiner,
+                        arguments("hello", "foo"), arguments("hello", "bar"), arguments("hello", 0),
+                        arguments("world", "foo"), arguments("world", "bar"), arguments("world", 0));
+
+                verify(argumentsProvider, times(2)).provideArguments(parameters, context);
+                verifyNoMoreInteractions(argumentsProvider, context);
+            }
+
+            @Test
+            @DisplayName("arguments provider throwing exception")
+            void testThrowingException() throws Exception {
+                ArgumentsProvider argumentsProvider = mock(ArgumentsProvider.class);
+                ParameterDeclarations parameters = mock(ParameterDeclarations.class);
+                ExtensionContext context = mock(ExtensionContext.class);
+                IOException exception = new IOException();
+
+                when(argumentsProvider.provideArguments(parameters, context)).thenThrow(exception);
+
+                assertSame(combiner, combiner.crossJoin(argumentsProvider, parameters, context));
+
+                Stream<? extends Arguments> arguments = combiner.stream();
+
+                IOException thrown = assertThrows(IOException.class, arguments::count);
+                assertSame(exception, thrown);
+
+                verify(argumentsProvider).provideArguments(parameters, context);
                 verifyNoMoreInteractions(argumentsProvider, context);
             }
         }
@@ -1314,7 +1510,7 @@ class ArgumentsCombinerTest {
     private static final class MonthDayArgumentsProvider implements ArgumentsProvider {
 
         @Override
-        public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
+        public Stream<? extends Arguments> provideArguments(ParameterDeclarations parameters, ExtensionContext context) {
             return ArgumentsCombiner.with(EnumSet.allOf(Month.class))
                     .crossJoin(() -> IntStream.rangeClosed(1, 31).boxed())
                     .excludeCombinations(arguments -> Month.FEBRUARY.equals(arguments[0]) && (int) arguments[1] > 28)

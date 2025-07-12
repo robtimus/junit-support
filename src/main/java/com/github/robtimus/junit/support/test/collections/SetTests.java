@@ -300,7 +300,7 @@ public interface SetTests<T> extends CollectionTests<T> {
     final class AddArgumentsProvider implements ArgumentsProvider {
 
         @Override
-        public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+        public Stream<? extends Arguments> provideArguments(ExtensionContext context) { // NOSONAR, keep supporting JUnit versions before 5.13
             AddTests<?> instance = (AddTests<?>) context.getRequiredTestInstance();
 
             Stream<Arguments> expected = instance.expectedElements().stream()
@@ -321,7 +321,7 @@ public interface SetTests<T> extends CollectionTests<T> {
     final class AddAllArgumentsProvider implements ArgumentsProvider {
 
         @Override
-        public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+        public Stream<? extends Arguments> provideArguments(ExtensionContext context) { // NOSONAR, keep supporting JUnit versions before 5.13
             AddAllTests<?> instance = (AddAllTests<?>) context.getRequiredTestInstance();
 
             List<?> expected = new ArrayList<>(instance.expectedElements());
@@ -348,7 +348,7 @@ public interface SetTests<T> extends CollectionTests<T> {
     final class EqualsArgumentsProvider implements ArgumentsProvider {
 
         @Override
-        public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+        public Stream<? extends Arguments> provideArguments(ExtensionContext context) { // NOSONAR, keep supporting JUnit versions before 5.13
             EqualsTests<?> instance = (EqualsTests<?>) context.getRequiredTestInstance();
 
             List<?> expected = new ArrayList<>(instance.expectedElements());

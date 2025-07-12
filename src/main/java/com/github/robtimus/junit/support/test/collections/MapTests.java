@@ -3661,7 +3661,7 @@ public interface MapTests<K, V> {
     final class RemoveArgumentsProvider implements ArgumentsProvider {
 
         @Override
-        public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+        public Stream<? extends Arguments> provideArguments(ExtensionContext context) { // NOSONAR, keep supporting JUnit versions before 5.13
             RemoveTests<?, ?> instance = (RemoveTests<?, ?>) context.getRequiredTestInstance();
 
             Stream<Arguments> expected = instance.expectedEntries().entrySet().stream()
@@ -3681,7 +3681,7 @@ public interface MapTests<K, V> {
     final class EqualsArgumentsProvider implements ArgumentsProvider {
 
         @Override
-        public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+        public Stream<? extends Arguments> provideArguments(ExtensionContext context) { // NOSONAR, keep supporting JUnit versions before 5.13
             EqualsTests<?, ?> instance = (EqualsTests<?, ?>) context.getRequiredTestInstance();
 
             Map<?, ?> expected = instance.expectedEntries();
@@ -3720,7 +3720,7 @@ public interface MapTests<K, V> {
     final class RemoveExactValueArgumentsProvider implements ArgumentsProvider {
 
         @Override
-        public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+        public Stream<? extends Arguments> provideArguments(ExtensionContext context) { // NOSONAR, keep supporting JUnit versions before 5.13
             RemoveExactValueTests<?, ?> instance = (RemoveExactValueTests<?, ?>) context.getRequiredTestInstance();
 
             Object nonContained = instance.nonContainedEntries().values().iterator().next();

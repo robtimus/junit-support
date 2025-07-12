@@ -92,6 +92,7 @@ final class TestResourceTest {
     @EOL(EOL.NONE)
     private static StringBuilder resourceAsStringBuilderWithCustomEOL;
 
+    @SuppressWarnings("deprecation")
     private static CloseableResource closeableResource = mock(CloseableResource.class);
     private static AutoCloseable autoCloseable = mock(AutoCloseable.class);
 
@@ -677,6 +678,7 @@ final class TestResourceTest {
 
                 @Test
                 @DisplayName("CloseableResource")
+                @SuppressWarnings("deprecation")
                 void testCloseableResource() {
                     reset(closeableResource);
 
@@ -1906,6 +1908,7 @@ final class TestResourceTest {
         }
     }
 
+    @SuppressWarnings("deprecation")
     static final class LoadWithCloseableResourceResults {
 
         @Test

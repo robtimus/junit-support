@@ -30,6 +30,9 @@ import org.junit.jupiter.api.extension.ExtensionContext.Store.CloseableResource;
  * @since 3.1
  */
 @FunctionalInterface
+@SuppressWarnings({ "deprecation", "javadoc" }) // javadoc for the deprecation inside the description
+// Don't deprecate this interface just yet, as even in JUnit 5.13 it's possible to disable automatically closing AutoCloseable,
+// see https://docs.junit.org/6.0.0-M1/user-guide/index.html#extensions-keeping-state-autocloseable-support
 public interface AutoCloseableResource extends AutoCloseable, CloseableResource {
 
     // AutoCloseable defines void close() throws Exception

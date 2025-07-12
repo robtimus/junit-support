@@ -30,6 +30,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.support.ParameterDeclarations;
 
 /**
  * A class that can combine multiple arguments. Instances of this class can be used in {@link ArgumentsProvider} implementations or provider methods
@@ -249,13 +250,40 @@ public final class ArgumentsCombiner {
      * @param argumentsProvider The provider initial set of arguments.
      * @param context The current extension context.
      * @return The created arguments combiner.
-     * @throws NullPointerException If the given arguments provider or context is {@code null}.
+     * @throws NullPointerException If any of the given arguments is {@code null}.
+     * @deprecated This method delegates to the deprecated {@link ArgumentsProvider#provideArguments(ExtensionContext)} method.
+     *             Use {@link #with(ArgumentsProvider, ParameterDeclarations, ExtensionContext)} instead.
      */
+    @Deprecated(since = "3.2", forRemoval = true)
     public static ArgumentsCombiner with(ArgumentsProvider argumentsProvider, ExtensionContext context) {
         Objects.requireNonNull(argumentsProvider);
         Objects.requireNonNull(context);
 
         Stream<? extends Arguments> stream = argumentsStream(argumentsProvider, context);
+
+        return new ArgumentsCombiner(stream);
+    }
+
+    /**
+     * Creates an arguments combiner with an initial set of arguments.
+     * <p>
+     * Note that if the arguments provider throws an exception from its
+     * {@link ArgumentsProvider#provideArguments(ParameterDeclarations, ExtensionContext)} method, that exception will be re-thrown <em>as is</em> but
+     * as an unchecked exception.
+     *
+     * @param argumentsProvider The provider initial set of arguments.
+     * @param parameters The parameter declarations to pass to the given provider.
+     * @param context The current extension context.
+     * @return The created arguments combiner.
+     * @throws NullPointerException If any of the given arguments is {@code null}.
+     * @since 3.2
+     */
+    public static ArgumentsCombiner with(ArgumentsProvider argumentsProvider, ParameterDeclarations parameters, ExtensionContext context) {
+        Objects.requireNonNull(argumentsProvider);
+        Objects.requireNonNull(parameters);
+        Objects.requireNonNull(context);
+
+        Stream<? extends Arguments> stream = argumentsStream(argumentsProvider, parameters, context);
 
         return new ArgumentsCombiner(stream);
     }
@@ -453,13 +481,41 @@ public final class ArgumentsCombiner {
      * @param argumentsProvider The provider for the arguments to add.
      * @param context The current extension context.
      * @return This object.
-     * @throws NullPointerException If the given arguments provider or context is {@code null}.
+     * @throws NullPointerException If any of the given arguments is {@code null}.
+     * @deprecated This method delegates to the deprecated {@link ArgumentsProvider#provideArguments(ExtensionContext)} method.
+     *             Use {@link #crossJoin(ArgumentsProvider, ParameterDeclarations, ExtensionContext)} instead.
      */
+    @Deprecated(since = "3.2", forRemoval = true)
     public ArgumentsCombiner crossJoin(ArgumentsProvider argumentsProvider, ExtensionContext context) {
         Objects.requireNonNull(argumentsProvider);
         Objects.requireNonNull(context);
 
         stream = stream.flatMap(args -> argumentsStream(argumentsProvider, context)
+                .map(args2 -> combineArguments(args, args2)));
+
+        return this;
+    }
+
+    /**
+     * Adds a set of arguments. The resulting arguments will be a cross join or Cartesian product of the current arguments and the given arguments.
+     * <p>
+     * Note that if the arguments provider throws an exception from its
+     * {@link ArgumentsProvider#provideArguments(ParameterDeclarations, ExtensionContext)} method, that exception will be re-thrown <em>as is</em> but
+     * as an unchecked exception.
+     *
+     * @param argumentsProvider The provider for the arguments to add.
+     * @param parameters The parameter declarations to pass to the given provider.
+     * @param context The current extension context.
+     * @return This object.
+     * @throws NullPointerException If any of the given arguments is {@code null}.
+     * @since 3.2
+     */
+    public ArgumentsCombiner crossJoin(ArgumentsProvider argumentsProvider, ParameterDeclarations parameters, ExtensionContext context) {
+        Objects.requireNonNull(argumentsProvider);
+        Objects.requireNonNull(parameters);
+        Objects.requireNonNull(context);
+
+        stream = stream.flatMap(args -> argumentsStream(argumentsProvider, parameters, context)
                 .map(args2 -> combineArguments(args, args2)));
 
         return this;
@@ -514,9 +570,19 @@ public final class ArgumentsCombiner {
         return stream;
     }
 
+    @Deprecated(since = "3.2", forRemoval = true)
     private static Stream<? extends Arguments> argumentsStream(ArgumentsProvider argumentsProvider, ExtensionContext context) {
         try {
             return argumentsProvider.provideArguments(context);
+        } catch (Exception e) {
+            return throwAsUncheckedException(e);
+        }
+    }
+
+    private static Stream<? extends Arguments> argumentsStream(ArgumentsProvider argumentsProvider, ParameterDeclarations parameters,
+                                                               ExtensionContext context) {
+        try {
+            return argumentsProvider.provideArguments(parameters, context);
         } catch (Exception e) {
             return throwAsUncheckedException(e);
         }

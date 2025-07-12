@@ -39,6 +39,7 @@ import com.github.robtimus.junit.support.extension.InjectionTarget;
  * @author Rob Spoor
  * @since 2.0
  */
+@SuppressWarnings("javadoc") // javadoc for the deprecation inside the description
 @Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LoadWith {
