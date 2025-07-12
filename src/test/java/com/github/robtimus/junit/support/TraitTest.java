@@ -40,7 +40,6 @@ import org.junit.jupiter.api.DynamicNode;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
-import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.platform.commons.support.ReflectionSupport;
 import com.github.robtimus.junit.support.test.collections.CollectionTests;
@@ -77,8 +76,7 @@ class TraitTest {
                 .map(this::testTrait);
     }
 
-    // keep using JRE.currentVersion() instead of JRE.currentJre() to keep supporting JUnit before 5.12
-    @SuppressWarnings({ "deprecation", "nls" })
+    @SuppressWarnings("nls")
     private List<Class<?>> findAllClasses() {
         Predicate<Class<?>> classFilter = c ->
                 c.isInterface()
@@ -89,23 +87,8 @@ class TraitTest {
                 && !IGNORED_CLASSES.contains(c);
         Predicate<String> nameFilter = n -> !n.endsWith(".package-info");
 
-        if (JRE.currentVersion().compareTo(JRE.JAVA_8) > 0) {
-            // Java 9 or up; use the module name if available
-            try {
-                Method method = Class.class.getMethod("getModule");
-                Object module = method.invoke(getClass());
-                String moduleName = (String) module.getClass().getMethod("getName").invoke(module);
-                if (moduleName != null) {
-                    return ReflectionSupport.findAllClassesInModule(moduleName, classFilter, nameFilter);
-                }
-            } catch (ReflectiveOperationException e) {
-                throw new IllegalStateException(e);
-            }
-        }
-
-        // Either Java 8, or an unnamed module
-        String packageName = getClass().getPackage().getName();
-        return ReflectionSupport.findAllClassesInPackage(packageName, classFilter, nameFilter);
+        String moduleName = getClass().getModule().getName();
+        return ReflectionSupport.findAllClassesInModule(moduleName, classFilter, nameFilter);
     }
 
     private DynamicNode testTrait(Class<?> traitInterface) {
