@@ -179,6 +179,13 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>properties</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
@@ -231,13 +238,15 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <!-- Allow JUnit to access the test classes -->
           <argLine>
             @{argLine}
+            -javaagent:${org.mockito:mockito-core:jar}
+
             --add-modules org.apache.logging.log4j
             --add-modules ch.qos.logback.classic
             --add-modules ch.qos.logback.core
 
+            <!-- Allow JUnit to access the test classes -->
             --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.util=java.logging
             --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.util=org.apache.logging.log4j.core
             --add-opens com.github.robtimus.junit.support/com.github.robtimus.junit.support.extension.util=ch.qos.logback.core
