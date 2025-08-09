@@ -322,7 +322,7 @@
         <version.junit>5.13.0</version.junit>
         <version.junit-testkit>1.13.0</version.junit-testkit>
         <version.logback>1.3.14</version.logback>
-        <version.mockito>5.0.0</version.mockito>
+        <version.mockito>5.14.0</version.mockito>
         <version.pioneer>1.9.1</version.pioneer>
         <version.reload4j>1.2.25</version.reload4j>
       </properties>
