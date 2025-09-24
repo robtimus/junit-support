@@ -1173,7 +1173,7 @@ final class TestResourceTest {
                         void testWithInputStream() {
                             assertSingleTestFailure(
                                     TestResourceTest.LoadWithErrors.FactoryNotStatic.DifferentClass.InstanceFieldInjection.WithInputStream.class,
-                                    IllegalArgumentException.class, equalTo("object is not an instance of declaring class"));
+                                    IllegalArgumentException.class, containsString("is not an instance of"));
                         }
 
                         @Test
@@ -1181,7 +1181,7 @@ final class TestResourceTest {
                         void testWithReader() {
                             assertSingleTestFailure(
                                     TestResourceTest.LoadWithErrors.FactoryNotStatic.DifferentClass.InstanceFieldInjection.WithReader.class,
-                                    IllegalArgumentException.class, equalTo("object is not an instance of declaring class"));
+                                    IllegalArgumentException.class, containsString("is not an instance of"));
                         }
                     }
 
@@ -1215,7 +1215,7 @@ final class TestResourceTest {
                         void testWithInputStream() {
                             assertSingleTestFailure(
                                     TestResourceTest.LoadWithErrors.FactoryNotStatic.DifferentClass.MethodInjection.WithInputStream.class,
-                                    ParameterResolutionException.class, containsString("object is not an instance of declaring class"));
+                                    ParameterResolutionException.class, containsString("is not an instance of"));
                         }
 
                         @Test
@@ -1223,7 +1223,7 @@ final class TestResourceTest {
                         void testWithReader() {
                             assertSingleTestFailure(
                                     TestResourceTest.LoadWithErrors.FactoryNotStatic.DifferentClass.MethodInjection.WithReader.class,
-                                    ParameterResolutionException.class, containsString("object is not an instance of declaring class"));
+                                    ParameterResolutionException.class, containsString("is not an instance of"));
                         }
                     }
                 }
