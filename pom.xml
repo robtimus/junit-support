@@ -327,5 +327,14 @@
         <version.reload4j>1.2.25</version.reload4j>
       </properties>
     </profile>
+
+    <profile>
+      <id>junit6</id>
+      <properties>
+        <version.java>17</version.java>
+        <version.junit>6.0.0</version.junit>
+        <version.junit-testkit>6.0.0</version.junit-testkit>
+      </properties>
+    </profile>
   </profiles>
 </project>
