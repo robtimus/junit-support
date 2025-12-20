@@ -22,7 +22,7 @@
   <parent>
     <groupId>com.github.robtimus</groupId>
     <artifactId>robtimus-parent</artifactId>
-    <version>2.0</version>
+    <version>2.1</version>
     <relativePath />
   </parent>
 
@@ -66,7 +66,7 @@
 
     <version.commons-io>2.19.0</version.commons-io>
     <version.io-functions>2.0</version.io-functions>
-    <version.junit-testkit>1.13.3</version.junit-testkit>
+    <version.junit-testkit>1.14.1</version.junit-testkit>
     <version.log4j>2.25.1</version.log4j>
     <version.logback>1.5.18</version.logback>
     <version.pioneer>2.3.0</version.pioneer>
