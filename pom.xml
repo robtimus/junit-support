@@ -66,7 +66,7 @@
 
     <version.commons-io>2.19.0</version.commons-io>
     <version.io-functions>2.0</version.io-functions>
-    <version.junit-testkit>1.14.1</version.junit-testkit>
+    <version.junit-testkit>1.14.2</version.junit-testkit>
     <version.log4j>2.25.1</version.log4j>
     <version.logback>1.5.18</version.logback>
     <version.pioneer>2.3.0</version.pioneer>
@@ -332,8 +332,8 @@
       <id>junit6</id>
       <properties>
         <version.java>17</version.java>
-        <version.junit>6.0.0</version.junit>
-        <version.junit-testkit>6.0.0</version.junit-testkit>
+        <version.junit>6.0.2</version.junit>
+        <version.junit-testkit>6.0.2</version.junit-testkit>
       </properties>
     </profile>
   </profiles>
