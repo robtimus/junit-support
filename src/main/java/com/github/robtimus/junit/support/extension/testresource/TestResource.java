@@ -74,4 +74,38 @@ public @interface TestResource {
      * The resource to load.
      */
     String value();
+
+    /**
+     * {@code Loader} can be used in combination with {@link TestResource} to specify a custom {@link ResourceLoader} to use.
+     * This is usually only necessary for Java modules to be able to load resources that are in folders that don't match exported packages.
+     *
+     * The {@link ResourceLoader} to use is looked up in the following order:
+     * <ol>
+     * <li>A {@code Loader} annotation on the field or parameter itself</li>
+     * <li>For parameters, a {@code Loader} annotation on the constructor or method</li>
+     * <li>A {@code Loader} annotation on the class defining the field, constructor or method</li>
+     * <li>A {@code Loader} annotation on any declaring class</li>
+     * <li>The fully qualified class name of the <em>default</em> {@link ResourceLoader} implementation that is defined via the
+     *     {@value #DEFAULT_LOADER_PROPERTY_NAME} <em>configuration parameter</em>, which can be supplied via the JUnit {@code Launcher} API, build
+     *     tools (e.g., Gradle and Maven), a JVM system property, or the JUnit Platform configuration file (i.e., a file named
+     *     {@code junit-platform.properties} in the root of the class path). Consult the JUnit User Guide for further information.
+     * </ol>
+     *
+     * @author Rob Spoor
+     * @since 3.2
+     */
+    @ExtendWith(TestResourceExtension.class)
+    @Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.TYPE, ElementType.ANNOTATION_TYPE })
+    @Retention(RetentionPolicy.RUNTIME)
+    @SuppressWarnings("nls")
+    @interface Loader {
+
+        /**
+         * The {@link ResourceLoader} implementation to use.
+         */
+        Class<? extends ResourceLoader> value();
+
+        /** The property that can be used to define the default {@link ResourceLoader}. */
+        String DEFAULT_LOADER_PROPERTY_NAME = "com.github.robtimus.junit.support.extension.testresource.loader";
+    }
 }

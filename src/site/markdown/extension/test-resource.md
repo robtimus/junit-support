@@ -170,3 +170,22 @@ private static Properties testProperties;
 Injecting into a method parameter of type `InputStream` or `BufferedInputStream` works the same as for `byte[]`. Similarly, injecting into a method parameter of type `Reader` or `BufferedReader` works almost the same as for `String`, `CharSequence` or `StringBuilder`. The main difference is that the resource is not fully loaded into memory yet. The stream will be closed automatically when the method ends.
 
 Because the resource is not loaded, it also cannot be modified. It's therefore not allowed to use [@EOL](../apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/extension/testresource/EOL.html).
+
+### Java module system limitations
+
+The Java module system does not allow resources of another module to be loaded unless they are located in folders that match exported packages. That means that using `@TestResource` with sub folders will not work when testing Java modules. To make it possible to load these resources it's possible to use a custom [ResourceLoader](../apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/extension/testresource/ResourceLoader.html). This is usually implemented as follows:
+
+```java
+final class CustomResourceLoader implements ResourceLoader {
+
+    @Override
+    public InputStream loadResource(Class<?> c, String path) {
+        return c.getResourceAsStream(path);
+    }
+}
+```
+
+There are two ways to define a custom `ResourceLoader`:
+
+* Use [@TestResource.Loader](../apidocs/com.github.robtimus.junit.support/com/github/robtimus/junit/support/extension/testresource/TestResource.Loader.html). This annotation can be placed on the injection target, or any enclosing element. For instance, for a method parameter, it can be placed on the method parameter itself, the method, or the class that defines the method. If that class is nested inside another class, that class is also checked, up to the root class.
+* Use the `com.github.robtimus.junit.support.extension.testresource.loader` JUnit configuration parameter to define the fully qualified name of the `ResourceLoader` implementation, in case no `@TestResource.Loader` annotation is found.

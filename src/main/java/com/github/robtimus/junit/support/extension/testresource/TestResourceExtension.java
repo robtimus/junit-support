@@ -46,6 +46,8 @@ class TestResourceExtension extends AnnotationBasedInjectingExtension<TestResour
 
     private static final Namespace NAMESPACE = Namespace.create(TestResourceExtension.class);
 
+    private static final ResourceLoader DEFAULT_RESOURCE_LOADER = Class::getResourceAsStream;
+
     private static final Map<Class<?>, ResourceConverter> RESOURCE_CONVERTERS = Map.of(
             String.class, TestResourceExtension::readContentAsString,
             CharSequence.class, TestResourceExtension::readContentAsCharSequence,
@@ -127,7 +129,7 @@ class TestResourceExtension extends AnnotationBasedInjectingExtension<TestResour
     private Object resolveValueFromInputStream(TestResource resource, Method factoryMethod, InjectionTarget target, Object additionalMethodArgument,
             ExtensionContext context) throws IOException {
 
-        try (InputStream inputStream = readResource(resource, target)) {
+        try (InputStream inputStream = readResource(resource, target, context)) {
             validateNoEncoding(target, "@Encoding not allowed when using InputStream");
 
             Object testInstance = context.getTestInstance().orElse(null);
@@ -142,7 +144,7 @@ class TestResourceExtension extends AnnotationBasedInjectingExtension<TestResour
     private Object resolveValueFromReader(TestResource resource, Method factoryMethod, InjectionTarget target, Object additionalMethodArgument,
             ExtensionContext context) throws IOException {
 
-        try (InputStream inputStream = readResource(resource, target)) {
+        try (InputStream inputStream = readResource(resource, target, context)) {
             String encoding = lookupEncoding(target, context);
             try (Reader reader = new InputStreamReader(inputStream, encoding)) {
                 Object testInstance = context.getTestInstance().orElse(null);
@@ -162,7 +164,7 @@ class TestResourceExtension extends AnnotationBasedInjectingExtension<TestResour
             validateNoEOL(target, "@EOL not allowed for " + targetType.getSimpleName());
             validateNoEncoding(target, "@Encoding not allowed for " + targetType.getSimpleName());
 
-            InputStream inputStream = readResource(resource, target);
+            InputStream inputStream = readResource(resource, target, context);
             if (targetType == BufferedInputStream.class) {
                 inputStream = new BufferedInputStream(inputStream);
             }
@@ -174,7 +176,7 @@ class TestResourceExtension extends AnnotationBasedInjectingExtension<TestResour
             validateNoEOL(target, "@EOL not allowed for " + targetType.getSimpleName());
 
             String encoding = lookupEncoding(target, context);
-            Reader reader = new InputStreamReader(readResource(resource, target), encoding);
+            Reader reader = new InputStreamReader(readResource(resource, target, context), encoding);
             if (targetType == BufferedReader.class) {
                 reader = new BufferedReader(reader);
             }
@@ -182,15 +184,16 @@ class TestResourceExtension extends AnnotationBasedInjectingExtension<TestResour
             return reader;
         }
 
-        try (InputStream inputStream = readResource(resource, target)) {
+        try (InputStream inputStream = readResource(resource, target, context)) {
             ResourceConverter resourceConverter = RESOURCE_CONVERTERS.get(targetType);
 
             return resourceConverter.convert(inputStream, target, context);
         }
     }
 
-    private InputStream readResource(TestResource resource, InjectionTarget target) {
-        InputStream inputStream = target.declaringClass().getResourceAsStream(resource.value());
+    private InputStream readResource(TestResource resource, InjectionTarget target, ExtensionContext context) {
+        ResourceLoader resourceLoader = lookupResourceLoader(target, context);
+        InputStream inputStream = resourceLoader.loadResource(target.declaringClass(), resource.value());
         if (inputStream == null) {
             throw target.createException("Resource not found: " + resource.value());
         }
@@ -198,7 +201,6 @@ class TestResourceExtension extends AnnotationBasedInjectingExtension<TestResour
     }
 
     private static String readContentAsString(InputStream inputStream, InjectionTarget target, ExtensionContext context) throws IOException {
-
         String lineSeparator = lookupLineSeparator(target, context);
 
         String encoding = lookupEncoding(target, context);
@@ -240,6 +242,25 @@ class TestResourceExtension extends AnnotationBasedInjectingExtension<TestResour
         validateNoEncoding(target, "@Encoding not allowed for byte[]");
 
         return TestResourceLoaders.toBytes(inputStream);
+    }
+
+    static ResourceLoader lookupResourceLoader(InjectionTarget target, ExtensionContext context) {
+        TestResource.Loader loader = target.findAnnotation(TestResource.Loader.class, true).orElse(null);
+        if (loader == null) {
+            return lookupDefaultResourceLoader(target, context);
+        }
+        return ReflectionSupport.newInstance(loader.value());
+    }
+
+    private static ResourceLoader lookupDefaultResourceLoader(InjectionTarget target, ExtensionContext context) {
+        String loaderParameter = context.getConfigurationParameter(TestResource.Loader.DEFAULT_LOADER_PROPERTY_NAME).orElse(null);
+        if (loaderParameter == null) {
+            return DEFAULT_RESOURCE_LOADER;
+        }
+        return ReflectionSupport.tryToLoadClass(loaderParameter, target.declaringClass().getClassLoader())
+                .andThenTry(ReflectionSupport::newInstance)
+                .andThenTry(ResourceLoader.class::cast)
+                .getOrThrow(e -> target.createException("Failed to load ResourceLoader class " + loaderParameter, e));
     }
 
     static String lookupLineSeparator(InjectionTarget target, ExtensionContext context) {

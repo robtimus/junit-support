@@ -29,10 +29,10 @@ import java.nio.charset.Charset;
  * <p>
  * The encoding to use is looked up in the following order:
  * <ol>
- * <li>An {@link Encoding} annotation on the field or parameter itself</li>
- * <li>For parameters, an {@link Encoding} annotation on the constructor or method</li>
- * <li>An {@link Encoding} annotation on the class defining the field, constructor or method</li>
- * <li>An {@link Encoding} annotation on any declaring class</li>
+ * <li>An {@code Encoding} annotation on the field or parameter itself</li>
+ * <li>For parameters, an {@code Encoding} annotation on the constructor or method</li>
+ * <li>An {@code Encoding} annotation on the class defining the field, constructor or method</li>
+ * <li>An {@code Encoding} annotation on any declaring class</li>
  * <li>The <em>default</em> encoding that is defined via the {@value #DEFAULT_ENCODING_PROPERTY_NAME} <em>configuration parameter</em>, which can be
  *     supplied via the JUnit {@code Launcher} API, build tools (e.g., Gradle and Maven), a JVM system property, or the JUnit Platform configuration
  *     file (i.e., a file named {@code junit-platform.properties} in the root of the class path). Consult the JUnit User Guide for further

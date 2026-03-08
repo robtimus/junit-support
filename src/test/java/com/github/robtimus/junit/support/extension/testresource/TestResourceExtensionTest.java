@@ -19,22 +19,32 @@ package com.github.robtimus.junit.support.extension.testresource;
 
 import static com.github.robtimus.junit.support.extension.testresource.TestResourceExtension.lookupEncoding;
 import static com.github.robtimus.junit.support.extension.testresource.TestResourceExtension.lookupLineSeparator;
+import static com.github.robtimus.junit.support.extension.testresource.TestResourceExtension.lookupResourceLoader;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.either;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.nio.charset.Charset;
 import java.util.Optional;
+import org.hamcrest.Matcher;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtensionConfigurationException;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.platform.commons.PreconditionViolationException;
 import org.junit.platform.commons.support.AnnotationSupport;
 import org.junitpioneer.jupiter.ClearSystemProperty;
@@ -43,6 +53,313 @@ import com.github.robtimus.junit.support.extension.InjectionTarget;
 
 @SuppressWarnings({ "nls", "unused" })
 class TestResourceExtensionTest {
+
+    @Nested
+    @DisplayName("lookupResourceLoader")
+    class LookupResourceLoader {
+
+        @Nested
+        @DisplayName("for field")
+        class ForField {
+
+            @Nested
+            @DisplayName("class annotated")
+            class ClassAnnotated {
+
+                @Test
+                @DisplayName("field not annotated")
+                void testFieldNotAnnotated() {
+                    testField("fieldWithNoAnnotation", ClassResourceLoader.class);
+                }
+
+                @Test
+                @DisplayName("field annotated with custom class")
+                void testFieldAnnotatedWithCustomClass() {
+                    testField("fieldWithCustomResourceLoader", FieldResourceLoader.class);
+                }
+
+                private void testField(String fieldName, Class<? extends ResourceLoader> expectedType) {
+                    Field field = assertDoesNotThrow(() -> AnnotatedClassWithTestFieldsAndMethods.class.getDeclaredField(fieldName));
+                    InjectionTarget target = InjectionTarget.forField(field);
+
+                    ResourceLoader resourceLoader = lookupResourceLoader(target, context());
+
+                    assertInstanceOf(expectedType, resourceLoader);
+                }
+            }
+
+            @Nested
+            @DisplayName("class not annotated")
+            class ClassNotAnnotated {
+
+                @Nested
+                @DisplayName("field not annotated")
+                class FieldNotAnnotated {
+
+                    @Test
+                    @DisplayName("no configuration parameter")
+                    void testNoConfigurationParameter() {
+                        Matcher<ResourceLoader> matcher1 = instanceOf(ClassResourceLoader.class);
+                        Matcher<ResourceLoader> matcher2 = instanceOf(FieldResourceLoader.class);
+                        Matcher<ResourceLoader> matcher3 = instanceOf(ParameterResourceLoader.class);
+                        Matcher<ResourceLoader> matcher4 = instanceOf(MethodResourceLoader.class);
+                        Matcher<ResourceLoader> matcher5 = instanceOf(ConfigResourceLoader.class);
+                        testField(context(), not(either(matcher1).or(matcher2).or(matcher3).or(matcher4).or(matcher5)));
+                    }
+
+                    @Test
+                    @DisplayName("custom class configuration parameter")
+                    void testCustomClassConfigurationParameter() {
+                        testField(ConfigResourceLoader.class.getName(), instanceOf(ConfigResourceLoader.class));
+                    }
+
+                    @Test
+                    @DisplayName("broken class configuration parameter")
+                    void testBrokenClassConfigurationParameter() {
+                        ExtensionConfigurationException exception = testFailure(BrokenResourceLoader.class.getName());
+
+                        IllegalStateException cause = assertInstanceOf(IllegalStateException.class, exception.getCause());
+                        assertEquals("failure", cause.getMessage());
+                    }
+
+                    @Test
+                    @DisplayName("invalid class configuration parameter")
+                    void testInvalidClassConfigurationParameter() {
+                        ExtensionConfigurationException exception = testFailure(InvalidResourceLoader.class.getName());
+
+                        assertInstanceOf(NoSuchMethodException.class, exception.getCause());
+                    }
+
+                    @Test
+                    @DisplayName("wrong type class configuration parameter")
+                    void testWrongTypeConfigurationParameter() {
+                        ExtensionConfigurationException exception = testFailure(String.class.getName());
+
+                        assertInstanceOf(ClassCastException.class, exception.getCause());
+                    }
+
+                    @Test
+                    @DisplayName("non-existing class configuration parameter")
+                    void testNonExistingClassConfigurationParameter() {
+                        ExtensionConfigurationException exception = testFailure(ConfigResourceLoader.class.getName() + "2");
+
+                        assertInstanceOf(ClassNotFoundException.class, exception.getCause());
+                    }
+
+                    private ExtensionConfigurationException testFailure(String configurationParameterValue) {
+                        String fieldName = "fieldWithNoAnnotation";
+                        Field field = assertDoesNotThrow(() -> NonAnnotatedClassWithTestFieldsAndMethods.class.getDeclaredField(fieldName));
+                        InjectionTarget target = InjectionTarget.forField(field);
+                        ExtensionContext context = context(TestResource.Loader.DEFAULT_LOADER_PROPERTY_NAME, configurationParameterValue);
+
+                        ExtensionConfigurationException exception = assertThrows(ExtensionConfigurationException.class,
+                                () -> lookupResourceLoader(target, context));
+                        assertEquals("Failed to load ResourceLoader class " + configurationParameterValue, exception.getMessage());
+                        return exception;
+                    }
+
+                    private void testField(String configurationParameterValue, Matcher<ResourceLoader> matcher) {
+                        testField(context(TestResource.Loader.DEFAULT_LOADER_PROPERTY_NAME, configurationParameterValue), matcher);
+                    }
+
+                    private void testField(ExtensionContext context, Matcher<ResourceLoader> matcher) {
+                        ClassNotAnnotated.this.testField("fieldWithNoAnnotation", context, matcher);
+                    }
+                }
+
+                @Test
+                @DisplayName("field annotated with custom class")
+                void testFieldAnnotatedWithCustomClass() {
+                    testField("fieldWithCustomResourceLoader", FieldResourceLoader.class);
+                }
+
+                private void testField(String fieldName, Class<? extends ResourceLoader> expectedType) {
+                    testField(fieldName, context(), instanceOf(expectedType));
+                }
+
+                private void testField(String fieldName, ExtensionContext context, Matcher<ResourceLoader> matcher) {
+                    Field field = assertDoesNotThrow(() -> NonAnnotatedClassWithTestFieldsAndMethods.class.getDeclaredField(fieldName));
+                    InjectionTarget target = InjectionTarget.forField(field);
+
+                    ResourceLoader resourceLoader = lookupResourceLoader(target, context);
+
+                    assertThat(resourceLoader, matcher);
+                }
+            }
+        }
+
+        @Nested
+        @DisplayName("for method")
+        class ForMethod {
+
+            @Nested
+            @DisplayName("class annotated")
+            class ClassAnnotated {
+
+                @Test
+                @DisplayName("method with no annotations")
+                void testMethodWithNoAnnotations() {
+                    testMethod("methodWithNoAnnotations", ClassResourceLoader.class);
+                }
+
+                @Test
+                @DisplayName("parameter annotated with custom class")
+                void testParameterAnnotatedCustomClass() {
+                    testMethod("methodWithParameterWithCustomResourceLoader", ParameterResourceLoader.class);
+                }
+
+                @Test
+                @DisplayName("method annotated with custom class")
+                void testMethodAnnotatedWithCustomClass() {
+                    testMethod("methodWithCustomResourceLoader", MethodResourceLoader.class);
+                }
+
+                private void testMethod(String methodName, Class<? extends ResourceLoader> expectedType) {
+                    Method method = assertDoesNotThrow(
+                            () -> AnnotatedClassWithTestFieldsAndMethods.class.getDeclaredMethod(methodName, String.class));
+                    Parameter parameter = method.getParameters()[0];
+
+                    ParameterContext context = mock(ParameterContext.class);
+                    when(context.getParameter()).thenReturn(parameter);
+                    when(context.getDeclaringExecutable()).thenReturn(method);
+                    when(context.findAnnotation(any())).thenAnswer(i -> AnnotationSupport.findAnnotation(parameter, i.getArgument(0)));
+                    when(context.findRepeatableAnnotations(any()))
+                            .thenAnswer(i -> AnnotationSupport.findRepeatableAnnotations(parameter, i.getArgument(0)));
+
+                    InjectionTarget target = InjectionTarget.forParameter(context);
+
+                    ResourceLoader resourceLoader = lookupResourceLoader(target, context());
+
+                    assertInstanceOf(expectedType, resourceLoader);
+                }
+            }
+
+            @Nested
+            @DisplayName("class not annotated")
+            class ClassNotAnnotated {
+
+                @Nested
+                @DisplayName("method with no annotations")
+                class MethodWithNoAnnotations {
+
+                    @Test
+                    @DisplayName("no configuration parameter")
+                    void testNoConfigurationParameter() {
+                        Matcher<ResourceLoader> matcher1 = instanceOf(ClassResourceLoader.class);
+                        Matcher<ResourceLoader> matcher2 = instanceOf(FieldResourceLoader.class);
+                        Matcher<ResourceLoader> matcher3 = instanceOf(ParameterResourceLoader.class);
+                        Matcher<ResourceLoader> matcher4 = instanceOf(MethodResourceLoader.class);
+                        Matcher<ResourceLoader> matcher5 = instanceOf(ConfigResourceLoader.class);
+                        testMethod(context(), not(either(matcher1).or(matcher2).or(matcher3).or(matcher4).or(matcher5)));
+                    }
+
+                    @Test
+                    @DisplayName("custom class configuration parameter")
+                    void testCustomClassConfigurationParameter() {
+                        testMethod(ConfigResourceLoader.class.getName(), instanceOf(ConfigResourceLoader.class));
+                    }
+
+                    @Test
+                    @DisplayName("broken class configuration parameter")
+                    void testBrokenClassConfigurationParameter() {
+                        ParameterResolutionException exception = testFailure(BrokenResourceLoader.class.getName());
+
+                        IllegalStateException cause = assertInstanceOf(IllegalStateException.class, exception.getCause());
+                        assertEquals("failure", cause.getMessage());
+                    }
+
+                    @Test
+                    @DisplayName("invalid class configuration parameter")
+                    void testInvalidClassConfigurationParameter() {
+                        ParameterResolutionException exception = testFailure(InvalidResourceLoader.class.getName());
+
+                        assertInstanceOf(NoSuchMethodException.class, exception.getCause());
+                    }
+
+                    @Test
+                    @DisplayName("wrong type class configuration parameter")
+                    void testWrongTypeConfigurationParameter() {
+                        ParameterResolutionException exception = testFailure(String.class.getName());
+
+                        assertInstanceOf(ClassCastException.class, exception.getCause());
+                    }
+
+                    @Test
+                    @DisplayName("non-existing class configuration parameter")
+                    void testNonExistingClassConfigurationParameter() {
+                        ParameterResolutionException exception = testFailure(ConfigResourceLoader.class.getName() + "2");
+
+                        assertInstanceOf(ClassNotFoundException.class, exception.getCause());
+                    }
+
+                    private ParameterResolutionException testFailure(String configurationParameterValue) {
+                        String methodName = "methodWithNoAnnotations";
+                        Method method = assertDoesNotThrow(
+                                () -> NonAnnotatedClassWithTestFieldsAndMethods.class.getDeclaredMethod(methodName, String.class));
+                        Parameter parameter = method.getParameters()[0];
+
+                        ParameterContext parameterContext = mock(ParameterContext.class);
+                        when(parameterContext.getParameter()).thenReturn(parameter);
+                        when(parameterContext.getDeclaringExecutable()).thenReturn(method);
+                        when(parameterContext.findAnnotation(any())).thenAnswer(i -> AnnotationSupport.findAnnotation(parameter, i.getArgument(0)));
+                        when(parameterContext.findRepeatableAnnotations(any()))
+                                .thenAnswer(i -> AnnotationSupport.findRepeatableAnnotations(parameter, i.getArgument(0)));
+
+                        InjectionTarget target = InjectionTarget.forParameter(parameterContext);
+                        ExtensionContext context = context(TestResource.Loader.DEFAULT_LOADER_PROPERTY_NAME, configurationParameterValue);
+
+                        ParameterResolutionException exception = assertThrows(ParameterResolutionException.class,
+                                () -> lookupResourceLoader(target, context));
+                        assertEquals("Failed to load ResourceLoader class " + configurationParameterValue, exception.getMessage());
+                        return exception;
+                    }
+
+                    private void testMethod(String configurationParameterValue, Matcher<ResourceLoader> matcher) {
+                        testMethod(context(TestResource.Loader.DEFAULT_LOADER_PROPERTY_NAME, configurationParameterValue), matcher);
+                    }
+
+                    private void testMethod(ExtensionContext context, Matcher<ResourceLoader> matcher) {
+                        ClassNotAnnotated.this.testMethod("methodWithNoAnnotations", context, matcher);
+                    }
+                }
+
+                @Test
+                @DisplayName("parameter annotated")
+                void testParameterAnnotated() {
+                    testMethod("methodWithParameterWithCustomResourceLoader", ParameterResourceLoader.class);
+                }
+
+                @Test
+                @DisplayName("method annotated")
+                void testMethodAnnotatedWithLF() {
+                    testMethod("methodWithCustomResourceLoader", MethodResourceLoader.class);
+                }
+
+                private void testMethod(String methodName, Class<? extends ResourceLoader> expectedType) {
+                    testMethod(methodName, context(), instanceOf(expectedType));
+                }
+
+                private void testMethod(String methodName, ExtensionContext context, Matcher<ResourceLoader> matcher) {
+                    Method method = assertDoesNotThrow(
+                            () -> NonAnnotatedClassWithTestFieldsAndMethods.class.getDeclaredMethod(methodName, String.class));
+                    Parameter parameter = method.getParameters()[0];
+
+                    ParameterContext parameterContext = mock(ParameterContext.class);
+                    when(parameterContext.getParameter()).thenReturn(parameter);
+                    when(parameterContext.getDeclaringExecutable()).thenReturn(method);
+                    when(parameterContext.findAnnotation(any())).thenAnswer(i -> AnnotationSupport.findAnnotation(parameter, i.getArgument(0)));
+                    when(parameterContext.findRepeatableAnnotations(any()))
+                            .thenAnswer(i -> AnnotationSupport.findRepeatableAnnotations(parameter, i.getArgument(0)));
+
+                    InjectionTarget target = InjectionTarget.forParameter(parameterContext);
+
+                    ResourceLoader resourceLoader = lookupResourceLoader(target, context);
+
+                    assertThat(resourceLoader, matcher);
+                }
+            }
+        }
+    }
 
     @Nested
     @DisplayName("lookupLineSeparator")
@@ -1335,11 +1652,15 @@ class TestResourceExtensionTest {
         return context;
     }
 
+    @TestResource.Loader(ClassResourceLoader.class)
     @EOL("--class--")
     @Encoding("ISO-8851")
     private static final class AnnotatedClassWithTestFieldsAndMethods {
 
         String fieldWithNoAnnotation;
+
+        @TestResource.Loader(FieldResourceLoader.class)
+        String fieldWithCustomResourceLoader;
 
         @EOL(EOL.LF)
         String fieldWithLfEOL;
@@ -1377,6 +1698,10 @@ class TestResourceExtensionTest {
         // Sonar does not see that the parameters of the following methods are used in tests through reflection, suppress those warnings
 
         void methodWithNoAnnotations(String parameter) { // NOSONAR
+            // no body
+        }
+
+        void methodWithParameterWithCustomResourceLoader(@TestResource.Loader(ParameterResourceLoader.class) String parameter) { // NOSONAR
             // no body
         }
 
@@ -1421,6 +1746,11 @@ class TestResourceExtensionTest {
         }
 
         void methodWithParameterWithCustomEncoding(@Encoding("ASCII") String parameter) { // NOSONAR
+            // no body
+        }
+
+        @TestResource.Loader(MethodResourceLoader.class)
+        void methodWithCustomResourceLoader(String parameter) {
             // no body
         }
 
@@ -1484,6 +1814,9 @@ class TestResourceExtensionTest {
 
         String fieldWithNoAnnotation;
 
+        @TestResource.Loader(FieldResourceLoader.class)
+        String fieldWithCustomResourceLoader;
+
         @EOL(EOL.LF)
         String fieldWithLfEOL;
 
@@ -1520,6 +1853,10 @@ class TestResourceExtensionTest {
         // Sonar does not see that the parameters of the following methods are used in tests through reflection, suppress those warnings
 
         void methodWithNoAnnotations(String parameter) { // NOSONAR
+            // no body
+        }
+
+        void methodWithParameterWithCustomResourceLoader(@TestResource.Loader(ParameterResourceLoader.class) String parameter) { // NOSONAR
             // no body
         }
 
@@ -1564,6 +1901,11 @@ class TestResourceExtensionTest {
         }
 
         void methodWithParameterWithCustomEncoding(@Encoding("ASCII") String parameter) { // NOSONAR
+            // no body
+        }
+
+        @TestResource.Loader(MethodResourceLoader.class)
+        void methodWithCustomResourceLoader(String parameter) {
             // no body
         }
 
@@ -1620,6 +1962,70 @@ class TestResourceExtensionTest {
         @Encoding("ASCII")
         void methodWithCustomEncoding(String parameter) {
             // no body
+        }
+    }
+
+    private static final class ClassResourceLoader implements ResourceLoader {
+
+        @Override
+        public InputStream loadResource(Class<?> c, String path) {
+            return c.getResourceAsStream(path);
+        }
+    }
+
+    private static final class FieldResourceLoader implements ResourceLoader {
+
+        @Override
+        public InputStream loadResource(Class<?> c, String path) {
+            return c.getResourceAsStream(path);
+        }
+    }
+
+    private static final class ParameterResourceLoader implements ResourceLoader {
+
+        @Override
+        public InputStream loadResource(Class<?> c, String path) {
+            return c.getResourceAsStream(path);
+        }
+    }
+
+    private static final class MethodResourceLoader implements ResourceLoader {
+
+        @Override
+        public InputStream loadResource(Class<?> c, String path) {
+            return c.getResourceAsStream(path);
+        }
+    }
+
+    static final class ConfigResourceLoader implements ResourceLoader {
+
+        @Override
+        public InputStream loadResource(Class<?> c, String path) {
+            return c.getResourceAsStream(path);
+        }
+    }
+
+    static final class BrokenResourceLoader implements ResourceLoader {
+
+        BrokenResourceLoader() {
+            throw new IllegalStateException("failure");
+        }
+
+        @Override
+        public InputStream loadResource(Class<?> c, String path) {
+            return c.getResourceAsStream(path);
+        }
+    }
+
+    static final class InvalidResourceLoader implements ResourceLoader {
+
+        InvalidResourceLoader(String message) {
+            throw new IllegalStateException(message);
+        }
+
+        @Override
+        public InputStream loadResource(Class<?> c, String path) {
+            return c.getResourceAsStream(path);
         }
     }
 }
