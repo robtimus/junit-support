@@ -3,7 +3,6 @@
 [![Build Status](https://github.com/robtimus/junit-support/actions/workflows/build.yml/badge.svg)](https://github.com/robtimus/junit-support/actions/workflows/build.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=com.github.robtimus%3Ajunit-support&metric=alert_status)](https://sonarcloud.io/summary/overall?id=com.github.robtimus%3Ajunit-support)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=com.github.robtimus%3Ajunit-support&metric=coverage)](https://sonarcloud.io/summary/overall?id=com.github.robtimus%3Ajunit-support)
-[![Known Vulnerabilities](https://snyk.io/test/github/robtimus/junit-support/badge.svg)](https://snyk.io/test/github/robtimus/junit-support)
 
 Contains interfaces and classes that make it easier to write unit tests with [JUnit](https://junit.org/).
 
