@@ -66,9 +66,9 @@
 
     <version.commons-io>2.21.0</version.commons-io>
     <version.io-functions>2.0</version.io-functions>
-    <version.junit-testkit>1.14.2</version.junit-testkit>
-    <version.log4j>2.25.3</version.log4j>
-    <version.logback>1.5.27</version.logback>
+    <version.junit-testkit>1.14.3</version.junit-testkit>
+    <version.log4j>2.25.4</version.log4j>
+    <version.logback>1.5.32</version.logback>
     <version.pioneer>2.3.0</version.pioneer>
     <version.reload4j>1.2.26</version.reload4j>
   </properties>
