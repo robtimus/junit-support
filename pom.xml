@@ -332,8 +332,8 @@
       <id>junit6</id>
       <properties>
         <version.java>17</version.java>
-        <version.junit>6.0.2</version.junit>
-        <version.junit-testkit>6.0.2</version.junit-testkit>
+        <version.junit>6.1.1</version.junit>
+        <version.junit-testkit>6.1.1</version.junit-testkit>
       </properties>
     </profile>
   </profiles>
