@@ -43,7 +43,7 @@ import org.opentest4j.AssertionFailedError;
 import org.opentest4j.ValueWrapper;
 import com.github.robtimus.junit.support.AssertionFailedErrorBuilder.ReasonBuilder;
 
-@SuppressWarnings("nls")
+@SuppressWarnings({ "nls", "squid:S8694", "squid:S8696" })
 class AssertionFailedErrorBuilderTest {
 
     @Nested
