@@ -161,7 +161,7 @@
               <link>https://ota4j-team.github.io/opentest4j/docs/current/api/</link>
               <link>https://logging.apache.org/log4j/2.x/log4j-api/apidocs/</link>
               <link>https://logging.apache.org/log4j/2.x/log4j-core/apidocs/</link>
-              <link>https://logback.qos.ch/apidocs/</link>
+              <link>https://javadoc.io/doc/ch.qos.logback/logback-classic/latest/</link>
               <link>https://reload4j.qos.ch/apidocs/</link>
               <link>https://www.slf4j.org/apidocs/</link>
             </links>
